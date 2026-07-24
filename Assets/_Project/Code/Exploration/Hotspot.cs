@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Seat0A.Exploration
+namespace Wake.Exploration
 {
     public enum HotspotState
     {

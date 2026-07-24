@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using Seat0A.Narrative;
+using Wake.Narrative;
 
-namespace Seat0A.Exploration
+namespace Wake.Exploration
 {
     public class ClickRouter : MonoBehaviour
     {

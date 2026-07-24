@@ -1,54 +1,54 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using Seat0A.Exploration;
+using Wake.Exploration;
 
-namespace Seat0A.UI
+namespace Wake.UI
 {
     public class MapController : MonoBehaviour
     {
-        [SerializeField] private RoomGraph roomGraph;
+        [SerializeField] private LocationGraph locationGraph;
 
         private void Start()
         {
-            if (roomGraph == null)
+            if (locationGraph == null)
             {
-                Debug.LogWarning("MapController has no RoomGraph assigned.");
+                Debug.LogWarning("MapController has no LocationGraph assigned.");
                 return;
             }
 
             Transform canvas = GameObject.Find("Canvas").transform;
             Transform roomsContainer = canvas.Find("Map/Rooms");
             Button[] buttons = roomsContainer.GetComponentsInChildren<Button>(true);
-            var rooms = roomGraph.Rooms;
+            var locations = locationGraph.Locations;
 
             for (int i = 0; i < buttons.Length; i++)
             {
-                if (i >= rooms.Count)
+                if (i >= locations.Count)
                 {
                     buttons[i].gameObject.SetActive(false);
                     continue;
                 }
 
-                RoomDefinition room = rooms[i];
+                LocationDefinition location = locations[i];
                 TMP_Text label = buttons[i].GetComponentInChildren<TMP_Text>();
                 if (label != null)
                 {
-                    label.text = room.DisplayName;
+                    label.text = location.DisplayName;
                 }
 
-                buttons[i].onClick.AddListener(() => SelectRoom(room));
+                buttons[i].onClick.AddListener(() => SelectLocation(location));
             }
 
-            if (rooms.Count > buttons.Length)
+            if (locations.Count > buttons.Length)
             {
-                Debug.LogWarning($"RoomGraph has {rooms.Count} rooms but Map only exposes {buttons.Length} button slots. Extra rooms are not shown yet.");
+                Debug.LogWarning($"LocationGraph has {locations.Count} locations but Map only exposes {buttons.Length} button slots.");
             }
         }
 
-        private void SelectRoom(RoomDefinition room)
+        private void SelectLocation(LocationDefinition location)
         {
-            RoomLoader.Instance.LoadRoom(room);
+            LocationLoader.Instance.LoadLocation(location);
             UIManager.Instance.ShowIngame();
         }
     }
