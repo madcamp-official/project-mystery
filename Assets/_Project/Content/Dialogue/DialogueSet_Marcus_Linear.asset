@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbf92c58333848589e0ddb92be5251a3, type: 3}
+  m_Name: DialogueSet_Marcus_Linear
+  m_EditorClassIdentifier:
+  startNodeId: m1
+  nodes:
+  - nodeId: m1
+    lineId: marcus_intro
+    options:
+    - optionLineId:
+      nextNodeId: m2
+  - nodeId: m2
+    lineId: claire_q1
+    options:
+    - optionLineId:
+      nextNodeId: m3
+  - nodeId: m3
+    lineId: marcus_reply
+    options:
+    - optionLineId:
+      nextNodeId: m4
+  - nodeId: m4
+    lineId: claire_end1
+    options: []
