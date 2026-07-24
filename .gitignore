@@ -75,6 +75,10 @@ crashlytics-build.properties
 /[Aa]ssets/UnityMCP/
 /[Aa]ssets/UnityMCP.meta
 
+# Unity recovered scene backups
+/[Aa]ssets/_Recovery/
+/[Aa]ssets/_Recovery.meta
+
 # Claude Code local (machine-specific) settings/config
 .claude/settings.local.json
 .mcp.json
