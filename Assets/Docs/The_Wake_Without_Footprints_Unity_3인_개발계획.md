@@ -16,7 +16,7 @@
 | 목표 플레이타임 | 10-14시간 |
 | 현재 구현 상태 | `UI Basic Scene` 와이어프레임, MCP for Unity 설치 |
 
-현재 파일명과 Unity 프로젝트 폴더명에는 이전 기획명 `SEAT_0A`가 남아 있다. 파일 경로와 저장소 이름 변경은 Unity 참조와 팀 환경에 영향을 주므로 별도 PR에서 처리한다. 이 문서의 콘텐츠 기준명은 `The Wake Without Footprints`이다.
+Unity 프로젝트 폴더명에는 이전 기획명 `SEAT_0A`가 남아 있다. 프로젝트 경로와 저장소 이름 변경은 Unity Hub 및 팀 개발 환경에 영향을 주므로 별도 PR에서 처리한다. 이 문서의 콘텐츠 기준명은 `The Wake Without Footprints`이다.
 
 ## 1. 기준 자료와 우선순위
 
