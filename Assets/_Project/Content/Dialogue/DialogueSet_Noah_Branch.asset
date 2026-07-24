@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbf92c58333848589e0ddb92be5251a3, type: 3}
+  m_Name: DialogueSet_Noah_Branch
+  m_EditorClassIdentifier:
+  startNodeId: n1
+  nodes:
+  - nodeId: n1
+    lineId: noah_intro
+    options:
+    - optionLineId:
+      nextNodeId: n2
+  - nodeId: n2
+    lineId: noah_reply1
+    options:
+    - optionLineId:
+      nextNodeId: n3
+  - nodeId: n3
+    lineId: noah_branch_q
+    options:
+    - optionLineId: opt_flight
+      nextNodeId: n4
+    - optionLineId: opt_bag
+      nextNodeId: n5
+  - nodeId: n4
+    lineId: noah_flight
+    options:
+    - optionLineId:
+      nextNodeId: n6
+  - nodeId: n5
+    lineId: noah_bag
+    options:
+    - optionLineId:
+      nextNodeId: n6
+  - nodeId: n6
+    lineId: noah_end
+    options: []
