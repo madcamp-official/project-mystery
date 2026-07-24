@@ -70,3 +70,11 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Unity MCP (CoplayDev/unity-mcp) runtime artifacts
+/[Aa]ssets/UnityMCP/
+/[Aa]ssets/UnityMCP.meta
+
+# Claude Code local (machine-specific) settings/config
+.claude/settings.local.json
+.mcp.json
