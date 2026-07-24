@@ -3,9 +3,9 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 
-namespace Seat0A.Narrative
+namespace Wake.Narrative
 {
-    /// CSV columns: line_id,speaker,text (text field may be double-quoted).
+    /// CSV columns: line_id,scene_id,speaker_id,text,emotion,voice_required
     public class DialogueDatabase : MonoBehaviour
     {
         public static DialogueDatabase Instance { get; private set; }
@@ -41,21 +41,32 @@ namespace Seat0A.Narrative
                 }
 
                 List<string> fields = ParseCsvLine(line);
-                if (fields.Count < 3)
+                if (fields.Count < 4)
                 {
                     continue;
                 }
 
                 string lineId = fields[0].Trim();
-                string speaker = fields[1].Trim();
-                string text = fields[2];
-                lines[lineId] = new DialogueLine(speaker, text);
+                string sceneId = fields[1].Trim();
+                string speakerId = fields[2].Trim();
+                string text = fields[3];
+                string emotion = fields.Count > 4 ? fields[4].Trim() : string.Empty;
+                bool voiceRequired = fields.Count > 5 && IsTruthy(fields[5]);
+
+                lines[lineId] = new DialogueLine(sceneId, speakerId, text, emotion, voiceRequired);
             }
         }
 
         public bool TryGetLine(string lineId, out DialogueLine line)
         {
             return lines.TryGetValue(lineId, out line);
+        }
+
+        private static bool IsTruthy(string value)
+        {
+            string trimmed = value.Trim();
+            return trimmed.Equals("Y", System.StringComparison.OrdinalIgnoreCase)
+                || trimmed.Equals("TRUE", System.StringComparison.OrdinalIgnoreCase);
         }
 
         private static List<string> ParseCsvLine(string line)

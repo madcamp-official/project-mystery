@@ -1,8 +1,9 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Wake.Core;
 
-namespace Seat0A.Narrative
+namespace Wake.Narrative
 {
     public class DialogueController : MonoBehaviour
     {
@@ -129,8 +130,7 @@ namespace Seat0A.Narrative
 
                 choiceLabels[i].text = label;
                 choiceButtons[i].onClick.RemoveAllListeners();
-                string nextNodeId = option.NextNodeId;
-                choiceButtons[i].onClick.AddListener(() => GoToNode(nextNodeId));
+                choiceButtons[i].onClick.AddListener(() => AdvanceToOption(option));
             }
         }
 
@@ -142,7 +142,14 @@ namespace Seat0A.Narrative
                 return;
             }
 
-            GoToNode(currentNode.Options[0].NextNodeId);
+            AdvanceToOption(currentNode.Options[0]);
+        }
+
+        private void AdvanceToOption(DialogueOption option)
+        {
+            GameStateManager.Instance?.ApplyChoiceEffects(
+                option.TargetCharacterId, option.TrustDelta, option.AnxietyDelta, option.IntegrityDelta);
+            GoToNode(option.NextNodeId);
         }
 
         private void EndDialogue()

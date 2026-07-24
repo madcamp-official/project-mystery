@@ -1,9 +1,9 @@
 using UnityEngine;
-using Seat0A.Narrative;
-using Seat0A.Evidence;
-using Seat0A.UI;
+using Wake.Narrative;
+using Wake.Evidence;
+using Wake.UI;
 
-namespace Seat0A.Exploration
+namespace Wake.Exploration
 {
     public class ObjectHotspot : Hotspot
     {
@@ -23,7 +23,7 @@ namespace Seat0A.Exploration
                 bool added = EvidenceInventory.Instance.Add(evidenceDefinition);
                 if (added)
                 {
-                    ToastController.Instance.Show($"증거품 획득: {evidenceDefinition.DisplayName}");
+                    ToastController.Instance.Show($"단서 확보: {evidenceDefinition.DisplayName}");
                 }
             }
         }

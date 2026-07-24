@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Seat0A.Narrative
+namespace Wake.Narrative
 {
     [System.Serializable]
     public class DialogueNode
