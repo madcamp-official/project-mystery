@@ -1,4 +1,6 @@
 using TMPro;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,6 +18,8 @@ namespace Seat0A.Narrative
         private GameObject linePanel;
         private TMP_Text lineText;
         private TMP_Text speakerText;
+        private RawImage speakerPortrait;
+        private AspectRatioFitter speakerPortraitAspect;
         private Button nextButton;
         private GameObject choicesContainer;
         private Button[] choiceButtons;
@@ -24,7 +28,22 @@ namespace Seat0A.Narrative
         private DialogueSet currentSet;
         private DialogueNode currentNode;
 
+        private readonly Dictionary<string, PortraitDefinition> portraits =
+            new Dictionary<string, PortraitDefinition>(StringComparer.OrdinalIgnoreCase);
+
         public bool IsBusy { get; private set; }
+
+        private readonly struct PortraitDefinition
+        {
+            public readonly string ResourceName;
+            public readonly Rect Crop;
+
+            public PortraitDefinition(string resourceName, Rect crop)
+            {
+                ResourceName = resourceName;
+                Crop = crop;
+            }
+        }
 
         private void Awake()
         {
@@ -46,6 +65,8 @@ namespace Seat0A.Narrative
             lineText = linePanelTransform.Find("Panel/line").GetComponent<TMP_Text>();
             nextButton = linePanelTransform.Find("Panel/Next").GetComponent<Button>();
             speakerText = linePanelTransform.Find("Image/Text (TMP)").GetComponent<TMP_Text>();
+            CreatePortrait(linePanelTransform);
+            RegisterPortraits();
 
             Transform selectBtn = linePanelTransform.Find("Select Btn");
             choicesContainer = selectBtn.gameObject;
@@ -61,6 +82,125 @@ namespace Seat0A.Narrative
 
             nextButton.onClick.AddListener(OnNextClicked);
             linePanel.SetActive(false);
+        }
+
+        private void CreatePortrait(Transform parent)
+        {
+            GameObject portraitObject = new GameObject(
+                "Speaker Portrait",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(RawImage),
+                typeof(AspectRatioFitter));
+            portraitObject.transform.SetParent(parent, false);
+            portraitObject.transform.SetAsFirstSibling();
+
+            RectTransform rect = portraitObject.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.anchoredPosition = new Vector2(-660f, 20f);
+            rect.sizeDelta = new Vector2(360f, 430f);
+
+            speakerPortrait = portraitObject.GetComponent<RawImage>();
+            speakerPortrait.raycastTarget = false;
+
+            speakerPortraitAspect = portraitObject.GetComponent<AspectRatioFitter>();
+            speakerPortraitAspect.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+            portraitObject.SetActive(false);
+        }
+
+        private void RegisterPortraits()
+        {
+            // Character sheets use the right-hand close-up as the dialogue portrait.
+            Rect standardCloseUp = new Rect(0.46f, 0f, 0.54f, 1f);
+            AddPortrait("ADRIAN", "adrian_vale", standardCloseUp);
+            AddPortrait("CLAIRE", "claire_hawthorne", standardCloseUp);
+            AddPortrait("DANIEL", "daniel_mercer", standardCloseUp);
+            AddPortrait("RICHARD", "richard_hawthorne", standardCloseUp);
+            AddPortrait("EVELYN", "evelyn_shaw", standardCloseUp);
+            AddPortrait("THOMAS", "thomas_reed", standardCloseUp);
+            AddPortrait("OWEN", "owen_price", standardCloseUp);
+
+            // Marcus and Helena share one four-pose character sheet.
+            AddPortrait("MARCUS", "marcus_bell_and_helena_ward", new Rect(0.25f, 0f, 0.28f, 1f));
+            AddPortrait("HELENA", "marcus_bell_and_helena_ward", new Rect(0.70f, 0f, 0.30f, 1f));
+        }
+
+        private void AddPortrait(string id, string resourceName, Rect crop)
+        {
+            PortraitDefinition definition = new PortraitDefinition(resourceName, crop);
+            portraits[id] = definition;
+
+            // Current CSV files use display names while the final data contract uses IDs.
+            portraits[GetDisplayName(id)] = definition;
+        }
+
+        private static string GetDisplayName(string id)
+        {
+            switch (id)
+            {
+                case "ADRIAN": return "Adrian Vale";
+                case "CLAIRE": return "Claire Hawthorne";
+                case "DANIEL": return "Daniel Mercer";
+                case "RICHARD": return "Richard Hawthorne";
+                case "EVELYN": return "Evelyn Shaw";
+                case "THOMAS": return "Thomas Reed";
+                case "MARCUS": return "Marcus Bell";
+                case "HELENA": return "Helena Ward";
+                case "OWEN": return "Owen Price";
+                default: return id;
+            }
+        }
+
+        private void ShowPortrait(string speaker)
+        {
+            if (speakerPortrait == null)
+            {
+                return;
+            }
+
+            string lookup = string.IsNullOrWhiteSpace(speaker) ? string.Empty : speaker.Trim();
+            int modeSeparator = lookup.IndexOf('_');
+            if (modeSeparator > 0)
+            {
+                lookup = lookup.Substring(0, modeSeparator);
+            }
+
+            if (!portraits.TryGetValue(lookup, out PortraitDefinition definition))
+            {
+                // Keep compatibility with the short display names in prototype CSV files.
+                foreach (KeyValuePair<string, PortraitDefinition> pair in portraits)
+                {
+                    if (pair.Key.StartsWith(lookup, StringComparison.OrdinalIgnoreCase) ||
+                        lookup.StartsWith(pair.Key, StringComparison.OrdinalIgnoreCase))
+                    {
+                        definition = pair.Value;
+                        lookup = pair.Key;
+                        break;
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(lookup) || string.IsNullOrEmpty(definition.ResourceName))
+            {
+                speakerPortrait.gameObject.SetActive(false);
+                return;
+            }
+
+            Texture2D texture = Resources.Load<Texture2D>($"Characters/{definition.ResourceName}");
+            if (texture == null)
+            {
+                Debug.LogWarning($"No portrait texture found for speaker '{speaker}'.");
+                speakerPortrait.gameObject.SetActive(false);
+                return;
+            }
+
+            speakerPortrait.texture = texture;
+            speakerPortrait.uvRect = definition.Crop;
+            speakerPortraitAspect.aspectRatio =
+                texture.width * definition.Crop.width / (texture.height * definition.Crop.height);
+            speakerPortrait.gameObject.SetActive(true);
         }
 
         public void StartDialogue(DialogueSet dialogueSet)
@@ -95,11 +235,13 @@ namespace Seat0A.Narrative
             {
                 speakerText.text = line.Speaker;
                 lineText.text = line.Text;
+                ShowPortrait(line.Speaker);
             }
             else
             {
                 speakerText.text = string.Empty;
                 lineText.text = $"[MISSING LINE: {currentNode.LineId}]";
+                ShowPortrait(string.Empty);
             }
 
             bool hasBranch = currentNode.Options != null && currentNode.Options.Count > 1;
