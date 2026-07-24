@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Seat0A.UI;
+using Wake.UI;
 
-namespace Seat0A.Evidence
+namespace Wake.Evidence
 {
     public class EvidencePanelController : MonoBehaviour
     {

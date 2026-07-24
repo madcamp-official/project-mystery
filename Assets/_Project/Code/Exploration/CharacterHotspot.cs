@@ -1,7 +1,7 @@
 using UnityEngine;
-using Seat0A.Narrative;
+using Wake.Narrative;
 
-namespace Seat0A.Exploration
+namespace Wake.Exploration
 {
     public class CharacterHotspot : Hotspot
     {

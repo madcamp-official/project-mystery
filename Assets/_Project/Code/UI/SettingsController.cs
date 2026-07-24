@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Seat0A.UI
+namespace Wake.UI
 {
     public class SettingsController : MonoBehaviour
     {
