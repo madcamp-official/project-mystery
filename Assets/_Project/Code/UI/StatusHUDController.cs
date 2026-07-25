@@ -9,6 +9,14 @@ namespace Wake.UI
     [ExecuteAlways]
     public class StatusHUDController : MonoBehaviour
     {
+        private const float HudHeight = 168f;
+        private const float TimeFontSize = 46f;
+        private const float IndicatorFontSize = 38f;
+        private const float TheoryFontSize = 40f;
+        private const float TrustHeight = 88f;
+        private const float TrustWidth = 520f;
+        private const float TrustFontSize = 30f;
+
         private const string KoreanGlyphWarmup =
             "승객 불안 현장 보존도 활성 가설 신뢰 획득 경고 제한구역 폐쇄 " +
             "새 수사를 시작합니다 핵심 증거가 파괴되었습니다 슬롯이 가득 찼습니다 " +
@@ -75,25 +83,41 @@ namespace Wake.UI
             root.anchorMax = new Vector2(1f, 1f);
             root.pivot = new Vector2(0.5f, 1f);
             root.anchoredPosition = Vector2.zero;
-            root.sizeDelta = new Vector2(0f, 58f);
+            root.sizeDelta = new Vector2(0f, HudHeight);
 
             Image background = GetOrAdd<Image>(gameObject);
             background.color = Navy;
             background.raycastTarget = false;
 
             Transform timePanel = EnsurePanel(root, "Time Badge", 0.01f, 0.17f);
-            timeText = EnsureText(timePanel, "Value", TextAlignmentOptions.Center, 18f);
+            timeText = EnsureText(
+                timePanel,
+                "Value",
+                TextAlignmentOptions.Center,
+                TimeFontSize);
 
             Transform anxietyPanel = EnsurePanel(root, "Anxiety Indicator", 0.18f, 0.42f);
-            anxietyText = EnsureText(anxietyPanel, "Label", TextAlignmentOptions.TopLeft, 15f);
-            anxietyFill = EnsureBar(anxietyPanel, "Bar", 0.15f);
+            anxietyText = EnsureText(
+                anxietyPanel,
+                "Label",
+                TextAlignmentOptions.TopLeft,
+                IndicatorFontSize);
+            anxietyFill = EnsureBar(anxietyPanel, "Bar", 0.16f);
 
             Transform integrityPanel = EnsurePanel(root, "Integrity Indicator", 0.43f, 0.67f);
-            integrityText = EnsureText(integrityPanel, "Label", TextAlignmentOptions.TopLeft, 15f);
-            integrityFill = EnsureBar(integrityPanel, "Bar", 0.15f);
+            integrityText = EnsureText(
+                integrityPanel,
+                "Label",
+                TextAlignmentOptions.TopLeft,
+                IndicatorFontSize);
+            integrityFill = EnsureBar(integrityPanel, "Bar", 0.16f);
 
             Transform theoryPanel = EnsurePanel(root, "Theory Slots", 0.68f, 0.99f);
-            theoryText = EnsureText(theoryPanel, "Label", TextAlignmentOptions.Center, 16f);
+            theoryText = EnsureText(
+                theoryPanel,
+                "Label",
+                TextAlignmentOptions.Center,
+                TheoryFontSize);
 
             Transform portraitFrame = transform.parent?.Find("Ingame/Line Panel/Image");
             if (portraitFrame != null)
@@ -104,17 +128,17 @@ namespace Wake.UI
                     typeof(CanvasRenderer),
                     typeof(Image));
                 RectTransform trustRect = trustRoot.GetComponent<RectTransform>();
-                trustRect.anchorMin = new Vector2(0f, 0f);
-                trustRect.anchorMax = new Vector2(1f, 0f);
+                trustRect.anchorMin = new Vector2(0.5f, 0f);
+                trustRect.anchorMax = new Vector2(0.5f, 0f);
                 trustRect.pivot = new Vector2(0.5f, 1f);
-                trustRect.anchoredPosition = new Vector2(0f, -4f);
-                trustRect.sizeDelta = new Vector2(0f, 32f);
+                trustRect.anchoredPosition = new Vector2(0f, -10f);
+                trustRect.sizeDelta = new Vector2(TrustWidth, TrustHeight);
                 trustRoot.GetComponent<Image>().color = Navy;
                 trustText = EnsureText(
                     trustRect,
                     "Trust Label",
                     TextAlignmentOptions.Center,
-                    14f);
+                    TrustFontSize);
             }
         }
 
@@ -286,8 +310,8 @@ namespace Wake.UI
         {
             GameObject panel = EnsureChild(parent, name, typeof(CanvasRenderer), typeof(Image));
             RectTransform rect = panel.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(anchorMinX, 0.13f);
-            rect.anchorMax = new Vector2(anchorMaxX, 0.87f);
+            rect.anchorMin = new Vector2(anchorMinX, 0.08f);
+            rect.anchorMax = new Vector2(anchorMaxX, 0.92f);
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
             panel.GetComponent<Image>().color = Panel;
@@ -309,8 +333,8 @@ namespace Wake.UI
             RectTransform rect = textObject.GetComponent<RectTransform>();
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
-            rect.offsetMin = new Vector2(8f, 4f);
-            rect.offsetMax = new Vector2(-8f, -4f);
+            rect.offsetMin = new Vector2(22f, 12f);
+            rect.offsetMax = new Vector2(-22f, -12f);
 
             TextMeshProUGUI text = textObject.GetComponent<TextMeshProUGUI>();
             text.alignment = alignment;
@@ -428,8 +452,8 @@ namespace Wake.UI
                 typeof(CanvasRenderer),
                 typeof(Image));
             RectTransform track = trackObject.GetComponent<RectTransform>();
-            track.anchorMin = new Vector2(0.05f, 0.12f);
-            track.anchorMax = new Vector2(0.95f, 0.12f + height);
+            track.anchorMin = new Vector2(0.05f, 0.1f);
+            track.anchorMax = new Vector2(0.95f, 0.1f + height);
             track.offsetMin = Vector2.zero;
             track.offsetMax = Vector2.zero;
             Image trackImage = trackObject.GetComponent<Image>();
