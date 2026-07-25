@@ -2,6 +2,7 @@ using UnityEngine;
 using Wake.Narrative;
 using Wake.Evidence;
 using Wake.UI;
+using Wake.Core;
 
 namespace Wake.Exploration
 {
@@ -24,6 +25,7 @@ namespace Wake.Exploration
                 if (added)
                 {
                     ToastController.Instance.Show($"단서 확보: {evidenceDefinition.DisplayName}");
+                    AudioManager.Instance?.PlayEvidencePickup();
                 }
             }
         }

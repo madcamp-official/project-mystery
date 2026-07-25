@@ -11,11 +11,15 @@ namespace Wake.UI
     {
         private const float HudHeight = 168f;
         private const float TimeFontSize = 46f;
-        private const float IndicatorFontSize = 38f;
-        private const float TheoryFontSize = 40f;
+        private const float IndicatorFontSize = 34f;
+        private const float TheoryFontSize = 30f;
         private const float TrustHeight = 88f;
         private const float TrustWidth = 520f;
         private const float TrustFontSize = 30f;
+        private const float IconSize = 44f;
+        private const float MarkerSize = 18f;
+        private const float TheorySlotHeight = 76f;
+        private const float PipSize = 22f;
 
         private const string KoreanGlyphWarmup =
             "승객 불안 현장 보존도 활성 가설 신뢰 획득 경고 제한구역 폐쇄 " +
@@ -25,10 +29,26 @@ namespace Wake.UI
         private static readonly Color Navy = new(0.035f, 0.075f, 0.12f, 0.96f);
         private static readonly Color Panel = new(0.075f, 0.13f, 0.18f, 0.96f);
         private static readonly Color Paper = new(0.91f, 0.87f, 0.76f, 1f);
-        private static readonly Color Teal = new(0.24f, 0.67f, 0.64f, 1f);
-        private static readonly Color Amber = new(0.9f, 0.61f, 0.24f, 1f);
-        private static readonly Color Red = new(0.79f, 0.22f, 0.24f, 1f);
         private static TMP_FontAsset koreanFont;
+
+        [Header("Global Meter Art")]
+        [SerializeField] private Sprite anxietyIconSprite;
+        [SerializeField] private Sprite integrityIconSprite;
+        [SerializeField] private Sprite anxietyMeterFillSprite;
+        [SerializeField] private Sprite integrityMeterFillSprite;
+        [SerializeField] private Sprite anxietyMarker70Sprite;
+        [SerializeField] private Sprite anxietyPanicOverlaySprite;
+        [SerializeField] private Sprite integrityDamageOverlaySprite;
+        [SerializeField] private Sprite integrityCriticalOverlaySprite;
+
+        [Header("Trust Art")]
+        [SerializeField] private Sprite trustPipEmptySprite;
+        [SerializeField] private Sprite trustPipFilledSprite;
+
+        [Header("Theory Art")]
+        [SerializeField] private Sprite theorySlotEmptySprite;
+        [SerializeField] private Sprite theoryCardActiveSprite;
+        [SerializeField] private Sprite theoryFullOverlaySprite;
 
         private TMP_Text timeText;
         private TMP_Text anxietyText;
@@ -37,6 +57,12 @@ namespace Wake.UI
         private TMP_Text trustText;
         private Image anxietyFill;
         private Image integrityFill;
+        private GameObject anxietyPanicOverlay;
+        private GameObject integrityDamageOverlay;
+        private GameObject integrityCriticalOverlay;
+        private Image[] theorySlotImages;
+        private GameObject theoryFullOverlay;
+        private Image[] trustPips;
         private GameObject trustRoot;
         private GameStateManager state;
         private string contextCharacter;
@@ -97,27 +123,37 @@ namespace Wake.UI
                 TimeFontSize);
 
             Transform anxietyPanel = EnsurePanel(root, "Anxiety Indicator", 0.18f, 0.42f);
+            bool hasAnxietyIcon = EnsureIcon(anxietyPanel, "Icon", anxietyIconSprite) != null;
             anxietyText = EnsureText(
                 anxietyPanel,
                 "Label",
                 TextAlignmentOptions.TopLeft,
                 IndicatorFontSize);
-            anxietyFill = EnsureBar(anxietyPanel, "Bar", 0.16f);
+            OffsetLabelForIcon(anxietyText.rectTransform, hasAnxietyIcon);
+            anxietyFill = EnsureMeterBar(anxietyPanel, "Bar", 0.16f, anxietyMeterFillSprite);
+            EnsureMarker(anxietyPanel.Find("Bar"), "Marker70", anxietyMarker70Sprite, 0.7f);
+            anxietyPanicOverlay = EnsureOverlay(anxietyPanel, "PanicOverlay", anxietyPanicOverlaySprite);
 
             Transform integrityPanel = EnsurePanel(root, "Integrity Indicator", 0.43f, 0.67f);
+            bool hasIntegrityIcon = EnsureIcon(integrityPanel, "Icon", integrityIconSprite) != null;
             integrityText = EnsureText(
                 integrityPanel,
                 "Label",
                 TextAlignmentOptions.TopLeft,
                 IndicatorFontSize);
-            integrityFill = EnsureBar(integrityPanel, "Bar", 0.16f);
+            OffsetLabelForIcon(integrityText.rectTransform, hasIntegrityIcon);
+            integrityFill = EnsureMeterBar(integrityPanel, "Bar", 0.16f, integrityMeterFillSprite);
+            integrityDamageOverlay = EnsureOverlay(integrityPanel, "DamageOverlay", integrityDamageOverlaySprite);
+            integrityCriticalOverlay = EnsureOverlay(integrityPanel, "CriticalOverlay", integrityCriticalOverlaySprite);
 
             Transform theoryPanel = EnsurePanel(root, "Theory Slots", 0.68f, 0.99f);
             theoryText = EnsureText(
                 theoryPanel,
                 "Label",
-                TextAlignmentOptions.Center,
+                TextAlignmentOptions.Top,
                 TheoryFontSize);
+            theorySlotImages = EnsureTheorySlots(theoryPanel);
+            theoryFullOverlay = EnsureOverlay(theoryPanel, "FullOverlay", theoryFullOverlaySprite);
 
             Transform portraitFrame = transform.parent?.Find("Ingame/Line Panel/Image");
             if (portraitFrame != null)
@@ -139,6 +175,7 @@ namespace Wake.UI
                     "Trust Label",
                     TextAlignmentOptions.Center,
                     TrustFontSize);
+                trustPips = EnsureTrustPips(trustRect);
             }
         }
 
@@ -214,15 +251,18 @@ namespace Wake.UI
             anxietyText.text = state.PublicAnxiety >= GameStateManager.RestrictedAreaAnxiety
                 ? $"! 승객 불안  {state.PublicAnxiety}/100"
                 : $"승객 불안  {state.PublicAnxiety}/100";
-            SetBar(anxietyFill, state.PublicAnxiety, true);
+            SetFill(anxietyFill, state.PublicAnxiety);
+            SetActiveSafe(anxietyPanicOverlay, state.PublicAnxiety >= GameStateManager.MaxPercent);
 
             integrityText.text = state.EvidenceIntegrity == 0
                 ? "! 현장 보존도  0/100"
                 : $"현장 보존도  {state.EvidenceIntegrity}/100";
-            SetBar(integrityFill, state.EvidenceIntegrity, false);
+            SetFill(integrityFill, state.EvidenceIntegrity);
+            SetActiveSafe(integrityDamageOverlay, state.EvidenceIntegrity > 0 && state.EvidenceIntegrity <= 50);
+            SetActiveSafe(integrityCriticalOverlay, state.EvidenceIntegrity <= 25);
 
-            theoryText.text =
-                $"활성 가설  {state.ActiveTheoryCount}/{state.TheorySlots}    {BuildSlots(state.ActiveTheoryCount, state.TheorySlots)}";
+            theoryText.text = $"활성 가설  {state.ActiveTheoryCount}/{state.TheorySlots}";
+            RefreshTheorySlots(state.ActiveTheoryCount, state.TheorySlots);
 
             if (trustRoot != null)
             {
@@ -231,7 +271,8 @@ namespace Wake.UI
                 if (showTrust)
                 {
                     int trust = state.GetTrust(contextCharacter);
-                    trustText.text = $"{contextCharacter}  신뢰  {BuildSlots(trust, GameStateManager.MaxTrust)}  {trust}/5";
+                    trustText.text = $"{contextCharacter}  신뢰  {trust}/5";
+                    RefreshTrustPips(trust);
                 }
             }
         }
@@ -243,9 +284,13 @@ namespace Wake.UI
                 timeText.text = "DAY 1  ·  AM";
                 anxietyText.text = "승객 불안  15/100";
                 integrityText.text = "현장 보존도  100/100";
-                theoryText.text = "활성 가설  0/3    ○ ○ ○";
-                SetBar(anxietyFill, 15, true);
-                SetBar(integrityFill, 100, false);
+                theoryText.text = "활성 가설  0/3";
+                SetFill(anxietyFill, 15);
+                SetFill(integrityFill, 100);
+                SetActiveSafe(anxietyPanicOverlay, false);
+                SetActiveSafe(integrityDamageOverlay, false);
+                SetActiveSafe(integrityCriticalOverlay, false);
+                RefreshTheorySlots(0, 3);
             }
 
             if (trustRoot != null)
@@ -254,41 +299,71 @@ namespace Wake.UI
             }
         }
 
-        private static void SetBar(Image fill, int value, bool dangerIncreases)
+        private static void SetFill(Image fill, int value)
         {
             if (fill == null)
             {
                 return;
             }
 
-            float normalized = Mathf.Clamp01(value / 100f);
-            RectTransform rect = fill.rectTransform;
-            rect.anchorMax = new Vector2(normalized, 1f);
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
+            fill.fillAmount = Mathf.Clamp01(value / 100f);
+        }
 
-            if (dangerIncreases)
+        private static void SetActiveSafe(GameObject go, bool active)
+        {
+            if (go != null && go.activeSelf != active)
             {
-                fill.color = value >= 100 ? Red : value >= 70 ? Amber : Teal;
-            }
-            else
-            {
-                fill.color = value <= 0 ? Red : value <= 25 ? Red : value <= 50 ? Amber : Teal;
+                go.SetActive(active);
             }
         }
 
-        private static string BuildSlots(int filled, int total)
+        private void RefreshTheorySlots(int filled, int total)
         {
-            StringBuilder builder = new();
-            for (int i = 0; i < total; i++)
+            if (theorySlotImages == null)
             {
-                if (i > 0)
-                {
-                    builder.Append(' ');
-                }
-                builder.Append(i < filled ? '●' : '○');
+                return;
             }
-            return builder.ToString();
+
+            for (int i = 0; i < theorySlotImages.Length; i++)
+            {
+                if (theorySlotImages[i] == null)
+                {
+                    continue;
+                }
+
+                bool active = i < filled;
+                Sprite sprite = active ? theoryCardActiveSprite : theorySlotEmptySprite;
+                if (sprite != null)
+                {
+                    theorySlotImages[i].sprite = sprite;
+                    theorySlotImages[i].preserveAspect = true;
+                }
+            }
+
+            SetActiveSafe(theoryFullOverlay, total > 0 && filled >= total);
+        }
+
+        private void RefreshTrustPips(int trust)
+        {
+            if (trustPips == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < trustPips.Length; i++)
+            {
+                if (trustPips[i] == null)
+                {
+                    continue;
+                }
+
+                Sprite sprite = i < trust ? trustPipFilledSprite : trustPipEmptySprite;
+                if (sprite != null)
+                {
+                    trustPips[i].sprite = sprite;
+                    trustPips[i].preserveAspect = true;
+                }
+            }
         }
 
         private static bool IsPlayerCharacter(string characterName)
@@ -317,6 +392,42 @@ namespace Wake.UI
             panel.GetComponent<Image>().color = Panel;
             panel.GetComponent<Image>().raycastTarget = false;
             return rect;
+        }
+
+        private static Image EnsureIcon(Transform parent, string name, Sprite sprite)
+        {
+            if (sprite == null)
+            {
+                Transform existingNone = parent.Find(name);
+                if (existingNone != null)
+                {
+                    existingNone.gameObject.SetActive(false);
+                }
+                return null;
+            }
+
+            GameObject iconObject = EnsureChild(parent, name, typeof(CanvasRenderer), typeof(Image));
+            iconObject.SetActive(true);
+            RectTransform rect = iconObject.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = new Vector2(14f, -8f);
+            rect.sizeDelta = new Vector2(IconSize, IconSize);
+
+            Image image = iconObject.GetComponent<Image>();
+            image.sprite = sprite;
+            image.type = Image.Type.Simple;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            return image;
+        }
+
+        private static void OffsetLabelForIcon(RectTransform labelRect, bool hasIcon)
+        {
+            float leftMargin = hasIcon ? IconSize + 30f : 22f;
+            labelRect.offsetMin = new Vector2(leftMargin, 12f);
+            labelRect.offsetMax = new Vector2(-22f, -12f);
         }
 
         private static TMP_Text EnsureText(
@@ -444,7 +555,7 @@ namespace Wake.UI
             }
         }
 
-        private static Image EnsureBar(Transform parent, string name, float height)
+        private static Image EnsureMeterBar(Transform parent, string name, float height, Sprite fillSprite)
         {
             GameObject trackObject = EnsureChild(
                 parent,
@@ -472,7 +583,150 @@ namespace Wake.UI
             fill.offsetMax = Vector2.zero;
             Image fillImage = fillObject.GetComponent<Image>();
             fillImage.raycastTarget = false;
+
+            if (fillSprite != null)
+            {
+                fillImage.sprite = fillSprite;
+                fillImage.type = Image.Type.Filled;
+                fillImage.fillMethod = Image.FillMethod.Horizontal;
+                fillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
+                fillImage.color = Color.white;
+            }
+            else
+            {
+                fillImage.color = new Color(0.24f, 0.67f, 0.64f, 1f);
+                fillImage.type = Image.Type.Filled;
+                fillImage.fillMethod = Image.FillMethod.Horizontal;
+                fillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
+            }
+            fillImage.fillAmount = 1f;
+
             return fillImage;
+        }
+
+        private static void EnsureMarker(Transform track, string name, Sprite sprite, float xFraction)
+        {
+            if (track == null || sprite == null)
+            {
+                return;
+            }
+
+            GameObject markerObject = EnsureChild(track, name, typeof(CanvasRenderer), typeof(Image));
+            RectTransform rect = markerObject.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(xFraction, 0.5f);
+            rect.anchorMax = new Vector2(xFraction, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = new Vector2(MarkerSize, MarkerSize);
+
+            Image image = markerObject.GetComponent<Image>();
+            image.sprite = sprite;
+            image.type = Image.Type.Simple;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+        }
+
+        private static GameObject EnsureOverlay(Transform parent, string name, Sprite sprite)
+        {
+            if (parent == null || sprite == null)
+            {
+                return null;
+            }
+
+            GameObject overlayObject = EnsureChild(parent, name, typeof(CanvasRenderer), typeof(Image));
+            RectTransform rect = overlayObject.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+
+            Image image = overlayObject.GetComponent<Image>();
+            image.sprite = sprite;
+            image.type = Image.Type.Simple;
+            image.preserveAspect = false;
+            image.raycastTarget = false;
+            overlayObject.transform.SetAsLastSibling();
+            overlayObject.SetActive(false);
+            return overlayObject;
+        }
+
+        private Image[] EnsureTheorySlots(Transform parent)
+        {
+            GameObject container = EnsureChild(parent, "Slots", typeof(RectTransform));
+            RectTransform containerRect = container.GetComponent<RectTransform>();
+            containerRect.anchorMin = new Vector2(0f, 0f);
+            containerRect.anchorMax = new Vector2(1f, 0.72f);
+            containerRect.offsetMin = new Vector2(12f, 6f);
+            containerRect.offsetMax = new Vector2(-12f, 0f);
+
+            Image[] slots = new Image[3];
+            for (int i = 0; i < slots.Length; i++)
+            {
+                GameObject slotObject = EnsureChild(
+                    container.transform,
+                    "Slot " + i,
+                    typeof(CanvasRenderer),
+                    typeof(Image));
+                RectTransform rect = slotObject.GetComponent<RectTransform>();
+                float widthFraction = 1f / slots.Length;
+                rect.anchorMin = new Vector2(widthFraction * i, 0f);
+                rect.anchorMax = new Vector2(widthFraction * (i + 1), 1f);
+                rect.offsetMin = new Vector2(6f, 0f);
+                rect.offsetMax = new Vector2(-6f, 0f);
+
+                Image image = slotObject.GetComponent<Image>();
+                image.type = Image.Type.Simple;
+                image.preserveAspect = true;
+                image.raycastTarget = false;
+                if (theorySlotEmptySprite != null)
+                {
+                    image.sprite = theorySlotEmptySprite;
+                }
+                slots[i] = image;
+            }
+
+            return slots;
+        }
+
+        private Image[] EnsureTrustPips(Transform parent)
+        {
+            GameObject container = EnsureChild(parent, "Pips", typeof(RectTransform));
+            RectTransform containerRect = container.GetComponent<RectTransform>();
+            containerRect.anchorMin = new Vector2(0.5f, 0f);
+            containerRect.anchorMax = new Vector2(0.5f, 0f);
+            containerRect.pivot = new Vector2(0.5f, 0f);
+            containerRect.anchoredPosition = new Vector2(0f, 4f);
+            containerRect.sizeDelta = new Vector2(PipSize * 5f + 24f, PipSize);
+
+            Image[] pips = new Image[5];
+            for (int i = 0; i < pips.Length; i++)
+            {
+                GameObject pipObject = EnsureChild(
+                    container.transform,
+                    "Pip " + i,
+                    typeof(CanvasRenderer),
+                    typeof(Image));
+                RectTransform rect = pipObject.GetComponent<RectTransform>();
+                rect.anchorMin = new Vector2(0.5f, 0.5f);
+                rect.anchorMax = new Vector2(0.5f, 0.5f);
+                rect.pivot = new Vector2(0.5f, 0.5f);
+                rect.sizeDelta = new Vector2(PipSize, PipSize);
+                float spacing = PipSize + 6f;
+                float startX = -spacing * 2f;
+                rect.anchoredPosition = new Vector2(startX + spacing * i, 0f);
+
+                Image image = pipObject.GetComponent<Image>();
+                image.type = Image.Type.Simple;
+                image.preserveAspect = true;
+                image.raycastTarget = false;
+                if (trustPipEmptySprite != null)
+                {
+                    image.sprite = trustPipEmptySprite;
+                }
+                pips[i] = image;
+            }
+
+            return pips;
         }
 
         private static GameObject EnsureChild(
