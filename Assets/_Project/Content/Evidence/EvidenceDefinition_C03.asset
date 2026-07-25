@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: EvidenceDefinition_C03
   m_EditorClassIdentifier:
   evidenceId: C-03
-  displayName: 외벽 발판
-  description: '염분막과 센서 기록이 온전하다. (테스트용 placeholder 설명)'
+  displayName: "\uC678\uBCBD \uBC1C\uD310"
+  description: "\uC5FC\uBD84\uB9C9\uACFC \uC13C\uC11C \uAE30\uB85D\uC774 \uC628\uC804\uD558\uB2E4."
   category: exit
   isDirect: 1
   views:

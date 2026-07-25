@@ -81,6 +81,11 @@ namespace Wake.Core
             }
 
             Instance = this;
+            ReloadSavedState();
+        }
+
+        public void ReloadSavedState()
+        {
             Load();
             Normalize();
         }
@@ -89,7 +94,7 @@ namespace Wake.Core
         {
             data = CreateDefaultData();
             SaveAndNotify();
-            FeedbackRequested?.Invoke("새 수사를 시작합니다.");
+            FeedbackRequested?.Invoke("\uC0C8 \uC218\uC0AC\uB97C \uC2DC\uC791\uD569\uB2C8\uB2E4.");
         }
 
         public int GetTrust(string characterId)
@@ -136,26 +141,29 @@ namespace Wake.Core
 
         public bool ActivateTheory(string theoryId)
         {
-            if (string.IsNullOrWhiteSpace(theoryId) || data.activeTheories.Contains(theoryId))
+            string normalized = NormalizeId(theoryId);
+            if (string.IsNullOrEmpty(normalized) || data.activeTheories.Contains(normalized))
             {
                 return false;
             }
 
             if (data.activeTheories.Count >= data.theorySlots)
             {
-                FeedbackRequested?.Invoke("활성 가설 슬롯이 가득 찼습니다.");
+                FeedbackRequested?.Invoke(
+                    "\uD65C\uC131 \uAC00\uC124 \uC2AC\uB86F\uC774 \uAC00\uB4DD \uCC3C\uC2B5\uB2C8\uB2E4.");
                 return false;
             }
 
-            data.activeTheories.Add(theoryId);
+            data.activeTheories.Add(normalized);
             SaveAndNotify();
-            FeedbackRequested?.Invoke($"가설 활성화 · {theoryId}");
+            FeedbackRequested?.Invoke(
+                $"\uAC00\uC124 \uD65C\uC131\uD654 \u00B7 {normalized}");
             return true;
         }
 
         public bool RemoveTheory(string theoryId)
         {
-            if (!data.activeTheories.Remove(theoryId))
+            if (!data.activeTheories.Remove(NormalizeId(theoryId)))
             {
                 return false;
             }
@@ -166,23 +174,25 @@ namespace Wake.Core
 
         public void RecordEvidenceCollected(string evidenceId)
         {
-            if (string.IsNullOrWhiteSpace(evidenceId) || data.collectedEvidenceIds.Contains(evidenceId))
+            string normalized = NormalizeId(evidenceId);
+            if (string.IsNullOrEmpty(normalized) || data.collectedEvidenceIds.Contains(normalized))
             {
                 return;
             }
 
-            data.collectedEvidenceIds.Add(evidenceId);
+            data.collectedEvidenceIds.Add(normalized);
             SaveAndNotify();
         }
 
         public void RecordLocation(string locationCode)
         {
-            if (string.IsNullOrWhiteSpace(locationCode) || data.currentLocationCode == locationCode)
+            string normalized = NormalizeId(locationCode);
+            if (string.IsNullOrEmpty(normalized) || data.currentLocationCode == normalized)
             {
                 return;
             }
 
-            data.currentLocationCode = locationCode;
+            data.currentLocationCode = normalized;
             SaveAndNotify();
         }
 
@@ -201,7 +211,8 @@ namespace Wake.Core
 
         public bool HasFlag(string flag)
         {
-            return !string.IsNullOrWhiteSpace(flag) && data.flags.Contains(flag);
+            string normalized = NormalizeId(flag);
+            return !string.IsNullOrEmpty(normalized) && data.flags.Contains(normalized);
         }
 
         public void AddFlag(string flag, string displayName = null)
@@ -213,12 +224,12 @@ namespace Wake.Core
 
             SaveAndNotify();
             FeedbackRequested?.Invoke(
-                $"{(string.IsNullOrWhiteSpace(displayName) ? flag : displayName)} 획득");
+                $"{(string.IsNullOrWhiteSpace(displayName) ? flag : displayName)} \uD68D\uB4DD");
         }
 
         public void RemoveFlag(string flag)
         {
-            if (string.IsNullOrWhiteSpace(flag) || !data.flags.Remove(flag))
+            if (!data.flags.Remove(NormalizeId(flag)))
             {
                 return;
             }
@@ -254,7 +265,8 @@ namespace Wake.Core
             if (showFeedback)
             {
                 FeedbackRequested?.Invoke(
-                    $"{characterId} 신뢰 {(entry.value - previous > 0 ? "+" : string.Empty)}{entry.value - previous}");
+                    $"{characterId} \uC2E0\uB8B0 " +
+                    $"{(entry.value - previous > 0 ? "+" : string.Empty)}{entry.value - previous}");
             }
 
             return true;
@@ -278,7 +290,8 @@ namespace Wake.Core
             if (showFeedback)
             {
                 FeedbackRequested?.Invoke(
-                    $"승객 불안 {(data.publicAnxiety - previous > 0 ? "+" : string.Empty)}{data.publicAnxiety - previous}");
+                    $"\uC2B9\uAC1D \uBD88\uC548 " +
+                    $"{(data.publicAnxiety - previous > 0 ? "+" : string.Empty)}{data.publicAnxiety - previous}");
             }
 
             return true;
@@ -302,13 +315,16 @@ namespace Wake.Core
             {
                 AddFlagInternal("bad_end_integrity");
                 StateThresholdReached?.Invoke(StateThresholdKind.EvidenceIntegrityBadEnd);
-                BadEndTriggered?.Invoke("현장 보존도가 0이 되어 핵심 증거가 파괴되었습니다.");
+                BadEndTriggered?.Invoke(
+                    "\uD604\uC7A5 \uBCF4\uC874\uB3C4\uAC00 0\uC774 \uB418\uC5B4 " +
+                    "\uD575\uC2EC \uC99D\uAC70\uAC00 \uD30C\uAD34\uB418\uC5C8\uC2B5\uB2C8\uB2E4.");
             }
 
             if (showFeedback)
             {
                 FeedbackRequested?.Invoke(
-                    $"현장 보존도 {(data.evidenceIntegrity - previous > 0 ? "+" : string.Empty)}{data.evidenceIntegrity - previous}");
+                    $"\uD604\uC7A5 \uBCF4\uC874\uB3C4 " +
+                    $"{(data.evidenceIntegrity - previous > 0 ? "+" : string.Empty)}{data.evidenceIntegrity - previous}");
             }
 
             return true;
@@ -322,7 +338,9 @@ namespace Wake.Core
                     previousAnxiety < RestrictedAreaAnxiety)
                 {
                     StateThresholdReached?.Invoke(StateThresholdKind.PublicAnxietyRestriction);
-                    FeedbackRequested?.Invoke("경고 · 승객 불안으로 제한구역이 폐쇄됩니다.");
+                    FeedbackRequested?.Invoke(
+                        "\uACBD\uACE0 \u00B7 \uC2B9\uAC1D \uBD88\uC548\uC73C\uB85C " +
+                        "\uC81C\uD55C\uAD6C\uC5ED\uC774 \uD3D0\uC1C4\uB429\uB2C8\uB2E4.");
                 }
             }
             else
@@ -334,19 +352,29 @@ namespace Wake.Core
             {
                 AddFlagInternal("bad_end_panic");
                 StateThresholdReached?.Invoke(StateThresholdKind.PublicAnxietyBadEnd);
-                BadEndTriggered?.Invoke("승객 불안이 100에 도달했습니다.");
+                BadEndTriggered?.Invoke(
+                    "\uC2B9\uAC1D \uBD88\uC548\uC774 100\uC5D0 \uB3C4\uB2EC\uD588\uC2B5\uB2C8\uB2E4.");
             }
         }
 
         private bool AddFlagInternal(string flag)
         {
-            if (string.IsNullOrWhiteSpace(flag) || data.flags.Contains(flag))
+            string normalized = NormalizeId(flag);
+            if (string.IsNullOrEmpty(normalized) || data.flags.Contains(normalized))
             {
                 return false;
             }
 
-            data.flags.Add(flag);
+            data.flags.Add(normalized);
             return true;
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
         }
 
         private CharacterTrustState FindTrust(string characterId)

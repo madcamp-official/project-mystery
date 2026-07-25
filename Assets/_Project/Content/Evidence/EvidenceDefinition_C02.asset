@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: EvidenceDefinition_C02
   m_EditorClassIdentifier:
   evidenceId: C-02
-  displayName: 열린 출입문
-  description: '잠금 트릭이 아니라 출입 흔적 부재가 문제다. (테스트용 placeholder 설명)'
+  displayName: "\uC5F4\uB9B0 \uCD9C\uC785\uBB38"
+  description: "\uC7A0\uAE08 \uD2B8\uB9AD\uC774 \uC544\uB2C8\uB77C \uCD9C\uC785 \uD754\uC801 \uBD80\uC7AC\uAC00 \uBB38\uC81C\uB2E4."
   category: exit
   isDirect: 1
   views:
