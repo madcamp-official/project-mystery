@@ -15,6 +15,7 @@ namespace Wake.Narrative
         public string ChoiceId { get; }
         public string NextOrEffect { get; }
         public string StageDirection { get; }
+        public string VoiceRequiredToken { get; }
         public bool VoiceRequired { get; }
         public int SourceRow { get; }
         public string StableLineId => CreateStableLineId(SceneId, Order);
@@ -29,6 +30,7 @@ namespace Wake.Narrative
             string choiceId,
             string nextOrEffect,
             string stageDirection,
+            string voiceRequiredToken,
             bool voiceRequired,
             int sourceRow)
         {
@@ -41,6 +43,7 @@ namespace Wake.Narrative
             ChoiceId = choiceId;
             NextOrEffect = nextOrEffect;
             StageDirection = stageDirection;
+            VoiceRequiredToken = voiceRequiredToken;
             VoiceRequired = voiceRequired;
             SourceRow = sourceRow;
         }
