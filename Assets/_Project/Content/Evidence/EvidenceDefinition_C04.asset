@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: EvidenceDefinition_C04
   m_EditorClassIdentifier:
   evidenceId: C-04
-  displayName: 덕트 먼지
-  description: '통과 흔적이 없다. (테스트용 placeholder 설명)'
+  displayName: "\uB355\uD2B8 \uBA3C\uC9C0"
+  description: "\uD1B5\uACFC \uD754\uC801\uC774 \uC5C6\uB2E4."
   category: exit
   isDirect: 1
   views:

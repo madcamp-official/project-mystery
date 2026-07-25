@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: EvidenceDefinition_C05
   m_EditorClassIdentifier:
   evidenceId: C-05
-  displayName: 점검구 먼지
-  description: '균일하게 유지되어 있다. (테스트용 placeholder 설명)'
+  displayName: "\uC810\uAC80\uAD6C \uBA3C\uC9C0"
+  description: "\uBA3C\uC9C0\uAC00 \uADE0\uC77C\uD558\uAC8C \uC720\uC9C0\uB418\uC5B4 \uC788\uB2E4."
   category: exit
   isDirect: 1
   views:
