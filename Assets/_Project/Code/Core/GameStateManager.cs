@@ -36,6 +36,8 @@ namespace Wake.Core
         public List<string> activeTheories = new();
         public List<CharacterTrustState> trust = new();
         public List<string> flags = new();
+        public List<string> collectedEvidenceIds = new();
+        public string currentLocationCode = string.Empty;
     }
 
     public class GameStateManager : MonoBehaviour
@@ -48,6 +50,7 @@ namespace Wake.Core
         public const int RestrictedAreaAnxiety = 70;
 
         public static GameStateManager Instance { get; private set; }
+        public static bool HasSaveData => PlayerPrefs.HasKey(SaveKey);
 
         [SerializeField] private int startingTrust = DefaultTrust;
         [SerializeField] private int startingPublicAnxiety = 15;
@@ -61,6 +64,8 @@ namespace Wake.Core
         public int EvidenceIntegrity => data.evidenceIntegrity;
         public int TheorySlots => data.theorySlots;
         public int ActiveTheoryCount => data.activeTheories.Count;
+        public IReadOnlyList<string> CollectedEvidenceIds => data.collectedEvidenceIds;
+        public string CurrentLocationCode => data.currentLocationCode;
 
         public event Action StateChanged;
         public event Action<string> FeedbackRequested;
@@ -157,6 +162,28 @@ namespace Wake.Core
 
             SaveAndNotify();
             return true;
+        }
+
+        public void RecordEvidenceCollected(string evidenceId)
+        {
+            if (string.IsNullOrWhiteSpace(evidenceId) || data.collectedEvidenceIds.Contains(evidenceId))
+            {
+                return;
+            }
+
+            data.collectedEvidenceIds.Add(evidenceId);
+            SaveAndNotify();
+        }
+
+        public void RecordLocation(string locationCode)
+        {
+            if (string.IsNullOrWhiteSpace(locationCode) || data.currentLocationCode == locationCode)
+            {
+                return;
+            }
+
+            data.currentLocationCode = locationCode;
+            SaveAndNotify();
         }
 
         public void SetTime(int day, TimeBlock timeBlock)
@@ -355,6 +382,8 @@ namespace Wake.Core
             data.activeTheories ??= new List<string>();
             data.trust ??= new List<CharacterTrustState>();
             data.flags ??= new List<string>();
+            data.collectedEvidenceIds ??= new List<string>();
+            data.currentLocationCode ??= string.Empty;
 
             if (data.activeTheories.Count > data.theorySlots)
             {

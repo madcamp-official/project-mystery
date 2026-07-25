@@ -1,4 +1,5 @@
 using UnityEngine;
+using Wake.Evidence;
 using Wake.Exploration;
 
 namespace Wake.Core
@@ -25,6 +26,34 @@ namespace Wake.Core
 
             started = true;
             LocationLoader.Instance.LoadLocation(locationGraph.StartingLocation);
+        }
+
+        /// Continue flow: restores collected evidence and jumps back to the saved location
+        /// instead of replaying the intro location.
+        public void ResumeGame()
+        {
+            if (started || locationGraph == null)
+            {
+                return;
+            }
+
+            started = true;
+
+            GameStateManager state = GameStateManager.Instance;
+            if (state != null)
+            {
+                EvidenceInventory.Instance?.RestoreFromIds(state.CollectedEvidenceIds);
+            }
+
+            LocationDefinition savedLocation = state != null
+                ? locationGraph.FindByCode(state.CurrentLocationCode)
+                : null;
+            LocationDefinition target = savedLocation != null ? savedLocation : locationGraph.StartingLocation;
+
+            if (target != null)
+            {
+                LocationLoader.Instance.LoadLocation(target);
+            }
         }
     }
 }
