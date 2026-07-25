@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Wake.Core;
+using Wake.UI;
 
 namespace Wake.Narrative
 {
@@ -66,6 +66,9 @@ namespace Wake.Narrative
             lineText = linePanelTransform.Find("Panel/line").GetComponent<TMP_Text>();
             nextButton = linePanelTransform.Find("Panel/Next").GetComponent<Button>();
             speakerText = linePanelTransform.Find("Image/Text (TMP)").GetComponent<TMP_Text>();
+            TMP_FontAsset koreanFont = StatusHUDController.RuntimeKoreanFont;
+            lineText.font = koreanFont;
+            speakerText.font = koreanFont;
             CreatePortrait(linePanelTransform);
             RegisterPortraits();
 
@@ -79,6 +82,7 @@ namespace Wake.Narrative
                 Transform choiceTransform = selectBtn.Find(ChoiceObjectNames[i]);
                 choiceButtons[i] = choiceTransform.GetComponent<Button>();
                 choiceLabels[i] = choiceTransform.GetComponentInChildren<TMP_Text>();
+                choiceLabels[i].font = koreanFont;
             }
 
             nextButton.onClick.AddListener(OnNextClicked);
@@ -237,12 +241,16 @@ namespace Wake.Narrative
                 speakerText.text = line.Speaker;
                 lineText.text = line.Text;
                 ShowPortrait(line.Speaker);
+                StatusHUDController hud = FindFirstObjectByType<StatusHUDController>();
+                hud?.SetContextCharacter(line.Speaker);
             }
             else
             {
                 speakerText.text = string.Empty;
                 lineText.text = $"[MISSING LINE: {currentNode.LineId}]";
                 ShowPortrait(string.Empty);
+                StatusHUDController hud = FindFirstObjectByType<StatusHUDController>();
+                hud?.ClearContextCharacter();
             }
 
             bool hasBranch = currentNode.Options != null && currentNode.Options.Count > 1;
@@ -272,7 +280,7 @@ namespace Wake.Narrative
 
                 choiceLabels[i].text = label;
                 choiceButtons[i].onClick.RemoveAllListeners();
-                choiceButtons[i].onClick.AddListener(() => AdvanceToOption(option));
+                choiceButtons[i].onClick.AddListener(() => ResolveOption(option));
             }
         }
 
@@ -284,13 +292,18 @@ namespace Wake.Narrative
                 return;
             }
 
-            AdvanceToOption(currentNode.Options[0]);
+            ResolveOption(currentNode.Options[0]);
         }
 
-        private void AdvanceToOption(DialogueOption option)
+        private void ResolveOption(DialogueOption option)
         {
-            GameStateManager.Instance?.ApplyChoiceEffects(
-                option.TargetCharacterId, option.TrustDelta, option.AnxietyDelta, option.IntegrityDelta);
+            if (option == null)
+            {
+                EndDialogue();
+                return;
+            }
+
+            option.ApplyStateEffects();
             GoToNode(option.NextNodeId);
         }
 
@@ -303,6 +316,8 @@ namespace Wake.Narrative
             {
                 linePanel.SetActive(false);
             }
+            StatusHUDController hud = FindFirstObjectByType<StatusHUDController>();
+            hud?.ClearContextCharacter();
         }
     }
 }

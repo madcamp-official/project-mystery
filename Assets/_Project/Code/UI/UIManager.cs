@@ -14,6 +14,7 @@ namespace Wake.UI
         private GameObject mapPanel;
         private GameObject evidencePanel;
         private GameObject settingsPopup;
+        private GameObject statusHud;
 
         private void Awake()
         {
@@ -29,6 +30,8 @@ namespace Wake.UI
             mapPanel = canvas.Find("Map").gameObject;
             evidencePanel = canvas.Find("Evidence").gameObject;
             settingsPopup = canvas.Find("Settings Popup").gameObject;
+            Transform statusHudTransform = canvas.Find("Status HUD");
+            statusHud = statusHudTransform != null ? statusHudTransform.gameObject : null;
 
             canvas.Find("StartScene/Start Game Btn").GetComponent<Button>().onClick.AddListener(OnStartGameClicked);
             canvas.Find("StartScene/Settings Btn").GetComponent<Button>().onClick.AddListener(OpenSettings);
@@ -44,6 +47,7 @@ namespace Wake.UI
 
         private void OnStartGameClicked()
         {
+            GameStateManager.Instance?.StartNewGame();
             ShowIngame();
             GameFlow.Instance.BeginGame();
         }
@@ -85,6 +89,10 @@ namespace Wake.UI
             ingamePanel.SetActive(panel == ingamePanel);
             mapPanel.SetActive(panel == mapPanel);
             evidencePanel.SetActive(panel == evidencePanel);
+            if (statusHud != null)
+            {
+                statusHud.SetActive(panel != startScenePanel);
+            }
         }
     }
 }
