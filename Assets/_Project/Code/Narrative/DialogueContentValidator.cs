@@ -146,6 +146,17 @@ namespace Wake.Narrative
                 ValidateKorean(record, diagnostics);
                 ValidateConditionReferences(record, sceneIds, diagnostics);
                 CollectChoice(record, choiceGroups, diagnostics);
+                if (!string.IsNullOrWhiteSpace(record.NextOrEffect) &&
+                    !DialogueEffectCatalog.TryResolve(record.NextOrEffect, out _))
+                {
+                    Add(
+                        diagnostics,
+                        DialogueDiagnosticSeverity.Warning,
+                        "EFFECT_UNCONFIRMED",
+                        record.SourceRow,
+                        "next_or_effect",
+                        "Natural-language or ambiguous effect will not execute.");
+                }
             }
 
             ValidateOrderContinuity(records, sceneOrders, diagnostics);

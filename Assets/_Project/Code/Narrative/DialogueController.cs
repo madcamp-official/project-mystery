@@ -28,6 +28,8 @@ namespace Wake.Narrative
 
         private DialogueSet currentSet;
         private DialogueNode currentNode;
+        private ProductionDialogueFlow productionFlow;
+        private readonly HashSet<string> completedProductionScenes = new(StringComparer.Ordinal);
 
         private readonly Dictionary<string, PortraitDefinition> portraits =
             new Dictionary<string, PortraitDefinition>(StringComparer.OrdinalIgnoreCase);
@@ -216,9 +218,78 @@ namespace Wake.Narrative
             }
 
             currentSet = dialogueSet;
+            productionFlow = null;
             IsBusy = true;
             linePanel.SetActive(true);
             GoToNode(dialogueSet.StartNodeId);
+        }
+
+        public bool StartProductionScene(string sceneId)
+        {
+            DialogueDatabase database = DialogueDatabase.Instance;
+            if (database == null)
+            {
+                return false;
+            }
+
+            productionFlow = new ProductionDialogueFlow(
+                database.Records.Values,
+                completedProductionScenes,
+                Wake.Core.GameStateManager.Instance);
+            if (!productionFlow.StartScene(sceneId))
+            {
+                productionFlow = null;
+                return false;
+            }
+
+            currentSet = null;
+            currentNode = null;
+            IsBusy = true;
+            linePanel.SetActive(true);
+            RenderProduction();
+            return true;
+        }
+
+        private void RenderProduction()
+        {
+            if (productionFlow == null || productionFlow.IsComplete)
+            {
+                EndDialogue();
+                return;
+            }
+
+            bool hasChoices = productionFlow.IsAwaitingChoice;
+            choicesContainer.SetActive(hasChoices);
+            nextButton.gameObject.SetActive(!hasChoices);
+            if (hasChoices)
+            {
+                for (int i = 0; i < choiceButtons.Length; i++)
+                {
+                    bool active = i < productionFlow.Choices.Count;
+                    choiceButtons[i].gameObject.SetActive(active);
+                    if (!active)
+                    {
+                        continue;
+                    }
+
+                    int selectedIndex = i;
+                    choiceLabels[i].text = productionFlow.Choices[i].TextKo;
+                    choiceButtons[i].onClick.RemoveAllListeners();
+                    choiceButtons[i].onClick.AddListener(() =>
+                    {
+                        productionFlow.SelectChoice(selectedIndex);
+                        RenderProduction();
+                    });
+                }
+                return;
+            }
+
+            DialogueRecord record = productionFlow.Current;
+            DialogueSpeakerIdentity speaker = DialoguePresentationMap.GetSpeaker(record.Speaker);
+            speakerText.text = record.Speaker;
+            lineText.text = record.TextKo;
+            ShowPortrait(speaker.PortraitId);
+            FindFirstObjectByType<StatusHUDController>()?.SetContextCharacter(speaker.PortraitId);
         }
 
         private void GoToNode(string nodeId)
@@ -286,6 +357,13 @@ namespace Wake.Narrative
 
         private void OnNextClicked()
         {
+            if (productionFlow != null)
+            {
+                productionFlow.Advance();
+                RenderProduction();
+                return;
+            }
+
             if (currentNode == null || currentNode.Options == null || currentNode.Options.Count == 0)
             {
                 EndDialogue();
@@ -312,6 +390,7 @@ namespace Wake.Narrative
             IsBusy = false;
             currentSet = null;
             currentNode = null;
+            productionFlow = null;
             if (linePanel != null)
             {
                 linePanel.SetActive(false);
