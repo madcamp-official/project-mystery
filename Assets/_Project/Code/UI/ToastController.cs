@@ -29,8 +29,8 @@ namespace Seat0A.UI
             toastRoot.transform.SetParent(canvas, false);
 
             RectTransform rect = toastRoot.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.5f, 0.9f);
-            rect.anchorMax = new Vector2(0.5f, 0.9f);
+            rect.anchorMin = new Vector2(0.5f, 0.82f);
+            rect.anchorMax = new Vector2(0.5f, 0.82f);
             rect.pivot = new Vector2(0.5f, 0.5f);
             rect.sizeDelta = new Vector2(480, 60);
             rect.anchoredPosition = Vector2.zero;
@@ -50,6 +50,7 @@ namespace Seat0A.UI
             toastText.alignment = TextAlignmentOptions.Center;
             toastText.color = Color.white;
             toastText.fontSize = 22;
+            toastText.font = StatusHUDController.RuntimeKoreanFont;
 
             toastRoot.SetActive(false);
         }

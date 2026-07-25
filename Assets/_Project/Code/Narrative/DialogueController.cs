@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Seat0A.UI;
 
 namespace Seat0A.Narrative
 {
@@ -65,6 +66,9 @@ namespace Seat0A.Narrative
             lineText = linePanelTransform.Find("Panel/line").GetComponent<TMP_Text>();
             nextButton = linePanelTransform.Find("Panel/Next").GetComponent<Button>();
             speakerText = linePanelTransform.Find("Image/Text (TMP)").GetComponent<TMP_Text>();
+            TMP_FontAsset koreanFont = StatusHUDController.RuntimeKoreanFont;
+            lineText.font = koreanFont;
+            speakerText.font = koreanFont;
             CreatePortrait(linePanelTransform);
             RegisterPortraits();
 
@@ -78,6 +82,7 @@ namespace Seat0A.Narrative
                 Transform choiceTransform = selectBtn.Find(ChoiceObjectNames[i]);
                 choiceButtons[i] = choiceTransform.GetComponent<Button>();
                 choiceLabels[i] = choiceTransform.GetComponentInChildren<TMP_Text>();
+                choiceLabels[i].font = koreanFont;
             }
 
             nextButton.onClick.AddListener(OnNextClicked);
@@ -236,12 +241,16 @@ namespace Seat0A.Narrative
                 speakerText.text = line.Speaker;
                 lineText.text = line.Text;
                 ShowPortrait(line.Speaker);
+                StatusHUDController hud = FindFirstObjectByType<StatusHUDController>();
+                hud?.SetContextCharacter(line.Speaker);
             }
             else
             {
                 speakerText.text = string.Empty;
                 lineText.text = $"[MISSING LINE: {currentNode.LineId}]";
                 ShowPortrait(string.Empty);
+                StatusHUDController hud = FindFirstObjectByType<StatusHUDController>();
+                hud?.ClearContextCharacter();
             }
 
             bool hasBranch = currentNode.Options != null && currentNode.Options.Count > 1;
@@ -271,8 +280,7 @@ namespace Seat0A.Narrative
 
                 choiceLabels[i].text = label;
                 choiceButtons[i].onClick.RemoveAllListeners();
-                string nextNodeId = option.NextNodeId;
-                choiceButtons[i].onClick.AddListener(() => GoToNode(nextNodeId));
+                choiceButtons[i].onClick.AddListener(() => ResolveOption(option));
             }
         }
 
@@ -284,7 +292,19 @@ namespace Seat0A.Narrative
                 return;
             }
 
-            GoToNode(currentNode.Options[0].NextNodeId);
+            ResolveOption(currentNode.Options[0]);
+        }
+
+        private void ResolveOption(DialogueOption option)
+        {
+            if (option == null)
+            {
+                EndDialogue();
+                return;
+            }
+
+            option.ApplyStateEffects();
+            GoToNode(option.NextNodeId);
         }
 
         private void EndDialogue()
@@ -296,6 +316,8 @@ namespace Seat0A.Narrative
             {
                 linePanel.SetActive(false);
             }
+            StatusHUDController hud = FindFirstObjectByType<StatusHUDController>();
+            hud?.ClearContextCharacter();
         }
     }
 }
