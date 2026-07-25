@@ -33,6 +33,7 @@ namespace Wake.Exploration
             currentInstance = Instantiate(location.ContentPrefab, container);
             CurrentLocation = location;
             AudioManager.Instance?.PlayLocationTheme(location.LocationCode);
+            GameStateManager.Instance?.RecordLocation(location.LocationCode);
         }
     }
 }

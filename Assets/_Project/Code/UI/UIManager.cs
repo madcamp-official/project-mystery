@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Wake.Core;
@@ -15,6 +16,7 @@ namespace Wake.UI
         private GameObject evidencePanel;
         private GameObject settingsPopup;
         private GameObject statusHud;
+        private GameObject continueButton;
 
         private void Awake()
         {
@@ -33,8 +35,28 @@ namespace Wake.UI
             Transform statusHudTransform = canvas.Find("Status HUD");
             statusHud = statusHudTransform != null ? statusHudTransform.gameObject : null;
 
-            canvas.Find("StartScene/Start Game Btn").GetComponent<Button>().onClick.AddListener(OnStartGameClicked);
+            Transform newGameTransform = canvas.Find("StartScene/Start Game Btn");
+            newGameTransform.GetComponent<Button>().onClick.AddListener(OnNewGameClicked);
             canvas.Find("StartScene/Settings Btn").GetComponent<Button>().onClick.AddListener(OpenSettings);
+
+            Transform continueTransform = canvas.Find("StartScene/Continue Btn");
+            if (continueTransform != null)
+            {
+                continueButton = continueTransform.gameObject;
+                continueButton.GetComponent<Button>().onClick.AddListener(OnContinueClicked);
+            }
+
+            // These two labels carry Korean text; the dynamic runtime font asset can't be
+            // saved into the scene, so it has to be (re)applied here every session.
+            TMP_FontAsset koreanFont = StatusHUDController.RuntimeKoreanFont;
+            if (koreanFont != null)
+            {
+                ApplyFont(newGameTransform, koreanFont);
+                if (continueTransform != null)
+                {
+                    ApplyFont(continueTransform, koreanFont);
+                }
+            }
 
             canvas.Find("Ingame/Map Btn").GetComponent<Button>().onClick.AddListener(ShowMap);
             canvas.Find("Ingame/Evidence Btn").GetComponent<Button>().onClick.AddListener(ShowEvidence);
@@ -45,15 +67,36 @@ namespace Wake.UI
             ShowStartScene();
         }
 
-        private void OnStartGameClicked()
+        private static void ApplyFont(Transform target, TMP_FontAsset font)
+        {
+            TMP_Text label = target.GetComponentInChildren<TMP_Text>();
+            if (label != null)
+            {
+                label.font = font;
+                label.SetAllDirty();
+            }
+        }
+
+        private void OnNewGameClicked()
         {
             GameStateManager.Instance?.StartNewGame();
+            EvidenceInventory.Instance?.Clear();
             ShowIngame();
             GameFlow.Instance.BeginGame();
         }
 
+        private void OnContinueClicked()
+        {
+            ShowIngame();
+            GameFlow.Instance.ResumeGame();
+        }
+
         public void ShowStartScene()
         {
+            if (continueButton != null)
+            {
+                continueButton.SetActive(GameStateManager.HasSaveData);
+            }
             SetActivePanel(startScenePanel);
         }
 
