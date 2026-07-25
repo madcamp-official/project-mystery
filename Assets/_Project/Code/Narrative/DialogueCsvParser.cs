@@ -112,6 +112,7 @@ namespace Wake.Narrative
                 Get(row, indices, "choice_id").Trim(),
                 Get(row, indices, "next_or_effect").Trim(),
                 Get(row, indices, "stage_direction").Trim(),
+                voice,
                 voiceRequired,
                 sourceRow));
         }
@@ -141,6 +142,7 @@ namespace Wake.Narrative
                 lineId,
                 string.Empty,
                 string.Empty,
+                voice,
                 voice.Equals("Y", StringComparison.OrdinalIgnoreCase) ||
                 voice.Equals("TRUE", StringComparison.OrdinalIgnoreCase),
                 sourceRow));
