@@ -1,12 +1,14 @@
 # Location Backgrounds
 
 `MV Elysium` 선내 장소 화면에 사용할 배경 스프라이트 모음입니다.
-전체 25개 장소 중 1차분 20개를 포함하며, 원본 이미지는 자르거나 비율을 통일하지 않고 보존합니다.
+전체 25개 장소를 모두 포함하며, 원본 이미지는 자르거나 비율을 통일하지 않고 보존합니다.
 
 ## 포함된 장소
 
 | Deck | Location | Asset |
 | --- | --- | --- |
+| — | PORT | `bg_location_port.png` |
+| — | GANGWAY | `bg_location_gangway.png` |
 | 10 | Richard Suite | `bg_location_d10_1_richard_suite.png` |
 | 10 | VIP Lounge | `bg_location_d10_2_vip_lounge.png` |
 | 10 | Open Deck | `bg_location_d10_3_open_deck.png` |
@@ -25,16 +27,13 @@
 | 6 | Vault | `bg_location_d6_1_vault.png` |
 | 6 | Archive | `bg_location_d6_2_archive.png` |
 | 6 | Laundry | `bg_location_d6_3_laundry.png` |
+| 6 | Service Hub | `bg_location_d6_4_service_hub.png` |
+| 5 | Stabilizers | `bg_location_d5_1_stabilizers.png` |
+| 5 | Ballast Tanks | `bg_location_d5_2_ballast_tanks.png` |
 | 5 | Generator | `bg_location_d5_3_generator.png` |
 | 5 | Workshop | `bg_location_d5_4_workshop.png` |
 
-## 추후 추가할 장소
-
-- PORT
-- GANGWAY
-- D6-4 Service Hub
-- D5-1 Stabilizers
-- D5-2 Ballast Tanks
+Horizon Room은 자정의 사건 현장이 포함된 최신 배경으로 교체되었습니다.
 
 ## Unity 임포트 기준
 
@@ -64,4 +63,5 @@
 
 `bg_location_<deck>_<room>_<location>.png`
 
-장소 코드와 Deck/Room 번호가 없는 `PORT`, `GANGWAY`는 추후 해당 코드가 확정된 이름으로 추가합니다.
+장소 코드와 Deck/Room 번호가 없는 장소는 `bg_location_<location>.png` 형식을 사용합니다.
+따라서 PORT와 GANGWAY는 각각 `bg_location_port.png`, `bg_location_gangway.png`로 관리합니다.
