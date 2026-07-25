@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4922c09494dd44d9bb23b7a8b02a329e, type: 3}
+  m_Name: DialogueSet_CrewGuard_Branch
+  m_EditorClassIdentifier:
+  startNodeId: cg1
+  nodes:
+  - nodeId: cg1
+    lineId: crew_intro
+    options:
+    - optionLineId:
+      nextNodeId: cg2
+      targetCharacterId:
+      trustDelta: 0
+      anxietyDelta: 0
+      integrityDelta: 0
+  - nodeId: cg2
+    lineId: adrian_reply1
+    options:
+    - optionLineId:
+      nextNodeId: cg3
+      targetCharacterId: CREW
+      trustDelta: 1
+      anxietyDelta: 0
+      integrityDelta: 0
+  - nodeId: cg3
+    lineId: crew_branch_q
+    options:
+    - optionLineId: opt_exits
+      nextNodeId: cg4
+      targetCharacterId:
+      trustDelta: 0
+      anxietyDelta: 0
+      integrityDelta: 0
+    - optionLineId: opt_log
+      nextNodeId: cg5
+      targetCharacterId:
+      trustDelta: 0
+      anxietyDelta: 0
+      integrityDelta: 0
+  - nodeId: cg4
+    lineId: crew_exits
+    options:
+    - optionLineId:
+      nextNodeId: cg6
+      targetCharacterId:
+      trustDelta: 0
+      anxietyDelta: 0
+      integrityDelta: 0
+  - nodeId: cg5
+    lineId: crew_log
+    options:
+    - optionLineId:
+      nextNodeId: cg6
+      targetCharacterId:
+      trustDelta: 0
+      anxietyDelta: 0
+      integrityDelta: 0
+  - nodeId: cg6
+    lineId: crew_end
+    options: []

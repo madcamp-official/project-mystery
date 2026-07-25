@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Seat0A.Evidence
+namespace Wake.Evidence
 {
     public class EvidenceInventory : MonoBehaviour
     {

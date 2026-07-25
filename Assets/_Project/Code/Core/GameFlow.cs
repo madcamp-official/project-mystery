@@ -1,13 +1,13 @@
 using UnityEngine;
-using Seat0A.Exploration;
+using Wake.Exploration;
 
-namespace Seat0A.Core
+namespace Wake.Core
 {
     public class GameFlow : MonoBehaviour
     {
         public static GameFlow Instance { get; private set; }
 
-        [SerializeField] private RoomGraph roomGraph;
+        [SerializeField] private LocationGraph locationGraph;
 
         private bool started;
 
@@ -18,13 +18,13 @@ namespace Seat0A.Core
 
         public void BeginGame()
         {
-            if (started || roomGraph == null || roomGraph.StartingRoom == null)
+            if (started || locationGraph == null || locationGraph.StartingLocation == null)
             {
                 return;
             }
 
             started = true;
-            RoomLoader.Instance.LoadRoom(roomGraph.StartingRoom);
+            LocationLoader.Instance.LoadLocation(locationGraph.StartingLocation);
         }
     }
 }

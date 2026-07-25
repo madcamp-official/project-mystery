@@ -2,9 +2,9 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Seat0A.Core;
+using Wake.Core;
 
-namespace Seat0A.UI
+namespace Wake.UI
 {
     [ExecuteAlways]
     public class StatusHUDController : MonoBehaviour
@@ -30,7 +30,7 @@ namespace Seat0A.UI
         private Image anxietyFill;
         private Image integrityFill;
         private GameObject trustRoot;
-        private GameStateService state;
+        private GameStateManager state;
         private string contextCharacter;
 
         public static TMP_FontAsset RuntimeKoreanFont => GetKoreanFont();
@@ -132,14 +132,14 @@ namespace Seat0A.UI
 
         private void TryBindState()
         {
-            if (state == GameStateService.Instance && state != null)
+            if (state == GameStateManager.Instance && state != null)
             {
                 Refresh();
                 return;
             }
 
             UnbindState();
-            state = GameStateService.Instance;
+            state = GameStateManager.Instance;
             if (state == null)
             {
                 RenderDefaults();
@@ -176,7 +176,7 @@ namespace Seat0A.UI
 
             if (state == null)
             {
-                state = GameStateService.Instance;
+                state = GameStateManager.Instance;
             }
 
             if (state == null)
@@ -185,21 +185,20 @@ namespace Seat0A.UI
                 return;
             }
 
-            GameStateData data = state.Data;
-            timeText.text = $"DAY {data.day}  ·  {data.timeBlock}";
+            timeText.text = $"DAY {state.Day}  ·  {state.CurrentTimeBlock}";
 
-            anxietyText.text = data.publicAnxiety >= GameStateService.RestrictedAreaAnxiety
-                ? $"! 승객 불안  {data.publicAnxiety}/100"
-                : $"승객 불안  {data.publicAnxiety}/100";
-            SetBar(anxietyFill, data.publicAnxiety, true);
+            anxietyText.text = state.PublicAnxiety >= GameStateManager.RestrictedAreaAnxiety
+                ? $"! 승객 불안  {state.PublicAnxiety}/100"
+                : $"승객 불안  {state.PublicAnxiety}/100";
+            SetBar(anxietyFill, state.PublicAnxiety, true);
 
-            integrityText.text = data.evidenceIntegrity == 0
+            integrityText.text = state.EvidenceIntegrity == 0
                 ? "! 현장 보존도  0/100"
-                : $"현장 보존도  {data.evidenceIntegrity}/100";
-            SetBar(integrityFill, data.evidenceIntegrity, false);
+                : $"현장 보존도  {state.EvidenceIntegrity}/100";
+            SetBar(integrityFill, state.EvidenceIntegrity, false);
 
             theoryText.text =
-                $"활성 가설  {data.activeTheories.Count}/{data.theorySlots}    {BuildSlots(data.activeTheories.Count, data.theorySlots)}";
+                $"활성 가설  {state.ActiveTheoryCount}/{state.TheorySlots}    {BuildSlots(state.ActiveTheoryCount, state.TheorySlots)}";
 
             if (trustRoot != null)
             {
@@ -208,7 +207,7 @@ namespace Seat0A.UI
                 if (showTrust)
                 {
                     int trust = state.GetTrust(contextCharacter);
-                    trustText.text = $"{contextCharacter}  신뢰  {BuildSlots(trust, GameStateService.MaxTrust)}  {trust}/5";
+                    trustText.text = $"{contextCharacter}  신뢰  {BuildSlots(trust, GameStateManager.MaxTrust)}  {trust}/5";
                 }
             }
         }

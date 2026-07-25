@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Seat0A.UI;
+using Wake.UI;
 
-namespace Seat0A.Narrative
+namespace Wake.Narrative
 {
     public class DialogueController : MonoBehaviour
     {

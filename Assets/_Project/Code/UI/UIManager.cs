@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
-using Seat0A.Core;
-using Seat0A.Evidence;
+using Wake.Core;
+using Wake.Evidence;
 
-namespace Seat0A.UI
+namespace Wake.UI
 {
     public class UIManager : MonoBehaviour
     {
@@ -47,7 +47,7 @@ namespace Seat0A.UI
 
         private void OnStartGameClicked()
         {
-            GameStateService.Instance?.StartNewGame();
+            GameStateManager.Instance?.StartNewGame();
             ShowIngame();
             GameFlow.Instance.BeginGame();
         }

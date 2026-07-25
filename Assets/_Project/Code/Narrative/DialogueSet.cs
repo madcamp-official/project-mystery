@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Seat0A.Narrative
+namespace Wake.Narrative
 {
-    [CreateAssetMenu(fileName = "DialogueSet", menuName = "Seat0A/Dialogue Set")]
+    [CreateAssetMenu(fileName = "DialogueSet", menuName = "Wake/Dialogue Set")]
     public class DialogueSet : ScriptableObject
     {
         [SerializeField] private string startNodeId;
