@@ -1,0 +1,201 @@
+﻿scene_id,order,speaker,text_ko,emotion,condition,choice_id,next_or_effect,stage_direction,voice_required
+P-01,1,NARRATION,"항구의 공기는 뜨거웠고, Daniel Mercer는 계절과 어울리지 않는 검은 코트를 입고 있었다.",observe,없음,,,PORT,N
+P-01,2,DANIEL,Adrian Vale. 휴가 중인 탐정까지 불렀다면 Hawthorne도 불안하긴 한 모양이군요.,dry,,,,PORT,Y
+P-01,3,ADRIAN,우리가 아는 사이였습니까?,calm,,,,PORT,Y
+P-01,4,DANIEL,아뇨. 하지만 이 배에 탄 사람들은 곧 서로를 아주 잘 알게 될 겁니다.,grim,,,,PORT,Y
+P-01,5,DANIEL,이번 여행이 끝날 때 Richard Hawthorne는 감옥에 있거나 바다에 있을 겁니다.,warning,,그의 경고를 진지하게 듣기 / 농담으로 넘기기,Daniel 신뢰도 ±1,PORT,Y
+P-01,6,PLAYER_CHOICE,그의 경고를 진지하게 듣기,choice,없음,P-01_C1,Daniel 신뢰도 ±1,UI choice,N
+P-01,7,PLAYER_CHOICE,농담으로 넘기기,choice,없음,P-01_C2,Daniel 신뢰도 ±1,UI choice,N
+P-02,1,NARRATION,[승선 명단의 오류] Daniel의 초대가 Richard 명의임을 확인한다.,observe,P-01,,,GANGWAY,N
+P-02,2,EVELYN,이 장면에서 확인해야 할 것은 수기 수정된 명단입니다.,neutral,,,,GANGWAY,Y
+P-02,3,ADRIAN,먼저 GANGWAY의 시간과 동선을 확인하겠습니다.,focused,,,,GANGWAY,Y
+P-02,4,SYSTEM,"단서 업데이트: 수기 수정된 명단, Richard의 당황",system,,,비서실 권한 플래그,GANGWAY,N
+P-03,1,NARRATION,[회장의 부탁] 익명 협박장과 Orpheus 사고의 공식 설명을 듣는다.,observe,P-02,,,DECK10_SUITE,N
+P-03,2,RICHARD,이 장면에서 확인해야 할 것은 협박장 문구입니다.,neutral,,,,DECK10_SUITE,Y
+P-03,3,ADRIAN,먼저 DECK10_SUITE의 시간과 동선을 확인하겠습니다.,focused,,,,DECK10_SUITE,Y
+P-03,4,SYSTEM,"단서 업데이트: 협박장 문구, 아들 사진",system,,보수를 묻기 / 아들에 관해 묻기,Richard 신뢰도 분기,DECK10_SUITE,N
+P-03,5,PLAYER_CHOICE,보수를 묻기,choice,P-02,P-03_C1,Richard 신뢰도 분기,UI choice,N
+P-03,6,PLAYER_CHOICE,아들에 관해 묻기,choice,P-02,P-03_C2,Richard 신뢰도 분기,UI choice,N
+D1-01,1,NARRATION,[승객 소개] 주요 용의자들과 자유 대화를 진행한다.,observe,P-03,,,DECK8_ATRIUM,N
+D1-01,2,CLAIRE,이 장면에서 확인해야 할 것은 각자의 알리바이 씨앗입니다.,neutral,,,,DECK8_ATRIUM,Y
+D1-01,3,ADRIAN,먼저 DECK8_ATRIUM의 시간과 동선을 확인하겠습니다.,focused,,,,DECK8_ATRIUM,Y
+D1-01,4,SYSTEM,단서 업데이트: 각자의 알리바이 씨앗,system,,,심문 키워드 개방,DECK8_ATRIUM,N
+D1-02,1,NARRATION,[불편한 만찬] Daniel과 Claire의 언쟁을 목격한다.,observe,D1-01,,,DECK9_DINING,N
+D1-02,2,DANIEL,이 장면에서 확인해야 할 것은 비자금 기사입니다.,neutral,,,,DECK9_DINING,Y
+D1-02,3,ADRIAN,먼저 DECK9_DINING의 시간과 동선을 확인하겠습니다.,focused,,,,DECK9_DINING,Y
+D1-02,4,SYSTEM,"단서 업데이트: 비자금 기사, 익명 제보 언급",system,,끼어들기 / 관찰하기,Claire 적대도 변화,DECK9_DINING,N
+D1-02,5,PLAYER_CHOICE,끼어들기,choice,D1-01,D1-02_C1,Claire 적대도 변화,UI choice,N
+D1-02,6,PLAYER_CHOICE,관찰하기,choice,D1-01,D1-02_C2,Claire 적대도 변화,UI choice,N
+D1-03,1,NARRATION,[선상파티] 파티장 동선과 카메라 위치를 조사한다.,observe,D1-02,,,DECK9_BALLROOM,N
+D1-03,2,전원,이 장면에서 확인해야 할 것은 Evelyn 연속 촬영입니다.,neutral,,,,DECK9_BALLROOM,Y
+D1-03,3,ADRIAN,먼저 DECK9_BALLROOM의 시간과 동선을 확인하겠습니다.,focused,,,,DECK9_BALLROOM,Y
+D1-03,4,SYSTEM,"단서 업데이트: Evelyn 연속 촬영, Richard 음주",system,,Daniel을 추적 / 파티 인물 탐문,초기 단서 우선순위,DECK9_BALLROOM,N
+D1-03,5,PLAYER_CHOICE,Daniel을 추적,choice,D1-02,D1-03_C1,초기 단서 우선순위,UI choice,N
+D1-03,6,PLAYER_CHOICE,파티 인물 탐문,choice,D1-02,D1-03_C2,초기 단서 우선순위,UI choice,N
+D1-04,1,NARRATION,[사라진 기자] Daniel이 서비스 계단으로 향한 사실을 알아낸다.,observe,D1-03,,,SERVICE7,N
+D1-04,2,승무원_NPC,이 장면에서 확인해야 할 것은 서비스 출입문 개폐 로그입니다.,neutral,,,,SERVICE7,Y
+D1-04,3,ADRIAN,먼저 SERVICE7의 시간과 동선을 확인하겠습니다.,focused,,,,SERVICE7,Y
+D1-04,4,SYSTEM,단서 업데이트: 서비스 출입문 개폐 로그,system,,경비에게 알리기 / 몰래 추적,발견 시점 변화,SERVICE7,N
+D1-04,5,PLAYER_CHOICE,경비에게 알리기,choice,D1-03,D1-04_C1,발견 시점 변화,UI choice,N
+D1-04,6,PLAYER_CHOICE,몰래 추적,choice,D1-03,D1-04_C2,발견 시점 변화,UI choice,N
+D1-05,1,NARRATION,[수상한 호출] Evelyn이 Richard에게 Daniel의 대기 사실을 알린다.,observe,D1-03,,,DECK9_BALLROOM,N
+D1-05,2,EVELYN,이 장면에서 확인해야 할 것은 Richard 명의 메시지입니다.,neutral,,,,DECK9_BALLROOM,Y
+D1-05,3,ADRIAN,먼저 DECK9_BALLROOM의 시간과 동선을 확인하겠습니다.,focused,,,,DECK9_BALLROOM,Y
+D1-05,4,SYSTEM,단서 업데이트: Richard 명의 메시지,system,,,메시지 메타데이터 단서,DECK9_BALLROOM,N
+D1-06,1,RICHARD,놀라지 마시오. 그리고 큰 소리를 내지 마시오.,shaken,D1-05,,,HORIZON,Y
+D1-06,2,ADRIAN,문은 열려 있군요.,focused,,,,HORIZON,Y
+D1-06,3,HELENA,맥박 없습니다. 체온이 너무 낮아요.,clinical,,,,HORIZON,Y
+D1-06,4,ADRIAN,피를 밟은 흔적이 피해자 것밖에 없습니다.,focused,,,,HORIZON,Y
+D1-06,5,RICHARD,그렇다면 범인은 어디로 갔다는 거요?,fear,,,,HORIZON,Y
+D1-06,6,ADRIAN,그 질문부터 의심해야겠습니다.,cold,,즉시 봉쇄 / 먼저 시신 확인,현장 보존도,HORIZON,Y
+D1-06,7,PLAYER_CHOICE,즉시 봉쇄,choice,D1-05,D1-06_C1,현장 보존도,UI choice,N
+D1-06,8,PLAYER_CHOICE,먼저 시신 확인,choice,D1-05,D1-06_C2,현장 보존도,UI choice,N
+D1-07,1,NARRATION,[비밀 수사 계약] 회항이 어려운 이유와 비밀수사 조건을 정한다.,observe,D1-06,,,MEDBAY,N
+D1-07,2,RICHARD,이 장면에서 확인해야 할 것은 공식 발표: 급성 질환입니다.,neutral,,,,MEDBAY,Y
+D1-07,3,ADRIAN,먼저 MEDBAY의 시간과 동선을 확인하겠습니다.,focused,,,,MEDBAY,Y
+D1-07,4,SYSTEM,단서 업데이트: 공식 발표: 급성 질환,system,,수락 / 제한 조건 제시,게임 본편 시작,MEDBAY,N
+D1-07,5,PLAYER_CHOICE,수락,choice,D1-06,D1-07_C1,게임 본편 시작,UI choice,N
+D1-07,6,PLAYER_CHOICE,제한 조건 제시,choice,D1-06,D1-07_C2,게임 본편 시작,UI choice,N
+D2-01,1,MARCUS,외벽 발판으로 나갔다면 센서가 기록했을 겁니다. 어젯밤엔 파도도 높았습니다.,defensive,D1-07,,,HORIZON,Y
+D2-01,2,ADRIAN,난간의 염분막이 끊기지 않았습니다. 아무도 잡지 않았어요.,focused,,,,HORIZON,Y
+D2-01,3,MARCUS,덕트는요?,tense,,,,HORIZON,Y
+D2-01,4,ADRIAN,먼지가 너무 깨끗합니다. 이상할 만큼.,focused,,,,HORIZON,Y
+D2-01,5,ADRIAN,출구는 셋이지만 사용된 출구는 없습니다.,deduction,,,밀실 명제 등록,HORIZON,Y
+D2-02,1,NARRATION,[피의 방향] 혈흔 퍼즐로 수직 낙하와 비산혈흔 부재를 확인한다.,observe,D2-01,,,HORIZON,N
+D2-02,2,HELENA,이 장면에서 확인해야 할 것은 피 웅덩이 중심 불일치입니다.,neutral,,,,HORIZON,Y
+D2-02,3,ADRIAN,먼저 HORIZON의 시간과 동선을 확인하겠습니다.,focused,,,,HORIZON,Y
+D2-02,4,SYSTEM,단서 업데이트: 피 웅덩이 중심 불일치,system,,,시신 투입 가설 1,HORIZON,N
+D2-03,1,NARRATION,[사망 시각] 약물과 저온 환경이 사망 추정을 왜곡했음을 의심한다.,observe,D2-02,,,MEDBAY,N
+D2-03,2,HELENA,이 장면에서 확인해야 할 것은 안정제 처방입니다.,neutral,,,,MEDBAY,Y
+D2-03,3,ADRIAN,먼저 MEDBAY의 시간과 동선을 확인하겠습니다.,focused,,,,MEDBAY,Y
+D2-03,4,SYSTEM,"단서 업데이트: 안정제 처방, 체온 저하",system,,의사를 압박 / 협조 요청,Helena 신뢰도,MEDBAY,N
+D2-03,5,PLAYER_CHOICE,의사를 압박,choice,D2-02,D2-03_C1,Helena 신뢰도,UI choice,N
+D2-03,6,PLAYER_CHOICE,협조 요청,choice,D2-02,D2-03_C2,Helena 신뢰도,UI choice,N
+D2-04,1,NARRATION,[카메라의 맹점] 출입자는 없지만 감지기 오류가 있었음을 찾는다.,observe,D2-01,,,SECURITY,N
+D2-04,2,MARCUS,이 장면에서 확인해야 할 것은 22:18 화재감지기 4초 오류입니다.,neutral,,,,SECURITY,Y
+D2-04,3,ADRIAN,먼저 SECURITY의 시간과 동선을 확인하겠습니다.,focused,,,,SECURITY,Y
+D2-04,4,SYSTEM,단서 업데이트: 22:18 화재감지기 4초 오류,system,,영상만 보기 / 설비 로그 대조,천장 조사 개방,SECURITY,N
+D2-04,5,PLAYER_CHOICE,영상만 보기,choice,D2-01,D2-04_C1,천장 조사 개방,UI choice,N
+D2-04,6,PLAYER_CHOICE,설비 로그 대조,choice,D2-01,D2-04_C2,천장 조사 개방,UI choice,N
+D2-05,1,NARRATION,[천장 패널] 장식 패널 먼지와 미세 섬유를 채취한다.,observe,D2-04,,,HORIZON,N
+D2-05,2,OWEN,이 장면에서 확인해야 할 것은 최근 개방 흔적입니다.,neutral,,,,HORIZON,Y
+D2-05,3,ADRIAN,먼저 HORIZON의 시간과 동선을 확인하겠습니다.,focused,,,,HORIZON,Y
+D2-05,4,SYSTEM,"단서 업데이트: 최근 개방 흔적, 검은 합성섬유",system,,,화물 레일 떡밥,HORIZON,N
+D2-06,1,NARRATION,[기자의 객실] 예약 기사와 Richard 유죄 가설을 확인한다.,observe,D2-03,,,CABIN_DANIEL,N
+D2-06,2,CLAIRE(선택),이 장면에서 확인해야 할 것은 기사 초안입니다.,neutral,,,,CABIN_DANIEL,Y
+D2-06,3,ADRIAN,먼저 CABIN_DANIEL의 시간과 동선을 확인하겠습니다.,focused,,,,CABIN_DANIEL,Y
+D2-06,4,SYSTEM,"단서 업데이트: 기사 초안, 익명 제보 채팅 일부",system,,,Claire 절도 복선,CABIN_DANIEL,N
+D3-01,1,NARRATION,[예약 기사 공개] 승객 사이에 Richard 범인설이 퍼진다.,observe,D2-06,,,NEWS_LOUNGE,N
+D3-01,2,RICHARD,이 장면에서 확인해야 할 것은 기사 공개 시각입니다.,neutral,,,,NEWS_LOUNGE,Y
+D3-01,3,ADRIAN,먼저 NEWS_LOUNGE의 시간과 동선을 확인하겠습니다.,focused,,,,NEWS_LOUNGE,Y
+D3-01,4,SYSTEM,"단서 업데이트: 기사 공개 시각, 삭제된 실명",system,,공개 해명 권고 / 침묵 유지,승객 불안 수치,NEWS_LOUNGE,N
+D3-01,5,PLAYER_CHOICE,공개 해명 권고,choice,D2-06,D3-01_C1,승객 불안 수치,UI choice,N
+D3-01,6,PLAYER_CHOICE,침묵 유지,choice,D2-06,D3-01_C2,승객 불안 수치,UI choice,N
+D3-02,1,RICHARD,나는 조사관들에게 돈을 줬소. 기록도 숨겼지.,ashamed,D3-01,,,DECK10_SUITE,Y
+D3-02,2,ADRIAN,침몰을 지시했습니까?,hard,,,,DECK10_SUITE,Y
+D3-02,3,RICHARD,아니오. 나는 내 아들이 했다고 믿었소. 그래서 죽은 아이의 죄까지 감췄소.,broken,,,,DECK10_SUITE,Y
+D3-02,4,ADRIAN,당신이 숨긴 진실이 다른 사람의 거짓말을 보호했습니다.,cold,,강경 심문 / 공감 심문,Richard 완전 자백 여부,DECK10_SUITE,Y
+D3-02,5,PLAYER_CHOICE,강경 심문,choice,D3-01,D3-02_C1,Richard 완전 자백 여부,UI choice,N
+D3-02,6,PLAYER_CHOICE,공감 심문,choice,D3-01,D3-02_C2,Richard 완전 자백 여부,UI choice,N
+D3-03,1,NARRATION,[Thomas의 침묵] 금고와 원본 모듈의 존재를 확인한다.,observe,D3-02,,,BRIDGE,N
+D3-03,2,THOMAS,이 장면에서 확인해야 할 것은 Daniel에게 위치를 알려준 사실입니다.,neutral,,,,BRIDGE,Y
+D3-03,3,ADRIAN,먼저 BRIDGE의 시간과 동선을 확인하겠습니다.,focused,,,,BRIDGE,Y
+D3-03,4,SYSTEM,단서 업데이트: Daniel에게 위치를 알려준 사실,system,,선장을 공범으로 지목 / 증인으로 설득,금고 접근 퀘스트,BRIDGE,N
+D3-03,5,PLAYER_CHOICE,선장을 공범으로 지목,choice,D3-02,D3-03_C1,금고 접근 퀘스트,UI choice,N
+D3-03,6,PLAYER_CHOICE,증인으로 설득,choice,D3-02,D3-03_C2,금고 접근 퀘스트,UI choice,N
+D3-04,1,NARRATION,[봉인된 기록] 모듈 일부가 덮어쓰기 된 사실을 발견한다.,observe,D3-03,,,VAULT,N
+D3-04,2,MARCUS,이 장면에서 확인해야 할 것은 이중 인증입니다.,neutral,,,,VAULT,Y
+D3-04,3,ADRIAN,먼저 VAULT의 시간과 동선을 확인하겠습니다.,focused,,,,VAULT,Y
+D3-04,4,SYSTEM,"단서 업데이트: 이중 인증, 21:05 접근 로그",system,,,Marcus 압박,VAULT,N
+D3-05,1,NARRATION,[익명 제보자의 문장] Daniel의 채팅에서 반복되는 어휘를 찾는다.,observe,D3-04,,,PROMENADE,N
+D3-05,2,CLAIRE,이 장면에서 확인해야 할 것은 “사실은 언제나 비용을 요구한다”입니다.,neutral,,,,PROMENADE,Y
+D3-05,3,ADRIAN,먼저 PROMENADE의 시간과 동선을 확인하겠습니다.,focused,,,,PROMENADE,Y
+D3-05,4,SYSTEM,단서 업데이트: “사실은 언제나 비용을 요구한다”,system,,,Evelyn 언어 습관 복선,PROMENADE,N
+D4-01,1,NARRATION,[Marcus의 거짓말] 보안 인증 대여 사실을 추궁한다.,observe,D3-04,,,SECURITY,N
+D4-01,2,MARCUS,이 장면에서 확인해야 할 것은 도박 채무입니다.,neutral,,,,SECURITY,Y
+D4-01,3,ADRIAN,먼저 SECURITY의 시간과 동선을 확인하겠습니다.,focused,,,,SECURITY,Y
+D4-01,4,SYSTEM,"단서 업데이트: 도박 채무, Evelyn과의 비밀 연락",system,,빚 공개 협박 / 보호 약속,고백 약속,SECURITY,N
+D4-01,5,PLAYER_CHOICE,빚 공개 협박,choice,D3-04,D4-01_C1,고백 약속,UI choice,N
+D4-01,6,PLAYER_CHOICE,보호 약속,choice,D3-04,D4-01_C2,고백 약속,UI choice,N
+D4-02,1,NARRATION,[계단 추락] Marcus 추락 현장을 조사한다.,observe,D4-01,,,STAIR_B,N
+D4-02,2,EVELYN,이 장면에서 확인해야 할 것은 젖은 계단입니다.,neutral,,,,STAIR_B,Y
+D4-02,3,ADRIAN,먼저 STAIR_B의 시간과 동선을 확인하겠습니다.,focused,,,,STAIR_B,Y
+D4-02,4,SYSTEM,"단서 업데이트: 젖은 계단, 장갑 섬유",system,,,오판 위험,STAIR_B,N
+D4-03,1,NARRATION,[사고의 재구성] 발자국 간격과 난간 손자국으로 자력 추락을 입증한다.,observe,D4-02,,,STAIR_B,N
+D4-03,2,OWEN,이 장면에서 확인해야 할 것은 미끄러짐 궤적입니다.,neutral,,,,STAIR_B,Y
+D4-03,3,ADRIAN,먼저 STAIR_B의 시간과 동선을 확인하겠습니다.,focused,,,,STAIR_B,Y
+D4-03,4,SYSTEM,"단서 업데이트: 미끄러짐 궤적, 밀친 흔적 없음",system,,,Evelyn의 비윤리성만 확정,STAIR_B,N
+D4-04,1,NARRATION,[말하지 못한 증언] 의식이 돌아온 Marcus에게 예/아니오 심문을 한다.,observe,D4-03,,,MEDBAY,N
+D4-04,2,MARCUS,이 장면에서 확인해야 할 것은 Evelyn에게 인증 제공입니다.,neutral,,,,MEDBAY,Y
+D4-04,3,ADRIAN,먼저 MEDBAY의 시간과 동선을 확인하겠습니다.,focused,,,,MEDBAY,Y
+D4-04,4,SYSTEM,단서 업데이트: Evelyn에게 인증 제공,system,,,금고 공범 연결,MEDBAY,N
+D5-01,1,NARRATION,[두 번째 불가능 사건] Claire를 연기 속에서 발견한다.,observe,D4-04,,,CABIN_CLAIRE,N
+D5-01,2,CLAIRE,이 장면에서 확인해야 할 것은 출입 영상 없음입니다.,neutral,,,,CABIN_CLAIRE,Y
+D5-01,3,ADRIAN,먼저 CABIN_CLAIRE의 시간과 동선을 확인하겠습니다.,focused,,,,CABIN_CLAIRE,Y
+D5-01,4,SYSTEM,"단서 업데이트: 출입 영상 없음, 자동커튼 작동",system,,,반복 밀실,CABIN_CLAIRE,N
+D5-02,1,ADRIAN,카메라에는 침입자가 없습니다. 첫 사건과 같아 보이죠.,calm,D5-01,,,CABIN_CLAIRE,Y
+D5-02,2,CLAIRE,그럼 그 사람이 또 온 거예요.,fake_fear,,,,CABIN_CLAIRE,Y
+D5-02,3,ADRIAN,아니요. 이번에는 아무도 오지 않았습니다. 당신을 포함해서요.,deduction,,,,CABIN_CLAIRE,Y
+D5-02,4,ADRIAN,서비스 로봇이 연막장치를 옮기고 자동커튼이 쓰러지는 그림자를 만들었습니다.,focused,,,,CABIN_CLAIRE,Y
+D5-02,5,CLAIRE,…태블릿만 돌려주면 되는 거죠?,defeated,,,태블릿 회수,CABIN_CLAIRE,Y
+D5-03,1,NARRATION,[Claire의 자백] 태블릿 절도와 비자금 은폐를 자백시킨다.,observe,D5-02,,,INTERVIEW,N
+D5-03,2,CLAIRE,이 장면에서 확인해야 할 것은 익명 제보 전체 대화입니다.,neutral,,,,INTERVIEW,Y
+D5-03,3,ADRIAN,먼저 INTERVIEW의 시간과 동선을 확인하겠습니다.,focused,,,,INTERVIEW,Y
+D5-03,4,SYSTEM,단서 업데이트: 익명 제보 전체 대화,system,,면책 거래 / 전면 폭로,제보자 유인 의도 확정,INTERVIEW,N
+D5-03,5,PLAYER_CHOICE,면책 거래,choice,D5-02,D5-03_C1,제보자 유인 의도 확정,UI choice,N
+D5-03,6,PLAYER_CHOICE,전면 폭로,choice,D5-02,D5-03_C2,제보자 유인 의도 확정,UI choice,N
+D5-04,1,NARRATION,[자동으로 완성된 방] 첫 사건도 자동장치가 현장을 만들었다는 가설을 세운다.,observe,D5-03,,,HORIZON,N
+D5-04,2,ADRIAN_독백,이 장면에서 확인해야 할 것은 세면대 타이머입니다.,neutral,,,,HORIZON,Y
+D5-04,3,ADRIAN,먼저 HORIZON의 시간과 동선을 확인하겠습니다.,focused,,,,HORIZON,Y
+D5-04,4,SYSTEM,"단서 업데이트: 세면대 타이머, 천장 패널",system,,,화물 레일 조사 개방,HORIZON,N
+D6-01,1,OWEN,보정값이 86킬로그램입니다. 파도라면 이렇게 일정한 속도로 이동하지 않습니다.,alarmed,D5-04,,,ENGINE_CTRL,Y
+D6-01,2,ADRIAN,7층 선미에서 8층 Horizon까지. 사람 한 명의 무게군요.,deduction,,,,ENGINE_CTRL,Y
+D6-01,3,OWEN,하지만 승객용 승강기는 움직이지 않았습니다.,confused,,,,ENGINE_CTRL,Y
+D6-01,4,ADRIAN,승객이 아니었으니까요. 화물이었습니다.,cold,,,시신 이동 확정,ENGINE_CTRL,Y
+D6-02,1,NARRATION,[천장 위의 길] 화물 레일을 직접 따라간다.,observe,D6-01,,,SERVICE_RAIL,N
+D6-02,2,OWEN,이 장면에서 확인해야 할 것은 Ballast Annex-Horizon 연결 분기입니다.,neutral,,,,SERVICE_RAIL,Y
+D6-02,3,ADRIAN,먼저 SERVICE_RAIL의 시간과 동선을 확인하겠습니다.,focused,,,,SERVICE_RAIL,Y
+D6-02,4,SYSTEM,단서 업데이트: Ballast Annex-Horizon 연결 분기,system,,,실제 살해 장소 후보,SERVICE_RAIL,N
+D6-03,1,NARRATION,[검은 바닥] Daniel 구두의 고무 조각과 바닥을 대조한다.,observe,D6-02,,,BALLAST,N
+D6-03,2,HELENA,이 장면에서 확인해야 할 것은 혈흔 세척 흔적입니다.,neutral,,,,BALLAST,Y
+D6-03,3,ADRIAN,먼저 BALLAST의 시간과 동선을 확인하겠습니다.,focused,,,,BALLAST,Y
+D6-03,4,SYSTEM,"단서 업데이트: 혈흔 세척 흔적, 불활성 가스 로그",system,,,실제 현장 확정,BALLAST,N
+D6-04,1,NARRATION,"[두 번의 죽음] 자상은 비치명상, 직접 사인은 질식임을 확정한다.",observe,D6-03,,,FORENSIC,N
+D6-04,2,HELENA,이 장면에서 확인해야 할 것은 폐·혈액 소견입니다.,neutral,,,,FORENSIC,Y
+D6-04,3,ADRIAN,먼저 FORENSIC의 시간과 동선을 확인하겠습니다.,focused,,,,FORENSIC,Y
+D6-04,4,SYSTEM,"단서 업데이트: 폐·혈액 소견, 보호면 파편",system,,,Evelyn 접촉 증거,FORENSIC,N
+D6-05,1,NARRATION,[타임라인 퍼즐] 21:22-22:45 사건의 참 타임라인을 완성한다.,observe,D6-04,,,EVIDENCE_BOARD,N
+D6-05,2,ADRIAN_독백,이 장면에서 확인해야 할 것은 살해 21:45입니다.,neutral,,,,EVIDENCE_BOARD,Y
+D6-05,3,ADRIAN,먼저 EVIDENCE_BOARD의 시간과 동선을 확인하겠습니다.,focused,,,,EVIDENCE_BOARD,Y
+D6-05,4,SYSTEM,"단서 업데이트: 살해 21:45, 이동 22:18",system,,,최종 심문 조건 1,EVIDENCE_BOARD,N
+D7-01,1,NARRATION,[마지막 파괴 시도] Evelyn이 모듈을 파괴하려는 것을 저지한다.,observe,D6-05,,,VAULT,N
+D7-01,2,EVELYN,이 장면에서 확인해야 할 것은 가짜 화재경보입니다.,neutral,,,,VAULT,Y
+D7-01,3,ADRIAN,먼저 VAULT의 시간과 동선을 확인하겠습니다.,focused,,,,VAULT,Y
+D7-01,4,SYSTEM,"단서 업데이트: 가짜 화재경보, 모듈 교체",system,,,Evelyn 의심 확정,VAULT,N
+D7-02,1,NARRATION,[보호면의 침방울] Evelyn 장비와 Daniel DNA를 연결한다.,observe,D7-01,,,FORENSIC,N
+D7-02,2,HELENA,이 장면에서 확인해야 할 것은 보호면 내부 DNA입니다.,neutral,,,,FORENSIC,Y
+D7-02,3,ADRIAN,먼저 FORENSIC의 시간과 동선을 확인하겠습니다.,focused,,,,FORENSIC,Y
+D7-02,4,SYSTEM,"단서 업데이트: 보호면 내부 DNA, 손톱 수지",system,,,최종 물증,FORENSIC,N
+D7-03,1,JULIAN_RECORD,아버지는 아무것도 몰라요. 지금 멈춰요.,recorded,D7-02,,,ARCHIVE,Y
+D7-03,2,EVELYN_RECORD,당신 아버지가 몰랐다고 해서 회사가 살아나는 건 아니에요.,recorded,,,,ARCHIVE,Y
+D7-03,3,JULIAN_RECORD,승객이 탔습니다. 이대로 밸브를 열면 사고가 아니라 살인이에요.,recorded,,,,ARCHIVE,Y
+D7-03,4,RICHARD,Julian… 내가 너를 범인으로 만들었구나.,broken,,,과거 진범 확정,ARCHIVE,Y
+D7-04,1,NARRATION,[Evelyn의 제안] Evelyn이 거래를 제안하며 Richard를 희생양으로 삼으려 한다.,observe,D7-03,,,PROMENADE,N
+D7-04,2,EVELYN,이 장면에서 확인해야 할 것은 Daniel 초대 위조 인정 일부입니다.,neutral,,,,PROMENADE,Y
+D7-04,3,ADRIAN,먼저 PROMENADE의 시간과 동선을 확인하겠습니다.,focused,,,,PROMENADE,Y
+D7-04,4,SYSTEM,단서 업데이트: Daniel 초대 위조 인정 일부,system,,거래 수락하는 척 / 거절,추가 자백 획득 가능,PROMENADE,N
+D7-04,5,PLAYER_CHOICE,거래 수락하는 척,choice,D7-03,D7-04_C1,추가 자백 획득 가능,UI choice,N
+D7-04,6,PLAYER_CHOICE,거절,choice,D7-03,D7-04_C2,추가 자백 획득 가능,UI choice,N
+D8-01,1,ADRIAN,이 방은 잠겨 있지 않았습니다. 그런데도 밀실이었습니다.,final,D7-04,,,HORIZON,Y
+D8-01,2,ADRIAN,"외벽으로 나갔다면 물이, 덕트로 나갔다면 먼지가, 점검구로 나갔다면 자국이 남아야 합니다.",final,,,,HORIZON,Y
+D8-01,3,EVELYN,그래서요? 흔적을 못 찾았다는 것이 증거는 아니죠.,controlled,,,,HORIZON,Y
+D8-01,4,ADRIAN,맞습니다. 찾지 못한 게 아닙니다. 처음부터 생길 수 없었습니다.,final,,,,HORIZON,Y
+D8-01,5,ADRIAN,당신은 이 방에 들어오지 않았으니까요. 들어온 것은 Daniel의 시신뿐이었습니다.,accuse,,,엔딩 분기,HORIZON,Y
+D8-02,1,EVELYN,Orpheus가 침몰하지 않았다면 수천 명이 일자리를 잃었을 겁니다.,defiant,D8-01 정답,,,STERN,Y
+D8-02,2,ADRIAN,살아남은 사람의 수가 죽인 사람의 죄를 나눠 갖지는 않습니다.,final,,,,STERN,Y
+D8-02,3,EVELYN,나는 회사를 살렸어요.,anger,,,,STERN,Y
+D8-02,4,ADRIAN,죽은 사람들 위에 회사 이름을 계속 붙여둔 겁니다.,final,,,도덕적 결말 톤,STERN,Y
+D8-03,1,NARRATION,[귀항] 후일담과 사건 평가를 제시한다.,observe,D8-02,,,PORT,N
+D8-03,2,생존자,이 장면에서 확인해야 할 것은 기사 수정본입니다.,neutral,,,,PORT,Y
+D8-03,3,ADRIAN,먼저 PORT의 시간과 동선을 확인하겠습니다.,focused,,,,PORT,Y
+D8-03,4,SYSTEM,"단서 업데이트: 기사 수정본, Julian 명예회복",system,,,A/B/C 엔딩,PORT,N
