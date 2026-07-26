@@ -4,6 +4,7 @@ using TMPro;
 using System.Linq;
 using Wake.Core;
 using Wake.Exploration;
+using Wake.Narrative;
 
 namespace Wake.UI
 {
@@ -167,7 +168,7 @@ namespace Wake.UI
 
         private void SelectEntry(ProductionMapEntry entry)
         {
-            if (entry.UsesSceneTravel)
+            if (entry.StartsProductionScene)
             {
                 TryTravelToScene(entry.SceneId);
             }
@@ -196,28 +197,20 @@ namespace Wake.UI
         public SceneTravelResult TryTravelToScene(string sceneId)
         {
             GameStateManager state = GameStateManager.Instance;
-            LastTravelResult = SceneTravelPolicy.EvaluateScene(
-                sceneId,
+            ProductionSceneTravelCoordinator coordinator = new(
                 locationGraph,
-                state?.CompletedProductionSceneIds,
-                state != null ? state.PublicAnxiety : 0);
-            if (!TryLoadAllowedDestination(LastTravelResult))
+                state,
+                DialogueController.Instance,
+                location =>
+                    LocationLoader.Instance != null &&
+                    LocationLoader.Instance.TryLoadLocation(location, out _));
+            LastTravelResult = coordinator.TryEnter(sceneId);
+            if (!LastTravelResult.IsAllowed)
             {
                 ShowTravelFeedback();
                 return LastTravelResult;
             }
 
-            if (state != null && LastTravelResult.Scene.Day > 0)
-            {
-                state.SetTime(
-                    LastTravelResult.Scene.Day,
-                    LastTravelResult.Scene.TimeBlock);
-            }
-
-            InvestigationEventHub.Publish(
-                InvestigationEventKind.SceneEntered,
-                LastTravelResult.Scene.SceneId,
-                LastTravelResult.Location.LocationCode);
             UIManager.Instance?.ShowIngame();
             return LastTravelResult;
         }

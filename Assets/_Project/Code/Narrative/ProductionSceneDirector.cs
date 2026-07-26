@@ -11,6 +11,11 @@ namespace Wake.Narrative
         bool RestoreProductionScene(ProductionDialogueCheckpoint checkpoint);
     }
 
+    public interface IProductionSceneLaunchAvailability
+    {
+        bool CanStartProductionScene(string sceneId);
+    }
+
     public readonly struct ProductionSceneEntry
     {
         public ProductionSceneEntry(

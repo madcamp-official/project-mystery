@@ -14,6 +14,7 @@ namespace Wake.Exploration
         LocationVisualMissing,
         PrerequisiteSceneIncomplete,
         RestrictedByPublicAnxiety,
+        DialogueUnavailable,
         LocationLoadFailed
     }
 

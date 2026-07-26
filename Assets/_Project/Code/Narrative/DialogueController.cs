@@ -10,7 +10,10 @@ using Wake.UI;
 
 namespace Wake.Narrative
 {
-    public class DialogueController : MonoBehaviour, IProductionScenePlayer
+    public class DialogueController :
+        MonoBehaviour,
+        IProductionScenePlayer,
+        IProductionSceneLaunchAvailability
     {
         public static DialogueController Instance { get; private set; }
 
@@ -154,7 +157,7 @@ namespace Wake.Narrative
                 return true;
             }
 
-            if (IsBusy)
+            if (!CanStartProductionScene(sceneId))
             {
                 return false;
             }
@@ -168,6 +171,34 @@ namespace Wake.Narrative
 
             BeginProductionPresentation();
             return true;
+        }
+
+        public bool CanStartProductionScene(string sceneId)
+        {
+            string normalized = sceneId?.Trim().ToUpperInvariant() ?? string.Empty;
+            if (normalized.Length == 0)
+            {
+                return false;
+            }
+
+            if (productionFlow != null &&
+                string.Equals(
+                    productionFlow.ActiveSceneId,
+                    normalized,
+                    StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            if (IsBusy ||
+                DialogueDatabase.Instance == null ||
+                !DialogueDatabase.Instance.ContainsScene(normalized))
+            {
+                return false;
+            }
+
+            ProductionDialogueFlow candidate = CreateProductionFlow();
+            return candidate != null && candidate.CanStartScene(normalized);
         }
 
         public bool RestoreProductionScene(
