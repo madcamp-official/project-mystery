@@ -19,9 +19,15 @@ namespace Wake.Evidence
         private readonly Dictionary<string, EvidenceDefinition> knownById =
             new(StringComparer.Ordinal);
         private readonly List<string> warnings = new();
+        private GameStateManager boundState;
 
         public IReadOnlyList<EvidenceDefinition> Collected => collected;
         public IReadOnlyList<string> Warnings => warnings;
+
+        public void BindState(GameStateManager state)
+        {
+            boundState = state;
+        }
 
         private void Awake()
         {
@@ -40,7 +46,8 @@ namespace Wake.Evidence
             }
 
             collected.Add(evidence);
-            GameStateManager.Instance?.RecordEvidenceCollected(evidenceId);
+            (boundState != null ? boundState : GameStateManager.Instance)
+                ?.RecordEvidenceCollected(evidenceId);
             InvestigationEventHub.Publish(
                 InvestigationEventKind.EvidenceCollected,
                 evidenceId);

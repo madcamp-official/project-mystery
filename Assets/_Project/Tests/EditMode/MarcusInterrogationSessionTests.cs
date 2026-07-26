@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using Wake.Core;
+using Wake.Evidence;
 using Wake.Puzzles;
 
 namespace Wake.Tests
@@ -11,6 +12,7 @@ namespace Wake.Tests
         private const string SaveKey = "THE_WAKE_GAME_STATE_V1";
         private GameObject host;
         private GameStateManager state;
+        private EvidenceInventory inventory;
 
         [SetUp]
         public void SetUp()
@@ -19,6 +21,8 @@ namespace Wake.Tests
             PlayerPrefs.DeleteKey(SaveKey);
             host = new GameObject("MarcusInterrogationSessionTests");
             state = host.AddComponent<GameStateManager>();
+            inventory = host.AddComponent<EvidenceInventory>();
+            inventory.BindState(state);
         }
 
         [TearDown]
@@ -40,6 +44,8 @@ namespace Wake.Tests
             Object.DestroyImmediate(host);
             host = new GameObject("RestoredMarcusInterrogation");
             state = host.AddComponent<GameStateManager>();
+            inventory = host.AddComponent<EvidenceInventory>();
+            inventory.BindState(state);
             state.ReloadSavedState();
             var restored = new MarcusInterrogationSession(state);
 
@@ -96,7 +102,9 @@ namespace Wake.Tests
         [Test]
         public void ConfirmedAuthentication_GrantsC15AndTypedFlag()
         {
-            var session = new MarcusInterrogationSession(state);
+            var session = new MarcusInterrogationSession(
+                state,
+                tryGrantEvidence: id => inventory.TryAddById(id));
             session.Ask(
                 MarcusInterrogationCatalog.AuthenticationQuestion,
                 MarcusAnswer.Yes);
@@ -117,6 +125,26 @@ namespace Wake.Tests
             Assert.That(
                 state.HasCompletedScene(MarcusInterrogationCatalog.SceneId),
                 Is.True);
+        }
+
+        [Test]
+        public void ConfirmedAuthentication_WaitsWhenEvidenceInventoryRejectsC15()
+        {
+            var session = new MarcusInterrogationSession(
+                state,
+                tryGrantEvidence: _ => false);
+            session.Ask(
+                MarcusInterrogationCatalog.AuthenticationQuestion,
+                MarcusAnswer.Yes);
+
+            MarcusInterrogationCompletion result = session.Complete();
+
+            Assert.That(result.Completed, Is.False);
+            Assert.That(result.Message, Does.Contain("C-15"));
+            Assert.That(session.IsCompleted, Is.False);
+            Assert.That(
+                state.HasCompletedScene(MarcusInterrogationCatalog.SceneId),
+                Is.False);
         }
 
         [Test]
@@ -154,6 +182,7 @@ namespace Wake.Tests
             }
 
             host = null;
+            inventory = null;
         }
     }
 }

@@ -464,6 +464,13 @@ namespace Wake.Narrative
             }
             else if (string.Equals(
                          completedProductionScene,
+                         MarcusInterrogationCatalog.SceneId,
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                FindFirstObjectByType<MarcusInterrogationUIController>()?.Open();
+            }
+            else if (string.Equals(
+                         completedProductionScene,
                          "D8-01",
                          StringComparison.OrdinalIgnoreCase))
             {

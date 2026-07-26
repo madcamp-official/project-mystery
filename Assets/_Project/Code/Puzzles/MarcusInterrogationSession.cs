@@ -61,7 +61,19 @@ namespace Wake.Puzzles
             new(
                 AuthenticationQuestion,
                 "Evelyn에게 금고 접근 인증을 제공했습니까?",
-                true)
+                true),
+            new(
+                "direct_request",
+                "인증 수단을 요구한 사람은 Evelyn이었습니까?"),
+            new(
+                "cargo_access",
+                "Daniel이 사라진 밤 화물 설비 접근을 승인했습니까?"),
+            new(
+                "confession_intent",
+                "계단 추락 전에 인증 제공 사실을 고백하려 했습니까?"),
+            new(
+                "richard_order",
+                "Richard의 지시로 인증 수단을 제공했습니까?")
         };
 
         private static readonly IReadOnlyDictionary<string, MarcusQuestionDefinition>
@@ -111,13 +123,16 @@ namespace Wake.Puzzles
         public const int MaximumQuestions = 5;
 
         private readonly GameStateManager state;
+        private readonly Func<string, bool> tryGrantEvidence;
         private readonly IReadOnlyDictionary<string, MarcusQuestionDefinition> questions;
         private readonly List<MarcusAnswerRecord> answers = new();
 
         public MarcusInterrogationSession(GameStateManager state,
-            IEnumerable<MarcusQuestionDefinition> definitions = null)
+            IEnumerable<MarcusQuestionDefinition> definitions = null,
+            Func<string, bool> tryGrantEvidence = null)
         {
             this.state = state ?? throw new ArgumentNullException(nameof(state));
+            this.tryGrantEvidence = tryGrantEvidence ?? (_ => false);
             questions = (definitions ?? MarcusInterrogationCatalog.All)
                 .Where(item => item != null && !string.IsNullOrEmpty(item.Id))
                 .GroupBy(item => item.Id, StringComparer.Ordinal)
@@ -182,13 +197,21 @@ namespace Wake.Puzzles
                     "Evelyn 인증 제공 여부를 먼저 확인하세요.");
             }
 
+            if (authentication ==
+                    MarcusAuthenticationResult.EvelynAuthenticationConfirmed &&
+                !tryGrantEvidence(MarcusInterrogationCatalog.AuthenticationEvidence))
+            {
+                return new MarcusInterrogationCompletion(
+                    false,
+                    authentication,
+                    "증거 인벤토리에 C-15를 등록하지 못했습니다.");
+            }
+
             IsCompleted = true;
             Save();
             if (authentication ==
                 MarcusAuthenticationResult.EvelynAuthenticationConfirmed)
             {
-                state.RecordEvidenceCollected(
-                    MarcusInterrogationCatalog.AuthenticationEvidence);
                 state.AddFlag(
                     MarcusInterrogationCatalog.AuthenticationFlag,
                     "Evelyn 인증 제공 확인");
