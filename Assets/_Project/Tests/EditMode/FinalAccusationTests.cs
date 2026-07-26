@@ -186,9 +186,9 @@ namespace Wake.Tests
 
         [TestCase("ending_a_complete", "D8-02")]
         [TestCase("ending_b_convenient_culprit", "D8-02")]
-        [TestCase("ending_c_wrong_person", "")]
-        [TestCase("ending_bad_panic", "")]
-        [TestCase("ending_bad_integrity", "")]
+        [TestCase("ending_c_wrong_person", "D8-03")]
+        [TestCase("ending_bad_panic", "D8-03")]
+        [TestCase("ending_bad_integrity", "D8-03")]
         public void EndingCatalog_RoutesOnlySolvedMurderToConfession(
             string endingId,
             string expected)

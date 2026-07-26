@@ -154,6 +154,17 @@ namespace Wake.Tests
             Assert.That(state.HasUnlockedDeduction("true_death_sequence"), Is.True);
         }
 
+        [Test]
+        public void RouteSpecificEpilogueUnlock_UsesCanonicalSceneId()
+        {
+            ProductionEffectExecutionResult result =
+                executor.Execute("scene_unlock:D8-03_C");
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(state.IsProductionSceneUnlocked("D8-03"), Is.True);
+            Assert.That(state.IsProductionSceneUnlocked("D8-03_C"), Is.False);
+        }
+
         private void DestroyManager()
         {
             if (host != null)

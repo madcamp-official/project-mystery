@@ -128,6 +128,22 @@ namespace Wake.Tests
             Assert.That(allowed.IsAllowed, Is.True);
         }
 
+        [TestCase(FinalAccusationResolver.WrongPersonEndingId)]
+        [TestCase(FinalAccusationResolver.BadEndingId)]
+        public void UnsolvedRoutes_OpenEpilogueWithoutConfession(
+            string endingId)
+        {
+            state.RecordCompletedScene("D8-01");
+            state.TryRecordFinalEnding(endingId);
+            state.UnlockProductionScene("D8-03");
+
+            ProductionSceneUnlockResult result =
+                ProductionSceneUnlockPolicy.Evaluate("D8-03", state);
+
+            Assert.That(state.HasCompletedScene("D8-02"), Is.False);
+            Assert.That(result.IsAllowed, Is.True);
+        }
+
         [Test]
         public void Director_DoesNotLaunchLockedSceneFromResumeFallback()
         {

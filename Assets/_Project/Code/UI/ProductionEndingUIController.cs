@@ -33,13 +33,22 @@ namespace Wake.UI
             }
 
             FinalAccusationResult result = submission.Result;
-            if (FinalAccusationResolver.OpensD8Confession(result.EndingId) &&
-                DialogueController.Instance != null &&
-                DialogueController.Instance.StartProductionScene(
-                    ProductionEndingCatalog.ConfessionSceneId))
+            GameStateManager state = GameStateManager.Instance;
+            string nextScene = ProductionEndingCatalog.GetNextDialogueScene(
+                result.EndingId,
+                state?.HasCompletedScene(
+                    ProductionEndingCatalog.ConfessionSceneId) == true,
+                state?.HasCompletedScene(
+                    ProductionEndingCatalog.EpilogueSceneId) == true);
+            if (!string.IsNullOrEmpty(nextScene) &&
+                DialogueController.Instance != null)
             {
-                Close();
-                return;
+                state?.UnlockProductionScene(nextScene);
+                if (DialogueController.Instance.StartProductionScene(nextScene))
+                {
+                    Close();
+                    return;
+                }
             }
 
             Show(result.EndingId, result.Reason);

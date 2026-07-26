@@ -126,6 +126,43 @@ namespace Wake.Tests
                 Is.True);
         }
 
+        [Test]
+        public void Validator_DetectsUnknownSceneUnlockEffect()
+        {
+            string changed = dialogue.Replace(
+                "scene_unlock:D7-04",
+                "scene_unlock:D9-99");
+
+            OfficialDialogueContractReport report =
+                OfficialDialogueContractValidator.Validate(
+                    changed, choices, scenes);
+
+            Assert.That(
+                report.Errors.Any(error =>
+                    error.Contains("D9-99") &&
+                    error.Contains("unlocks unknown scene")),
+                Is.True);
+        }
+
+        [Test]
+        public void Validator_DetectsDeclaredTransitionWithoutUnlock()
+        {
+            string changed = dialogue.Replace(
+                "scene_unlock:D3-02",
+                "flag:d3_02_route_removed");
+
+            OfficialDialogueContractReport report =
+                OfficialDialogueContractValidator.Validate(
+                    changed, choices, scenes);
+
+            Assert.That(
+                report.Errors.Any(error =>
+                    error.Contains("D3-01") &&
+                    error.Contains("D3-02") &&
+                    error.Contains("without a matching scene_unlock")),
+                Is.True);
+        }
+
         private static string Load(string suffix)
         {
             string path = Root + suffix;
