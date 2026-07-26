@@ -157,6 +157,7 @@ namespace Wake.Narrative
         public IReadOnlyList<DialogueRecord> Choices { get; private set; } =
             Array.Empty<DialogueRecord>();
         public IReadOnlyList<string> Warnings => warnings;
+        public IReadOnlyCollection<string> CompletedSceneIds => completedScenes;
         public bool IsAwaitingChoice => Choices.Count > 0;
         public bool IsComplete { get; private set; }
         public string ActiveSceneId { get; private set; } = string.Empty;
@@ -173,13 +174,18 @@ namespace Wake.Narrative
                     group => group.OrderBy(record => record.Order).ToList(),
                     StringComparer.Ordinal);
             completedScenes = completed as HashSet<string> ??
-                new HashSet<string>(
-                    (IEnumerable<string>)completed ?? Array.Empty<string>(),
-                    StringComparer.Ordinal);
+                new HashSet<string>(StringComparer.Ordinal);
+            NormalizeCompletedScenes(completed);
             this.state = state;
+
+            if (state != null)
+            {
+                completedScenes.UnionWith(state.CompletedProductionSceneIds);
+            }
         }
         public bool StartScene(string sceneId)
         {
+            sceneId = NormalizeSceneId(sceneId);
             warnings.Clear();
             Choices = Array.Empty<DialogueRecord>();
             IsComplete = false;
@@ -193,6 +199,36 @@ namespace Wake.Narrative
             index = 0;
             PresentCurrent();
             return true;
+        }
+
+        public bool IsSceneCompleted(string sceneId)
+        {
+            return completedScenes.Contains(NormalizeSceneId(sceneId));
+        }
+
+        public IReadOnlyList<string> GetMissingPrerequisites(string sceneId)
+        {
+            sceneId = NormalizeSceneId(sceneId);
+            if (!scenes.TryGetValue(sceneId, out List<DialogueRecord> records))
+            {
+                return new[] { sceneId };
+            }
+
+            return records
+                .Select(record => record.Condition)
+                .Where(IsPrerequisite)
+                .Distinct(StringComparer.Ordinal)
+                .Where(condition =>
+                    !scenes.ContainsKey(condition) ||
+                    !completedScenes.Contains(condition))
+                .ToList();
+        }
+
+        public bool CanStartScene(string sceneId)
+        {
+            sceneId = NormalizeSceneId(sceneId);
+            return scenes.ContainsKey(sceneId) &&
+                   GetMissingPrerequisites(sceneId).Count == 0;
         }
 
         public void Advance()
@@ -224,6 +260,7 @@ namespace Wake.Narrative
             if (index >= activeScene.Count)
             {
                 completedScenes.Add(ActiveSceneId);
+                state?.RecordCompletedScene(ActiveSceneId);
                 Current = null;
                 IsComplete = true;
                 return;
@@ -245,7 +282,7 @@ namespace Wake.Narrative
         {
             foreach (string condition in records
                 .Select(record => record.Condition)
-                .Where(value => !string.IsNullOrWhiteSpace(value) && value != "\uC5C6\uC74C")
+                .Where(IsPrerequisite)
                 .Distinct())
             {
                 if (scenes.ContainsKey(condition))
@@ -262,6 +299,37 @@ namespace Wake.Narrative
                 }
             }
             return true;
+        }
+
+        private void NormalizeCompletedScenes(IEnumerable<string> source)
+        {
+            if (source == null)
+            {
+                return;
+            }
+
+            string[] values = source.ToArray();
+            completedScenes.Clear();
+            foreach (string value in values)
+            {
+                string normalized = NormalizeSceneId(value);
+                if (!string.IsNullOrEmpty(normalized))
+                {
+                    completedScenes.Add(normalized);
+                }
+            }
+        }
+
+        private static bool IsPrerequisite(string value)
+        {
+            return !string.IsNullOrWhiteSpace(value) && value != "\uC5C6\uC74C";
+        }
+
+        private static string NormalizeSceneId(string value)
+        {
+            return string.IsNullOrWhiteSpace(value)
+                ? string.Empty
+                : value.Trim().ToUpperInvariant();
         }
 
         private void ApplyEffect(DialogueRecord record)

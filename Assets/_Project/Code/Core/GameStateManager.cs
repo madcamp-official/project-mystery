@@ -37,6 +37,7 @@ namespace Wake.Core
         public List<CharacterTrustState> trust = new();
         public List<string> flags = new();
         public List<string> collectedEvidenceIds = new();
+        public List<string> completedProductionSceneIds = new();
         public string currentLocationCode = string.Empty;
     }
 
@@ -65,6 +66,8 @@ namespace Wake.Core
         public int TheorySlots => data.theorySlots;
         public int ActiveTheoryCount => data.activeTheories.Count;
         public IReadOnlyList<string> CollectedEvidenceIds => data.collectedEvidenceIds;
+        public IReadOnlyList<string> CompletedProductionSceneIds =>
+            data.completedProductionSceneIds;
         public string CurrentLocationCode => data.currentLocationCode;
 
         public event Action StateChanged;
@@ -182,6 +185,27 @@ namespace Wake.Core
 
             data.collectedEvidenceIds.Add(normalized);
             SaveAndNotify();
+        }
+
+        public bool HasCompletedScene(string sceneId)
+        {
+            string normalized = NormalizeSceneId(sceneId);
+            return !string.IsNullOrEmpty(normalized) &&
+                   data.completedProductionSceneIds.Contains(normalized);
+        }
+
+        public bool RecordCompletedScene(string sceneId)
+        {
+            string normalized = NormalizeSceneId(sceneId);
+            if (string.IsNullOrEmpty(normalized) ||
+                data.completedProductionSceneIds.Contains(normalized))
+            {
+                return false;
+            }
+
+            data.completedProductionSceneIds.Add(normalized);
+            SaveAndNotify();
+            return true;
         }
 
         public void RecordLocation(string locationCode)
@@ -400,6 +424,31 @@ namespace Wake.Core
             return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
         }
 
+        private static string NormalizeSceneId(string value)
+        {
+            return NormalizeId(value).ToUpperInvariant();
+        }
+
+        private static List<string> NormalizeSceneIds(IEnumerable<string> values)
+        {
+            var normalized = new List<string>();
+            if (values == null)
+            {
+                return normalized;
+            }
+
+            foreach (string value in values)
+            {
+                string sceneId = NormalizeSceneId(value);
+                if (!string.IsNullOrEmpty(sceneId) && !normalized.Contains(sceneId))
+                {
+                    normalized.Add(sceneId);
+                }
+            }
+
+            return normalized;
+        }
+
         private void Normalize()
         {
             data ??= CreateDefaultData();
@@ -411,6 +460,8 @@ namespace Wake.Core
             data.trust ??= new List<CharacterTrustState>();
             data.flags ??= new List<string>();
             data.collectedEvidenceIds ??= new List<string>();
+            data.completedProductionSceneIds =
+                NormalizeSceneIds(data.completedProductionSceneIds);
             data.currentLocationCode ??= string.Empty;
 
             if (data.activeTheories.Count > data.theorySlots)
