@@ -91,15 +91,13 @@ namespace Wake.Core
 
     public class GameStateManager : MonoBehaviour
     {
-        private const string SaveKey = "THE_WAKE_GAME_STATE_V1";
-
         public const int DefaultTrust = 2;
         public const int MaxTrust = 5;
         public const int MaxPercent = 100;
         public const int RestrictedAreaAnxiety = 70;
 
         public static GameStateManager Instance { get; private set; }
-        public static bool HasSaveData => PlayerPrefs.HasKey(SaveKey);
+        public static bool HasSaveData => GameStateSaveStore.HasRecoverableData();
 
         [SerializeField] private int startingTrust = DefaultTrust;
         [SerializeField] private int startingPublicAnxiety = 15;
@@ -109,6 +107,7 @@ namespace Wake.Core
 
         private int stateBatchDepth;
         private bool stateBatchDirty;
+        private long saveGeneration;
 
         public int Day => data.day;
         public TimeBlock CurrentTimeBlock => data.timeBlock;
@@ -145,12 +144,24 @@ namespace Wake.Core
 
         public void ReloadSavedState()
         {
-            Load();
+            GameStateSaveLoadResult loaded = GameStateSaveStore.Load();
+            data = loaded.Data ?? CreateDefaultData();
+            saveGeneration = loaded.Generation;
             Normalize();
+            if (loaded.NeedsRewrite)
+            {
+                saveGeneration = GameStateSaveStore.Save(data, saveGeneration);
+            }
+            if (!string.IsNullOrEmpty(loaded.Warning))
+            {
+                Debug.LogWarning(loaded.Warning);
+            }
         }
 
         public void StartNewGame()
         {
+            GameStateSaveStore.ClearAll();
+            saveGeneration = 0;
             data = CreateDefaultData();
             SaveAndNotify();
             FeedbackRequested?.Invoke("\uC0C8 \uC218\uC0AC\uB97C \uC2DC\uC791\uD569\uB2C8\uB2E4.");
@@ -832,8 +843,7 @@ namespace Wake.Core
         private void PersistAndNotify()
         {
             Normalize();
-            PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(data));
-            PlayerPrefs.Save();
+            saveGeneration = GameStateSaveStore.Save(data, saveGeneration);
             StateChanged?.Invoke();
         }
 
@@ -881,23 +891,5 @@ namespace Wake.Core
             return normalized;
         }
 
-        private void Load()
-        {
-            if (!PlayerPrefs.HasKey(SaveKey))
-            {
-                data = CreateDefaultData();
-                return;
-            }
-
-            try
-            {
-                data = JsonUtility.FromJson<GameStateSaveData>(PlayerPrefs.GetString(SaveKey));
-            }
-            catch (Exception exception)
-            {
-                Debug.LogWarning($"Game state could not be loaded: {exception.Message}");
-                data = CreateDefaultData();
-            }
-        }
     }
 }
