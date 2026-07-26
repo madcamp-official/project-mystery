@@ -62,7 +62,7 @@ namespace Wake.Puzzles
             new(
                 SceneDenial,
                 "현장 출입 부정",
-                "통상 출입구와 점검구로는 시신을 반입하지 않았다.",
+                "세 출구가 모두 사용되지 않아 사건 현장에 살아 있는 제3자가 없었다.",
                 "C-03", "C-04", "C-05"),
             new(
                 BodyInsertion,

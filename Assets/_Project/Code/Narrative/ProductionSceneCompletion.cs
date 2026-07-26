@@ -62,6 +62,7 @@ namespace Wake.Narrative
 
     public static class ProductionSceneCompletionCatalog
     {
+        public const string ExitInspectionInteraction = "exit_inspection";
         public const string BloodPatternInteraction = "blood_pattern";
         public const string MarcusInterrogationInteraction = "marcus_interrogation";
         public const string CargoRailInteraction = "cargo_rail_branch";
@@ -71,6 +72,7 @@ namespace Wake.Narrative
 
         private static readonly ProductionSceneCompletionRequirement[] Entries =
         {
+            R("D2-01", ExitInspectionInteraction, "D2-02"),
             R("D2-02", BloodPatternInteraction, "D2-03"),
             R("D4-04", MarcusInterrogationInteraction, "D5-01"),
             R("D6-02", CargoRailInteraction, "D6-03"),

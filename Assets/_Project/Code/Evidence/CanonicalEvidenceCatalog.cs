@@ -5,6 +5,12 @@ using UnityEngine;
 
 namespace Wake.Evidence
 {
+    public enum CanonicalEvidenceGrantMode
+    {
+        DialogueLine,
+        Interaction
+    }
+
     public sealed class CanonicalEvidenceEntry
     {
         public string Id { get; }
@@ -12,6 +18,7 @@ namespace Wake.Evidence
         public string Description { get; }
         public string Category { get; }
         public bool IsDirect { get; }
+        public CanonicalEvidenceGrantMode GrantMode { get; }
         public IReadOnlyList<string> GrantLineIds { get; }
 
         public CanonicalEvidenceEntry(
@@ -21,12 +28,32 @@ namespace Wake.Evidence
             string category,
             bool isDirect,
             params string[] grantLineIds)
+            : this(
+                id,
+                displayName,
+                description,
+                category,
+                isDirect,
+                CanonicalEvidenceGrantMode.DialogueLine,
+                grantLineIds)
+        {
+        }
+
+        public CanonicalEvidenceEntry(
+            string id,
+            string displayName,
+            string description,
+            string category,
+            bool isDirect,
+            CanonicalEvidenceGrantMode grantMode,
+            params string[] grantLineIds)
         {
             Id = id;
             DisplayName = displayName;
             Description = description;
             Category = category;
             IsDirect = isDirect;
+            GrantMode = grantMode;
             GrantLineIds = grantLineIds ?? Array.Empty<string>();
         }
     }
@@ -43,13 +70,13 @@ namespace Wake.Evidence
                 "exit", true, "d1_06_02"),
             new("C-03", "외벽 발판",
                 "염분막과 센서 기록이 온전하다.",
-                "exit", true, "d2_01_05"),
+                "exit", true, CanonicalEvidenceGrantMode.Interaction, "d2_01_05"),
             new("C-04", "덕트 먼지",
                 "통과 흔적이 없다.",
-                "exit", true, "d2_01_05"),
+                "exit", true, CanonicalEvidenceGrantMode.Interaction, "d2_01_05"),
             new("C-05", "점검구 먼지",
                 "먼지가 균일하게 유지되어 있다.",
-                "exit", true, "d2_01_05"),
+                "exit", true, CanonicalEvidenceGrantMode.Interaction, "d2_01_05"),
             new("C-06", "구두 밑창",
                 "Horizon 카펫이 아니라 Ballast 바닥 고무가 묻어 있다.",
                 "forensic", true, "d6_03_04"),
@@ -96,6 +123,8 @@ namespace Wake.Evidence
 
         private static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> ByGrantLine =
             Entries
+                .Where(entry =>
+                    entry.GrantMode == CanonicalEvidenceGrantMode.DialogueLine)
                 .SelectMany(entry => entry.GrantLineIds.Select(lineId => (lineId, entry.Id)))
                 .GroupBy(pair => pair.lineId, StringComparer.Ordinal)
                 .ToDictionary(

@@ -38,7 +38,12 @@ namespace Wake.Puzzles
         private void TryEvaluate()
         {
             GameStateManager state = GameStateManager.Instance;
-            if (state == null || state.HasFlag(SolvedFlag))
+            if (state == null ||
+                state.HasFlag(SolvedFlag) ||
+                !state.TryGetPuzzleSession(
+                    ExitInspectionCatalog.SessionId,
+                    out PuzzleSessionState session) ||
+                !session.completed)
             {
                 return;
             }

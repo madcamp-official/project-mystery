@@ -50,6 +50,7 @@ namespace Wake.Tests
                 ProductionSceneCompletionCatalog.All.Select(item => item.SceneId),
                 Is.EquivalentTo(new[]
                 {
+                    "D2-01",
                     "D2-02",
                     "D4-04",
                     "D6-02",
@@ -62,7 +63,7 @@ namespace Wake.Tests
                     .Select(item => item.InteractionId)
                     .Distinct()
                     .Count(),
-                Is.EqualTo(6));
+                Is.EqualTo(7));
         }
 
         [Test]
@@ -74,7 +75,7 @@ namespace Wake.Tests
 
             Assert.That(
                 diagnostics.Select(item => item.SceneId),
-                Is.EquivalentTo(new[] { "D2-01", "D4-03" }));
+                Is.EquivalentTo(new[] { "D4-03" }));
             Assert.That(
                 diagnostics.All(item =>
                     item.Message.Contains("대사 완료로 진행")),
@@ -82,15 +83,24 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void DialogueOnlyScene_CompletesWhenDialogueEnds()
+        public void ExitInspectionScene_WaitsForInteractionAfterDialogue()
         {
             var flow = CreateFlowWithPrerequisitesThrough("D2-01");
 
             FinishDialogue(flow, "D2-01");
 
-            Assert.That(flow.Phase, Is.EqualTo(ProductionScenePhase.Completed));
-            Assert.That(flow.PendingInteractionId, Is.Empty);
-            Assert.That(state.HasCompletedScene("D2-01"), Is.True);
+            Assert.That(
+                flow.Phase,
+                Is.EqualTo(ProductionScenePhase.InteractionPending));
+            Assert.That(
+                flow.PendingInteractionId,
+                Is.EqualTo(ProductionSceneCompletionCatalog.ExitInspectionInteraction));
+            Assert.That(state.HasCompletedScene("D2-01"), Is.False);
+            Assert.That(flow.CanStartScene("D2-02"), Is.False);
+            Assert.That(flow.CanStartScene("D2-04"), Is.False);
+            state.RecordCompletedScene("D2-01");
+            Assert.That(flow.CanStartScene("D2-02"), Is.True);
+            Assert.That(flow.CanStartScene("D2-04"), Is.True);
         }
 
         [Test]
