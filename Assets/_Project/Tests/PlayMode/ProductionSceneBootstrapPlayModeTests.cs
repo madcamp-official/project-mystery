@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
 using Wake.Core;
+using Wake.Exploration;
 using Wake.Narrative;
 
 namespace Wake.Tests.PlayMode
@@ -109,6 +110,22 @@ namespace Wake.Tests.PlayMode
             Assert.That(State.CurrentLocationCode, Is.EqualTo("PORT"));
             Assert.That(State.Day, Is.EqualTo(1));
             Assert.That(State.CurrentTimeBlock, Is.EqualTo(TimeBlock.AM));
+            Assert.That(LocationLoader.Instance, Is.Not.Null);
+            Assert.That(
+                LocationLoader.Instance.CurrentLocation.LocationCode,
+                Is.EqualTo("PORT"));
+            Assert.That(
+                LocationLoader.Instance.CurrentLocation.BackgroundSprite,
+                Is.Not.Null);
+            BackgroundCoverPresenter background =
+                Object.FindFirstObjectByType<BackgroundCoverPresenter>(
+                    FindObjectsInactive.Include);
+            Assert.That(background, Is.Not.Null);
+            Assert.That(background.gameObject.activeInHierarchy, Is.True);
+            Assert.That(
+                background.Sprite,
+                Is.SameAs(
+                    LocationLoader.Instance.CurrentLocation.BackgroundSprite));
 
             ProductionDialogueCheckpoint checkpoint =
                 State.DialogueCheckpoint;
@@ -177,7 +194,11 @@ namespace Wake.Tests.PlayMode
             Assert.That(
                 State.GetTrust("DANIEL"),
                 Is.EqualTo(trustBefore + 1),
-                "방향이 불명확한 '±1' 효과를 임의 실행하면 안 됩니다.");
+                "공식 P-01_C1의 Daniel 신뢰 +1 효과가 적용되어야 합니다.");
+            RawImage portrait = RequireComponent<RawImage>(
+                "Ingame/Line Panel/Speaker Portrait");
+            Assert.That(portrait.gameObject.activeInHierarchy, Is.True);
+            Assert.That(portrait.texture, Is.Not.Null);
             Assert.That(State.HasCompletedScene(OpeningSceneId), Is.False);
             Assert.That(Dialogue.IsBusy, Is.True);
             Assert.That(
