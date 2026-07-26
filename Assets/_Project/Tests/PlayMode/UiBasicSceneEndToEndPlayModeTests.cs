@@ -47,7 +47,8 @@ namespace Wake.Tests.PlayMode
             Assert.That(State.DialogueCheckpoint.activeSceneId,
                 Is.EqualTo("D2-01"));
 
-            Assert.That(EvidenceInventory.Instance.TryAddById("C-01"), Is.True);
+            Assert.That(EvidenceInventory.Instance.Contains("C-01"), Is.True);
+            Assert.That(EvidenceInventory.Instance.TryAddById("C-01"), Is.False);
             Ui.ShowEvidence();
             yield return null;
             Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Evidence));
