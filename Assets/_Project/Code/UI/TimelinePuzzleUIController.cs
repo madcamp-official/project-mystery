@@ -68,9 +68,38 @@ namespace Wake.UI
                 return "사건 타임라인을 완성했습니다.";
             }
 
-            return result.Diagnostics == null || result.Diagnostics.Count == 0
-                ? "배치 상태를 확인하세요."
-                : string.Join("\n", result.Diagnostics.Take(3));
+            if (result.Diagnostics == null || result.Diagnostics.Count == 0)
+            {
+                return "배치 상태를 확인하세요.";
+            }
+
+            int sourceMissing = result.Diagnostics.Count(message =>
+                message.StartsWith(
+                    "source_missing:",
+                    StringComparison.Ordinal));
+            var summary = result.Diagnostics
+                .Where(message => !message.StartsWith(
+                    "source_missing:",
+                    StringComparison.Ordinal))
+                .Take(sourceMissing > 0 ? 2 : 3)
+                .ToList();
+            if (sourceMissing > 0)
+            {
+                summary.Add(
+                    $"source_missing: 근거 자료 미확정 카드 {sourceMissing}장");
+            }
+            return string.Join("\n", summary.Take(3));
+        }
+
+        public static string SourceStatus(
+            IEnumerable<TimelineCardDefinition> definitions)
+        {
+            TimelineSourceCoverage coverage =
+                TimelinePuzzleValidator.InspectSources(definitions);
+            return coverage.IsComplete
+                ? $"근거 확인 {coverage.AuthoritativeCount}/{coverage.RequiredCount}"
+                : $"근거 확인 {coverage.AuthoritativeCount}/{coverage.RequiredCount} · " +
+                  $"source_missing {coverage.MissingSourceCount}장";
         }
     }
 
@@ -119,7 +148,8 @@ namespace Wake.UI
                 TimelinePuzzleCatalog.SourceBackedCards);
             selectedCardId = null;
             statusText.text =
-                "사건 카드를 선택한 뒤 배치할 시간 슬롯을 누르세요.";
+                "사건 카드를 선택한 뒤 배치할 시간 슬롯을 누르세요.\n" +
+                TimelinePuzzlePresentation.SourceStatus(session.Definitions);
             root.SetActive(true);
             Refresh();
             return true;

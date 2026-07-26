@@ -11,16 +11,21 @@ namespace Wake.Puzzles
         public TimelineCardDefinition(
             string id,
             string label,
-            string confirmedTime = "")
+            string confirmedTime = "",
+            string sourceReference = "")
         {
             Id = Normalize(id);
             Label = label?.Trim() ?? string.Empty;
             ConfirmedTime = confirmedTime?.Trim() ?? string.Empty;
+            SourceReference = sourceReference?.Trim() ?? string.Empty;
         }
 
         public string Id { get; }
         public string Label { get; }
         public string ConfirmedTime { get; }
+        public string SourceReference { get; }
+        public bool HasAuthoritativeSource =>
+            !string.IsNullOrEmpty(SourceReference);
 
         public static string Normalize(string value) =>
             string.IsNullOrWhiteSpace(value)
@@ -35,30 +40,70 @@ namespace Wake.Puzzles
         public const int RequiredCardCount = 12;
 
         public const string LastSighting = "last_sighting";
+        public const string EvelynPartyReturn = "evelyn_party_return";
         public const string Murder = "murder";
         public const string Movement = "movement";
+        public const string BodyDeparture = Movement;
         public const string DetectorError = "detector_error";
+        public const string SinkOverflow = "sink_overflow";
         public const string BodyDiscovery = "body_discovery";
+        public const string Discovery = BodyDiscovery;
+
+        public const string ScenarioSource =
+            "Game Scenario KR p.14 · 타임라인 카드";
+        public const string DialogueTimeSource =
+            "Dialogue CSV D6-05 · 살해 21:45 / 이동 22:18";
 
         private static readonly TimelineCardDefinition[] ConfirmedCards =
         {
-            new(LastSighting, "Richard 마지막 목격"),
-            new(Murder, "살해 추정", "21:45"),
-            new(Movement, "화물 이동", "22:18"),
-            new(DetectorError, "천장 감지기 오류"),
-            new(BodyDiscovery, "시신 발견")
+            new(
+                LastSighting,
+                "Daniel의 마지막 목격",
+                sourceReference: ScenarioSource),
+            new(
+                EvelynPartyReturn,
+                "Evelyn의 파티 복귀",
+                sourceReference: ScenarioSource),
+            new(
+                Murder,
+                "실제 살해",
+                "21:45",
+                $"{ScenarioSource}; {DialogueTimeSource}"),
+            new(
+                BodyDeparture,
+                "시신 출발",
+                "22:18",
+                $"{ScenarioSource}; {DialogueTimeSource}"),
+            new(
+                DetectorError,
+                "감지기 오류",
+                sourceReference: ScenarioSource),
+            new(
+                SinkOverflow,
+                "세면대 범람",
+                sourceReference: ScenarioSource),
+            new(
+                Discovery,
+                "발견",
+                sourceReference: ScenarioSource)
         };
 
         public static IReadOnlyList<TimelineCardDefinition> SourceBackedCards =>
             ConfirmedCards;
+        public static TimelineSourceCoverage SourceCoverage =>
+            TimelinePuzzleValidator.InspectSources(ConfirmedCards);
+        public static int SourceMissingCount =>
+            SourceCoverage.MissingSourceCount;
 
         public static IReadOnlyList<string> RequiredSequence { get; } = new[]
         {
             LastSighting,
+            EvelynPartyReturn,
             Murder,
-            Movement,
+            BodyDeparture,
             DetectorError,
-            BodyDiscovery
+            SinkOverflow,
+            Discovery
         };
     }
 
@@ -87,8 +132,40 @@ namespace Wake.Puzzles
         public IReadOnlyList<string> Diagnostics { get; }
     }
 
+    public readonly struct TimelineSourceCoverage
+    {
+        public TimelineSourceCoverage(
+            int definitionCount,
+            int authoritativeCount)
+        {
+            DefinitionCount = Math.Max(0, definitionCount);
+            AuthoritativeCount = Math.Max(0, authoritativeCount);
+        }
+
+        public int RequiredCount => TimelinePuzzleCatalog.RequiredCardCount;
+        public int DefinitionCount { get; }
+        public int AuthoritativeCount { get; }
+        public int MissingSourceCount =>
+            Math.Max(0, RequiredCount - AuthoritativeCount);
+        public int UnverifiedDefinitionCount =>
+            Math.Max(0, DefinitionCount - AuthoritativeCount);
+        public bool IsComplete =>
+            DefinitionCount == RequiredCount &&
+            MissingSourceCount == 0;
+    }
+
     public static class TimelinePuzzleValidator
     {
+        public static TimelineSourceCoverage InspectSources(
+            IEnumerable<TimelineCardDefinition> definitions)
+        {
+            TimelineCardDefinition[] cards =
+                (definitions ?? Array.Empty<TimelineCardDefinition>()).ToArray();
+            return new TimelineSourceCoverage(
+                cards.Length,
+                cards.Count(card => card?.HasAuthoritativeSource == true));
+        }
+
         public static IReadOnlyList<string> Validate(
             IEnumerable<TimelineCardDefinition> definitions)
         {
@@ -99,6 +176,16 @@ namespace Wake.Puzzles
             {
                 diagnostics.Add(
                     $"타임라인 카드는 정확히 12장이어야 합니다: {cards.Length}장");
+            }
+
+            TimelineSourceCoverage coverage = InspectSources(cards);
+            for (int index = 0;
+                 index < coverage.MissingSourceCount;
+                 index++)
+            {
+                diagnostics.Add(
+                    $"source_missing: 권위 자료가 없는 타임라인 카드 " +
+                    $"{index + 1}/{coverage.MissingSourceCount}");
             }
 
             foreach (TimelineCardDefinition card in cards)
@@ -229,8 +316,9 @@ namespace Wake.Puzzles
         public string GetHint() => HintLevel switch
         {
             1 => "살해 추정 시각은 21:45입니다.",
-            2 => "화물 이동 기록은 22:18입니다.",
-            3 => "마지막 목격 → 살해 → 이동 → 감지기 오류 → 발견 순서를 확인하세요.",
+            2 => "시신 이동 기록은 22:18입니다.",
+            3 => "마지막 목격 → 파티 복귀 → 실제 살해 → 시신 출발 → " +
+                 "감지기 오류 → 세면대 범람 → 발견 순서를 확인하세요.",
             _ => "힌트를 사용하면 확정된 시각과 필수 순서를 확인할 수 있습니다."
         };
 
