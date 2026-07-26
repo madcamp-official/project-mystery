@@ -51,6 +51,10 @@ namespace Wake.UI
             }
             mapPanel = canvas.Find("Map").gameObject;
             evidencePanel = canvas.Find("Evidence").gameObject;
+            if (evidencePanel.GetComponent<EvidenceTheoryBoardController>() == null)
+            {
+                evidencePanel.AddComponent<EvidenceTheoryBoardController>();
+            }
             settingsPopup = canvas.Find("Settings Popup").gameObject;
             Transform statusHudTransform = canvas.Find("Status HUD");
             statusHud = statusHudTransform != null ? statusHudTransform.gameObject : null;
@@ -140,6 +144,7 @@ namespace Wake.UI
         {
             SetActivePanel(evidencePanel);
             EvidencePanelController.Instance?.Refresh();
+            FindFirstObjectByType<EvidenceTheoryBoardController>()?.Open();
         }
 
         public void OpenSettings()

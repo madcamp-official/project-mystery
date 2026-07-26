@@ -4,6 +4,7 @@ using NUnit.Framework;
 using UnityEngine;
 using Wake.Core;
 using Wake.Puzzles;
+using Wake.UI;
 
 namespace Wake.Tests
 {
@@ -202,6 +203,48 @@ namespace Wake.Tests
                 service.EvaluateAndUnlockAll(),
                 Is.EquivalentTo(new[] { "body_insertion", "past_event" }));
             Assert.That(service.EvaluateAndUnlockAll(), Is.Empty);
+        }
+
+        [Test]
+        public void Presentation_DistinguishesMissingUnlockedAndActiveStates()
+        {
+            DeductionEvaluation missing = service.Evaluate("scene_denial");
+            EvidenceTheoryView missingView =
+                EvidenceTheoryPresentation.Create(missing, false, false);
+            EvidenceTheoryView unlockedView =
+                EvidenceTheoryPresentation.Create(missing, true, false);
+            EvidenceTheoryView activeView =
+                EvidenceTheoryPresentation.Create(missing, true, true);
+
+            Assert.That(
+                missingView.State,
+                Is.EqualTo(EvidenceTheoryState.MissingEvidence));
+            Assert.That(
+                EvidenceTheoryPresentation.StateLabel(missingView),
+                Does.Contain("C-03"));
+            Assert.That(
+                unlockedView.State,
+                Is.EqualTo(EvidenceTheoryState.Unlocked));
+            Assert.That(activeView.State, Is.EqualTo(EvidenceTheoryState.Active));
+        }
+
+        [Test]
+        public void Presentation_ExposesIntegrityFailureWithoutColorOnlyMeaning()
+        {
+            evidence.UnionWith(new[] { "C-03", "C-04", "C-05" });
+            state.ChangeEvidenceIntegrity(-100);
+
+            EvidenceTheoryView view = EvidenceTheoryPresentation.Create(
+                service.Evaluate("scene_denial"),
+                false,
+                false);
+
+            Assert.That(
+                view.State,
+                Is.EqualTo(EvidenceTheoryState.UnreliableEvidence));
+            Assert.That(
+                EvidenceTheoryPresentation.ButtonLabel(view),
+                Does.Contain("증거 훼손으로 사용 불가"));
         }
 
         private static void DestroyExistingManager()
