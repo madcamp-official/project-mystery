@@ -27,6 +27,28 @@ namespace Wake.Core
     }
 
     [Serializable]
+    public class PuzzleSessionState
+    {
+        public string puzzleId = string.Empty;
+        public List<string> selectedIds = new();
+        public int step;
+        public int hintLevel;
+        public bool completed;
+
+        public PuzzleSessionState Copy()
+        {
+            return new PuzzleSessionState
+            {
+                puzzleId = puzzleId,
+                selectedIds = new List<string>(selectedIds ?? new List<string>()),
+                step = step,
+                hintLevel = hintLevel,
+                completed = completed
+            };
+        }
+    }
+
+    [Serializable]
     internal class GameStateSaveData
     {
         public int day = 1;
@@ -40,6 +62,7 @@ namespace Wake.Core
         public List<string> collectedEvidenceIds = new();
         public List<string> completedProductionSceneIds = new();
         public List<string> completedObjectiveIds = new();
+        public List<PuzzleSessionState> puzzleSessions = new();
         public List<string> unlockedDeductionIds = new();
         public string finalEndingId = string.Empty;
         public string currentLocationCode = string.Empty;
@@ -232,6 +255,50 @@ namespace Wake.Core
             }
 
             data.completedObjectiveIds.Add(normalized);
+            SaveAndNotify();
+            return true;
+        }
+
+        public bool TryGetPuzzleSession(
+            string puzzleId,
+            out PuzzleSessionState session)
+        {
+            string normalized = NormalizeObjectiveId(puzzleId);
+            PuzzleSessionState stored = data.puzzleSessions.Find(item =>
+                item != null && item.puzzleId == normalized);
+            session = stored?.Copy();
+            return session != null;
+        }
+
+        public bool SavePuzzleSession(PuzzleSessionState session)
+        {
+            if (session == null)
+            {
+                return false;
+            }
+
+            string puzzleId = NormalizeObjectiveId(session.puzzleId);
+            if (string.IsNullOrEmpty(puzzleId))
+            {
+                return false;
+            }
+
+            PuzzleSessionState stored = data.puzzleSessions.Find(item =>
+                item != null && item.puzzleId == puzzleId);
+            if (stored == null)
+            {
+                stored = new PuzzleSessionState { puzzleId = puzzleId };
+                data.puzzleSessions.Add(stored);
+            }
+
+            stored.selectedIds = (session.selectedIds ?? new List<string>())
+                .Select(NormalizeObjectiveId)
+                .Where(value => !string.IsNullOrEmpty(value))
+                .Distinct()
+                .ToList();
+            stored.step = Mathf.Max(0, session.step);
+            stored.hintLevel = Mathf.Clamp(session.hintLevel, 0, 3);
+            stored.completed |= session.completed;
             SaveAndNotify();
             return true;
         }
@@ -545,6 +612,23 @@ namespace Wake.Core
                 .Select(NormalizeObjectiveId)
                 .Where(value => !string.IsNullOrEmpty(value))
                 .Distinct()
+                .ToList();
+            data.puzzleSessions ??= new List<PuzzleSessionState>();
+            foreach (PuzzleSessionState session in data.puzzleSessions.Where(item => item != null))
+            {
+                session.puzzleId = NormalizeObjectiveId(session.puzzleId);
+                session.selectedIds = (session.selectedIds ?? new List<string>())
+                    .Select(NormalizeObjectiveId)
+                    .Where(value => !string.IsNullOrEmpty(value))
+                    .Distinct()
+                    .ToList();
+                session.step = Mathf.Max(0, session.step);
+                session.hintLevel = Mathf.Clamp(session.hintLevel, 0, 3);
+            }
+            data.puzzleSessions = data.puzzleSessions
+                .Where(item => item != null && !string.IsNullOrEmpty(item.puzzleId))
+                .GroupBy(item => item.puzzleId)
+                .Select(group => group.First())
                 .ToList();
             data.unlockedDeductionIds = NormalizeIds(data.unlockedDeductionIds);
             data.finalEndingId = NormalizeId(data.finalEndingId);
