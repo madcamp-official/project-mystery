@@ -54,6 +54,12 @@ namespace Wake.UI
 
         public FinalAccusation Accusation { get; }
         public bool IsCompleted { get; private set; }
+        public int CompletedStageCount { get; private set; }
+        public int WrongStrikeCount => state.WrongStrikeCount;
+        public FinalAccusationStage? CurrentStage =>
+            CompletedStageCount < FinalAccusationStageCatalog.All.Count
+                ? FinalAccusationStageCatalog.All[CompletedStageCount].Stage
+                : null;
 
         public void Update(
             AccusedPerson accused,
@@ -82,18 +88,12 @@ namespace Wake.UI
         public IReadOnlyList<string> GetPreSubmitMessages()
         {
             var messages = new List<string>();
-            if (Accusation.Accused == AccusedPerson.Unknown)
-                messages.Add("범인을 선택하세요.");
-            if (Accusation.Location == MurderLocation.Unknown)
-                messages.Add("살해 장소를 선택하세요.");
-            if (Accusation.Method == MurderMethod.Unknown)
-                messages.Add("살해 방법을 선택하세요.");
-            if (Accusation.Transport == BodyTransport.Unknown)
-                messages.Add("시신 운반 경로를 선택하세요.");
-            if (Accusation.DanielBelievedTarget == DanielTargetBelief.Unknown)
-                messages.Add("Daniel이 믿은 표적을 선택하세요.");
-            if (Accusation.OrpheusDesign == OrpheusEventDesign.Unknown)
-                messages.Add("Orpheus 사건의 설계를 선택하세요.");
+            if (CurrentStage.HasValue && GetCurrentAnswerValue() == 0)
+            {
+                FinalAccusationStageDefinition stage =
+                    FinalAccusationStageCatalog.All[CompletedStageCount];
+                messages.Add($"{stage.Prompt} 답을 선택하세요.");
+            }
 
             string[] missing = CrimeDeductions
                 .Where(id => !state.HasUnlockedDeduction(id))
@@ -103,7 +103,8 @@ namespace Wake.UI
                 messages.Add($"핵심 논증이 부족합니다: {string.Join(", ", missing)}");
             }
 
-            if (Accusation.DiscloseRichardCoverup &&
+            if (!CurrentStage.HasValue &&
+                Accusation.DiscloseRichardCoverup &&
                 !state.HasUnlockedDeduction(CanonicalDeductionCatalog.PastEvent))
             {
                 messages.Add("Richard의 은폐를 공개하려면 과거 사건 논증이 필요합니다.");
@@ -132,9 +133,9 @@ namespace Wake.UI
             }
 
             IReadOnlyList<string> messages = GetPreSubmitMessages();
-            bool missingAnswer = messages.Any(message => message.EndsWith("선택하세요."));
-            bool missingCase = messages.Any(message => message.StartsWith("핵심 논증"));
-            if (missingAnswer || missingCase)
+            if ((CurrentStage.HasValue && GetCurrentAnswerValue() == 0) ||
+                messages.Any(message => message.StartsWith("핵심 논증")) ||
+                messages.Any(message => message.StartsWith("Richard의 은폐")))
             {
                 return new FinalAccusationSubmission(false, null, messages);
             }
@@ -151,6 +152,75 @@ namespace Wake.UI
             }
 
             using IDisposable batch = state.BeginStateBatch();
+            if (CurrentStage.HasValue)
+            {
+                FinalAccusationStageDefinition stage =
+                    FinalAccusationStageCatalog.All[CompletedStageCount];
+                int answer = GetCurrentAnswerValue();
+                FinalAccusationOptionDefinition option = stage.Options
+                    .Single(item => item.EnumValue == answer);
+                if (!option.IsCorrect)
+                {
+                    int strikeCount = state.ChangeRuntimeCounter(
+                        "wrong_strike",
+                        1);
+                    if (strikeCount < 3)
+                    {
+                        ClearCurrentAnswer();
+                        Save(false);
+                        return new FinalAccusationSubmission(
+                            false,
+                            null,
+                            messages.Concat(new[]
+                            {
+                                $"오답입니다. 같은 단계를 다시 선택하세요. " +
+                                $"오류 {strikeCount}/3"
+                            }).ToArray());
+                    }
+
+                    FinalAccusationResult failed = resolver.Resolve(Accusation);
+                    IsCompleted = true;
+                    Save(true);
+                    ProductionSceneCompletionGate.TryComplete(
+                        state,
+                        "D8-01",
+                        SessionId);
+                    return new FinalAccusationSubmission(
+                        true,
+                        failed,
+                        messages.Concat(new[]
+                        {
+                            "핵심 지목 오류가 3회 누적되었습니다.",
+                            failed.Reason
+                        }).ToArray());
+                }
+
+                CompletedStageCount++;
+                Save(false);
+                if (CurrentStage.HasValue)
+                {
+                    FinalAccusationStageDefinition next =
+                        FinalAccusationStageCatalog.All[CompletedStageCount];
+                    return new FinalAccusationSubmission(
+                        false,
+                        null,
+                        messages.Concat(new[]
+                        {
+                            $"{CompletedStageCount}단계 정답입니다. " +
+                            $"다음 질문: {next.Prompt}"
+                        }).ToArray());
+                }
+
+                return new FinalAccusationSubmission(
+                    false,
+                    null,
+                    messages.Concat(new[]
+                    {
+                        "여섯 단계가 모두 정답입니다. " +
+                        "Richard의 은폐 공개 여부를 결정하세요."
+                    }).ToArray());
+            }
+
             FinalAccusationResult result = resolver.Resolve(Accusation);
             IsCompleted = true;
             Save(true);
@@ -177,9 +247,10 @@ namespace Wake.UI
                     $"transport={(int)Accusation.Transport}",
                     $"target={(int)Accusation.DanielBelievedTarget}",
                     $"design={(int)Accusation.OrpheusDesign}",
-                    $"coverup={(Accusation.DiscloseRichardCoverup ? 1 : 0)}"
+                    $"coverup={(Accusation.DiscloseRichardCoverup ? 1 : 0)}",
+                    "flow=2"
                 },
-                step = 6,
+                step = CompletedStageCount,
                 completed = completed
             });
         }
@@ -203,7 +274,68 @@ namespace Wake.UI
                 Read<OrpheusEventDesign>(values, "design");
             Accusation.DiscloseRichardCoverup =
                 values.TryGetValue("coverup", out int coverup) && coverup == 1;
+            CompletedStageCount =
+                values.TryGetValue("flow", out int flow) && flow == 2
+                    ? Mathf.Clamp(
+                        saved.step,
+                        0,
+                        FinalAccusationStageCatalog.All.Count)
+                    : InferCompletedStageCount();
             IsCompleted = saved.completed;
+        }
+
+        private int InferCompletedStageCount()
+        {
+            int[] answers =
+            {
+                (int)Accusation.Accused,
+                (int)Accusation.Location,
+                (int)Accusation.Method,
+                (int)Accusation.Transport,
+                (int)Accusation.DanielBelievedTarget,
+                (int)Accusation.OrpheusDesign
+            };
+            int firstMissing = Array.FindIndex(answers, answer => answer == 0);
+            return firstMissing >= 0 ? firstMissing : answers.Length;
+        }
+
+        private int GetCurrentAnswerValue() =>
+            CurrentStage switch
+            {
+                FinalAccusationStage.Culprit => (int)Accusation.Accused,
+                FinalAccusationStage.MurderLocation => (int)Accusation.Location,
+                FinalAccusationStage.CauseOfDeath => (int)Accusation.Method,
+                FinalAccusationStage.BodyTransport => (int)Accusation.Transport,
+                FinalAccusationStage.MurderMotive =>
+                    (int)Accusation.DanielBelievedTarget,
+                FinalAccusationStage.OrpheusMastermind =>
+                    (int)Accusation.OrpheusDesign,
+                _ => 0
+            };
+
+        private void ClearCurrentAnswer()
+        {
+            switch (CurrentStage)
+            {
+                case FinalAccusationStage.Culprit:
+                    Accusation.Accused = AccusedPerson.Unknown;
+                    break;
+                case FinalAccusationStage.MurderLocation:
+                    Accusation.Location = MurderLocation.Unknown;
+                    break;
+                case FinalAccusationStage.CauseOfDeath:
+                    Accusation.Method = MurderMethod.Unknown;
+                    break;
+                case FinalAccusationStage.BodyTransport:
+                    Accusation.Transport = BodyTransport.Unknown;
+                    break;
+                case FinalAccusationStage.MurderMotive:
+                    Accusation.DanielBelievedTarget = DanielTargetBelief.Unknown;
+                    break;
+                case FinalAccusationStage.OrpheusMastermind:
+                    Accusation.OrpheusDesign = OrpheusEventDesign.Unknown;
+                    break;
+            }
         }
 
         private static T Read<T>(
@@ -225,13 +357,22 @@ namespace Wake.UI
             private readonly string[] options;
             private readonly int[] values;
             private readonly TMP_Text text;
+            private readonly GameObject promptNode;
+            private readonly GameObject choiceNode;
             private int index;
 
-            public ChoiceControl(string[] options, int[] values, TMP_Text text)
+            public ChoiceControl(
+                string[] options,
+                int[] values,
+                TMP_Text text,
+                GameObject promptNode,
+                GameObject choiceNode)
             {
                 this.options = options;
                 this.values = values;
                 this.text = text;
+                this.promptNode = promptNode;
+                this.choiceNode = choiceNode;
                 Set(0);
             }
 
@@ -248,6 +389,12 @@ namespace Wake.UI
                 int matchingIndex = Array.IndexOf(values, value);
                 index = matchingIndex >= 0 ? matchingIndex : 0;
                 text.text = options[index];
+            }
+
+            public void SetVisible(bool visible)
+            {
+                promptNode.SetActive(visible);
+                choiceNode.SetActive(visible);
             }
         }
 
@@ -270,6 +417,7 @@ namespace Wake.UI
             Build();
             session = new FinalAccusationSession(state);
             ApplySavedValues();
+            RefreshStageVisibility();
             feedback.text = "여섯 항목을 선택하고 최종 논증을 제출하세요.";
             panel.SetActive(true);
         }
@@ -339,6 +487,11 @@ namespace Wake.UI
                 FindFirstObjectByType<ProductionEndingUIController>()
                     ?.HandleSubmission(result);
             }
+            else
+            {
+                ApplySavedValues();
+                RefreshStageVisibility();
+            }
         }
 
         private TMP_Text CreateText(string value, int size)
@@ -362,7 +515,7 @@ namespace Wake.UI
                 .Concat(stage.Options.Select(option => option.EnumValue))
                 .ToArray();
 
-            CreateText(stage.Prompt, 18);
+            TMP_Text prompt = CreateText(stage.Prompt, 18);
             var node = new GameObject(
                 stage.Stage.ToString(),
                 typeof(RectTransform),
@@ -372,9 +525,24 @@ namespace Wake.UI
             node.GetComponent<Image>().color = new Color(0.12f, 0.16f, 0.25f);
             TMP_Text text = CreateText(string.Empty, 18);
             text.transform.SetParent(node.transform, false);
-            var control = new ChoiceControl(options, values, text);
+            var control = new ChoiceControl(
+                options,
+                values,
+                text,
+                prompt.gameObject,
+                node);
             node.GetComponent<Button>().onClick.AddListener(control.Advance);
             return control;
+        }
+
+        private void RefreshStageVisibility()
+        {
+            int currentIndex = session.CompletedStageCount;
+            for (int index = 0; index < choices.Length; index++)
+            {
+                choices[index].SetVisible(index == currentIndex);
+            }
+            coverupToggle.gameObject.SetActive(!session.CurrentStage.HasValue);
         }
 
         private Toggle CreateToggle(string label)
