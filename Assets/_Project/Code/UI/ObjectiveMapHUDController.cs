@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Wake.Core;
+using Wake.Narrative;
 
 namespace Wake.UI
 {
@@ -108,6 +109,11 @@ namespace Wake.UI
         private GameStateManager state;
 
         public ObjectiveHudViewModel CurrentViewModel { get; private set; }
+        public ProductionObjectiveViewModel CurrentProductionViewModel
+        {
+            get;
+            private set;
+        }
 
         private void OnEnable()
         {
@@ -122,6 +128,12 @@ namespace Wake.UI
 
         public void Refresh()
         {
+            if (state != null)
+            {
+                RenderProduction();
+                return;
+            }
+
             if (tracker == null)
             {
                 RenderEmpty();
@@ -163,6 +175,7 @@ namespace Wake.UI
             UnbindState();
             state = candidate;
             tracker = new InvestigationObjectiveTracker(state);
+            state.StateChanged += HandleStateChanged;
             tracker.ProgressChanged += HandleProgressChanged;
             tracker.ObjectiveCompleted += HandleObjectiveCompleted;
             Refresh();
@@ -170,6 +183,11 @@ namespace Wake.UI
 
         private void UnbindState()
         {
+            if (state != null)
+            {
+                state.StateChanged -= HandleStateChanged;
+            }
+
             if (tracker != null)
             {
                 tracker.ProgressChanged -= HandleProgressChanged;
@@ -179,6 +197,11 @@ namespace Wake.UI
 
             tracker = null;
             state = null;
+        }
+
+        private void HandleStateChanged()
+        {
+            Refresh();
         }
 
         private void HandleProgressChanged(ObjectiveProgress progress)
@@ -322,6 +345,7 @@ namespace Wake.UI
 
         private void RenderEmpty()
         {
+            CurrentProductionViewModel = null;
             CurrentViewModel =
                 ObjectiveHudViewModel.Create(Array.Empty<ObjectiveProgress>());
             if (root == null)
@@ -334,6 +358,35 @@ namespace Wake.UI
             titleText.text = "현재 조사 목표가 없습니다.";
             progressText.text = "0/0";
             accessibilityText.text = "조사 목표 없음";
+        }
+
+        private void RenderProduction()
+        {
+            CurrentProductionViewModel =
+                ProductionObjectiveViewModel.Resolve(state);
+            ProductionObjectiveItem? selected =
+                CurrentProductionViewModel.Current ??
+                CurrentProductionViewModel.Next;
+            ProductionObjectiveItem item = selected ??
+                CurrentProductionViewModel.Items[
+                    CurrentProductionViewModel.Items.Count - 1];
+            bool pending =
+                item.Status == ProductionObjectiveStatus.InteractionPending;
+            stateIcon.text = item.StateIcon;
+            stateIcon.color = pending ? Gold :
+                item.Status == ProductionObjectiveStatus.Completed
+                    ? Complete
+                    : Color.white;
+            titleText.text = $"{item.StateLabel} · {item.Definition.Title}";
+            progressText.text =
+                $"{item.Definition.SceneId} · {CurrentProductionViewModel.Summary}";
+            string nextLabel = CurrentProductionViewModel.Next.HasValue
+                ? $" · 다음: {CurrentProductionViewModel.Next.Value.Definition.SceneId} " +
+                  CurrentProductionViewModel.Next.Value.Definition.Title
+                : string.Empty;
+            accessibilityText.text =
+                $"{item.Definition.Description} · {item.Definition.ScheduleLabel}{nextLabel}";
+            root.SetActive(true);
         }
     }
 }
