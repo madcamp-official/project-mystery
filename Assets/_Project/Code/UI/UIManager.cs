@@ -153,6 +153,8 @@ namespace Wake.UI
         private void EnsureRuntimeControllers()
         {
             runtimeModals.Clear();
+            RegisterModal(EnsureComponent<ExitInspectionUIController>(
+                ingamePanel));
             RegisterModal(EnsureComponent<ProductionPuzzleUIController>(
                 ingamePanel));
             RegisterModal(EnsureComponent<FinalAccusationUIController>(

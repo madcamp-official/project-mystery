@@ -410,7 +410,14 @@ namespace Wake.Narrative
             }
             StatusHUDController hud = FindFirstObjectByType<StatusHUDController>();
             hud?.ClearContextCharacter();
-            if (ProductionPuzzleCatalog.TryGetByScene(
+            if (string.Equals(
+                    completedProductionScene,
+                    ExitInspectionCatalog.SceneId,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                FindFirstObjectByType<ExitInspectionUIController>()?.Open();
+            }
+            else if (ProductionPuzzleCatalog.TryGetByScene(
                     completedProductionScene,
                     out ProductionPuzzleDefinition puzzle))
             {
