@@ -4,14 +4,11 @@ using Wake.Evidence;
 
 namespace Wake.Puzzles
 {
-    /// PZ-EXIT: 발판(C-03) + 덕트(C-04) + 점검구(C-05)가 모두 모이면
-    /// "세 출구 모두 사용되지 않았다" 결론을 내리고 그 이론을 활성화한다.
+    /// 기존 씬을 정식 C-03/C-04/C-05 추론 서비스에 연결하는 호환 어댑터.
+    /// 추론 해금은 활성 가설 슬롯을 자동으로 차지하지 않는다.
     public class ExitPuzzle : MonoBehaviour
     {
-        private const string TheoryId = "출구 미사용";
         private const string SolvedFlag = "pz_exit_solved";
-
-        private static readonly string[] RequiredEvidenceIds = { "C-03", "C-04", "C-05" };
 
         private void Start()
         {
@@ -46,37 +43,15 @@ namespace Wake.Puzzles
                 return;
             }
 
-            if (!HasAllRequiredEvidence())
+            var service = new CanonicalDeductionService(
+                state,
+                evidenceId => EvidenceInventory.Instance.Contains(evidenceId));
+            if (!service.TryUnlock(CanonicalDeductionCatalog.SceneDenial))
             {
                 return;
             }
 
-            state.AddFlag(SolvedFlag, "출구 미사용 결론");
-            state.ActivateTheory(TheoryId);
-        }
-
-        private bool HasAllRequiredEvidence()
-        {
-            var collected = EvidenceInventory.Instance.Collected;
-            foreach (string requiredId in RequiredEvidenceIds)
-            {
-                bool found = false;
-                foreach (EvidenceDefinition evidence in collected)
-                {
-                    if (evidence != null && evidence.EvidenceId == requiredId)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found)
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            state.AddFlag(SolvedFlag, "현장 출입 부정 추론");
         }
     }
 }
