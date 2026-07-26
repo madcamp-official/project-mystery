@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Wake.Core;
 using Wake.Evidence;
 using Wake.Puzzles;
 using Wake.UI;
@@ -407,6 +408,21 @@ namespace Wake.Narrative
                          StringComparison.OrdinalIgnoreCase))
             {
                 FindFirstObjectByType<FinalAccusationUIController>()?.Open();
+            }
+            else if (string.Equals(
+                         completedProductionScene,
+                         ProductionEndingCatalog.ConfessionSceneId,
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                StartProductionScene(ProductionEndingCatalog.EpilogueSceneId);
+            }
+            else if (string.Equals(
+                         completedProductionScene,
+                         ProductionEndingCatalog.EpilogueSceneId,
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                FindFirstObjectByType<ProductionEndingUIController>()
+                    ?.ShowEpilogue();
             }
         }
 

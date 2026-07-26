@@ -49,6 +49,10 @@ namespace Wake.UI
             {
                 ingamePanel.AddComponent<OrpheusAudioRestorationUIController>();
             }
+            if (ingamePanel.GetComponent<ProductionEndingUIController>() == null)
+            {
+                ingamePanel.AddComponent<ProductionEndingUIController>();
+            }
             mapPanel = canvas.Find("Map").gameObject;
             evidencePanel = canvas.Find("Evidence").gameObject;
             if (evidencePanel.GetComponent<EvidenceTheoryBoardController>() == null)
