@@ -37,6 +37,10 @@ namespace Wake.UI
             {
                 ingamePanel.AddComponent<FinalAccusationUIController>();
             }
+            if (ingamePanel.GetComponent<MarcusInterrogationUIController>() == null)
+            {
+                ingamePanel.AddComponent<MarcusInterrogationUIController>();
+            }
             mapPanel = canvas.Find("Map").gameObject;
             evidencePanel = canvas.Find("Evidence").gameObject;
             settingsPopup = canvas.Find("Settings Popup").gameObject;

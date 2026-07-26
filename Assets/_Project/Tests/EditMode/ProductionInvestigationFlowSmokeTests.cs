@@ -5,6 +5,7 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using Wake.Core;
+using Wake.Evidence;
 using Wake.Exploration;
 using Wake.Narrative;
 using Wake.Puzzles;
@@ -23,6 +24,7 @@ namespace Wake.Tests
         private IReadOnlyList<DialogueRecord> records;
         private GameObject host;
         private GameStateManager state;
+        private EvidenceInventory inventory;
 
         [OneTimeSetUp]
         public void LoadProductionContent()
@@ -41,6 +43,8 @@ namespace Wake.Tests
             PlayerPrefs.DeleteKey(SaveKey);
             host = new GameObject("ProductionInvestigationFlowSmokeTests");
             state = host.AddComponent<GameStateManager>();
+            inventory = host.AddComponent<EvidenceInventory>();
+            inventory.BindState(state);
         }
 
         [TearDown]
@@ -144,7 +148,9 @@ namespace Wake.Tests
 
             Assert.That(blood.TryComplete().Completed, Is.True);
 
-            var marcus = new MarcusInterrogationSession(state);
+            var marcus = new MarcusInterrogationSession(
+                state,
+                tryGrantEvidence: id => inventory.TryAddById(id));
             marcus.Ask(
                 MarcusInterrogationCatalog.AuthenticationQuestion,
                 MarcusAnswer.Yes);
