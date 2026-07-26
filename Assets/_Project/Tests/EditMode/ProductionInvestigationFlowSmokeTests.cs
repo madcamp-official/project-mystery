@@ -232,7 +232,6 @@ namespace Wake.Tests
             state.ChangeTrust("CLAIRE", 2);
             state.ChangePublicAnxiety(40);
             state.ChangeEvidenceIntegrity(-25);
-            state.ActivateTheory("body_transport_route");
             state.AddFlag("service_rail_access");
             state.RecordEvidenceCollected("C-10");
             state.RecordCompletedScene("D6-02");
@@ -254,7 +253,6 @@ namespace Wake.Tests
             Assert.That(state.GetTrust("CLAIRE"), Is.EqualTo(4));
             Assert.That(state.PublicAnxiety, Is.EqualTo(55));
             Assert.That(state.EvidenceIntegrity, Is.EqualTo(75));
-            Assert.That(state.ActiveTheoryCount, Is.EqualTo(1));
             Assert.That(state.HasFlag("service_rail_access"), Is.True);
             Assert.That(state.CollectedEvidenceIds, Does.Contain("C-10"));
             Assert.That(state.HasCompletedScene("D6-02"), Is.True);

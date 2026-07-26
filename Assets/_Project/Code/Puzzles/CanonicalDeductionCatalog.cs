@@ -185,11 +185,5 @@ namespace Wake.Puzzles
             return unlocked;
         }
 
-        public bool TryActivate(string deductionId)
-        {
-            string normalized = CanonicalDeductionCatalog.NormalizeId(deductionId);
-            return state.HasUnlockedDeduction(normalized) &&
-                   state.ActivateTheory(normalized);
-        }
     }
 }

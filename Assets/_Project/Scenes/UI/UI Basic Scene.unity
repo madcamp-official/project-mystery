@@ -6925,14 +6925,11 @@ MonoBehaviour:
   startingTrust: 2
   startingPublicAnxiety: 15
   startingEvidenceIntegrity: 100
-  startingTheorySlots: 3
   data:
     day: 1
     timeBlock: 0
     publicAnxiety: 15
     evidenceIntegrity: 100
-    theorySlots: 3
-    activeTheories: []
     trust: []
     flags: []
     collectedEvidenceIds: []

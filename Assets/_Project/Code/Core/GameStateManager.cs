@@ -75,8 +75,6 @@ namespace Wake.Core
         public TimeBlock timeBlock = TimeBlock.AM;
         public int publicAnxiety = 15;
         public int evidenceIntegrity = 100;
-        public int theorySlots = 3;
-        public List<string> activeTheories = new();
         public List<CharacterTrustState> trust = new();
         public List<string> flags = new();
         public List<string> collectedEvidenceIds = new();
@@ -102,7 +100,6 @@ namespace Wake.Core
         [SerializeField] private int startingTrust = DefaultTrust;
         [SerializeField] private int startingPublicAnxiety = 15;
         [SerializeField] private int startingEvidenceIntegrity = 100;
-        [SerializeField] private int startingTheorySlots = 3;
         [SerializeField] private GameStateSaveData data = new();
 
         private int stateBatchDepth;
@@ -113,8 +110,6 @@ namespace Wake.Core
         public TimeBlock CurrentTimeBlock => data.timeBlock;
         public int PublicAnxiety => data.publicAnxiety;
         public int EvidenceIntegrity => data.evidenceIntegrity;
-        public int TheorySlots => data.theorySlots;
-        public int ActiveTheoryCount => data.activeTheories.Count;
         public IReadOnlyList<string> CollectedEvidenceIds => data.collectedEvidenceIds;
         public IReadOnlyList<string> CompletedProductionSceneIds =>
             data.completedProductionSceneIds;
@@ -207,39 +202,6 @@ namespace Wake.Core
             {
                 SaveAndNotify();
             }
-        }
-
-        public bool ActivateTheory(string theoryId)
-        {
-            string normalized = NormalizeId(theoryId);
-            if (string.IsNullOrEmpty(normalized) || data.activeTheories.Contains(normalized))
-            {
-                return false;
-            }
-
-            if (data.activeTheories.Count >= data.theorySlots)
-            {
-                FeedbackRequested?.Invoke(
-                    "\uD65C\uC131 \uAC00\uC124 \uC2AC\uB86F\uC774 \uAC00\uB4DD \uCC3C\uC2B5\uB2C8\uB2E4.");
-                return false;
-            }
-
-            data.activeTheories.Add(normalized);
-            SaveAndNotify();
-            FeedbackRequested?.Invoke(
-                $"\uAC00\uC124 \uD65C\uC131\uD654 \u00B7 {normalized}");
-            return true;
-        }
-
-        public bool RemoveTheory(string theoryId)
-        {
-            if (!data.activeTheories.Remove(NormalizeId(theoryId)))
-            {
-                return false;
-            }
-
-            SaveAndNotify();
-            return true;
         }
 
         public void RecordEvidenceCollected(string evidenceId)
@@ -437,13 +399,6 @@ namespace Wake.Core
             stored.completed |= session.completed;
             SaveAndNotify();
             return true;
-        }
-
-        public bool IsTheoryActive(string theoryId)
-        {
-            string normalized = NormalizeId(theoryId);
-            return !string.IsNullOrEmpty(normalized) &&
-                   data.activeTheories.Contains(normalized);
         }
 
         public bool HasUnlockedDeduction(string deductionId)
@@ -718,8 +673,7 @@ namespace Wake.Core
             return new GameStateSaveData
             {
                 publicAnxiety = Mathf.Clamp(startingPublicAnxiety, 0, MaxPercent),
-                evidenceIntegrity = Mathf.Clamp(startingEvidenceIntegrity, 0, MaxPercent),
-                theorySlots = Mathf.Max(1, startingTheorySlots)
+                evidenceIntegrity = Mathf.Clamp(startingEvidenceIntegrity, 0, MaxPercent)
             };
         }
 
@@ -764,8 +718,6 @@ namespace Wake.Core
             data.day = Mathf.Max(1, data.day);
             data.publicAnxiety = Mathf.Clamp(data.publicAnxiety, 0, MaxPercent);
             data.evidenceIntegrity = Mathf.Clamp(data.evidenceIntegrity, 0, MaxPercent);
-            data.theorySlots = Mathf.Max(1, data.theorySlots);
-            data.activeTheories ??= new List<string>();
             data.trust ??= new List<CharacterTrustState>();
             data.flags ??= new List<string>();
             data.collectedEvidenceIds ??= new List<string>();
@@ -809,13 +761,6 @@ namespace Wake.Core
                 {
                     data.dialogueCheckpoint = null;
                 }
-            }
-
-            if (data.activeTheories.Count > data.theorySlots)
-            {
-                data.activeTheories.RemoveRange(
-                    data.theorySlots,
-                    data.activeTheories.Count - data.theorySlots);
             }
 
             foreach (CharacterTrustState entry in data.trust)

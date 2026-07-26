@@ -109,8 +109,6 @@ namespace Wake.Tests.PlayMode
                 Assert.That(
                     deductions.EvaluateAndUnlockAll(),
                     Has.Count.EqualTo(CanonicalDeductionCatalog.All.Count));
-                Assert.That(deductions.TryActivate(
-                    CanonicalDeductionCatalog.SceneDenial), Is.True);
                 yield return null;
 
                 yield return RecreateRuntime("RestoredEvidence");
@@ -130,7 +128,7 @@ namespace Wake.Tests.PlayMode
                     restoredDeductions.EvaluateAndUnlockAll(),
                     Is.Empty);
                 Assert.That(
-                    state.IsTheoryActive(CanonicalDeductionCatalog.SceneDenial),
+                    state.HasUnlockedDeduction(CanonicalDeductionCatalog.SceneDenial),
                     Is.True);
                 Assert.That(collectedEvents, Has.Count.EqualTo(18));
             }

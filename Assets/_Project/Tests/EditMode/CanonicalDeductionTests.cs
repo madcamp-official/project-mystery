@@ -90,52 +90,32 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void CompleteChain_UnlocksWithoutActivatingTheory()
+        public void CompleteChain_UnlocksPermanentDeduction()
         {
             evidence.UnionWith(new[] { "C-07", "C-08" });
 
             Assert.That(service.TryUnlock("body_insertion"), Is.True);
 
             Assert.That(state.HasUnlockedDeduction("body_insertion"), Is.True);
-            Assert.That(state.ActiveTheoryCount, Is.Zero);
-            Assert.That(state.IsTheoryActive("body_insertion"), Is.False);
             Assert.That(service.TryUnlock("body_insertion"), Is.False);
         }
 
         [Test]
-        public void Activation_RequiresUnlockedDeduction()
+        public void EveryCompletedChain_CanRemainUnlockedAtTheSameTime()
         {
-            Assert.That(service.TryActivate("transport_route"), Is.False);
-            evidence.UnionWith(new[] { "C-09", "C-10" });
-            Assert.That(service.TryUnlock("transport_route"), Is.True);
-
-            Assert.That(service.TryActivate("transport_route"), Is.True);
-            Assert.That(state.IsTheoryActive("transport_route"), Is.True);
-        }
-
-        [Test]
-        public void Activation_StillHonorsThreeTheorySlots()
-        {
-            foreach (CanonicalDeductionDefinition definition in
-                     CanonicalDeductionCatalog.All.Take(4))
+            foreach (CanonicalDeductionDefinition definition in CanonicalDeductionCatalog.All)
             {
                 evidence.UnionWith(definition.RequiredEvidenceIds);
                 Assert.That(service.TryUnlock(definition.Id), Is.True);
             }
 
-            foreach (string id in CanonicalDeductionCatalog.All.Take(3).Select(item => item.Id))
-            {
-                Assert.That(service.TryActivate(id), Is.True);
-            }
-
             Assert.That(
-                service.TryActivate(CanonicalDeductionCatalog.ActualMurder),
-                Is.False);
-            Assert.That(state.ActiveTheoryCount, Is.EqualTo(3));
+                state.UnlockedDeductionIds,
+                Is.EquivalentTo(CanonicalDeductionCatalog.All.Select(item => item.Id)));
         }
 
         [Test]
-        public void UnlockedDeductions_RestoreWithoutChangingActiveTheories()
+        public void UnlockedDeductions_RestoreAsPermanentProgress()
         {
             evidence.UnionWith(new[] { "C-06", "C-12", "C-17" });
             service.EvaluateAndUnlockAll();
@@ -148,7 +128,6 @@ namespace Wake.Tests
             Assert.That(state.HasUnlockedDeduction("actual_murder"), Is.True);
             Assert.That(state.HasUnlockedDeduction("past_event"), Is.True);
             Assert.That(state.UnlockedDeductionIds.Count, Is.EqualTo(2));
-            Assert.That(state.ActiveTheoryCount, Is.Zero);
         }
 
         [Test]

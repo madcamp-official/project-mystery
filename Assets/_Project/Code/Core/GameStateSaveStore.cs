@@ -52,7 +52,7 @@ namespace Wake.Core
         private static readonly string[] LegacyFields =
         {
             "day", "timeBlock", "publicAnxiety", "evidenceIntegrity",
-            "theorySlots", "activeTheories", "trust", "flags",
+            "trust", "flags",
             "collectedEvidenceIds", "completedProductionSceneIds",
             "completedObjectiveIds", "puzzleSessions", "unlockedDeductionIds",
             "finalEndingId", "currentLocationCode", "dialogueCheckpoint"
