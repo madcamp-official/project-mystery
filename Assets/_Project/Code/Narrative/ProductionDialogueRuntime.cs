@@ -211,9 +211,6 @@ namespace Wake.Narrative
     public sealed class ProductionDialogueFlow
     {
         public const int ChoiceCapacity = 8;
-        private const string FinalAccusationPrerequisite = "D8-01 correct";
-        private const string EpiloguePrerequisite =
-            "D8-02 or ending:C or bad_end";
         private readonly Dictionary<string, List<DialogueRecord>> scenes;
         private readonly HashSet<string> completedScenes;
         private readonly GameStateManager state;
@@ -446,7 +443,8 @@ namespace Wake.Narrative
                     continue;
                 }
 
-                if (condition == FinalAccusationPrerequisite)
+                if (condition ==
+                    ProductionSceneCatalog.FinalAccusationPrerequisite)
                 {
                     warnings.Add(
                         $"Typed prerequisite '{condition}' requires ending A or B.");
@@ -477,12 +475,13 @@ namespace Wake.Narrative
             {
                 return false;
             }
-            if (condition == FinalAccusationPrerequisite)
+            if (condition ==
+                ProductionSceneCatalog.FinalAccusationPrerequisite)
             {
                 return FinalAccusationResolver.OpensD8Confession(
                     state.FinalEndingId);
             }
-            if (condition == EpiloguePrerequisite)
+            if (condition == ProductionSceneCatalog.EpiloguePrerequisite)
             {
                 string route = FinalAccusationResolver.ToOfficialRoute(
                     state.FinalEndingId);
@@ -517,11 +516,11 @@ namespace Wake.Narrative
             return !string.IsNullOrWhiteSpace(value) &&
                    (string.Equals(
                         value.Trim(),
-                        FinalAccusationPrerequisite,
+                        ProductionSceneCatalog.FinalAccusationPrerequisite,
                         StringComparison.Ordinal) ||
                     string.Equals(
                         value.Trim(),
-                        EpiloguePrerequisite,
+                        ProductionSceneCatalog.EpiloguePrerequisite,
                         StringComparison.Ordinal) ||
                     System.Text.RegularExpressions.Regex.IsMatch(
                         value.Trim(),

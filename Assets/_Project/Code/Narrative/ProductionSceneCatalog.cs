@@ -65,6 +65,10 @@ namespace Wake.Narrative
 
     public static class ProductionSceneCatalog
     {
+        public const string FinalAccusationPrerequisite = "D8-01 correct";
+        public const string EpiloguePrerequisite =
+            "D8-02 or ending:C or bad_end";
+
         private static readonly ProductionSceneDefinition[] Entries =
         {
             S("P-01", 0, 15, 10, "PORT", ProductionSceneType.Prologue),
@@ -106,7 +110,14 @@ namespace Wake.Narrative
             S("D7-03", 7, 13, 0, "ARCHIVE", ProductionSceneType.Puzzle, "D7-02"),
             S("D7-04", 7, 18, 0, "PROMENADE", ProductionSceneType.Interrogation, "D7-03"),
             S("D8-01", 8, 8, 0, "HORIZON", ProductionSceneType.Finale, "D7-04"),
-            S("D8-02", 8, 9, 0, "STERN", ProductionSceneType.Finale, "D8-01 correct"),
+            S(
+                "D8-02",
+                8,
+                9,
+                0,
+                "STERN",
+                ProductionSceneType.Finale,
+                FinalAccusationPrerequisite),
             S(
                 "D8-03",
                 8,
@@ -114,7 +125,7 @@ namespace Wake.Narrative
                 30,
                 "PORT",
                 ProductionSceneType.Epilogue,
-                "D8-02 or ending:C or bad_end")
+                EpiloguePrerequisite)
         };
 
         private static readonly IReadOnlyDictionary<string, ProductionSceneDefinition> ById =
@@ -167,10 +178,6 @@ namespace Wake.Narrative
 
     public static class ProductionSceneScheduleValidator
     {
-        private const string FinalTypedCondition = "D8-01 correct";
-        private const string EpilogueTypedCondition =
-            "D8-02 or ending:C or bad_end";
-
         public static IReadOnlyList<SceneScheduleDiagnostic> Validate(
             IEnumerable<DialogueRecord> records,
             IEnumerable<ProductionSceneDefinition> definitions = null)
@@ -299,8 +306,9 @@ namespace Wake.Narrative
 
             foreach (string prerequisite in definition.Prerequisites)
             {
-                if (prerequisite != FinalTypedCondition &&
-                    prerequisite != EpilogueTypedCondition &&
+                if (prerequisite !=
+                        ProductionSceneCatalog.FinalAccusationPrerequisite &&
+                    prerequisite != ProductionSceneCatalog.EpiloguePrerequisite &&
                     !schedule.ContainsKey(prerequisite))
                 {
                     AddError(
@@ -329,14 +337,14 @@ namespace Wake.Narrative
         {
             if (string.Equals(
                     value,
-                    FinalTypedCondition,
+                    ProductionSceneCatalog.FinalAccusationPrerequisite,
                     StringComparison.Ordinal))
             {
                 return true;
             }
             if (string.Equals(
                     value,
-                    EpilogueTypedCondition,
+                    ProductionSceneCatalog.EpiloguePrerequisite,
                     StringComparison.Ordinal))
             {
                 return true;
