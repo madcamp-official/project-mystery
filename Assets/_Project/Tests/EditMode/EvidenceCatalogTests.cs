@@ -11,7 +11,7 @@ namespace Wake.Tests
     public class EvidenceCatalogTests
     {
         private const string DialoguePath =
-            "Assets/_Project/Content/Dialogue/The_Wake_Without_Footprints_Dialogue_KR.csv";
+            "Assets/_Project/Content/Dialogue/Under_the_Horizon_Dialogue_KR.csv";
         private readonly List<Object> createdObjects = new();
         private List<DialogueRecord> records;
 
@@ -85,6 +85,155 @@ namespace Wake.Tests
                         $"{entry.Id} maps to missing line {lineId}.");
                 }
             }
+        }
+
+        [Test]
+        public void OfficialDialogue_PassesEvidenceGrantContract()
+        {
+            IReadOnlyList<CanonicalEvidenceContractDiagnostic> diagnostics =
+                CanonicalEvidenceContractValidator.Validate(records);
+
+            Assert.That(
+                diagnostics,
+                Is.Empty,
+                string.Join(
+                    "\n",
+                    diagnostics.Select(item =>
+                        $"{item.EvidenceId}/{item.LineId}: {item.Message}")));
+        }
+
+        [Test]
+        public void DialogueEvidence_UsesExplicitEffectsInsteadOfLegacyLineHooks()
+        {
+            Assert.That(
+                CanonicalEvidenceCatalog.All
+                    .Where(entry =>
+                        entry.GrantMode !=
+                        CanonicalEvidenceGrantMode.Interaction)
+                    .All(entry =>
+                        entry.GrantMode ==
+                        CanonicalEvidenceGrantMode.DialogueEffect),
+                Is.True);
+            Assert.That(
+                CanonicalEvidenceCatalog.GetGrantedEvidenceIds("p_02_04"),
+                Is.Empty);
+            Assert.That(
+                CanonicalEvidenceCatalog.GetGrantedEvidenceIds("d7_03_04"),
+                Is.Empty);
+        }
+
+        [TestCase("C-01", "p_01_05")]
+        [TestCase("C-02", "d1_06_10")]
+        [TestCase("C-03", "d2_01_09")]
+        [TestCase("C-04", "d2_01_13")]
+        [TestCase("C-05", "d2_01_17")]
+        [TestCase("C-06", "d6_03_05")]
+        [TestCase("C-07", "d2_02_14")]
+        [TestCase("C-08", "d2_04_14")]
+        [TestCase("C-09", "d6_01_10")]
+        [TestCase("C-10", "d6_04_10")]
+        [TestCase("C-11", "d2_03_07")]
+        [TestCase("C-12", "d6_03_16")]
+        [TestCase("C-13", "d5_03_08")]
+        [TestCase("C-14", "d3_05_10")]
+        [TestCase("C-15", "d4_04_15")]
+        [TestCase("C-16", "d7_02_06")]
+        [TestCase("C-17", "d7_03_15")]
+        [TestCase("C-18", "d8_03_12")]
+        public void OfficialGrantLine_ContainsMatchingEvidenceEffect(
+            string evidenceId,
+            string stableLineId)
+        {
+            DialogueRecord record = records.Single(item =>
+                item.StableLineId == stableLineId);
+
+            Assert.That(
+                CanonicalEvidenceContractValidator
+                    .GetCanonicalEvidenceEffects(record),
+                Contains.Item(evidenceId));
+        }
+
+        [TestCase("d1_06_13", "C-07")]
+        [TestCase("d2_06_08", "C-13")]
+        [TestCase("d3_04_12", "C-15")]
+        [TestCase("d6_02_05", "C-10")]
+        [TestCase("d6_04_07", "C-12")]
+        [TestCase("d7_04_23", "C-01")]
+        public void PartialOrConfirmationEffects_DoNotGrantCanonicalEvidenceEarly(
+            string stableLineId,
+            string canonicalEvidenceId)
+        {
+            DialogueRecord record = records.Single(item =>
+                item.StableLineId == stableLineId);
+
+            Assert.That(
+                CanonicalEvidenceContractValidator
+                    .GetCanonicalEvidenceEffects(record),
+                Does.Not.Contain(canonicalEvidenceId));
+        }
+
+        [Test]
+        public void Validator_ReportsCatalogEntryWithoutAnySource()
+        {
+            var changed = new CanonicalEvidenceEntry(
+                "C-01",
+                "Daniel의 초대장",
+                "테스트",
+                "invitation",
+                false,
+                CanonicalEvidenceGrantMode.DialogueEffect);
+
+            IReadOnlyList<CanonicalEvidenceContractDiagnostic> diagnostics =
+                CanonicalEvidenceContractValidator.Validate(
+                    records,
+                    new[] { changed });
+
+            Assert.That(diagnostics, Has.Count.EqualTo(1));
+            Assert.That(diagnostics[0].Message, Does.Contain("등록되지 않았습니다"));
+        }
+
+        [Test]
+        public void Validator_ReportsMissingGrantLine()
+        {
+            var changed = new CanonicalEvidenceEntry(
+                "C-01",
+                "Daniel의 초대장",
+                "테스트",
+                "invitation",
+                false,
+                CanonicalEvidenceGrantMode.DialogueEffect,
+                "missing_line");
+
+            IReadOnlyList<CanonicalEvidenceContractDiagnostic> diagnostics =
+                CanonicalEvidenceContractValidator.Validate(
+                    records,
+                    new[] { changed });
+
+            Assert.That(diagnostics, Has.Count.EqualTo(1));
+            Assert.That(diagnostics[0].EvidenceId, Is.EqualTo("C-01"));
+            Assert.That(diagnostics[0].LineId, Is.EqualTo("missing_line"));
+            Assert.That(diagnostics[0].Message, Does.Contain("출처 줄"));
+        }
+
+        [Test]
+        public void Validator_ReportsMismatchedEvidenceEffect()
+        {
+            var changed = new CanonicalEvidenceEntry(
+                "C-18",
+                "수정 기사",
+                "테스트",
+                "resolution",
+                false,
+                CanonicalEvidenceGrantMode.DialogueEffect,
+                "p_01_05");
+
+            IReadOnlyList<CanonicalEvidenceContractDiagnostic> diagnostics =
+                CanonicalEvidenceContractValidator.Validate(
+                    records,
+                    new[] { changed });
+
+            Assert.That(diagnostics, Has.Count.EqualTo(1));
+            Assert.That(diagnostics[0].Message, Does.Contain("C-18"));
         }
 
         [Test]
