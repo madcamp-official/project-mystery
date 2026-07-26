@@ -408,6 +408,13 @@ namespace Wake.Narrative
             {
                 FindFirstObjectByType<ProductionPuzzleUIController>()?.Open(puzzle.Id);
             }
+            else if (string.Equals(
+                         completedProductionScene,
+                         "D8-01",
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                FindFirstObjectByType<FinalAccusationUIController>()?.Open();
+            }
         }
     }
 }
