@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2580e2253d06483f804af34405ef6f19, type: 3}
-  m_Name: LocationDefinition_Horizon
-  m_EditorClassIdentifier:
-  locationCode: HORIZON
-  displayName: Horizon Room
-  deck: 9
-  roomCode: D9-4
-  backgroundSprite: {fileID: 21300000, guid: d64be424f7c6f284487434b0435b4c2f, type: 3}
+  m_Name: LocationDefinition_GANGWAY
+  m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
+  locationCode: GANGWAY
+  displayName: Gangway
+  deck: 0
+  roomCode:
+  backgroundSprite: {fileID: 21300000, guid: 4d6cab773a7d1a44196f5021a0009dc7, type: 3}
   narrativeAliases: []
   contentPrefab: {fileID: 0}
   connectedLocations: []

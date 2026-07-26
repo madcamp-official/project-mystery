@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2580e2253d06483f804af34405ef6f19, type: 3}
-  m_Name: LocationDefinition_Horizon
-  m_EditorClassIdentifier:
-  locationCode: HORIZON
-  displayName: Horizon Room
-  deck: 9
-  roomCode: D9-4
-  backgroundSprite: {fileID: 21300000, guid: d64be424f7c6f284487434b0435b4c2f, type: 3}
+  m_Name: LocationDefinition_SERVICE_HUB
+  m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
+  locationCode: SERVICE_HUB
+  displayName: Service Hub
+  deck: 6
+  roomCode: D6-4
+  backgroundSprite: {fileID: 21300000, guid: bf36629a99b326045934f22fa4615208, type: 3}
   narrativeAliases: []
   contentPrefab: {fileID: 0}
   connectedLocations: []
