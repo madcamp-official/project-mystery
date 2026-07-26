@@ -3,6 +3,7 @@ using NUnit.Framework;
 using UnityEngine;
 using Wake.Core;
 using Wake.Puzzles;
+using Wake.UI;
 
 namespace Wake.Tests
 {
@@ -133,6 +134,36 @@ namespace Wake.Tests
             Assert.That(
                 diagnostics.All(message => message.Contains("자막으로 대체")),
                 Is.True);
+        }
+
+        [Test]
+        public void Presentation_LabelsRecordedSpeakersAndSavedPositions()
+        {
+            var session = new OrpheusAudioRestorationSession(state);
+            session.Move("d7_03_02", 0);
+
+            var views = OrpheusAudioPresentation.CreateSegments(
+                session.OrderedLineIds,
+                "d7_03_01");
+
+            Assert.That(views[0].Speaker, Is.EqualTo("Julian 기록 음성"));
+            Assert.That(views[0].Selected, Is.True);
+            Assert.That(views[1].Position, Is.Zero);
+            Assert.That(views[1].IsPlaced, Is.True);
+        }
+
+        [Test]
+        public void Presentation_MarksTranscriptOnlyPlaybackExplicitly()
+        {
+            OrpheusPlaybackRequest request =
+                new OrpheusAudioRestorationSession(state)
+                    .RequestPlayback("d7_03_01");
+
+            string text = OrpheusAudioPresentation.PlaybackText(request);
+
+            Assert.That(text, Does.Contain("음성 없음"));
+            Assert.That(text, Does.Contain("한국어 자막"));
+            Assert.That(text, Does.Contain("아버지"));
         }
     }
 }
