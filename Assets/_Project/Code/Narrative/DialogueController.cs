@@ -471,6 +471,13 @@ namespace Wake.Narrative
             }
             else if (string.Equals(
                          completedProductionScene,
+                         TimelinePuzzleCatalog.SceneId,
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                FindFirstObjectByType<TimelinePuzzleUIController>()?.Open();
+            }
+            else if (string.Equals(
+                         completedProductionScene,
                          "D8-01",
                          StringComparison.OrdinalIgnoreCase))
             {
