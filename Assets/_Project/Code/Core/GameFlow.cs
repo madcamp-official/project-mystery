@@ -25,7 +25,7 @@ namespace Wake.Core
             }
 
             started = true;
-            LocationLoader.Instance.LoadLocation(locationGraph.StartingLocation);
+            LocationLoader.Instance?.TryLoadLocation(locationGraph.StartingLocation, out _);
         }
 
         /// Continue flow: restores collected evidence and jumps back to the saved location
@@ -50,9 +50,16 @@ namespace Wake.Core
                 : null;
             LocationDefinition target = savedLocation != null ? savedLocation : locationGraph.StartingLocation;
 
-            if (target != null)
+            if (target == null || LocationLoader.Instance == null)
             {
-                LocationLoader.Instance.LoadLocation(target);
+                return;
+            }
+
+            if (!LocationLoader.Instance.TryLoadLocation(target, out _) &&
+                target != locationGraph.StartingLocation &&
+                locationGraph.StartingLocation != null)
+            {
+                LocationLoader.Instance.TryLoadLocation(locationGraph.StartingLocation, out _);
             }
         }
     }

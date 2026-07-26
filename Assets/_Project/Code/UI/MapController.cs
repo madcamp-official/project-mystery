@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Wake.Core;
 using Wake.Exploration;
 
 namespace Wake.UI
@@ -8,6 +9,8 @@ namespace Wake.UI
     public class MapController : MonoBehaviour
     {
         [SerializeField] private LocationGraph locationGraph;
+
+        public SceneTravelResult LastTravelResult { get; private set; }
 
         private void Start()
         {
@@ -48,8 +51,54 @@ namespace Wake.UI
 
         private void SelectLocation(LocationDefinition location)
         {
-            LocationLoader.Instance.LoadLocation(location);
-            UIManager.Instance.ShowIngame();
+            GameStateManager state = GameStateManager.Instance;
+            LastTravelResult = SceneTravelPolicy.EvaluateLocation(
+                location,
+                state != null ? state.PublicAnxiety : 0);
+            if (TryLoadAllowedDestination(LastTravelResult))
+            {
+                UIManager.Instance?.ShowIngame();
+            }
+        }
+
+        public SceneTravelResult TryTravelToScene(string sceneId)
+        {
+            GameStateManager state = GameStateManager.Instance;
+            LastTravelResult = SceneTravelPolicy.EvaluateScene(
+                sceneId,
+                locationGraph,
+                state?.CompletedProductionSceneIds,
+                state != null ? state.PublicAnxiety : 0);
+            if (!TryLoadAllowedDestination(LastTravelResult))
+            {
+                return LastTravelResult;
+            }
+
+            if (state != null && LastTravelResult.Scene.Day > 0)
+            {
+                state.SetTime(
+                    LastTravelResult.Scene.Day,
+                    LastTravelResult.Scene.TimeBlock);
+            }
+
+            UIManager.Instance?.ShowIngame();
+            return LastTravelResult;
+        }
+
+        private bool TryLoadAllowedDestination(SceneTravelResult result)
+        {
+            if (!result.IsAllowed || LocationLoader.Instance == null ||
+                LocationLoader.Instance.TryLoadLocation(result.Location, out _))
+            {
+                return result.IsAllowed && LocationLoader.Instance != null;
+            }
+
+            LastTravelResult = SceneTravelResult.Denied(
+                SceneAccessDenialReason.LocationLoadFailed,
+                $"Location '{result.Location.LocationCode}' could not load visual content.",
+                result.Scene,
+                result.Location);
+            return false;
         }
     }
 }
