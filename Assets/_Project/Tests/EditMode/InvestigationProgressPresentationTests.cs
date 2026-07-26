@@ -90,8 +90,8 @@ namespace Wake.Tests
 
             Assert.That(sceneIds, Has.Length.EqualTo(41));
             Assert.That(
-                sceneIds.Distinct(System.StringComparer.Ordinal),
-                Has.Count.EqualTo(41));
+                sceneIds.Distinct(System.StringComparer.Ordinal).Count(),
+                Is.EqualTo(41));
         }
     }
 }

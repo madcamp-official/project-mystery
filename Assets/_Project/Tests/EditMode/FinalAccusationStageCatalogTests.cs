@@ -40,7 +40,7 @@ namespace Wake.Tests
             foreach (FinalAccusationStageDefinition stage in
                      FinalAccusationStageCatalog.All)
             {
-                Assert.That(stage.Options, Has.Count.EqualTo(4), stage.Prompt);
+                Assert.That(stage.Options.Count, Is.EqualTo(4), stage.Prompt);
                 Assert.That(
                     stage.Options.Select(option => option.Label),
                     Has.All.Not.Empty,
@@ -57,7 +57,7 @@ namespace Wake.Tests
                 .ToArray();
 
             Assert.That(choiceIds, Has.Length.EqualTo(24));
-            Assert.That(choiceIds.Distinct(), Has.Count.EqualTo(24));
+            Assert.That(choiceIds.Distinct().Count(), Is.EqualTo(24));
             Assert.That(
                 choiceIds,
                 Has.All.StartsWith("D8-01_A"));
@@ -97,8 +97,10 @@ namespace Wake.Tests
                     Has.All.GreaterThan(0),
                     stage.Prompt);
                 Assert.That(
-                    stage.Options.Select(option => option.EnumValue).Distinct(),
-                    Has.Count.EqualTo(4),
+                    stage.Options.Select(option => option.EnumValue)
+                        .Distinct()
+                        .Count(),
+                    Is.EqualTo(4),
                     stage.Prompt);
             }
         }

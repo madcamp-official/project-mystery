@@ -35,7 +35,7 @@ namespace Wake.Tests
         [Test]
         public void Catalog_ContainsExactlyOfficialABCBadRoutes()
         {
-            Assert.That(ProductionEndingCatalog.All, Has.Count.EqualTo(4));
+            Assert.That(ProductionEndingCatalog.All.Count, Is.EqualTo(4));
             Assert.That(
                 ProductionEndingCatalog.All.Select(item =>
                     FinalAccusationResolver.ToOfficialRoute(item.EndingId)),

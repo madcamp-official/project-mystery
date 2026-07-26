@@ -218,7 +218,7 @@ namespace Wake.Core
 
         public void RecordEvidenceCollected(string evidenceId)
         {
-            string normalized = NormalizeId(evidenceId);
+            string normalized = NormalizeCanonicalId(evidenceId);
             if (string.IsNullOrEmpty(normalized) || data.collectedEvidenceIds.Contains(normalized))
             {
                 return;
@@ -436,14 +436,14 @@ namespace Wake.Core
 
         public bool HasUnlockedDeduction(string deductionId)
         {
-            string normalized = NormalizeId(deductionId);
+            string normalized = NormalizeCanonicalId(deductionId);
             return !string.IsNullOrEmpty(normalized) &&
                    data.unlockedDeductionIds.Contains(normalized);
         }
 
         public bool UnlockDeduction(string deductionId)
         {
-            string normalized = NormalizeId(deductionId);
+            string normalized = NormalizeCanonicalId(deductionId);
             if (string.IsNullOrEmpty(normalized) ||
                 data.unlockedDeductionIds.Contains(normalized))
             {
@@ -472,7 +472,7 @@ namespace Wake.Core
 
         public void RecordLocation(string locationCode)
         {
-            string normalized = NormalizeId(locationCode);
+            string normalized = NormalizeCanonicalId(locationCode);
             if (string.IsNullOrEmpty(normalized) || data.currentLocationCode == normalized)
             {
                 return;
@@ -775,6 +775,11 @@ namespace Wake.Core
 
         private static string NormalizeSceneId(string value)
         {
+            return NormalizeCanonicalId(value);
+        }
+
+        private static string NormalizeCanonicalId(string value)
+        {
             return NormalizeId(value).ToUpperInvariant();
         }
 
@@ -935,7 +940,7 @@ namespace Wake.Core
 
             foreach (string value in values)
             {
-                string id = NormalizeId(value);
+                string id = NormalizeCanonicalId(value);
                 if (!string.IsNullOrEmpty(id) && !normalized.Contains(id))
                 {
                     normalized.Add(id);

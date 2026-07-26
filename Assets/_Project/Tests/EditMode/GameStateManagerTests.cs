@@ -269,6 +269,9 @@ namespace Wake.Tests
                 "\"currentLocationCode\":\"HORIZON\"}";
 
             PlayerPrefs.SetString("THE_WAKE_GAME_STATE_V1", legacyJson);
+            PlayerPrefs.DeleteKey(SaveKey);
+            PlayerPrefs.DeleteKey(SaveKey + "_BACKUP");
+            PlayerPrefs.DeleteKey(SaveKey + "_PENDING");
             state.ReloadSavedState();
 
             Assert.That(state.CompletedProductionSceneIds, Is.Empty);
@@ -291,6 +294,9 @@ namespace Wake.Tests
                 "{\"completedProductionSceneIds\":[\" p-01 \",\"P-01\",\"\",\"d1-01\"]}";
 
             PlayerPrefs.SetString("THE_WAKE_GAME_STATE_V1", malformedJson);
+            PlayerPrefs.DeleteKey(SaveKey);
+            PlayerPrefs.DeleteKey(SaveKey + "_BACKUP");
+            PlayerPrefs.DeleteKey(SaveKey + "_PENDING");
             state.ReloadSavedState();
 
             Assert.That(

@@ -58,6 +58,7 @@ namespace Wake.Narrative
 
         private ProductionConditionResult EvaluateExpression(string expression)
         {
+            expression = TrimOuterParentheses(expression.Trim());
             int orIndex = FindTopLevelOperator(expression, " or ");
             if (orIndex >= 0)
             {
@@ -178,6 +179,11 @@ namespace Wake.Narrative
                     state.GetTrust(key.Substring(6)),
                 _ => state.GetRuntimeCounter(key)
             };
+            if (actual == 0 &&
+                state.HasFlag($"{Normalize(key)}_{Normalize(expectedText)}"))
+            {
+                actual = expected;
+            }
             bool isMet = operation switch
             {
                 ">=" => actual >= expected,
@@ -199,6 +205,32 @@ namespace Wake.Narrative
         private static bool LooksLikeSceneId(string value) =>
             !string.IsNullOrWhiteSpace(value) &&
             Regex.IsMatch(value, @"^(P|D\d+)-\d+$", RegexOptions.CultureInvariant);
+
+        private static string TrimOuterParentheses(string value)
+        {
+            while (value.Length >= 2 &&
+                   value[0] == '(' &&
+                   value[value.Length - 1] == ')' &&
+                   EnclosesWholeExpression(value))
+            {
+                value = value.Substring(1, value.Length - 2).Trim();
+            }
+            return value;
+        }
+
+        private static bool EnclosesWholeExpression(string value)
+        {
+            int depth = 0;
+            for (int index = 0; index < value.Length; index++)
+            {
+                depth += value[index] == '(' ? 1 : value[index] == ')' ? -1 : 0;
+                if (depth == 0 && index < value.Length - 1)
+                {
+                    return false;
+                }
+            }
+            return depth == 0;
+        }
 
         private static int FindTopLevelOperator(string value, string operation)
         {

@@ -211,6 +211,7 @@ namespace Wake.Narrative
     public sealed class ProductionDialogueFlow
     {
         public const int ChoiceCapacity = 8;
+        private const string FinalAccusationPrerequisite = "D8-01 정답";
         private readonly Dictionary<string, List<DialogueRecord>> scenes;
         private readonly HashSet<string> completedScenes;
         private readonly GameStateManager state;
@@ -443,7 +444,7 @@ namespace Wake.Narrative
                     continue;
                 }
 
-                if (condition == "D8-01 정답")
+                if (condition == FinalAccusationPrerequisite)
                 {
                     warnings.Add(
                         $"Typed prerequisite '{condition}' requires ending A or B.");
@@ -470,7 +471,7 @@ namespace Wake.Narrative
                 return IsSceneCompleted(condition);
             }
 
-            return condition == "D8-01 정답" &&
+            return condition == FinalAccusationPrerequisite &&
                    state != null &&
                    FinalAccusationResolver.OpensD8Confession(state.FinalEndingId);
         }
@@ -497,9 +498,13 @@ namespace Wake.Narrative
         private static bool IsPrerequisite(string value)
         {
             return !string.IsNullOrWhiteSpace(value) &&
-                   System.Text.RegularExpressions.Regex.IsMatch(
-                       value.Trim(),
-                       @"^(P|D\d+)-\d+$");
+                   (string.Equals(
+                        value.Trim(),
+                        FinalAccusationPrerequisite,
+                        StringComparison.Ordinal) ||
+                    System.Text.RegularExpressions.Regex.IsMatch(
+                        value.Trim(),
+                        @"^(P|D\d+)-\d+$"));
         }
 
         private static string NormalizeSceneId(string value)

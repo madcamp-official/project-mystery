@@ -58,13 +58,14 @@ namespace Wake.Tests
         public void OfficialSource_HasExpectedRuntimeShape()
         {
             Assert.That(
-                records,
-                Has.Count.EqualTo(
+                records.Count,
+                Is.EqualTo(
                     OfficialDialogueContractValidator.ExpectedDialogueCount));
             Assert.That(
                 records.Select(record => record.SceneId)
-                    .Distinct(StringComparer.Ordinal),
-                Has.Count.EqualTo(
+                    .Distinct(StringComparer.Ordinal)
+                    .Count(),
+                Is.EqualTo(
                     OfficialDialogueContractValidator.ExpectedSceneCount));
             Assert.That(
                 records.Count(record =>

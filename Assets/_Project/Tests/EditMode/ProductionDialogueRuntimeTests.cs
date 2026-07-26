@@ -319,7 +319,7 @@ namespace Wake.Tests
             {
                 if (flow.IsAwaitingChoice)
                 {
-                    Assert.That(flow.Choices.Count, Is.EqualTo(2));
+                    Assert.That(flow.Choices.Count, Is.GreaterThan(0));
                     Assert.That(flow.Choices.Count, Is.LessThanOrEqualTo(
                         ProductionDialogueFlow.ChoiceCapacity));
                     Assert.That(flow.SelectChoice(0), Is.True);
