@@ -212,6 +212,8 @@ namespace Wake.Narrative
     {
         public const int ChoiceCapacity = 8;
         private const string FinalAccusationPrerequisite = "D8-01 correct";
+        private const string EpiloguePrerequisite =
+            "D8-02 or ending:C or bad_end";
         private readonly Dictionary<string, List<DialogueRecord>> scenes;
         private readonly HashSet<string> completedScenes;
         private readonly GameStateManager state;
@@ -471,9 +473,24 @@ namespace Wake.Narrative
                 return IsSceneCompleted(condition);
             }
 
-            return condition == FinalAccusationPrerequisite &&
-                   state != null &&
-                   FinalAccusationResolver.OpensD8Confession(state.FinalEndingId);
+            if (state == null)
+            {
+                return false;
+            }
+            if (condition == FinalAccusationPrerequisite)
+            {
+                return FinalAccusationResolver.OpensD8Confession(
+                    state.FinalEndingId);
+            }
+            if (condition == EpiloguePrerequisite)
+            {
+                string route = FinalAccusationResolver.ToOfficialRoute(
+                    state.FinalEndingId);
+                return IsSceneCompleted("D8-02") ||
+                       route == "C" ||
+                       route == "Bad";
+            }
+            return false;
         }
 
         private void NormalizeCompletedScenes(IEnumerable<string> source)
@@ -501,6 +518,10 @@ namespace Wake.Narrative
                    (string.Equals(
                         value.Trim(),
                         FinalAccusationPrerequisite,
+                        StringComparison.Ordinal) ||
+                    string.Equals(
+                        value.Trim(),
+                        EpiloguePrerequisite,
                         StringComparison.Ordinal) ||
                     System.Text.RegularExpressions.Regex.IsMatch(
                         value.Trim(),

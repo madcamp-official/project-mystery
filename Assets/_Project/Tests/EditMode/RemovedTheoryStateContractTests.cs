@@ -89,6 +89,7 @@ namespace Wake.Tests
             PlayerPrefs.Save();
 
             CreateManager();
+            state.ReloadSavedState();
 
             Assert.That(state.Day, Is.EqualTo(4));
             Assert.That(state.CurrentTimeBlock, Is.EqualTo(TimeBlock.NIGHT));
