@@ -6,8 +6,11 @@ namespace Wake.Narrative
     [Serializable]
     public sealed class DialogueRecord
     {
+        public string LineId { get; }
         public string SceneId { get; }
         public int Order { get; }
+        public string Beat { get; }
+        public string LineType { get; }
         public string Speaker { get; }
         public string TextKo { get; }
         public string Emotion { get; }
@@ -16,9 +19,13 @@ namespace Wake.Narrative
         public string NextOrEffect { get; }
         public string StageDirection { get; }
         public string VoiceRequiredToken { get; }
+        public string BranchGroup { get; }
+        public string ImplementationNote { get; }
         public bool VoiceRequired { get; }
         public int SourceRow { get; }
         public string StableLineId => CreateStableLineId(SceneId, Order);
+        public string CanonicalLineId =>
+            string.IsNullOrWhiteSpace(LineId) ? StableLineId : LineId;
 
         public DialogueRecord(
             string sceneId,
@@ -33,9 +40,51 @@ namespace Wake.Narrative
             string voiceRequiredToken,
             bool voiceRequired,
             int sourceRow)
+            : this(
+                string.Empty,
+                sceneId,
+                order,
+                string.Empty,
+                string.Empty,
+                speaker,
+                textKo,
+                emotion,
+                condition,
+                choiceId,
+                nextOrEffect,
+                stageDirection,
+                voiceRequiredToken,
+                string.Empty,
+                string.Empty,
+                voiceRequired,
+                sourceRow)
         {
+        }
+
+        public DialogueRecord(
+            string lineId,
+            string sceneId,
+            int order,
+            string beat,
+            string lineType,
+            string speaker,
+            string textKo,
+            string emotion,
+            string condition,
+            string choiceId,
+            string nextOrEffect,
+            string stageDirection,
+            string voiceRequiredToken,
+            string branchGroup,
+            string implementationNote,
+            bool voiceRequired,
+            int sourceRow)
+        {
+            LineId = lineId;
             SceneId = sceneId;
             Order = order;
+            Beat = beat;
+            LineType = lineType;
             Speaker = speaker;
             TextKo = textKo;
             Emotion = emotion;
@@ -44,6 +93,8 @@ namespace Wake.Narrative
             NextOrEffect = nextOrEffect;
             StageDirection = stageDirection;
             VoiceRequiredToken = voiceRequiredToken;
+            BranchGroup = branchGroup;
+            ImplementationNote = implementationNote;
             VoiceRequired = voiceRequired;
             SourceRow = sourceRow;
         }
