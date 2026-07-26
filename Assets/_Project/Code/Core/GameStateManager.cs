@@ -39,6 +39,7 @@ namespace Wake.Core
         public List<string> collectedEvidenceIds = new();
         public List<string> completedProductionSceneIds = new();
         public List<string> unlockedDeductionIds = new();
+        public string finalEndingId = string.Empty;
         public string currentLocationCode = string.Empty;
     }
 
@@ -70,6 +71,7 @@ namespace Wake.Core
         public IReadOnlyList<string> CompletedProductionSceneIds =>
             data.completedProductionSceneIds;
         public IReadOnlyList<string> UnlockedDeductionIds => data.unlockedDeductionIds;
+        public string FinalEndingId => data.finalEndingId;
         public string CurrentLocationCode => data.currentLocationCode;
 
         public event Action StateChanged;
@@ -236,6 +238,20 @@ namespace Wake.Core
             data.unlockedDeductionIds.Add(normalized);
             SaveAndNotify();
             FeedbackRequested?.Invoke($"추론 해금 · {normalized}");
+            return true;
+        }
+
+        public bool TryRecordFinalEnding(string endingId)
+        {
+            string normalized = NormalizeId(endingId);
+            if (string.IsNullOrEmpty(normalized) ||
+                !string.IsNullOrEmpty(data.finalEndingId))
+            {
+                return false;
+            }
+
+            data.finalEndingId = normalized;
+            SaveAndNotify();
             return true;
         }
 
@@ -494,6 +510,7 @@ namespace Wake.Core
             data.completedProductionSceneIds =
                 NormalizeSceneIds(data.completedProductionSceneIds);
             data.unlockedDeductionIds = NormalizeIds(data.unlockedDeductionIds);
+            data.finalEndingId = NormalizeId(data.finalEndingId);
             data.currentLocationCode ??= string.Empty;
 
             if (data.activeTheories.Count > data.theorySlots)
