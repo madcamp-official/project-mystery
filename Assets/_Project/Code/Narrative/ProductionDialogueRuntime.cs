@@ -166,6 +166,7 @@ namespace Wake.Narrative
             ProductionScenePhase.NotStarted;
         public string PendingInteractionId { get; private set; } = string.Empty;
         public string ActiveSceneId { get; private set; } = string.Empty;
+        public int CurrentIndex => index;
         private readonly List<string> warnings = new();
         public ProductionDialogueFlow(
             IEnumerable<DialogueRecord> records,
@@ -209,6 +210,38 @@ namespace Wake.Narrative
             Phase = ProductionScenePhase.DialogueActive;
             PresentCurrent();
             return true;
+        }
+
+        public bool RestoreScene(ProductionDialogueCheckpoint checkpoint)
+        {
+            if (checkpoint == null ||
+                !StartScene(checkpoint.activeSceneId) ||
+                checkpoint.lineIndex < 0 ||
+                checkpoint.lineIndex > activeScene.Count)
+            {
+                return false;
+            }
+
+            index = checkpoint.lineIndex;
+            Current = null;
+            Choices = Array.Empty<DialogueRecord>();
+            IsComplete = false;
+            PresentCurrent();
+
+            if (checkpoint.awaitingChoice != IsAwaitingChoice)
+            {
+                return false;
+            }
+
+            string expectedInteraction =
+                ProductionSceneCompletionRequirement.NormalizeInteractionId(
+                    checkpoint.pendingInteractionId);
+            return string.IsNullOrEmpty(expectedInteraction) ||
+                   (Phase == ProductionScenePhase.InteractionPending &&
+                    string.Equals(
+                        PendingInteractionId,
+                        expectedInteraction,
+                        StringComparison.Ordinal));
         }
 
         public bool IsSceneCompleted(string sceneId)

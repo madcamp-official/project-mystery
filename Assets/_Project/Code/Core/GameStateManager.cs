@@ -49,6 +49,26 @@ namespace Wake.Core
     }
 
     [Serializable]
+    public class ProductionDialogueCheckpoint
+    {
+        public string activeSceneId = string.Empty;
+        public int lineIndex;
+        public bool awaitingChoice;
+        public string pendingInteractionId = string.Empty;
+
+        public ProductionDialogueCheckpoint Copy()
+        {
+            return new ProductionDialogueCheckpoint
+            {
+                activeSceneId = activeSceneId,
+                lineIndex = lineIndex,
+                awaitingChoice = awaitingChoice,
+                pendingInteractionId = pendingInteractionId
+            };
+        }
+    }
+
+    [Serializable]
     internal class GameStateSaveData
     {
         public int day = 1;
@@ -66,6 +86,7 @@ namespace Wake.Core
         public List<string> unlockedDeductionIds = new();
         public string finalEndingId = string.Empty;
         public string currentLocationCode = string.Empty;
+        public ProductionDialogueCheckpoint dialogueCheckpoint;
     }
 
     public class GameStateManager : MonoBehaviour
@@ -99,6 +120,8 @@ namespace Wake.Core
         public IReadOnlyList<string> UnlockedDeductionIds => data.unlockedDeductionIds;
         public string FinalEndingId => data.finalEndingId;
         public string CurrentLocationCode => data.currentLocationCode;
+        public ProductionDialogueCheckpoint DialogueCheckpoint =>
+            data.dialogueCheckpoint?.Copy();
 
         public event Action StateChanged;
         public event Action<string> FeedbackRequested;
@@ -236,6 +259,40 @@ namespace Wake.Core
             data.completedProductionSceneIds.Add(normalized);
             SaveAndNotify();
             return true;
+        }
+
+        public bool SaveDialogueCheckpoint(
+            string sceneId,
+            int lineIndex,
+            bool awaitingChoice,
+            string pendingInteractionId)
+        {
+            string normalizedSceneId = NormalizeSceneId(sceneId);
+            if (string.IsNullOrEmpty(normalizedSceneId) || lineIndex < 0)
+            {
+                return false;
+            }
+
+            data.dialogueCheckpoint = new ProductionDialogueCheckpoint
+            {
+                activeSceneId = normalizedSceneId,
+                lineIndex = lineIndex,
+                awaitingChoice = awaitingChoice,
+                pendingInteractionId = NormalizeObjectiveId(pendingInteractionId)
+            };
+            SaveAndNotify();
+            return true;
+        }
+
+        public void ClearDialogueCheckpoint()
+        {
+            if (data.dialogueCheckpoint == null)
+            {
+                return;
+            }
+
+            data.dialogueCheckpoint = null;
+            SaveAndNotify();
         }
 
         public bool HasCompletedObjective(string objectiveId)
@@ -633,6 +690,20 @@ namespace Wake.Core
             data.unlockedDeductionIds = NormalizeIds(data.unlockedDeductionIds);
             data.finalEndingId = NormalizeId(data.finalEndingId);
             data.currentLocationCode ??= string.Empty;
+            if (data.dialogueCheckpoint != null)
+            {
+                data.dialogueCheckpoint.activeSceneId =
+                    NormalizeSceneId(data.dialogueCheckpoint.activeSceneId);
+                data.dialogueCheckpoint.lineIndex =
+                    Mathf.Max(0, data.dialogueCheckpoint.lineIndex);
+                data.dialogueCheckpoint.pendingInteractionId =
+                    NormalizeObjectiveId(
+                        data.dialogueCheckpoint.pendingInteractionId);
+                if (string.IsNullOrEmpty(data.dialogueCheckpoint.activeSceneId))
+                {
+                    data.dialogueCheckpoint = null;
+                }
+            }
 
             if (data.activeTheories.Count > data.theorySlots)
             {
