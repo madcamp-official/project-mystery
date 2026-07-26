@@ -14,25 +14,46 @@ namespace Wake.Evidence
         public event Action<EvidenceDefinition> EvidenceAdded;
 
         private readonly List<EvidenceDefinition> collected = new();
+        private readonly HashSet<string> collectedIds =
+            new(StringComparer.Ordinal);
+        private readonly Dictionary<string, EvidenceDefinition> knownById =
+            new(StringComparer.Ordinal);
+        private readonly List<string> warnings = new();
 
         public IReadOnlyList<EvidenceDefinition> Collected => collected;
+        public IReadOnlyList<string> Warnings => warnings;
 
         private void Awake()
         {
             Instance = this;
+            IndexKnownEvidence();
         }
 
         public bool Add(EvidenceDefinition evidence)
         {
-            if (evidence == null || collected.Contains(evidence))
+            string evidenceId = CanonicalEvidenceCatalog.NormalizeId(evidence?.EvidenceId);
+            if (evidence == null ||
+                string.IsNullOrEmpty(evidenceId) ||
+                !collectedIds.Add(evidenceId))
             {
                 return false;
             }
 
             collected.Add(evidence);
-            GameStateManager.Instance?.RecordEvidenceCollected(evidence.EvidenceId);
+            GameStateManager.Instance?.RecordEvidenceCollected(evidenceId);
             EvidenceAdded?.Invoke(evidence);
             return true;
+        }
+
+        public bool TryAddById(string evidenceId)
+        {
+            EvidenceDefinition definition = ResolveDefinition(evidenceId);
+            return definition != null && Add(definition);
+        }
+
+        public bool Contains(string evidenceId)
+        {
+            return collectedIds.Contains(CanonicalEvidenceCatalog.NormalizeId(evidenceId));
         }
 
         /// Silently repopulates the inventory from saved evidence IDs (continue flow).
@@ -40,27 +61,85 @@ namespace Wake.Evidence
         public void RestoreFromIds(IReadOnlyList<string> evidenceIds)
         {
             collected.Clear();
-            if (evidenceIds == null || knownEvidence == null)
+            collectedIds.Clear();
+            warnings.Clear();
+            IndexKnownEvidence();
+            if (evidenceIds == null)
             {
                 return;
             }
 
-            foreach (string id in evidenceIds)
+            foreach (string sourceId in evidenceIds)
             {
-                foreach (EvidenceDefinition definition in knownEvidence)
+                string evidenceId = CanonicalEvidenceCatalog.NormalizeId(sourceId);
+                if (string.IsNullOrEmpty(evidenceId) || !collectedIds.Add(evidenceId))
                 {
-                    if (definition != null && definition.EvidenceId == id)
-                    {
-                        collected.Add(definition);
-                        break;
-                    }
+                    continue;
                 }
+
+                EvidenceDefinition definition = ResolveDefinition(evidenceId);
+                if (definition == null)
+                {
+                    collectedIds.Remove(evidenceId);
+                    warnings.Add($"Unknown saved evidence ID '{sourceId}' was ignored.");
+                    continue;
+                }
+
+                collected.Add(definition);
             }
         }
 
         public void Clear()
         {
             collected.Clear();
+            collectedIds.Clear();
+            warnings.Clear();
+        }
+
+        private void IndexKnownEvidence()
+        {
+            knownById.Clear();
+            if (knownEvidence == null)
+            {
+                return;
+            }
+
+            foreach (EvidenceDefinition definition in knownEvidence)
+            {
+                string evidenceId =
+                    CanonicalEvidenceCatalog.NormalizeId(definition?.EvidenceId);
+                if (definition == null || string.IsNullOrEmpty(evidenceId))
+                {
+                    continue;
+                }
+
+                if (!knownById.TryAdd(evidenceId, definition))
+                {
+                    warnings.Add($"Duplicate evidence ID '{evidenceId}' is configured.");
+                }
+            }
+        }
+
+        private EvidenceDefinition ResolveDefinition(string evidenceId)
+        {
+            string normalized = CanonicalEvidenceCatalog.NormalizeId(evidenceId);
+            if (string.IsNullOrEmpty(normalized))
+            {
+                return null;
+            }
+
+            if (knownById.TryGetValue(normalized, out EvidenceDefinition definition))
+            {
+                return definition;
+            }
+
+            definition = CanonicalEvidenceCatalog.CreateRuntimeDefinition(normalized);
+            if (definition != null)
+            {
+                knownById.Add(normalized, definition);
+            }
+
+            return definition;
         }
     }
 }
