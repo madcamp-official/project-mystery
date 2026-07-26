@@ -4,6 +4,7 @@ using NUnit.Framework;
 using UnityEngine;
 using Wake.Core;
 using Wake.Puzzles;
+using Wake.UI;
 
 namespace Wake.Tests
 {
@@ -140,6 +141,41 @@ namespace Wake.Tests
             Assert.That(
                 session.TryComplete().Diagnostics,
                 Has.Some.Contains("순서가 잘못"));
+        }
+
+        [Test]
+        public void Presentation_ExposesTwelveSlotsAndTextualPlacementState()
+        {
+            var session = new TimelinePuzzleSession(
+                state,
+                TimelinePuzzleCatalog.SourceBackedCards);
+            session.Place(TimelinePuzzleCatalog.Murder, 3);
+
+            IReadOnlyList<TimelineSlotView> slots =
+                TimelinePuzzlePresentation.CreateSlots(
+                    session.Definitions,
+                    session.Placements);
+
+            Assert.That(slots, Has.Count.EqualTo(12));
+            Assert.That(slots[0].IsEmpty, Is.True);
+            Assert.That(slots[0].Label, Is.EqualTo("비어 있음"));
+            Assert.That(slots[3].CardId, Is.EqualTo(TimelinePuzzleCatalog.Murder));
+            Assert.That(slots[3].Label, Does.Contain("21:45"));
+        }
+
+        [Test]
+        public void Presentation_LimitsDiagnosticsToReadableSummary()
+        {
+            var result = new TimelineCompletionResult(
+                false,
+                12,
+                new[] { "첫 번째", "두 번째", "세 번째", "네 번째" });
+
+            string message = TimelinePuzzlePresentation.Diagnostics(result);
+
+            Assert.That(message, Does.Contain("첫 번째"));
+            Assert.That(message, Does.Contain("세 번째"));
+            Assert.That(message, Does.Not.Contain("네 번째"));
         }
 
         private static List<TimelineCardDefinition> CreateCompleteContract()
