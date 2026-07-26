@@ -767,7 +767,7 @@ namespace Wake.UI
 
         private void ShowBadEnd(string message)
         {
-            ToastController.Instance?.Show($"BAD END 위험 · {message}");
+            ToastController.Instance?.Show($"BAD END · {message}");
         }
     }
 }
