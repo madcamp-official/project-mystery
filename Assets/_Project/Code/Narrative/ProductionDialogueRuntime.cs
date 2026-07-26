@@ -222,9 +222,7 @@ namespace Wake.Narrative
                 .Select(record => record.Condition)
                 .Where(IsPrerequisite)
                 .Distinct(StringComparer.Ordinal)
-                .Where(condition =>
-                    !scenes.ContainsKey(condition) ||
-                    !completedScenes.Contains(condition))
+                .Where(condition => !IsConditionMet(condition))
                 .ToList();
         }
 
@@ -289,12 +287,21 @@ namespace Wake.Narrative
                 .Where(IsPrerequisite)
                 .Distinct())
             {
+                if (IsConditionMet(condition))
+                {
+                    continue;
+                }
+
+                if (condition == "D8-01 정답")
+                {
+                    warnings.Add(
+                        $"Typed prerequisite '{condition}' requires ending A or B.");
+                    return false;
+                }
+
                 if (scenes.ContainsKey(condition))
                 {
-                    if (!completedScenes.Contains(condition))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
                 else
                 {
@@ -303,6 +310,18 @@ namespace Wake.Narrative
                 }
             }
             return true;
+        }
+
+        private bool IsConditionMet(string condition)
+        {
+            if (scenes.ContainsKey(condition))
+            {
+                return completedScenes.Contains(condition);
+            }
+
+            return condition == "D8-01 정답" &&
+                   state != null &&
+                   FinalAccusationResolver.OpensD8Confession(state.FinalEndingId);
         }
 
         private void NormalizeCompletedScenes(IEnumerable<string> source)
