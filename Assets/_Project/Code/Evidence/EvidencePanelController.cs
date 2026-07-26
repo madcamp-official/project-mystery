@@ -29,11 +29,14 @@ namespace Wake.Evidence
         private Button prevButton;
         private Button turnLeftButton;
         private Button turnRightButton;
+        private Button theoryBoardButton;
         private Button backButton;
 
         private int selectedIndex;
         private int currentViewIndex;
         private Transform evidenceRoot;
+        private EvidencePanelViewModel viewModel =
+            new(System.Array.Empty<EvidencePanelItem>(), 0, 0);
 
         private void Awake()
         {
@@ -83,13 +86,6 @@ namespace Wake.Evidence
             detailText.fontSizeMax = 28f;
             detailText.overflowMode = TextOverflowModes.Truncate;
 
-            TMP_FontAsset koreanFont = StatusHUDController.RuntimeKoreanFont;
-            if (koreanFont != null)
-            {
-                titleText.font = koreanFont;
-                detailText.font = koreanFont;
-            }
-
             LayoutRects();
 
             nextButton = evidenceRoot.Find("Next").GetComponent<Button>();
@@ -97,7 +93,9 @@ namespace Wake.Evidence
             backButton = evidenceRoot.Find("Back Btn").GetComponent<Button>();
             turnLeftButton = evidenceRoot.Find("Turn").GetComponent<Button>();
             turnRightButton = evidenceRoot.Find("Turn (1)").GetComponent<Button>();
-            evidenceRoot.Find("Turn (2)").gameObject.SetActive(false);
+            theoryBoardButton =
+                evidenceRoot.Find("Turn (2)").GetComponent<Button>();
+            ConfigureTheoryBoardButton();
             evidenceRoot.Find("Turn (3)").gameObject.SetActive(false);
 
             nextButton.onClick.AddListener(() => Advance(1));
@@ -105,6 +103,8 @@ namespace Wake.Evidence
             backButton.onClick.AddListener(() => UIManager.Instance.ShowIngame());
             turnLeftButton.onClick.AddListener(() => Rotate(-1));
             turnRightButton.onClick.AddListener(() => Rotate(1));
+            theoryBoardButton.onClick.AddListener(OpenTheoryBoard);
+            ApplyRuntimeFont(evidenceRoot);
         }
 
         private void LayoutRects()
@@ -131,6 +131,41 @@ namespace Wake.Evidence
             SetRect(nextRect, new Vector2(360f, CarouselY), nextRect.sizeDelta);
         }
 
+        private void ConfigureTheoryBoardButton()
+        {
+            theoryBoardButton.gameObject.SetActive(true);
+            RectTransform rect = theoryBoardButton.GetComponent<RectTransform>();
+            SetRect(rect, new Vector2(330f, 110f), new Vector2(180f, 58f));
+            TMP_Text label = theoryBoardButton.GetComponentInChildren<TMP_Text>(true);
+            if (label != null)
+            {
+                label.text = "가설 보드";
+                label.alignment = TextAlignmentOptions.Center;
+            }
+        }
+
+        private static void ApplyRuntimeFont(Transform root)
+        {
+            TMP_FontAsset koreanFont = StatusHUDController.RuntimeKoreanFont;
+            if (root == null || koreanFont == null)
+            {
+                return;
+            }
+
+            foreach (TMP_Text label in root.GetComponentsInChildren<TMP_Text>(true))
+            {
+                label.font = koreanFont;
+                label.SetAllDirty();
+            }
+        }
+
+        private void OpenTheoryBoard()
+        {
+            evidenceRoot
+                .GetComponent<EvidenceTheoryBoardController>()
+                ?.Open();
+        }
+
         private static void SetRect(RectTransform rect, Vector2 anchoredPosition, Vector2 sizeDelta)
         {
             rect.anchoredPosition = anchoredPosition;
@@ -139,11 +174,33 @@ namespace Wake.Evidence
 
         public void Refresh()
         {
-            IReadOnlyList<EvidenceDefinition> collected = EvidenceInventory.Instance.Collected;
-            selectedIndex = Mathf.Clamp(selectedIndex, 0, Mathf.Max(0, collected.Count - 1));
+            string selectedId = GetSelectedItem()?.Id;
+            viewModel = EvidencePanelPresentation.Create(
+                EvidenceInventory.Instance,
+                Wake.Core.GameStateManager.Instance?.EvidenceIntegrity ?? 100);
+            int restoredIndex = string.IsNullOrEmpty(selectedId)
+                ? selectedIndex
+                : FindIndex(selectedId);
+            selectedIndex = Mathf.Clamp(
+                restoredIndex,
+                0,
+                Mathf.Max(0, viewModel.Items.Count - 1));
             currentViewIndex = 0;
             RebuildCarousel();
             ApplySelection();
+        }
+
+        private int FindIndex(string evidenceId)
+        {
+            for (int index = 0; index < viewModel.Items.Count; index++)
+            {
+                if (viewModel.Items[index].Id == evidenceId)
+                {
+                    return index;
+                }
+            }
+
+            return 0;
         }
 
         private void RebuildCarousel()
@@ -154,8 +211,7 @@ namespace Wake.Evidence
             }
             spawnedItems.Clear();
 
-            IReadOnlyList<EvidenceDefinition> collected = EvidenceInventory.Instance.Collected;
-            for (int i = 0; i < collected.Count; i++)
+            for (int i = 0; i < viewModel.Items.Count; i++)
             {
                 GameObject instance = Instantiate(itemTemplate, carouselContainer);
                 instance.SetActive(true);
@@ -163,12 +219,25 @@ namespace Wake.Evidence
                 TMP_Text label = instance.GetComponentInChildren<TMP_Text>();
                 if (label != null)
                 {
-                    label.text = collected[i].DisplayName;
+                    label.text = viewModel.Items[i].CarouselLabel;
                     TMP_FontAsset koreanFont = StatusHUDController.RuntimeKoreanFont;
                     if (koreanFont != null)
                     {
                         label.font = koreanFont;
                     }
+                }
+
+                Image background = instance.GetComponent<Image>();
+                if (background != null)
+                {
+                    background.color = viewModel.Items[i].State switch
+                    {
+                        EvidencePanelItemState.Collected =>
+                            new Color(0.18f, 0.36f, 0.42f, 1f),
+                        EvidencePanelItemState.Unreliable =>
+                            new Color(0.46f, 0.17f, 0.17f, 1f),
+                        _ => new Color(0.12f, 0.14f, 0.17f, 1f)
+                    };
                 }
 
                 int capturedIndex = i;
@@ -199,24 +268,25 @@ namespace Wake.Evidence
 
         private void Advance(int delta)
         {
-            IReadOnlyList<EvidenceDefinition> collected = EvidenceInventory.Instance.Collected;
-            if (collected.Count == 0)
+            if (viewModel.Items.Count == 0)
             {
                 return;
             }
 
-            SelectIndex(Mathf.Clamp(selectedIndex + delta, 0, collected.Count - 1));
+            SelectIndex(Mathf.Clamp(
+                selectedIndex + delta,
+                0,
+                viewModel.Items.Count - 1));
         }
 
         private void SelectIndex(int index)
         {
-            IReadOnlyList<EvidenceDefinition> collected = EvidenceInventory.Instance.Collected;
-            if (collected.Count == 0)
+            if (viewModel.Items.Count == 0)
             {
                 return;
             }
 
-            selectedIndex = Mathf.Clamp(index, 0, collected.Count - 1);
+            selectedIndex = Mathf.Clamp(index, 0, viewModel.Items.Count - 1);
             currentViewIndex = 0;
             PositionCarouselItems();
             ApplySelection();
@@ -224,7 +294,7 @@ namespace Wake.Evidence
 
         private void Rotate(int delta)
         {
-            EvidenceDefinition evidence = GetSelectedEvidence();
+            EvidenceDefinition evidence = GetSelectedItem()?.Definition;
             if (evidence == null || evidence.Views == null || evidence.Views.Length == 0)
             {
                 return;
@@ -237,51 +307,55 @@ namespace Wake.Evidence
 
         private void ApplySelection()
         {
-            EvidenceDefinition evidence = GetSelectedEvidence();
-            IReadOnlyList<EvidenceDefinition> collected = EvidenceInventory.Instance.Collected;
-
-            bool hasEvidence = evidence != null;
-            detailImage.gameObject.SetActive(hasEvidence);
-            titleText.gameObject.SetActive(hasEvidence);
-            detailText.gameObject.SetActive(hasEvidence);
-
-            if (hasEvidence)
+            EvidencePanelItem? selected = GetSelectedItem();
+            detailImage.sprite = null;
+            titleText.gameObject.SetActive(true);
+            detailText.gameObject.SetActive(true);
+            if (!selected.HasValue)
             {
-                titleText.text = evidence.DisplayName;
-                ApplyView(evidence);
+                detailImage.gameObject.SetActive(false);
+                titleText.text = "증거";
+                detailText.text = "확보한 증거가 없습니다.";
             }
             else
             {
-                titleText.text = string.Empty;
-                detailText.text = "확보한 증거가 없습니다.";
+                EvidencePanelItem item = selected.Value;
+                titleText.text = item.Title;
+                detailText.text = item.Detail;
+                detailImage.gameObject.SetActive(item.HasImage);
+                if (item.HasImage)
+                {
+                    ApplyView(item.Definition);
+                }
             }
 
             prevButton.interactable = selectedIndex > 0;
-            nextButton.interactable = selectedIndex < collected.Count - 1;
-            bool hasMultipleViews = evidence != null && evidence.Views != null && evidence.Views.Length > 1;
+            nextButton.interactable =
+                selectedIndex < viewModel.Items.Count - 1;
+            EvidenceDefinition evidence = selected?.Definition;
+            bool hasMultipleViews =
+                evidence?.Views != null && evidence.Views.Length > 1;
             turnLeftButton.gameObject.SetActive(hasMultipleViews);
             turnRightButton.gameObject.SetActive(hasMultipleViews);
         }
 
         private void ApplyView(EvidenceDefinition evidence)
         {
+            detailImage.sprite = null;
             if (evidence.Views != null && evidence.Views.Length > 0)
             {
                 detailImage.sprite = evidence.Views[currentViewIndex];
             }
-
-            detailText.text = evidence.Description;
         }
 
-        private EvidenceDefinition GetSelectedEvidence()
+        private EvidencePanelItem? GetSelectedItem()
         {
-            IReadOnlyList<EvidenceDefinition> collected = EvidenceInventory.Instance.Collected;
-            if (selectedIndex < 0 || selectedIndex >= collected.Count)
+            if (selectedIndex < 0 || selectedIndex >= viewModel.Items.Count)
             {
                 return null;
             }
 
-            return collected[selectedIndex];
+            return viewModel.Items[selectedIndex];
         }
     }
 }

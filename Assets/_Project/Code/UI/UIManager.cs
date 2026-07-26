@@ -280,9 +280,6 @@ namespace Wake.UI
         {
             SetActivePanel(evidencePanel, UiPrimaryPanel.Evidence);
             EvidencePanelController.Instance?.Refresh();
-            evidencePanel
-                ?.GetComponent<EvidenceTheoryBoardController>()
-                ?.Open();
         }
 
         public void OpenSettings()

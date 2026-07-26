@@ -128,6 +128,34 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void ConfirmedAuthentication_AcceptsPreviouslyGrantedC15()
+        {
+            Assert.That(
+                inventory.TryAddById(
+                    MarcusInterrogationCatalog.AuthenticationEvidence),
+                Is.True);
+            int grantAttempts = 0;
+            var session = new MarcusInterrogationSession(
+                state,
+                tryGrantEvidence: _ =>
+                {
+                    grantAttempts++;
+                    return false;
+                });
+            session.Ask(
+                MarcusInterrogationCatalog.AuthenticationQuestion,
+                MarcusAnswer.Yes);
+
+            MarcusInterrogationCompletion result = session.Complete();
+
+            Assert.That(result.Completed, Is.True);
+            Assert.That(grantAttempts, Is.Zero);
+            Assert.That(
+                state.HasCompletedScene(MarcusInterrogationCatalog.SceneId),
+                Is.True);
+        }
+
+        [Test]
         public void ConfirmedAuthentication_WaitsWhenEvidenceInventoryRejectsC15()
         {
             var session = new MarcusInterrogationSession(

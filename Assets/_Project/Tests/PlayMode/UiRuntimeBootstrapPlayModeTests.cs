@@ -1,5 +1,6 @@
 using System.Collections;
 using NUnit.Framework;
+using TMPro;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
@@ -78,6 +79,24 @@ namespace Wake.Tests.PlayMode
             yield return InvokeAndSettle(
                 RequireComponent<Button>("Ingame/Evidence Btn"));
             AssertOnlyPanel(UiPrimaryPanel.Evidence);
+            Assert.That(Ui.OpenRuntimeModalCount, Is.Zero);
+            Assert.That(
+                RequireComponent<Image>("Evidence/Image").sprite,
+                Is.Null);
+            TMP_Text placeholder =
+                RequireComponent<TMP_Text>("Evidence/Description");
+            Assert.That(placeholder.gameObject.activeSelf, Is.True);
+            Assert.That(placeholder.text, Does.Contain("확보한 증거가 없습니다"));
+            Assert.That(placeholder.font, Is.SameAs(StatusHUDController.RuntimeKoreanFont));
+            TMP_Text title =
+                RequireComponent<TMP_Text>("Evidence/Text (TMP)");
+            Assert.That(title.text, Does.Contain("C-01"));
+            yield return InvokeAndSettle(RequireComponent<Button>("Evidence/Next"));
+            Assert.That(title.text, Does.Contain("C-02"));
+            yield return InvokeAndSettle(RequireComponent<Button>("Evidence/Next (1)"));
+            Assert.That(title.text, Does.Contain("C-01"));
+            yield return InvokeAndSettle(
+                RequireComponent<Button>("Evidence/Turn (2)"));
             Assert.That(Ui.OpenRuntimeModalCount, Is.EqualTo(1));
 
             yield return InvokeAndSettle(
@@ -93,6 +112,9 @@ namespace Wake.Tests.PlayMode
         {
             yield return StartNewGameFromVisibleButton();
             Ui.ShowEvidence();
+            Assert.That(Ui.OpenRuntimeModalCount, Is.Zero);
+            yield return InvokeAndSettle(
+                RequireComponent<Button>("Evidence/Turn (2)"));
             Assert.That(Ui.OpenRuntimeModalCount, Is.EqualTo(1));
 
             Ui.OpenSettings();

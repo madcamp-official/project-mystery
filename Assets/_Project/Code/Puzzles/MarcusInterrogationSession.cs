@@ -211,6 +211,9 @@ namespace Wake.Puzzles
             using IDisposable batch = state.BeginStateBatch();
             if (authentication ==
                     MarcusAuthenticationResult.EvelynAuthenticationConfirmed &&
+                !state.CollectedEvidenceIds.Contains(
+                    MarcusInterrogationCatalog.AuthenticationEvidence,
+                    StringComparer.Ordinal) &&
                 !tryGrantEvidence(MarcusInterrogationCatalog.AuthenticationEvidence))
             {
                 return new MarcusInterrogationCompletion(
