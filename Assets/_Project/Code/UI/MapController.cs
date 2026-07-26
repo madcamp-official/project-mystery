@@ -59,6 +59,10 @@ namespace Wake.UI
             {
                 UIManager.Instance?.ShowIngame();
             }
+            else
+            {
+                ShowTravelFeedback();
+            }
         }
 
         public SceneTravelResult TryTravelToScene(string sceneId)
@@ -71,6 +75,7 @@ namespace Wake.UI
                 state != null ? state.PublicAnxiety : 0);
             if (!TryLoadAllowedDestination(LastTravelResult))
             {
+                ShowTravelFeedback();
                 return LastTravelResult;
             }
 
@@ -87,6 +92,14 @@ namespace Wake.UI
                 LastTravelResult.Location.LocationCode);
             UIManager.Instance?.ShowIngame();
             return LastTravelResult;
+        }
+
+        private void ShowTravelFeedback()
+        {
+            InvestigationFeedback feedback =
+                InvestigationFeedbackCatalog.ForTravel(LastTravelResult);
+            ToastController.Instance?.Show(
+                $"{feedback.Title}\n{feedback.Message}");
         }
 
         private bool TryLoadAllowedDestination(SceneTravelResult result)

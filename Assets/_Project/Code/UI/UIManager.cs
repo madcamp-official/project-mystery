@@ -34,6 +34,11 @@ namespace Wake.UI
             settingsPopup = canvas.Find("Settings Popup").gameObject;
             Transform statusHudTransform = canvas.Find("Status HUD");
             statusHud = statusHudTransform != null ? statusHudTransform.gameObject : null;
+            if (statusHud != null &&
+                statusHud.GetComponent<ObjectiveMapHUDController>() == null)
+            {
+                statusHud.AddComponent<ObjectiveMapHUDController>();
+            }
 
             Transform newGameTransform = canvas.Find("StartScene/Start Game Btn");
             newGameTransform.GetComponent<Button>().onClick.AddListener(OnNewGameClicked);
