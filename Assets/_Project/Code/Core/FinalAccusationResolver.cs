@@ -52,8 +52,7 @@ namespace Wake.Core
         Complete,
         ConvenientCulprit,
         WrongPerson,
-        BadPanic,
-        BadIntegrity
+        Bad
     }
 
     public sealed class FinalAccusation
@@ -93,7 +92,8 @@ namespace Wake.Core
         public const string ConvenientEndingId = "ending_b_convenient_culprit";
         public const string WrongPersonEndingId = "ending_c_wrong_person";
         public const string PanicEndingId = "ending_bad_panic";
-        public const string IntegrityEndingId = "ending_bad_integrity";
+        public const string BadEndingId = PanicEndingId;
+        public const string LegacyIntegrityEndingId = "ending_bad_integrity";
 
         private static readonly string[] CrimeDeductions =
         {
@@ -129,7 +129,35 @@ namespace Wake.Core
 
         public static bool OpensD8Confession(string endingId)
         {
-            return endingId == CompleteEndingId || endingId == ConvenientEndingId;
+            string normalized = NormalizeEndingId(endingId);
+            return normalized == CompleteEndingId || normalized == ConvenientEndingId;
+        }
+
+        public static string NormalizeEndingId(string endingId)
+        {
+            string value = endingId?.Trim() ?? string.Empty;
+            return value.ToUpperInvariant() switch
+            {
+                "A" or "ENDING:A" or "ENDING_A_COMPLETE" => CompleteEndingId,
+                "B" or "ENDING:B" or "ENDING_B_CONVENIENT_CULPRIT" =>
+                    ConvenientEndingId,
+                "C" or "ENDING:C" or "ENDING_C_WRONG_PERSON" => WrongPersonEndingId,
+                "BAD" or "ENDING:BAD" or "ENDING_BAD_PANIC" or
+                    "ENDING_BAD_INTEGRITY" => BadEndingId,
+                _ => value
+            };
+        }
+
+        public static string ToOfficialRoute(string endingId)
+        {
+            return NormalizeEndingId(endingId) switch
+            {
+                CompleteEndingId => "A",
+                ConvenientEndingId => "B",
+                WrongPersonEndingId => "C",
+                BadEndingId => "Bad",
+                _ => string.Empty
+            };
         }
 
         private FinalAccusationResult Evaluate(FinalAccusation accusation)
@@ -138,16 +166,16 @@ namespace Wake.Core
             if (state.PublicAnxiety >= GameStateManager.MaxPercent)
             {
                 return Create(
-                    FinalEnding.BadPanic,
-                    PanicEndingId,
+                    FinalEnding.Bad,
+                    BadEndingId,
                     "승객 불안 100으로 최종 지목 전에 수사가 중단됐다.");
             }
 
             if (state.EvidenceIntegrity <= 0)
             {
                 return Create(
-                    FinalEnding.BadIntegrity,
-                    IntegrityEndingId,
+                    FinalEnding.Bad,
+                    BadEndingId,
                     "현장 보존도 0으로 직접 증거를 최종 논증에 사용할 수 없다.");
             }
 
@@ -199,15 +227,16 @@ namespace Wake.Core
                 [CompleteEndingId] = FinalEnding.Complete,
                 [ConvenientEndingId] = FinalEnding.ConvenientCulprit,
                 [WrongPersonEndingId] = FinalEnding.WrongPerson,
-                [PanicEndingId] = FinalEnding.BadPanic,
-                [IntegrityEndingId] = FinalEnding.BadIntegrity
+                [BadEndingId] = FinalEnding.Bad,
+                [LegacyIntegrityEndingId] = FinalEnding.Bad
             };
-            FinalEnding ending = mappings.TryGetValue(endingId, out FinalEnding stored)
+            string normalized = NormalizeEndingId(endingId);
+            FinalEnding ending = mappings.TryGetValue(normalized, out FinalEnding stored)
                 ? stored
                 : FinalEnding.WrongPerson;
             return new FinalAccusationResult(
                 ending,
-                endingId,
+                normalized,
                 "이미 확정된 엔딩은 다시 판정하지 않는다.",
                 false);
         }

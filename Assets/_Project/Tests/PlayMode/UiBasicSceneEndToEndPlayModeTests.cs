@@ -65,7 +65,7 @@ namespace Wake.Tests.PlayMode
             Dialogue.CancelActiveDialogue();
             State.ClearDialogueCheckpoint();
             Assert.That(State.TryRecordFinalEnding(
-                FinalAccusationResolver.PanicEndingId), Is.True);
+                FinalAccusationResolver.BadEndingId), Is.True);
             ProductionEndingUIController ending =
                 Object.FindFirstObjectByType<ProductionEndingUIController>();
             ending.ShowStoredEnding();
@@ -90,13 +90,13 @@ namespace Wake.Tests.PlayMode
             Assert.That(GameStateManager.HasSaveData, Is.True,
                 "타이틀 복귀는 Continue 저장본을 삭제하면 안 됩니다.");
             Assert.That(State.FinalEndingId,
-                Is.EqualTo(FinalAccusationResolver.PanicEndingId));
+                Is.EqualTo(FinalAccusationResolver.BadEndingId));
             Assert.That(RequireObject("StartScene/Continue Btn").activeSelf,
                 Is.True);
 
             yield return ContinueFromVisibleButton();
             Assert.That(State.FinalEndingId,
-                Is.EqualTo(FinalAccusationResolver.PanicEndingId));
+                Is.EqualTo(FinalAccusationResolver.BadEndingId));
             Assert.That(GameStateManager.HasSaveData, Is.True);
 
             Ui.ShowStartScene();

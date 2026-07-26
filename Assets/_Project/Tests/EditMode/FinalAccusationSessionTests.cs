@@ -108,7 +108,7 @@ namespace Wake.Tests
             FinalAccusationSubmission result = session.Submit();
 
             Assert.That(result.Messages, Has.Some.Contains("승객 불안 100"));
-            Assert.That(result.Result.Ending, Is.EqualTo(FinalEnding.BadPanic));
+            Assert.That(result.Result.Ending, Is.EqualTo(FinalEnding.Bad));
         }
     }
 }

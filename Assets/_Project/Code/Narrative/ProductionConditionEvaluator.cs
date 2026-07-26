@@ -127,10 +127,10 @@ namespace Wake.Narrative
             if (expression.StartsWith("ending:", StringComparison.Ordinal))
             {
                 return new ProductionConditionResult(
-                    string.Equals(
-                        state.FinalEndingId,
-                        expression.Substring(7),
-                        StringComparison.OrdinalIgnoreCase));
+                    FinalAccusationResolver.ToOfficialRoute(state.FinalEndingId)
+                        .Equals(
+                            expression.Substring(7),
+                            StringComparison.OrdinalIgnoreCase));
             }
             if (expression.StartsWith("flag:", StringComparison.Ordinal))
             {
