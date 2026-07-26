@@ -9,7 +9,7 @@ using Wake.UI;
 
 namespace Wake.Narrative
 {
-    public class DialogueController : MonoBehaviour
+    public class DialogueController : MonoBehaviour, IProductionScenePlayer
     {
         public static DialogueController Instance { get; private set; }
 
@@ -36,6 +36,8 @@ namespace Wake.Narrative
             new Dictionary<string, PortraitDefinition>(StringComparer.OrdinalIgnoreCase);
 
         public bool IsBusy { get; private set; }
+        public string ActiveProductionSceneId =>
+            productionFlow?.ActiveSceneId ?? string.Empty;
 
         private readonly struct PortraitDefinition
         {
@@ -227,31 +229,74 @@ namespace Wake.Narrative
 
         public bool StartProductionScene(string sceneId)
         {
-            DialogueDatabase database = DialogueDatabase.Instance;
-            if (database == null)
+            if (productionFlow != null &&
+                string.Equals(
+                    productionFlow.ActiveSceneId,
+                    sceneId?.Trim(),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (IsBusy)
             {
                 return false;
             }
 
-            productionFlow = new ProductionDialogueFlow(
+            productionFlow = CreateProductionFlow();
+            if (productionFlow == null || !productionFlow.StartScene(sceneId))
+            {
+                productionFlow = null;
+                return false;
+            }
+
+            BeginProductionPresentation();
+            return true;
+        }
+
+        public bool RestoreProductionScene(
+            Wake.Core.ProductionDialogueCheckpoint checkpoint)
+        {
+            if (checkpoint == null || IsBusy)
+            {
+                return false;
+            }
+
+            productionFlow = CreateProductionFlow();
+            if (productionFlow == null || !productionFlow.RestoreScene(checkpoint))
+            {
+                productionFlow = null;
+                return false;
+            }
+
+            BeginProductionPresentation();
+            return true;
+        }
+
+        private ProductionDialogueFlow CreateProductionFlow()
+        {
+            DialogueDatabase database = DialogueDatabase.Instance;
+            if (database == null)
+            {
+                return null;
+            }
+
+            return new ProductionDialogueFlow(
                 database.Records.Values,
                 null,
                 Wake.Core.GameStateManager.Instance,
                 evidenceId =>
                     EvidenceInventory.Instance != null &&
                     EvidenceInventory.Instance.TryAddById(evidenceId));
-            if (!productionFlow.StartScene(sceneId))
-            {
-                productionFlow = null;
-                return false;
-            }
+        }
 
+        private void BeginProductionPresentation()
+        {
             currentSet = null;
             currentNode = null;
             IsBusy = true;
             linePanel.SetActive(true);
             RenderProduction();
-            return true;
         }
 
         private void RenderProduction()
@@ -262,6 +307,7 @@ namespace Wake.Narrative
                 return;
             }
 
+            SaveProductionCheckpoint();
             bool hasChoices = productionFlow.IsAwaitingChoice;
             choicesContainer.SetActive(hasChoices);
             nextButton.gameObject.SetActive(!hasChoices);
@@ -392,6 +438,14 @@ namespace Wake.Narrative
         private void EndDialogue()
         {
             string completedProductionScene = productionFlow?.ActiveSceneId;
+            if (productionFlow?.Phase == ProductionScenePhase.Completed)
+            {
+                Wake.Core.GameStateManager.Instance?.ClearDialogueCheckpoint();
+            }
+            else
+            {
+                SaveProductionCheckpoint();
+            }
             IsBusy = false;
             currentSet = null;
             currentNode = null;
@@ -415,6 +469,21 @@ namespace Wake.Narrative
             {
                 FindFirstObjectByType<FinalAccusationUIController>()?.Open();
             }
+        }
+
+        private void SaveProductionCheckpoint()
+        {
+            if (productionFlow == null ||
+                productionFlow.Phase == ProductionScenePhase.Completed)
+            {
+                return;
+            }
+
+            Wake.Core.GameStateManager.Instance?.SaveDialogueCheckpoint(
+                productionFlow.ActiveSceneId,
+                productionFlow.CurrentIndex,
+                productionFlow.IsAwaitingChoice,
+                productionFlow.PendingInteractionId);
         }
     }
 }

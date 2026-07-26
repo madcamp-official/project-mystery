@@ -1,6 +1,7 @@
 using UnityEngine;
 using Wake.Evidence;
 using Wake.Exploration;
+using Wake.Narrative;
 
 namespace Wake.Core
 {
@@ -25,7 +26,13 @@ namespace Wake.Core
             }
 
             started = true;
-            LocationLoader.Instance?.TryLoadLocation(locationGraph.StartingLocation, out _);
+            if (LocationLoader.Instance != null &&
+                LocationLoader.Instance.TryLoadLocation(
+                    locationGraph.StartingLocation,
+                    out _))
+            {
+                CreateSceneDirector()?.StartNewGame();
+            }
         }
 
         /// Continue flow: restores collected evidence and jumps back to the saved location
@@ -61,6 +68,18 @@ namespace Wake.Core
             {
                 LocationLoader.Instance.TryLoadLocation(locationGraph.StartingLocation, out _);
             }
+
+            CreateSceneDirector()?.ResumeGame();
+        }
+
+        private static ProductionSceneDirector CreateSceneDirector()
+        {
+            return GameStateManager.Instance != null &&
+                   DialogueController.Instance != null
+                ? new ProductionSceneDirector(
+                    GameStateManager.Instance,
+                    DialogueController.Instance)
+                : null;
         }
     }
 }
