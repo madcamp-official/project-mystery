@@ -2,7 +2,8 @@
   "name": "Wake.EditModeTests",
   "rootNamespace": "Wake.Tests",
   "references": [
-    "Wake.Runtime"
+    "Wake.Runtime",
+    "Wake.Editor"
   ],
   "includePlatforms": [
     "Editor"
