@@ -147,7 +147,7 @@ namespace Wake.Narrative
                 ValidateConditionReferences(record, sceneIds, diagnostics);
                 CollectChoice(record, choiceGroups, diagnostics);
                 if (!string.IsNullOrWhiteSpace(record.NextOrEffect) &&
-                    !DialogueEffectCatalog.TryResolve(record.NextOrEffect, out _))
+                    !DialogueEffectCatalog.TryResolve(record, out _))
                 {
                     Add(
                         diagnostics,
