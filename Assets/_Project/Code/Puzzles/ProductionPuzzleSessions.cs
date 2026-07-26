@@ -223,7 +223,13 @@ namespace Wake.Puzzles
             string[] missingEvidence = Definition.RequiredEvidenceIds
                 .Where(value => !hasEvidence(value))
                 .ToArray();
-            if (IsCompleted || missingSelections.Length > 0 || missingEvidence.Length > 0)
+            if (IsCompleted ||
+                missingSelections.Length > 0 ||
+                missingEvidence.Length > 0 ||
+                !ProductionSceneCompletionGate.CanStartInteraction(
+                    state,
+                    Definition.SceneId,
+                    Definition.Id))
             {
                 return new PuzzleCompletionResult(
                     false,
@@ -231,17 +237,24 @@ namespace Wake.Puzzles
                     missingEvidence);
             }
 
+            using IDisposable batch = state.BeginStateBatch();
             IsCompleted = true;
             Save();
             state.AddFlag($"puzzle_{Definition.Id}_completed");
-            ProductionSceneCompletionGate.TryComplete(
+            if (ProductionSceneCompletionGate.TryComplete(
                 state,
                 Definition.SceneId,
-                Definition.Id);
-            InvestigationEventHub.Publish(
-                InvestigationEventKind.TheoryCompleted,
-                Definition.ResultTheoryId,
-                Definition.SceneId);
+                Definition.Id,
+                out bool newlyCompleted,
+                out _) &&
+                newlyCompleted)
+            {
+                InvestigationEventHub.Publish(
+                    InvestigationEventKind.TheoryCompleted,
+                    Definition.ResultTheoryId,
+                    Definition.SceneId);
+            }
+
             return new PuzzleCompletionResult(
                 true,
                 Array.Empty<string>(),

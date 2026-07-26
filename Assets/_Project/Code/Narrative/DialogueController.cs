@@ -392,7 +392,9 @@ namespace Wake.Narrative
             string completedProductionScene = productionFlow?.ActiveSceneId;
             if (productionFlow?.Phase == ProductionScenePhase.Completed)
             {
-                Wake.Core.GameStateManager.Instance?.ClearDialogueCheckpoint();
+                Wake.Core.GameStateManager.Instance?.ClearDialogueCheckpoint(
+                    completedProductionScene,
+                    productionFlow.PendingInteractionId);
             }
             else
             {

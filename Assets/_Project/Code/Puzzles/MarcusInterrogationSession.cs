@@ -197,6 +197,18 @@ namespace Wake.Puzzles
                     "Evelyn 인증 제공 여부를 먼저 확인하세요.");
             }
 
+            if (!ProductionSceneCompletionGate.CanStartInteraction(
+                    state,
+                    MarcusInterrogationCatalog.SceneId,
+                    MarcusInterrogationCatalog.SessionId))
+            {
+                return new MarcusInterrogationCompletion(
+                    false,
+                    authentication,
+                    "이미 완료된 심문은 다시 종료할 수 없습니다.");
+            }
+
+            using IDisposable batch = state.BeginStateBatch();
             if (authentication ==
                     MarcusAuthenticationResult.EvelynAuthenticationConfirmed &&
                 !tryGrantEvidence(MarcusInterrogationCatalog.AuthenticationEvidence))
@@ -217,14 +229,19 @@ namespace Wake.Puzzles
                     "Evelyn 인증 제공 확인");
             }
 
-            ProductionSceneCompletionGate.TryComplete(
-                state,
-                MarcusInterrogationCatalog.SceneId,
-                MarcusInterrogationCatalog.SessionId);
-            InvestigationEventHub.Publish(
-                InvestigationEventKind.TheoryCompleted,
-                "vault_accomplice_connection",
-                MarcusInterrogationCatalog.SceneId);
+            if (ProductionSceneCompletionGate.TryComplete(
+                    state,
+                    MarcusInterrogationCatalog.SceneId,
+                    MarcusInterrogationCatalog.SessionId,
+                    out bool newlyCompleted,
+                    out _) &&
+                newlyCompleted)
+            {
+                InvestigationEventHub.Publish(
+                    InvestigationEventKind.TheoryCompleted,
+                    "vault_accomplice_connection",
+                    MarcusInterrogationCatalog.SceneId);
+            }
             return new MarcusInterrogationCompletion(
                 true,
                 authentication,

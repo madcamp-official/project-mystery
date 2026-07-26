@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Wake.Core;
 using Wake.Evidence;
+using Wake.Narrative;
 using Wake.Puzzles;
 
 namespace Wake.UI
@@ -41,13 +42,18 @@ namespace Wake.UI
 
         public bool Open()
         {
-            if (root == null || GameStateManager.Instance == null)
+            GameStateManager state = GameStateManager.Instance;
+            if (root == null ||
+                !ProductionSceneCompletionGate.CanStartInteraction(
+                    state,
+                    MarcusInterrogationCatalog.SceneId,
+                    MarcusInterrogationCatalog.SessionId))
             {
                 return false;
             }
 
             session = new MarcusInterrogationSession(
-                GameStateManager.Instance,
+                state,
                 tryGrantEvidence: evidenceId =>
                     EvidenceInventory.Instance != null &&
                     EvidenceInventory.Instance.TryAddById(evidenceId));

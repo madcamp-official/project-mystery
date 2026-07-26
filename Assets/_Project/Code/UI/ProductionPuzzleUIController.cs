@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Wake.Core;
 using Wake.Evidence;
+using Wake.Narrative;
 using Wake.Puzzles;
 
 namespace Wake.UI
@@ -134,15 +135,19 @@ namespace Wake.UI
 
         public bool Open(string puzzleId)
         {
+            GameStateManager state = GameStateManager.Instance;
             if (!ProductionPuzzleCatalog.TryGet(puzzleId, out var definition) ||
-                GameStateManager.Instance == null)
+                !ProductionSceneCompletionGate.CanStartInteraction(
+                    state,
+                    definition.SceneId,
+                    definition.Id))
             {
                 return false;
             }
 
             session = new ProductionPuzzleSession(
                 definition,
-                GameStateManager.Instance,
+                state,
                 evidenceId =>
                     EvidenceInventory.Instance != null &&
                     EvidenceInventory.Instance.Contains(evidenceId));

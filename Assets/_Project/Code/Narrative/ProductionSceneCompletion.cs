@@ -17,14 +17,17 @@ namespace Wake.Narrative
     {
         public ProductionSceneCompletionRequirement(
             string sceneId,
-            string interactionId)
+            string interactionId,
+            string nextSceneId)
         {
             SceneId = NormalizeSceneId(sceneId);
             InteractionId = NormalizeInteractionId(interactionId);
+            NextSceneId = NormalizeSceneId(nextSceneId);
         }
 
         public string SceneId { get; }
         public string InteractionId { get; }
+        public string NextSceneId { get; }
 
         public bool Matches(string interactionId) =>
             string.Equals(
@@ -68,12 +71,12 @@ namespace Wake.Narrative
 
         private static readonly ProductionSceneCompletionRequirement[] Entries =
         {
-            R("D2-02", BloodPatternInteraction),
-            R("D4-04", MarcusInterrogationInteraction),
-            R("D6-02", CargoRailInteraction),
-            R("D6-05", TimelineInteraction),
-            R("D7-03", OrpheusInteraction),
-            R("D8-01", FinalAccusationInteraction)
+            R("D2-02", BloodPatternInteraction, "D2-03"),
+            R("D4-04", MarcusInterrogationInteraction, "D5-01"),
+            R("D6-02", CargoRailInteraction, "D6-03"),
+            R("D6-05", TimelineInteraction, "D7-01"),
+            R("D7-03", OrpheusInteraction, "D7-04"),
+            R("D8-01", FinalAccusationInteraction, "D8-02")
         };
 
         private static readonly IReadOnlyDictionary<string,
@@ -124,13 +127,14 @@ namespace Wake.Narrative
 
         private static ProductionSceneCompletionRequirement R(
             string sceneId,
-            string interactionId) =>
-            new(sceneId, interactionId);
+            string interactionId,
+            string nextSceneId) =>
+            new(sceneId, interactionId, nextSceneId);
     }
 
     public static class ProductionSceneCompletionGate
     {
-        public static bool TryComplete(
+        public static bool CanStartInteraction(
             GameStateManager state,
             string sceneId,
             string interactionId)
@@ -144,12 +148,85 @@ namespace Wake.Narrative
                 return false;
             }
 
-            if (state.HasCompletedScene(requirement.SceneId))
+            bool sessionCompleted = state.TryGetPuzzleSession(
+                                        requirement.InteractionId,
+                                        out PuzzleSessionState session) &&
+                                    session.completed;
+            if (state.HasCompletedScene(requirement.SceneId) ||
+                sessionCompleted)
             {
-                return true;
+                TryComplete(
+                    state,
+                    requirement.SceneId,
+                    requirement.InteractionId);
+                return false;
             }
 
-            return state.RecordCompletedScene(requirement.SceneId);
+            return true;
         }
+
+        public static bool TryComplete(
+            GameStateManager state,
+            string sceneId,
+            string interactionId) =>
+            TryComplete(
+                state,
+                sceneId,
+                interactionId,
+                out _,
+                out _);
+
+        public static bool TryComplete(
+            GameStateManager state,
+            string sceneId,
+            string interactionId,
+            out bool newlyCompleted,
+            out bool checkpointCleared)
+        {
+            newlyCompleted = false;
+            checkpointCleared = false;
+            if (state == null ||
+                !ProductionSceneCompletionCatalog.TryGet(
+                    sceneId,
+                    out ProductionSceneCompletionRequirement requirement) ||
+                !requirement.Matches(interactionId))
+            {
+                return false;
+            }
+
+            if (!state.TrySynchronizeProductionSceneCompletion(
+                    requirement.SceneId,
+                    requirement.InteractionId,
+                    out newlyCompleted,
+                    out checkpointCleared))
+            {
+                return false;
+            }
+
+            if (newlyCompleted)
+            {
+                InvestigationEventHub.Publish(
+                    InvestigationEventKind.SceneCompleted,
+                    requirement.SceneId,
+                    ResolveNextScene(state, requirement));
+            }
+            return true;
+        }
+
+        private static string ResolveNextScene(
+            GameStateManager state,
+            ProductionSceneCompletionRequirement requirement)
+        {
+            if (requirement.SceneId != "D8-01")
+            {
+                return requirement.NextSceneId;
+            }
+
+            return ProductionEndingCatalog.GetNextDialogueScene(
+                state.FinalEndingId,
+                state.HasCompletedScene(ProductionEndingCatalog.ConfessionSceneId),
+                state.HasCompletedScene(ProductionEndingCatalog.EpilogueSceneId));
+        }
+
     }
 }

@@ -260,23 +260,34 @@ namespace Wake.Puzzles
                 diagnostics.Add("기록 조각의 순서가 원본 D7-03과 일치하지 않습니다.");
             }
 
-            if (IsCompleted || diagnostics.Count > 0)
+            if (IsCompleted ||
+                diagnostics.Count > 0 ||
+                !ProductionSceneCompletionGate.CanStartInteraction(
+                    state,
+                    OrpheusRecordCatalog.SceneId,
+                    OrpheusRecordCatalog.PuzzleId))
             {
                 return new OrpheusCompletionResult(false, diagnostics);
             }
 
+            using IDisposable batch = state.BeginStateBatch();
             IsCompleted = true;
             Save();
             state.RecordEvidenceCollected(OrpheusRecordCatalog.EvidenceId);
             state.AddFlag("past_culprit_confirmed", "과거 진범 확정");
-            ProductionSceneCompletionGate.TryComplete(
+            if (ProductionSceneCompletionGate.TryComplete(
                 state,
                 OrpheusRecordCatalog.SceneId,
-                OrpheusRecordCatalog.PuzzleId);
-            InvestigationEventHub.Publish(
-                InvestigationEventKind.TheoryCompleted,
-                "past_culprit_evelyn",
-                OrpheusRecordCatalog.SceneId);
+                OrpheusRecordCatalog.PuzzleId,
+                out bool newlyCompleted,
+                out _) &&
+                newlyCompleted)
+            {
+                InvestigationEventHub.Publish(
+                    InvestigationEventKind.TheoryCompleted,
+                    "past_culprit_evelyn",
+                    OrpheusRecordCatalog.SceneId);
+            }
             return new OrpheusCompletionResult(true, Array.Empty<string>());
         }
 

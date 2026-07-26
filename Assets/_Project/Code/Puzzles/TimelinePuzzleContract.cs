@@ -265,22 +265,33 @@ namespace Wake.Puzzles
                 previous = slot;
             }
 
-            if (IsCompleted || diagnostics.Count > 0)
+            if (IsCompleted ||
+                diagnostics.Count > 0 ||
+                !ProductionSceneCompletionGate.CanStartInteraction(
+                    state,
+                    TimelinePuzzleCatalog.SceneId,
+                    TimelinePuzzleCatalog.PuzzleId))
             {
                 return new TimelineCompletionResult(false, missing, diagnostics);
             }
 
+            using IDisposable batch = state.BeginStateBatch();
             IsCompleted = true;
             Save();
             state.AddFlag("puzzle_timeline_12_cards_completed");
-            ProductionSceneCompletionGate.TryComplete(
+            if (ProductionSceneCompletionGate.TryComplete(
                 state,
                 TimelinePuzzleCatalog.SceneId,
-                TimelinePuzzleCatalog.PuzzleId);
-            InvestigationEventHub.Publish(
-                InvestigationEventKind.TheoryCompleted,
-                "incident_timeline",
-                TimelinePuzzleCatalog.SceneId);
+                TimelinePuzzleCatalog.PuzzleId,
+                out bool newlyCompleted,
+                out _) &&
+                newlyCompleted)
+            {
+                InvestigationEventHub.Publish(
+                    InvestigationEventKind.TheoryCompleted,
+                    "incident_timeline",
+                    TimelinePuzzleCatalog.SceneId);
+            }
             return new TimelineCompletionResult(true, 0, Array.Empty<string>());
         }
 
