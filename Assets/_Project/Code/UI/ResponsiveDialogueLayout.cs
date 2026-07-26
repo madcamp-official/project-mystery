@@ -42,11 +42,17 @@ namespace Wake.UI
         public static readonly Vector2 ReferenceResolution = new(1920f, 1080f);
         public const float DialogueHeight = 360f;
         public const float EdgePadding = 24f;
+        public const float NavigationTop = 184f;
+        public const float NavigationButtonWidth = 220f;
+        public const float NavigationButtonHeight = 64f;
 
         private Canvas canvas;
+        private RectTransform ingameRoot;
         private RectTransform linePanel;
         private RectTransform textPanel;
         private RectTransform portrait;
+        private RectTransform speakerPlate;
+        private RectTransform nextButton;
         private RectTransform choices;
         private TMP_Text lineText;
         private TMP_Text speakerText;
@@ -64,14 +70,22 @@ namespace Wake.UI
             RectTransform targetPortrait,
             TMP_Text targetLineText,
             TMP_Text targetSpeakerText,
+            RectTransform targetNextButton,
             RectTransform targetChoices,
             IReadOnlyList<Button> targetChoiceButtons)
         {
             canvas = targetCanvas;
             linePanel = targetLinePanel;
+            ingameRoot = linePanel != null
+                ? linePanel.parent as RectTransform
+                : null;
             portrait = targetPortrait;
             lineText = targetLineText;
             speakerText = targetSpeakerText;
+            speakerPlate = speakerText != null
+                ? speakerText.transform.parent as RectTransform
+                : null;
+            nextButton = targetNextButton;
             choices = targetChoices;
             choiceButtons = targetChoiceButtons;
             textPanel = lineText != null
@@ -79,7 +93,9 @@ namespace Wake.UI
                 : null;
 
             ConfigureCanvasScaler();
+            ConfigureIngameRoot();
             ConfigureText();
+            ConfigurePortrait();
             ConfigureChoices();
             ApplyLayout(Screen.safeArea, new Vector2(Screen.width, Screen.height));
         }
@@ -91,6 +107,7 @@ namespace Wake.UI
             SafeAreaAnchors anchors =
                 SafeAreaUtility.ToAnchors(safeArea, screenSize);
 
+            ApplyNavigationLayout();
             linePanel.anchorMin = new Vector2(
                 anchors.Minimum.x,
                 anchors.Minimum.y);
@@ -103,10 +120,10 @@ namespace Wake.UI
 
             if (textPanel != null)
             {
-                textPanel.anchorMin = new Vector2(0.20f, 0f);
+                textPanel.anchorMin = new Vector2(0.19f, 0f);
                 textPanel.anchorMax = Vector2.one;
-                textPanel.offsetMin = new Vector2(EdgePadding, 0f);
-                textPanel.offsetMax = new Vector2(-EdgePadding, 0f);
+                textPanel.offsetMin = new Vector2(EdgePadding, 12f);
+                textPanel.offsetMax = new Vector2(-EdgePadding, -12f);
             }
 
             if (portrait != null)
@@ -114,14 +131,34 @@ namespace Wake.UI
                 portrait.anchorMin = Vector2.zero;
                 portrait.anchorMax = Vector2.zero;
                 portrait.pivot = Vector2.zero;
-                portrait.anchoredPosition = new Vector2(EdgePadding, 12f);
-                portrait.sizeDelta = new Vector2(320f, 420f);
+                portrait.anchoredPosition = new Vector2(EdgePadding, 18f);
+                portrait.sizeDelta = new Vector2(320f, 430f);
+            }
+
+            if (speakerPlate != null)
+            {
+                speakerPlate.anchorMin = new Vector2(0f, 1f);
+                speakerPlate.anchorMax = new Vector2(0f, 1f);
+                speakerPlate.pivot = new Vector2(0f, 1f);
+                speakerPlate.anchoredPosition =
+                    new Vector2(384f, -EdgePadding);
+                speakerPlate.sizeDelta = new Vector2(420f, 56f);
+            }
+
+            if (nextButton != null)
+            {
+                nextButton.anchorMin = new Vector2(1f, 0f);
+                nextButton.anchorMax = new Vector2(1f, 0f);
+                nextButton.pivot = new Vector2(1f, 0f);
+                nextButton.anchoredPosition =
+                    new Vector2(-EdgePadding, EdgePadding);
+                nextButton.sizeDelta = new Vector2(176f, 60f);
             }
 
             if (choices != null)
             {
-                choices.anchorMin = new Vector2(0.22f, 0.04f);
-                choices.anchorMax = new Vector2(0.98f, 0.96f);
+                choices.anchorMin = new Vector2(0.21f, 0.08f);
+                choices.anchorMax = new Vector2(0.98f, 0.84f);
                 choices.offsetMin = Vector2.zero;
                 choices.offsetMax = Vector2.zero;
                 UpdateChoiceGrid();
@@ -130,6 +167,59 @@ namespace Wake.UI
             lastScreen = new Vector2Int(
                 Mathf.RoundToInt(screenSize.x),
                 Mathf.RoundToInt(screenSize.y));
+        }
+
+        private void ConfigureIngameRoot()
+        {
+            if (ingameRoot == null)
+                return;
+
+            ingameRoot.anchorMin = Vector2.zero;
+            ingameRoot.anchorMax = Vector2.one;
+            ingameRoot.pivot = new Vector2(0.5f, 0.5f);
+            ingameRoot.anchoredPosition = Vector2.zero;
+            ingameRoot.sizeDelta = Vector2.zero;
+            ingameRoot.localScale = Vector3.one;
+        }
+
+        private void ApplyNavigationLayout()
+        {
+            if (ingameRoot == null)
+                return;
+
+            PlaceNavigationButton(
+                ingameRoot.Find("Evidence Btn") as RectTransform,
+                false,
+                EdgePadding);
+            PlaceNavigationButton(
+                ingameRoot.Find("Map Btn") as RectTransform,
+                false,
+                EdgePadding * 2f + NavigationButtonWidth);
+            PlaceNavigationButton(
+                ingameRoot.Find("Settings Btn") as RectTransform,
+                true,
+                EdgePadding);
+        }
+
+        private static void PlaceNavigationButton(
+            RectTransform button,
+            bool alignRight,
+            float horizontalInset)
+        {
+            if (button == null)
+                return;
+
+            float anchorX = alignRight ? 1f : 0f;
+            button.anchorMin = new Vector2(anchorX, 1f);
+            button.anchorMax = new Vector2(anchorX, 1f);
+            button.pivot = new Vector2(anchorX, 1f);
+            button.anchoredPosition = new Vector2(
+                alignRight ? -horizontalInset : horizontalInset,
+                -NavigationTop);
+            button.sizeDelta = new Vector2(
+                NavigationButtonWidth,
+                NavigationButtonHeight);
+            button.localScale = Vector3.one;
         }
 
         public void ResetTextScroll()
@@ -156,8 +246,8 @@ namespace Wake.UI
 
         private void ConfigureText()
         {
-            ConfigureLabel(lineText, 20f, 34f);
-            ConfigureLabel(speakerText, 18f, 30f);
+            ConfigureLabel(lineText, 22f, 36f, TextOverflowModes.Overflow);
+            ConfigureLabel(speakerText, 20f, 32f, TextOverflowModes.Ellipsis);
             if (textPanel == null || lineText == null)
                 return;
 
@@ -171,8 +261,8 @@ namespace Wake.UI
             lineRect.anchorMin = new Vector2(0f, 1f);
             lineRect.anchorMax = new Vector2(1f, 1f);
             lineRect.pivot = new Vector2(0.5f, 1f);
-            lineRect.anchoredPosition = Vector2.zero;
-            lineRect.sizeDelta = new Vector2(-140f, 0f);
+            lineRect.anchoredPosition = new Vector2(-76f, -72f);
+            lineRect.sizeDelta = new Vector2(-232f, 0f);
             ContentSizeFitter fitter =
                 lineText.GetComponent<ContentSizeFitter>();
             if (fitter == null)
@@ -186,6 +276,20 @@ namespace Wake.UI
             dialogueScroll.vertical = true;
             dialogueScroll.movementType = ScrollRect.MovementType.Clamped;
             dialogueScroll.scrollSensitivity = 36f;
+        }
+
+        private void ConfigurePortrait()
+        {
+            if (portrait == null)
+                return;
+
+            AspectRatioFitter fitter =
+                portrait.GetComponent<AspectRatioFitter>();
+            if (fitter != null)
+            {
+                fitter.aspectMode =
+                    AspectRatioFitter.AspectMode.HeightControlsWidth;
+            }
         }
 
         private void ConfigureChoices()
@@ -211,7 +315,11 @@ namespace Wake.UI
                 element.minHeight = 58f;
                 element.preferredHeight = 72f;
                 TMP_Text label = button.GetComponentInChildren<TMP_Text>();
-                ConfigureLabel(label, 18f, 28f);
+                ConfigureLabel(
+                    label,
+                    18f,
+                    28f,
+                    TextOverflowModes.Ellipsis);
             }
         }
 
@@ -233,7 +341,8 @@ namespace Wake.UI
         private static void ConfigureLabel(
             TMP_Text label,
             float minimumSize,
-            float maximumSize)
+            float maximumSize,
+            TextOverflowModes overflowMode)
         {
             if (label == null)
                 return;
@@ -241,7 +350,7 @@ namespace Wake.UI
             label.fontSizeMin = minimumSize;
             label.fontSizeMax = maximumSize;
             label.textWrappingMode = TextWrappingModes.Normal;
-            label.overflowMode = TextOverflowModes.Overflow;
+            label.overflowMode = overflowMode;
         }
 
         private void LateUpdate()

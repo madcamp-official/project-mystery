@@ -95,6 +95,7 @@ namespace Wake.Narrative
                 speakerPortrait.GetComponent<RectTransform>(),
                 lineText,
                 speakerText,
+                nextButton.GetComponent<RectTransform>(),
                 selectBtn.GetComponent<RectTransform>(),
                 choiceButtons);
             linePanel.SetActive(false);

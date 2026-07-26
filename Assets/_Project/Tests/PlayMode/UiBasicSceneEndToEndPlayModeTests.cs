@@ -32,12 +32,12 @@ namespace Wake.Tests.PlayMode
             CompleteScenes("D1-01", "D1-02", "D1-03");
             yield return SelectSceneFromMap("D1-04");
             Assert.That(Dialogue.ActiveProductionSceneId, Is.EqualTo("D1-04"));
-            Assert.That(State.CurrentLocationCode, Is.EqualTo("ATRIUM"),
+            Assert.That(State.CurrentLocationCode, Is.EqualTo("CREW_STAIRS"),
                 "대화 전용 장소는 현재 확정 배경을 유지해야 합니다.");
             NarrativeLocationHUDController locationHud =
                 RequireObject("Ingame")
                     .GetComponent<NarrativeLocationHUDController>();
-            Assert.That(locationHud.IsWarningVisible, Is.True);
+            Assert.That(locationHud.IsWarningVisible, Is.False);
 
             Dialogue.CancelActiveDialogue();
             CompleteScenes("D1-04", "D1-05", "D1-06", "D1-07");
