@@ -11,6 +11,7 @@ namespace Wake.Exploration
         None,
         SceneNotRegistered,
         PhysicalLocationUnresolved,
+        LocationVisualMissing,
         PrerequisiteSceneIncomplete,
         RestrictedByPublicAnxiety,
         LocationLoadFailed
@@ -127,6 +128,15 @@ namespace Wake.Exploration
                     SceneAccessDenialReason.PhysicalLocationUnresolved,
                     "Physical location is missing.",
                     scene);
+            }
+
+            if (location.ContentPrefab == null && location.BackgroundSprite == null)
+            {
+                return SceneTravelResult.Denied(
+                    SceneAccessDenialReason.LocationVisualMissing,
+                    $"Location '{location.LocationCode}' has no visual content.",
+                    scene,
+                    location);
             }
 
             if (publicAnxiety >= GameStateManager.RestrictedAreaAnxiety &&
