@@ -98,8 +98,9 @@ Richard 원본에 합성되어 있던 회색 체크무늬 배경은 제거했으
 Unity UI에서 인물 외곽만 자연스럽게 표시되도록 반투명 경계와 디스필을 적용했습니다.
 향후 표정 시트를 추가할 때도 체크무늬가 이미지에 합성된 파일은 사용하지 않습니다.
 
-## 런타임 연결 범위
+## 런타임 연결
 
-이 폴더는 표정별 Sprite 라이브러리입니다.
-현재 `Resources/Characters`의 기존 초상화와 `DialogueController`의 `RawImage` 출력은 변경하지 않습니다.
-표정 ID에 따른 대화창 교체 로직은 별도 작업에서 연결합니다.
+이 폴더는 `Resources/CharacterExpressions`에서 로드되는 표정별 Sprite 라이브러리입니다.
+`DialogueController`는 프로덕션 CSV의 29개 감정 토큰을 4개 표정 상태로 정규화하고,
+캐릭터 ID와 표정에 맞는 Sprite를 대화창 `RawImage`에 표시합니다.
+표정 시트나 Sprite를 찾지 못한 경우에만 기존 `Resources/Characters` 초상화를 사용합니다.
