@@ -184,6 +184,53 @@ namespace Wake.Tests
             Assert.That(flow.CanStartScene("D8-02"), Is.False);
         }
 
+        [TestCase("ending_a_complete", "D8-02")]
+        [TestCase("ending_b_convenient_culprit", "D8-02")]
+        [TestCase("ending_c_wrong_person", "")]
+        [TestCase("ending_bad_panic", "")]
+        [TestCase("ending_bad_integrity", "")]
+        public void EndingCatalog_RoutesOnlySolvedMurderToConfession(
+            string endingId,
+            string expected)
+        {
+            Assert.That(
+                ProductionEndingCatalog.GetNextDialogueScene(
+                    endingId,
+                    false,
+                    false),
+                Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void EndingCatalog_RoutesConfessionToEpilogueThenStops()
+        {
+            Assert.That(
+                ProductionEndingCatalog.GetNextDialogueScene(
+                    FinalAccusationResolver.CompleteEndingId,
+                    true,
+                    false),
+                Is.EqualTo("D8-03"));
+            Assert.That(
+                ProductionEndingCatalog.GetNextDialogueScene(
+                    FinalAccusationResolver.CompleteEndingId,
+                    true,
+                    true),
+                Is.Empty);
+        }
+
+        [Test]
+        public void EndingCatalog_ProvidesKoreanSummaryForEveryStoredEnding()
+        {
+            foreach (ProductionEndingDefinition ending in
+                     ProductionEndingCatalog.All)
+            {
+                Assert.That(ending.EndingId, Is.Not.Empty);
+                Assert.That(ending.RouteLabel, Does.Contain("엔딩"));
+                Assert.That(ending.Title, Is.Not.Empty);
+                Assert.That(ending.Epilogue, Is.Not.Empty);
+            }
+        }
+
         private ProductionDialogueFlow CreateProductionFlow()
         {
             TextAsset csv = AssetDatabase.LoadAssetAtPath<TextAsset>(DialoguePath);

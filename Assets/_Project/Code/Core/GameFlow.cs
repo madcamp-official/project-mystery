@@ -69,7 +69,12 @@ namespace Wake.Core
                 LocationLoader.Instance.TryLoadLocation(locationGraph.StartingLocation, out _);
             }
 
-            CreateSceneDirector()?.ResumeGame();
+            bool resumed = CreateSceneDirector()?.ResumeGame() ?? false;
+            if (!resumed && !string.IsNullOrEmpty(state?.FinalEndingId))
+            {
+                FindFirstObjectByType<Wake.UI.ProductionEndingUIController>()
+                    ?.ShowStoredEnding();
+            }
         }
 
         private static ProductionSceneDirector CreateSceneDirector()

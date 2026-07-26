@@ -284,6 +284,12 @@ namespace Wake.UI
                 coverupToggle.isOn);
             FinalAccusationSubmission result = session.Submit();
             feedback.text = string.Join("\n", result.Messages);
+            if (result.Submitted)
+            {
+                panel.SetActive(false);
+                FindFirstObjectByType<ProductionEndingUIController>()
+                    ?.HandleSubmission(result);
+            }
         }
 
         private TMP_Text CreateText(string value, int size)
