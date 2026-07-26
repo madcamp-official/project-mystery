@@ -17,6 +17,7 @@ MonoBehaviour:
   deck: 7
   roomCode: D7-1
   backgroundSprite: {fileID: 21300000, guid: a68c428fb980c734081271ea1c6c6655, type: 3}
-  narrativeAliases: []
+  narrativeAliases:
+  - FORENSIC
   contentPrefab: {fileID: 0}
   connectedLocations: []

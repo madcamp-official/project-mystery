@@ -98,7 +98,7 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void UnresolvedNarrativeLocation_ReturnsTypedReason()
+        public void NarrativeAlias_ResolvesToRegisteredPhysicalLocation()
         {
             SceneTravelResult result = SceneTravelPolicy.EvaluateScene(
                 "D1-04",
@@ -106,10 +106,13 @@ namespace Wake.Tests
                 new[] { "D1-03" },
                 15);
 
-            Assert.That(result.IsAllowed, Is.False);
+            Assert.That(result.IsAllowed, Is.True);
             Assert.That(result.DenialReason,
-                Is.EqualTo(SceneAccessDenialReason.PhysicalLocationUnresolved));
+                Is.EqualTo(SceneAccessDenialReason.None));
             Assert.That(result.Scene.NarrativeLocationCode, Is.EqualTo("SERVICE7"));
+            Assert.That(result.Location, Is.Not.Null);
+            Assert.That(result.Location.LocationCode, Is.EqualTo("CREW_STAIRS"));
+            Assert.That(result.Location.BackgroundSprite, Is.Not.Null);
         }
 
         [Test]
