@@ -19,5 +19,15 @@ namespace Wake.Evidence
         public string Category => category;
         public bool IsDirect => isDirect;
         public Sprite[] Views => views;
+
+        internal void Initialize(CanonicalEvidenceEntry entry)
+        {
+            evidenceId = entry.Id;
+            displayName = entry.DisplayName;
+            description = entry.Description;
+            category = entry.Category;
+            isDirect = entry.IsDirect;
+            views = System.Array.Empty<Sprite>();
+        }
     }
 }

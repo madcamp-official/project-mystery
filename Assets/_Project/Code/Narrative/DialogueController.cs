@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Wake.Evidence;
 using Wake.UI;
 
 namespace Wake.Narrative
@@ -234,7 +235,10 @@ namespace Wake.Narrative
             productionFlow = new ProductionDialogueFlow(
                 database.Records.Values,
                 null,
-                Wake.Core.GameStateManager.Instance);
+                Wake.Core.GameStateManager.Instance,
+                evidenceId =>
+                    EvidenceInventory.Instance != null &&
+                    EvidenceInventory.Instance.TryAddById(evidenceId));
             if (!productionFlow.StartScene(sceneId))
             {
                 productionFlow = null;

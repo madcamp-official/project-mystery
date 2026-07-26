@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Wake.Core;
+using Wake.Evidence;
 namespace Wake.Narrative
 {
     public enum PortraitEmotion
@@ -151,6 +152,7 @@ namespace Wake.Narrative
         private readonly Dictionary<string, List<DialogueRecord>> scenes;
         private readonly HashSet<string> completedScenes;
         private readonly GameStateManager state;
+        private readonly Func<string, bool> tryGrantEvidence;
         private List<DialogueRecord> activeScene = new();
         private int index;
         public DialogueRecord Current { get; private set; }
@@ -165,7 +167,8 @@ namespace Wake.Narrative
         public ProductionDialogueFlow(
             IEnumerable<DialogueRecord> records,
             ISet<string> completed = null,
-            GameStateManager state = null)
+            GameStateManager state = null,
+            Func<string, bool> tryGrantEvidence = null)
         {
             scenes = records
                 .GroupBy(record => record.SceneId)
@@ -177,6 +180,7 @@ namespace Wake.Narrative
                 new HashSet<string>(StringComparer.Ordinal);
             NormalizeCompletedScenes(completed);
             this.state = state;
+            this.tryGrantEvidence = tryGrantEvidence;
 
             if (state != null)
             {
@@ -334,6 +338,12 @@ namespace Wake.Narrative
 
         private void ApplyEffect(DialogueRecord record)
         {
+            foreach (string evidenceId in
+                     CanonicalEvidenceCatalog.GetGrantedEvidenceIds(record.StableLineId))
+            {
+                tryGrantEvidence?.Invoke(evidenceId);
+            }
+
             if (string.IsNullOrWhiteSpace(record.NextOrEffect))
             {
                 return;
