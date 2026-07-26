@@ -10,7 +10,7 @@ namespace Wake.Tests
     public class ProductionSceneCatalogTests
     {
         private const string CsvPath =
-            "Assets/_Project/Content/Dialogue/The_Wake_Without_Footprints_Dialogue_KR.csv";
+            "Assets/_Project/Content/Dialogue/Under_the_Horizon_Dialogue_KR.csv";
         private IReadOnlyList<DialogueRecord> records;
 
         [OneTimeSetUp]
@@ -63,7 +63,7 @@ namespace Wake.Tests
         {
             Assert.That(
                 records.Count(record => record.StageDirection == "UI choice"),
-                Is.EqualTo(30));
+                Is.EqualTo(90));
             IReadOnlyList<SceneScheduleDiagnostic> diagnostics =
                 ProductionSceneScheduleValidator.Validate(records);
 

@@ -12,7 +12,7 @@ namespace Wake.Tests
     {
         private const string SaveKey = "UNDER_THE_HORIZON_GAME_STATE_V2";
         private const string DialoguePath =
-            "Assets/_Project/Content/Dialogue/The_Wake_Without_Footprints_Dialogue_KR.csv";
+            "Assets/_Project/Content/Dialogue/Under_the_Horizon_Dialogue_KR.csv";
 
         private GameObject host;
         private GameStateManager state;

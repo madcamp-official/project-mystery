@@ -17,7 +17,7 @@ namespace Wake.Tests
     {
         private const string SaveKey = "UNDER_THE_HORIZON_GAME_STATE_V2";
         private const string DialoguePath =
-            "Assets/_Project/Content/Dialogue/The_Wake_Without_Footprints_Dialogue_KR.csv";
+            "Assets/_Project/Content/Dialogue/Under_the_Horizon_Dialogue_KR.csv";
         private const string LocationFolder =
             "Assets/_Project/Content/Locations";
 
@@ -57,13 +57,13 @@ namespace Wake.Tests
         [Test]
         public void ProductionCsv_PreservesRowsScenesStableIdsAndKorean()
         {
-            Assert.That(records, Has.Count.EqualTo(200));
+            Assert.That(records, Has.Count.EqualTo(1063));
             Assert.That(
                 records.Select(item => item.SceneId).Distinct().Count(),
                 Is.EqualTo(41));
             Assert.That(
                 records.Select(item => item.StableLineId).Distinct().Count(),
-                Is.EqualTo(200));
+                Is.EqualTo(1063));
             Assert.That(
                 records.Any(item => item.StableLineId == "p_01_01"),
                 Is.True);
