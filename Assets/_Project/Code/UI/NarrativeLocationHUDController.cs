@@ -63,6 +63,12 @@ namespace Wake.UI
                     : ResolvedColor;
         }
 
+        public void Clear()
+        {
+            CurrentContext = default;
+            root?.SetActive(false);
+        }
+
         private void HandleInvestigationEvent(
             InvestigationEvent investigationEvent)
         {

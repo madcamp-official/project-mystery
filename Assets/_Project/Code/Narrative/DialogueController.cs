@@ -201,6 +201,21 @@ namespace Wake.Narrative
             return candidate != null && candidate.CanStartScene(normalized);
         }
 
+        public void CancelActiveDialogue()
+        {
+            IsBusy = false;
+            currentSet = null;
+            currentNode = null;
+            productionFlow = null;
+            linePanel?.SetActive(false);
+            choicesContainer?.SetActive(false);
+            speakerPortrait?.gameObject.SetActive(false);
+            FindFirstObjectByType<StatusHUDController>()
+                ?.ClearContextCharacter();
+            FindFirstObjectByType<NarrativeLocationHUDController>()
+                ?.Clear();
+        }
+
         public bool RestoreProductionScene(
             Wake.Core.ProductionDialogueCheckpoint checkpoint)
         {
