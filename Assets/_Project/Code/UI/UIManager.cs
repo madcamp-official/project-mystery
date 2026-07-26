@@ -121,6 +121,7 @@ namespace Wake.UI
         public void ShowMap()
         {
             SetActivePanel(mapPanel);
+            FindFirstObjectByType<MapController>()?.RefreshMap();
         }
 
         public void ShowEvidence()
