@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 using Wake.Core;
 
 namespace Wake.Exploration
@@ -19,7 +18,7 @@ namespace Wake.Exploration
 
         private GameObject currentInstance;
         private Transform container;
-        private Image backgroundImage;
+        private BackgroundCoverPresenter backgroundPresenter;
 
         private void Awake()
         {
@@ -62,7 +61,7 @@ namespace Wake.Exploration
                 return false;
             }
 
-            if (backgroundImage == null)
+            if (backgroundPresenter == null)
             {
                 container ??= new GameObject("LocationContainer").transform;
                 container.SetParent(transform, false);
@@ -77,8 +76,10 @@ namespace Wake.Exploration
             currentInstance = location.ContentPrefab != null
                 ? Instantiate(location.ContentPrefab, container)
                 : null;
-            backgroundImage.sprite = location.BackgroundSprite;
-            backgroundImage.gameObject.SetActive(location.BackgroundSprite != null);
+            backgroundPresenter.Show(
+                location.BackgroundSprite,
+                location.BackgroundFocus,
+                location.BackgroundZoom);
             CurrentLocation = location;
             AudioManager.Instance?.PlayLocationTheme(location.LocationCode);
             GameStateManager.Instance?.RecordLocation(location.LocationCode);
@@ -94,17 +95,14 @@ namespace Wake.Exploration
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = -100;
 
-            GameObject imageObject = new("LocationBackground", typeof(RectTransform), typeof(Image));
-            imageObject.transform.SetParent(canvasObject.transform, false);
-            RectTransform rect = imageObject.GetComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-            backgroundImage = imageObject.GetComponent<Image>();
-            backgroundImage.preserveAspect = true;
-            backgroundImage.raycastTarget = false;
-            backgroundImage.gameObject.SetActive(false);
+            GameObject presenterObject = new(
+                "LocationBackground",
+                typeof(RectTransform),
+                typeof(BackgroundCoverPresenter));
+            backgroundPresenter =
+                presenterObject.GetComponent<BackgroundCoverPresenter>();
+            backgroundPresenter.Initialize(
+                canvasObject.GetComponent<RectTransform>());
         }
     }
 }

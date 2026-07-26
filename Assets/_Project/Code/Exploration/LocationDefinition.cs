@@ -12,6 +12,8 @@ namespace Wake.Exploration
         [SerializeField] private int deck;
         [SerializeField] private string roomCode;
         [SerializeField] private Sprite backgroundSprite;
+        [SerializeField] private Vector2 backgroundFocus = new(0.5f, 0.5f);
+        [SerializeField, Min(1f)] private float backgroundZoom = 1f;
         [SerializeField] private List<string> narrativeAliases = new();
         [SerializeField] private GameObject contentPrefab;
         [SerializeField] private List<LocationDefinition> connectedLocations = new();
@@ -21,6 +23,13 @@ namespace Wake.Exploration
         public int Deck => deck;
         public string RoomCode => roomCode;
         public Sprite BackgroundSprite => backgroundSprite;
+        public Vector2 BackgroundFocus =>
+            backgroundFocus == Vector2.zero
+                ? new Vector2(0.5f, 0.5f)
+                : new Vector2(
+                    Mathf.Clamp01(backgroundFocus.x),
+                    Mathf.Clamp01(backgroundFocus.y));
+        public float BackgroundZoom => Mathf.Max(1f, backgroundZoom);
         public IReadOnlyList<string> NarrativeAliases => narrativeAliases;
         public GameObject ContentPrefab => contentPrefab;
         public IReadOnlyList<LocationDefinition> ConnectedLocations => connectedLocations;
