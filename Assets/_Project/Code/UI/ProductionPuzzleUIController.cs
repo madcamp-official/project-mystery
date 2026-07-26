@@ -109,7 +109,9 @@ namespace Wake.UI
     }
 
     [DisallowMultipleComponent]
-    public sealed class ProductionPuzzleUIController : MonoBehaviour
+    public sealed class ProductionPuzzleUIController :
+        MonoBehaviour,
+        IRuntimeModalController
     {
         private static readonly Color Panel = new(0.035f, 0.075f, 0.12f, 0.98f);
         private static readonly Color Selected = new(0.20f, 0.58f, 0.48f, 1f);

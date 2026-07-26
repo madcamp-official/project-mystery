@@ -182,7 +182,10 @@ namespace Wake.UI
                 : default;
     }
 
-    public sealed class FinalAccusationUIController : MonoBehaviour
+    [DisallowMultipleComponent]
+    public sealed class FinalAccusationUIController :
+        MonoBehaviour,
+        IRuntimeModalController
     {
         private sealed class ChoiceControl
         {
@@ -213,6 +216,8 @@ namespace Wake.UI
         private TMP_Text feedback;
         private FinalAccusationSession session;
 
+        public bool IsOpen => panel != null && panel.activeSelf;
+
         public void Open()
         {
             if (GameStateManager.Instance == null)
@@ -225,6 +230,11 @@ namespace Wake.UI
         }
 
         private void Awake() => Build();
+
+        public void Close()
+        {
+            panel?.SetActive(false);
+        }
 
         private void Build()
         {

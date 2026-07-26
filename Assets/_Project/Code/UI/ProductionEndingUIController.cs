@@ -8,7 +8,9 @@ using Wake.Narrative;
 namespace Wake.UI
 {
     [DisallowMultipleComponent]
-    public sealed class ProductionEndingUIController : MonoBehaviour
+    public sealed class ProductionEndingUIController :
+        MonoBehaviour,
+        IRuntimeModalController
     {
         private GameObject root;
         private TMP_Text routeText;
