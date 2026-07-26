@@ -29,7 +29,6 @@ namespace Wake.Narrative
         private DialogueSet currentSet;
         private DialogueNode currentNode;
         private ProductionDialogueFlow productionFlow;
-        private readonly HashSet<string> completedProductionScenes = new(StringComparer.Ordinal);
 
         private readonly Dictionary<string, PortraitDefinition> portraits =
             new Dictionary<string, PortraitDefinition>(StringComparer.OrdinalIgnoreCase);
@@ -234,7 +233,7 @@ namespace Wake.Narrative
 
             productionFlow = new ProductionDialogueFlow(
                 database.Records.Values,
-                completedProductionScenes,
+                null,
                 Wake.Core.GameStateManager.Instance);
             if (!productionFlow.StartScene(sceneId))
             {
