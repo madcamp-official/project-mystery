@@ -12,6 +12,7 @@ namespace Wake.Core
         [SerializeField] private LocationGraph locationGraph;
 
         private bool started;
+        public bool HasActiveSession => started;
 
         private void Awake()
         {
@@ -75,6 +76,11 @@ namespace Wake.Core
                 FindFirstObjectByType<Wake.UI.ProductionEndingUIController>()
                     ?.ShowStoredEnding();
             }
+        }
+
+        public void ResetSession()
+        {
+            started = false;
         }
 
         private static ProductionSceneDirector CreateSceneDirector()

@@ -5,6 +5,7 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using Wake.Core;
 using Wake.Evidence;
+using Wake.Narrative;
 
 namespace Wake.UI
 {
@@ -239,6 +240,7 @@ namespace Wake.UI
 
         private void OnNewGameClicked()
         {
+            GameFlow.Instance?.ResetSession();
             GameStateManager.Instance?.StartNewGame();
             EvidenceInventory.Instance?.Clear();
             ShowIngame();
@@ -258,6 +260,9 @@ namespace Wake.UI
                 return;
             }
 
+            DialogueController.Instance?.CancelActiveDialogue();
+            GameFlow.Instance?.ResetSession();
+            EvidenceInventory.Instance?.Clear();
             if (continueButton != null)
             {
                 continueButton.SetActive(GameStateManager.HasSaveData);

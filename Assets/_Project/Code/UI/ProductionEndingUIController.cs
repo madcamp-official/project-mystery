@@ -107,9 +107,16 @@ namespace Wake.UI
             titleText = MakeText("", 0.69f, 0.84f, 38f);
             epilogueText = MakeText("", 0.34f, 0.67f, 23f);
             reasonText = MakeText("", 0.19f, 0.33f, 18f);
-            Button close = MakeButton("결말 확인", 0.06f, 0.16f);
-            close.onClick.AddListener(Close);
+            Button returnToTitle =
+                MakeButton("타이틀로 돌아가기", 0.06f, 0.16f);
+            returnToTitle.onClick.AddListener(ReturnToTitle);
             root.SetActive(false);
+        }
+
+        private void ReturnToTitle()
+        {
+            Close();
+            UIManager.Instance?.ShowStartScene();
         }
 
         private TMP_Text MakeText(
