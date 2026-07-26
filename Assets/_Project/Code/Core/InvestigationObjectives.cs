@@ -95,19 +95,19 @@ namespace Wake.Core
             O(
                 "objective_p_01_arrival",
                 "P-01",
-                "Enter the port arrival scene",
+                "항구에서 Daniel을 만나기",
                 R(InvestigationEventKind.SceneEntered, "P-01")),
             O(
                 "objective_d2_01_exit_inspection",
                 "D2-01",
-                "Verify all Horizon exit traces",
+                "Horizon Room의 출구 흔적 확인하기",
                 R(InvestigationEventKind.EvidenceCollected, "C-03"),
                 R(InvestigationEventKind.EvidenceCollected, "C-04"),
                 R(InvestigationEventKind.EvidenceCollected, "C-05")),
             O(
                 "objective_d6_03_ballast_trace",
                 "D6-03",
-                "Confirm the Ballast scene traces",
+                "Ballast Annex의 실제 살해 흔적 확인하기",
                 R(InvestigationEventKind.EvidenceCollected, "C-06"),
                 R(InvestigationEventKind.EvidenceCollected, "C-12"))
         };
