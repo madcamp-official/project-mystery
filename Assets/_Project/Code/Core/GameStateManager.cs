@@ -38,6 +38,7 @@ namespace Wake.Core
         public List<string> flags = new();
         public List<string> collectedEvidenceIds = new();
         public List<string> completedProductionSceneIds = new();
+        public List<string> unlockedDeductionIds = new();
         public string currentLocationCode = string.Empty;
     }
 
@@ -68,6 +69,7 @@ namespace Wake.Core
         public IReadOnlyList<string> CollectedEvidenceIds => data.collectedEvidenceIds;
         public IReadOnlyList<string> CompletedProductionSceneIds =>
             data.completedProductionSceneIds;
+        public IReadOnlyList<string> UnlockedDeductionIds => data.unlockedDeductionIds;
         public string CurrentLocationCode => data.currentLocationCode;
 
         public event Action StateChanged;
@@ -205,6 +207,35 @@ namespace Wake.Core
 
             data.completedProductionSceneIds.Add(normalized);
             SaveAndNotify();
+            return true;
+        }
+
+        public bool IsTheoryActive(string theoryId)
+        {
+            string normalized = NormalizeId(theoryId);
+            return !string.IsNullOrEmpty(normalized) &&
+                   data.activeTheories.Contains(normalized);
+        }
+
+        public bool HasUnlockedDeduction(string deductionId)
+        {
+            string normalized = NormalizeId(deductionId);
+            return !string.IsNullOrEmpty(normalized) &&
+                   data.unlockedDeductionIds.Contains(normalized);
+        }
+
+        public bool UnlockDeduction(string deductionId)
+        {
+            string normalized = NormalizeId(deductionId);
+            if (string.IsNullOrEmpty(normalized) ||
+                data.unlockedDeductionIds.Contains(normalized))
+            {
+                return false;
+            }
+
+            data.unlockedDeductionIds.Add(normalized);
+            SaveAndNotify();
+            FeedbackRequested?.Invoke($"추론 해금 · {normalized}");
             return true;
         }
 
@@ -462,6 +493,7 @@ namespace Wake.Core
             data.collectedEvidenceIds ??= new List<string>();
             data.completedProductionSceneIds =
                 NormalizeSceneIds(data.completedProductionSceneIds);
+            data.unlockedDeductionIds = NormalizeIds(data.unlockedDeductionIds);
             data.currentLocationCode ??= string.Empty;
 
             if (data.activeTheories.Count > data.theorySlots)
@@ -488,6 +520,26 @@ namespace Wake.Core
             PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(data));
             PlayerPrefs.Save();
             StateChanged?.Invoke();
+        }
+
+        private static List<string> NormalizeIds(IEnumerable<string> values)
+        {
+            var normalized = new List<string>();
+            if (values == null)
+            {
+                return normalized;
+            }
+
+            foreach (string value in values)
+            {
+                string id = NormalizeId(value);
+                if (!string.IsNullOrEmpty(id) && !normalized.Contains(id))
+                {
+                    normalized.Add(id);
+                }
+            }
+
+            return normalized;
         }
 
         private void Load()
