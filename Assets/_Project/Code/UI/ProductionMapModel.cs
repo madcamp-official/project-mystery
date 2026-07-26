@@ -70,23 +70,55 @@ namespace Wake.UI
         };
     }
 
+    public sealed class DialogueOnlyMapEntry
+    {
+        public DialogueOnlyMapEntry(
+            ProductionSceneDefinition scene,
+            ProductionMapEntryStatus status,
+            SceneAccessDenialReason denialReason)
+        {
+            Scene = scene;
+            Status = status;
+            DenialReason = denialReason;
+        }
+
+        public ProductionSceneDefinition Scene { get; }
+        public string SceneId => Scene.SceneId;
+        public string Header =>
+            $"대화 전용 · {Scene.NarrativeLocationCode.Replace('_', ' ')}";
+        public ProductionMapEntryStatus Status { get; }
+        public SceneAccessDenialReason DenialReason { get; }
+        public string StatusLabel => Status switch
+        {
+            ProductionMapEntryStatus.Available =>
+                $"{SceneId} · 배경 유지 · 시작 가능",
+            ProductionMapEntryStatus.Completed =>
+                $"{SceneId} · 완료",
+            _ => $"{SceneId} · 선행 장면 필요"
+        };
+    }
+
     public sealed class ProductionMapViewModel
     {
         private ProductionMapViewModel(
             IReadOnlyList<ProductionMapEntry> entries,
-            IReadOnlyList<ProductionSceneDefinition> unresolvedScenes)
+            IReadOnlyList<ProductionSceneDefinition> unresolvedScenes,
+            IReadOnlyList<DialogueOnlyMapEntry> dialogueOnlyEntries)
         {
             Entries = entries;
             UnresolvedScenes = unresolvedScenes;
+            DialogueOnlyEntries = dialogueOnlyEntries;
         }
 
         public IReadOnlyList<ProductionMapEntry> Entries { get; }
         public IReadOnlyList<ProductionSceneDefinition> UnresolvedScenes { get; }
+        public IReadOnlyList<DialogueOnlyMapEntry> DialogueOnlyEntries { get; }
 
         public static ProductionMapViewModel Create(
             LocationGraph graph,
             IEnumerable<string> completedSceneIds,
-            int publicAnxiety)
+            int publicAnxiety,
+            string finalEndingId = "")
         {
             var completed = new HashSet<string>(
                 (completedSceneIds ?? Array.Empty<string>())
@@ -95,8 +127,26 @@ namespace Wake.UI
                 StringComparer.Ordinal);
             var unresolved = ProductionSceneCatalog.All
                 .Where(scene =>
-                    CanonicalLocationCatalog.FindSpec(
-                        scene.NarrativeLocationCode) == null)
+                    CanonicalLocationCatalog.UnresolvedCodes.Contains(
+                        scene.NarrativeLocationCode))
+                .ToArray();
+            DialogueOnlyMapEntry[] dialogueOnly = unresolved
+                .Select(scene =>
+                {
+                    SceneTravelResult result =
+                        DialogueOnlySceneAccess.Evaluate(
+                            scene.SceneId,
+                            completed,
+                            finalEndingId);
+                    return new DialogueOnlyMapEntry(
+                        scene,
+                        completed.Contains(scene.SceneId)
+                            ? ProductionMapEntryStatus.Completed
+                            : result.IsAllowed
+                                ? ProductionMapEntryStatus.Available
+                                : ProductionMapEntryStatus.Locked,
+                        result.DenialReason);
+                })
                 .ToArray();
             var entries = new List<ProductionMapEntry>();
 
@@ -144,7 +194,10 @@ namespace Wake.UI
                     result.DenialReason));
             }
 
-            return new ProductionMapViewModel(entries, unresolved);
+            return new ProductionMapViewModel(
+                entries,
+                unresolved,
+                dialogueOnly);
         }
     }
 
