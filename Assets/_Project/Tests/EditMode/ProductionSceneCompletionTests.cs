@@ -145,22 +145,72 @@ namespace Wake.Tests
         [Test]
         public void RepeatedCompletion_IsIdempotent()
         {
-            Assert.That(
-                ProductionSceneCompletionGate.TryComplete(
-                    state,
-                    "D4-04",
-                    MarcusInterrogationCatalog.SessionId),
-                Is.True);
-            Assert.That(
-                ProductionSceneCompletionGate.TryComplete(
-                    state,
-                    " d4-04 ",
-                    " MARCUS_INTERROGATION "),
-                Is.True);
+            state.SaveDialogueCheckpoint(
+                "D4-04",
+                12,
+                false,
+                MarcusInterrogationCatalog.SessionId);
+            int stateChanges = 0;
+            int completionEvents = 0;
+            string nextSceneId = string.Empty;
+            state.StateChanged += () => stateChanges++;
+            void Count(InvestigationEvent item)
+            {
+                if (item.Kind == InvestigationEventKind.SceneCompleted)
+                {
+                    completionEvents++;
+                    nextSceneId = item.ContextId;
+                }
+            }
+
+            InvestigationEventHub.Published += Count;
+            try
+            {
+                Assert.That(
+                    ProductionSceneCompletionGate.TryComplete(
+                        state,
+                        "D4-04",
+                        MarcusInterrogationCatalog.SessionId),
+                    Is.True);
+                Assert.That(
+                    ProductionSceneCompletionGate.TryComplete(
+                        state,
+                        " d4-04 ",
+                        " MARCUS_INTERROGATION "),
+                    Is.True);
+            }
+            finally
+            {
+                InvestigationEventHub.Published -= Count;
+            }
 
             Assert.That(
                 state.CompletedProductionSceneIds.Count(id => id == "D4-04"),
                 Is.EqualTo(1));
+            Assert.That(state.DialogueCheckpoint, Is.Null);
+            Assert.That(stateChanges, Is.EqualTo(1));
+            Assert.That(completionEvents, Is.EqualTo(1));
+            Assert.That(nextSceneId, Is.EqualTo("D5-01"));
+        }
+
+        [Test]
+        public void Completion_PreservesUnrelatedCheckpoint()
+        {
+            state.SaveDialogueCheckpoint("D3-05", 7, true, "other_interaction");
+
+            Assert.That(
+                ProductionSceneCompletionGate.TryComplete(
+                    state,
+                    "D2-02",
+                    ProductionPuzzleCatalog.BloodPattern),
+                Is.True);
+
+            Assert.That(state.DialogueCheckpoint.activeSceneId, Is.EqualTo("D3-05"));
+            Assert.That(state.DialogueCheckpoint.lineIndex, Is.EqualTo(7));
+            Assert.That(state.DialogueCheckpoint.awaitingChoice, Is.True);
+            Assert.That(
+                state.DialogueCheckpoint.pendingInteractionId,
+                Is.EqualTo("other_interaction"));
         }
 
         [Test]

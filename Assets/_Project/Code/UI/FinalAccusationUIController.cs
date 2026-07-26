@@ -53,6 +53,7 @@ namespace Wake.UI
         }
 
         public FinalAccusation Accusation { get; }
+        public bool IsCompleted { get; private set; }
 
         public void Update(
             AccusedPerson accused,
@@ -63,6 +64,11 @@ namespace Wake.UI
             OrpheusEventDesign design,
             bool discloseCoverup)
         {
+            if (IsCompleted)
+            {
+                return;
+            }
+
             Accusation.Accused = accused;
             Accusation.Location = location;
             Accusation.Method = method;
@@ -112,6 +118,19 @@ namespace Wake.UI
 
         public FinalAccusationSubmission Submit()
         {
+            if (IsCompleted)
+            {
+                ProductionSceneCompletionGate.TryComplete(
+                    state,
+                    "D8-01",
+                    SessionId);
+                FinalAccusationResult restored = resolver.Resolve(Accusation);
+                return new FinalAccusationSubmission(
+                    false,
+                    restored,
+                    new[] { "이미 확정한 최종 논증은 다시 제출할 수 없습니다." });
+            }
+
             IReadOnlyList<string> messages = GetPreSubmitMessages();
             bool missingAnswer = messages.Any(message => message.EndsWith("선택하세요."));
             bool missingCase = messages.Any(message => message.StartsWith("핵심 논증"));
@@ -120,7 +139,20 @@ namespace Wake.UI
                 return new FinalAccusationSubmission(false, null, messages);
             }
 
+            if (!ProductionSceneCompletionGate.CanStartInteraction(
+                    state,
+                    "D8-01",
+                    SessionId))
+            {
+                return new FinalAccusationSubmission(
+                    false,
+                    null,
+                    new[] { "이미 완료된 최종 지목은 다시 제출할 수 없습니다." });
+            }
+
+            using IDisposable batch = state.BeginStateBatch();
             FinalAccusationResult result = resolver.Resolve(Accusation);
+            IsCompleted = true;
             Save(true);
             ProductionSceneCompletionGate.TryComplete(
                 state,
@@ -171,6 +203,7 @@ namespace Wake.UI
                 Read<OrpheusEventDesign>(values, "design");
             Accusation.DiscloseRichardCoverup =
                 values.TryGetValue("coverup", out int coverup) && coverup == 1;
+            IsCompleted = saved.completed;
         }
 
         private static T Read<T>(
@@ -220,10 +253,14 @@ namespace Wake.UI
 
         public void Open()
         {
-            if (GameStateManager.Instance == null)
+            GameStateManager state = GameStateManager.Instance;
+            if (!ProductionSceneCompletionGate.CanStartInteraction(
+                    state,
+                    "D8-01",
+                    FinalAccusationSession.SessionId))
                 return;
             Build();
-            session = new FinalAccusationSession(GameStateManager.Instance);
+            session = new FinalAccusationSession(state);
             ApplySavedValues();
             feedback.text = "여섯 항목을 선택한 뒤 최종 논증을 제출하세요.";
             panel.SetActive(true);

@@ -107,6 +107,9 @@ namespace Wake.Core
         [SerializeField] private int startingTheorySlots = 3;
         [SerializeField] private GameStateSaveData data = new();
 
+        private int stateBatchDepth;
+        private bool stateBatchDirty;
+
         public int Day => data.day;
         public TimeBlock CurrentTimeBlock => data.timeBlock;
         public int PublicAnxiety => data.publicAnxiety;
@@ -293,6 +296,71 @@ namespace Wake.Core
 
             data.dialogueCheckpoint = null;
             SaveAndNotify();
+        }
+
+        public bool ClearDialogueCheckpoint(
+            string sceneId,
+            string pendingInteractionId = "")
+        {
+            string normalizedSceneId = NormalizeSceneId(sceneId);
+            string normalizedInteractionId =
+                NormalizeObjectiveId(pendingInteractionId);
+            if (!DialogueCheckpointMatches(
+                    normalizedSceneId,
+                    normalizedInteractionId))
+            {
+                return false;
+            }
+
+            data.dialogueCheckpoint = null;
+            SaveAndNotify();
+            return true;
+        }
+
+        internal IDisposable BeginStateBatch()
+        {
+            stateBatchDepth++;
+            return new StateBatchScope(this);
+        }
+
+        public bool TrySynchronizeProductionSceneCompletion(
+            string sceneId,
+            string interactionId,
+            out bool newlyCompleted,
+            out bool checkpointCleared)
+        {
+            string normalizedSceneId = NormalizeSceneId(sceneId);
+            string normalizedInteractionId =
+                NormalizeObjectiveId(interactionId);
+            newlyCompleted = false;
+            checkpointCleared = false;
+            if (string.IsNullOrEmpty(normalizedSceneId) ||
+                string.IsNullOrEmpty(normalizedInteractionId))
+            {
+                return false;
+            }
+
+            newlyCompleted =
+                !data.completedProductionSceneIds.Contains(normalizedSceneId);
+            checkpointCleared = DialogueCheckpointMatches(
+                normalizedSceneId,
+                normalizedInteractionId);
+            if (!newlyCompleted && !checkpointCleared)
+            {
+                return true;
+            }
+
+            if (newlyCompleted)
+            {
+                data.completedProductionSceneIds.Add(normalizedSceneId);
+            }
+            if (checkpointCleared)
+            {
+                data.dialogueCheckpoint = null;
+            }
+
+            SaveAndNotify();
+            return true;
         }
 
         public bool HasCompletedObjective(string objectiveId)
@@ -591,6 +659,33 @@ namespace Wake.Core
             return true;
         }
 
+        private bool DialogueCheckpointMatches(
+            string normalizedSceneId,
+            string normalizedInteractionId)
+        {
+            return data.dialogueCheckpoint != null &&
+                   NormalizeSceneId(data.dialogueCheckpoint.activeSceneId) ==
+                   normalizedSceneId &&
+                   NormalizeObjectiveId(
+                       data.dialogueCheckpoint.pendingInteractionId) ==
+                   normalizedInteractionId;
+        }
+
+        private void EndStateBatch()
+        {
+            if (stateBatchDepth <= 0)
+            {
+                return;
+            }
+
+            stateBatchDepth--;
+            if (stateBatchDepth == 0 && stateBatchDirty)
+            {
+                stateBatchDirty = false;
+                PersistAndNotify();
+            }
+        }
+
         private void OnDestroy()
         {
             if (Instance == this)
@@ -725,10 +820,38 @@ namespace Wake.Core
 
         private void SaveAndNotify()
         {
+            if (stateBatchDepth > 0)
+            {
+                stateBatchDirty = true;
+                return;
+            }
+
+            PersistAndNotify();
+        }
+
+        private void PersistAndNotify()
+        {
             Normalize();
             PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(data));
             PlayerPrefs.Save();
             StateChanged?.Invoke();
+        }
+
+        private sealed class StateBatchScope : IDisposable
+        {
+            private GameStateManager owner;
+
+            public StateBatchScope(GameStateManager owner)
+            {
+                this.owner = owner;
+            }
+
+            public void Dispose()
+            {
+                GameStateManager current = owner;
+                owner = null;
+                current?.EndStateBatch();
+            }
         }
 
         private static void PublishThreshold(StateThresholdKind kind)

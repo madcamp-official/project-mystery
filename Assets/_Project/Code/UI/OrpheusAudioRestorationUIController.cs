@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Wake.Core;
+using Wake.Narrative;
 using Wake.Puzzles;
 
 namespace Wake.UI
@@ -122,13 +123,18 @@ namespace Wake.UI
 
         public bool Open()
         {
-            if (root == null || GameStateManager.Instance == null)
+            GameStateManager state = GameStateManager.Instance;
+            if (root == null ||
+                !ProductionSceneCompletionGate.CanStartInteraction(
+                    state,
+                    OrpheusRecordCatalog.SceneId,
+                    OrpheusRecordCatalog.PuzzleId))
             {
                 return false;
             }
 
             session = new OrpheusAudioRestorationSession(
-                GameStateManager.Instance,
+                state,
                 audioProvider);
             selectedLineId = null;
             playbackText.text =

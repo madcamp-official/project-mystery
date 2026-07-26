@@ -7,6 +7,7 @@ namespace Wake.Core
     public enum InvestigationEventKind
     {
         SceneEntered,
+        SceneCompleted,
         EvidenceCollected,
         ChoiceResolved,
         TheoryCompleted,

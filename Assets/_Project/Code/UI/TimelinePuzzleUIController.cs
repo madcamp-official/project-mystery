@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Wake.Core;
+using Wake.Narrative;
 using Wake.Puzzles;
 
 namespace Wake.UI
@@ -103,13 +104,18 @@ namespace Wake.UI
 
         public bool Open()
         {
-            if (root == null || GameStateManager.Instance == null)
+            GameStateManager state = GameStateManager.Instance;
+            if (root == null ||
+                !ProductionSceneCompletionGate.CanStartInteraction(
+                    state,
+                    TimelinePuzzleCatalog.SceneId,
+                    TimelinePuzzleCatalog.PuzzleId))
             {
                 return false;
             }
 
             session = new TimelinePuzzleSession(
-                GameStateManager.Instance,
+                state,
                 TimelinePuzzleCatalog.SourceBackedCards);
             selectedCardId = null;
             statusText.text =
