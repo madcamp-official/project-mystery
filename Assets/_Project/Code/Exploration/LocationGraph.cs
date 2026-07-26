@@ -16,7 +16,7 @@ namespace Wake.Exploration
         {
             foreach (LocationDefinition location in locations)
             {
-                if (location != null && location.LocationCode == locationCode)
+                if (location != null && location.MatchesCode(locationCode))
                 {
                     return location;
                 }

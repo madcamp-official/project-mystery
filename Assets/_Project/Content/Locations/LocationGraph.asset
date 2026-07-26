@@ -13,5 +13,29 @@ MonoBehaviour:
   m_Name: LocationGraph
   m_EditorClassIdentifier:
   locations:
+  - {fileID: 11400000, guid: 019526c8a20c09b4982571a90ae35f7b, type: 2}
+  - {fileID: 11400000, guid: 86852c3f3e0e6c248bfd5639490eb071, type: 2}
+  - {fileID: 11400000, guid: e73865b017a896c4c820d4e17ce03f60, type: 2}
+  - {fileID: 11400000, guid: 853a61b08eb3622438d00fec55153bc0, type: 2}
+  - {fileID: 11400000, guid: 9512cf1b8838ba546a90e1870064892a, type: 2}
+  - {fileID: 11400000, guid: 398b833ff046e24478618a706a73e4f7, type: 2}
+  - {fileID: 11400000, guid: a3feaf19f661a8d40ad5673f884c1c97, type: 2}
+  - {fileID: 11400000, guid: 56a7e9b4c4b09554ab2c4b39254f7067, type: 2}
   - {fileID: 11400000, guid: 39be30fe0a3b429d8b6b00202b7f02f8, type: 2}
-  startingLocation: {fileID: 11400000, guid: 39be30fe0a3b429d8b6b00202b7f02f8, type: 2}
+  - {fileID: 11400000, guid: 9240852f9a6e3b84cb6e4257fd7c81fb, type: 2}
+  - {fileID: 11400000, guid: db447f0b060f8cb419af9e83fafd2e69, type: 2}
+  - {fileID: 11400000, guid: 7e8f0cc6aa12c7144af08699175e4dfa, type: 2}
+  - {fileID: 11400000, guid: b9298a7739657744ab060d9b1ac98b65, type: 2}
+  - {fileID: 11400000, guid: 0ab239397d9ed1b4c9f816e4cc1cf562, type: 2}
+  - {fileID: 11400000, guid: 2812816344e6bbe4ba315817b2cdd8ed, type: 2}
+  - {fileID: 11400000, guid: 97e0416d75227da489cf1754bf737875, type: 2}
+  - {fileID: 11400000, guid: b695649857e30684386a73a86bf1f36c, type: 2}
+  - {fileID: 11400000, guid: 3a260bde17af19e44969c299e74d683f, type: 2}
+  - {fileID: 11400000, guid: 5e9ed52c801719f45b05c00409d8846d, type: 2}
+  - {fileID: 11400000, guid: 428819026e6eacf43912a8dba3b5dae8, type: 2}
+  - {fileID: 11400000, guid: 8941078b532915946a493d4cc1a5bf44, type: 2}
+  - {fileID: 11400000, guid: bba32e1f583faa942ad0bf9f16e39213, type: 2}
+  - {fileID: 11400000, guid: 53fa11df806d7474384f047c09bdc71b, type: 2}
+  - {fileID: 11400000, guid: e47123eb28a031b46bea25fe9cfa84d1, type: 2}
+  - {fileID: 11400000, guid: e9b2b624692745943b81835aa906295b, type: 2}
+  startingLocation: {fileID: 11400000, guid: 019526c8a20c09b4982571a90ae35f7b, type: 2}
