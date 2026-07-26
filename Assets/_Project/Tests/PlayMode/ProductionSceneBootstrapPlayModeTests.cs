@@ -14,11 +14,11 @@ namespace Wake.Tests.PlayMode
         UiBasicScenePlayModeFixture
     {
         private const string ProductionAssetName =
-            "The_Wake_Without_Footprints_Dialogue_KR";
+            "Under_the_Horizon_Dialogue_KR";
         private const string OpeningSceneId = "P-01";
         private const string OpeningLineId = "p_01_01";
         private const string OpeningText =
-            "항구의 공기는 뜨거웠고, Daniel Mercer는 계절과 어울리지 않는 검은 코트를 입고 있었다.";
+            "MV Elysium은 항구의 유리 지붕 너머에서 지나치게 새것처럼 빛나고 있었다.";
 
         [UnityTest]
         public IEnumerator SceneDatabase_UsesCompleteProductionCsv()
@@ -32,7 +32,7 @@ namespace Wake.Tests.PlayMode
                 Is.EqualTo(ProductionAssetName),
                 "샘플 CSV가 아니라 원본 프로덕션 CSV를 사용해야 합니다.");
             Assert.That(Database.LoadErrors, Is.Empty);
-            Assert.That(Database.RecordCount, Is.EqualTo(200));
+            Assert.That(Database.RecordCount, Is.EqualTo(1063));
             Assert.That(Database.SceneCount, Is.EqualTo(41));
 
             DialogueRecord[] records = Database.Records.Values.ToArray();
@@ -41,11 +41,11 @@ namespace Wake.Tests.PlayMode
                     .Select(record => record.StableLineId)
                     .Distinct()
                     .Count(),
-                Is.EqualTo(200),
+                Is.EqualTo(1063),
                 "stable line ID 200개가 모두 고유해야 합니다.");
             Assert.That(
                 records.Count(record => record.Speaker == "PLAYER_CHOICE"),
-                Is.EqualTo(30),
+                Is.EqualTo(90),
                 "원본 CSV의 선택지 행 30개가 보존되어야 합니다.");
             Assert.That(
                 records
@@ -53,7 +53,7 @@ namespace Wake.Tests.PlayMode
                     .Select(record => record.ChoiceId)
                     .Distinct()
                     .Count(),
-                Is.EqualTo(30),
+                Is.EqualTo(90),
                 "선택지 ID 30개가 모두 보존되어야 합니다.");
 
             foreach (IGrouping<string, DialogueRecord> scene in
@@ -137,7 +137,7 @@ namespace Wake.Tests.PlayMode
 
             Button next =
                 RequireComponent<Button>("Ingame/Line Panel/Panel/Next");
-            for (int advance = 0; advance < 5; advance++)
+            for (int advance = 0; advance < 19; advance++)
             {
                 yield return InvokeAndSettle(next);
             }
@@ -152,7 +152,7 @@ namespace Wake.Tests.PlayMode
                 Is.True);
             Assert.That(
                 State.DialogueCheckpoint.lineIndex,
-                Is.EqualTo(5));
+                Is.EqualTo(19));
 
             Button serious = RequireComponent<Button>(
                 "Ingame/Line Panel/Select Btn/Choice");
@@ -181,11 +181,11 @@ namespace Wake.Tests.PlayMode
                 State.GetTrust("DANIEL"),
                 Is.EqualTo(trustBefore),
                 "방향이 불명확한 '±1' 효과를 임의 실행하면 안 됩니다.");
-            Assert.That(State.HasCompletedScene(OpeningSceneId), Is.True);
-            Assert.That(Dialogue.IsBusy, Is.False);
+            Assert.That(State.HasCompletedScene(OpeningSceneId), Is.False);
+            Assert.That(Dialogue.IsBusy, Is.True);
             Assert.That(
                 RequireObject("Ingame/Line Panel").activeSelf,
-                Is.False);
+                Is.True);
             AssertNoRuntimeErrors("P-01 선택지 표시 및 선택");
         }
 
@@ -199,7 +199,7 @@ namespace Wake.Tests.PlayMode
             yield return InvokeAndSettle(next);
             yield return InvokeAndSettle(next);
 
-            const string restoredText = "우리가 아는 사이였습니까?";
+            const string restoredText = "[조사: 구겨진 초대장]";
             Assert.That(
                 RequireText("Ingame/Line Panel/Panel/line").text,
                 Is.EqualTo(restoredText));
