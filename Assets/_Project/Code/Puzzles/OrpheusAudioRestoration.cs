@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Wake.Core;
+using Wake.Narrative;
 
 namespace Wake.Puzzles
 {
@@ -268,7 +269,10 @@ namespace Wake.Puzzles
             Save();
             state.RecordEvidenceCollected(OrpheusRecordCatalog.EvidenceId);
             state.AddFlag("past_culprit_confirmed", "과거 진범 확정");
-            state.RecordCompletedScene(OrpheusRecordCatalog.SceneId);
+            ProductionSceneCompletionGate.TryComplete(
+                state,
+                OrpheusRecordCatalog.SceneId,
+                OrpheusRecordCatalog.PuzzleId);
             InvestigationEventHub.Publish(
                 InvestigationEventKind.TheoryCompleted,
                 "past_culprit_evelyn",

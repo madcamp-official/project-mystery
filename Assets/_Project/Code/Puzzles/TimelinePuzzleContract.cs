@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Wake.Core;
+using Wake.Narrative;
 
 namespace Wake.Puzzles
 {
@@ -272,7 +273,10 @@ namespace Wake.Puzzles
             IsCompleted = true;
             Save();
             state.AddFlag("puzzle_timeline_12_cards_completed");
-            state.RecordCompletedScene(TimelinePuzzleCatalog.SceneId);
+            ProductionSceneCompletionGate.TryComplete(
+                state,
+                TimelinePuzzleCatalog.SceneId,
+                TimelinePuzzleCatalog.PuzzleId);
             InvestigationEventHub.Publish(
                 InvestigationEventKind.TheoryCompleted,
                 "incident_timeline",

@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Wake.Core;
+using Wake.Narrative;
 using Wake.Puzzles;
 
 namespace Wake.UI
@@ -28,7 +29,8 @@ namespace Wake.UI
 
     public sealed class FinalAccusationSession
     {
-        public const string SessionId = "final_accusation";
+        public const string SessionId =
+            ProductionSceneCompletionCatalog.FinalAccusationInteraction;
 
         private static readonly string[] CrimeDeductions =
         {
@@ -120,6 +122,10 @@ namespace Wake.UI
 
             FinalAccusationResult result = resolver.Resolve(Accusation);
             Save(true);
+            ProductionSceneCompletionGate.TryComplete(
+                state,
+                "D8-01",
+                SessionId);
             return new FinalAccusationSubmission(
                 true,
                 result,
