@@ -67,5 +67,16 @@ namespace Wake.Narrative
         {
             return records.TryGetValue(stableLineId, out record);
         }
+
+        public bool ContainsScene(string sceneId)
+        {
+            string normalized = sceneId?.Trim().ToUpperInvariant() ?? string.Empty;
+            return normalized.Length > 0 &&
+                   records.Values.Any(record =>
+                       string.Equals(
+                           record.SceneId,
+                           normalized,
+                           StringComparison.Ordinal));
+        }
     }
 }

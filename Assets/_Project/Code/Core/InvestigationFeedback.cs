@@ -90,6 +90,13 @@ namespace Wake.Core
                     "상태 보기",
                     InvestigationFeedbackSeverity.Warning,
                     result.Detail),
+                SceneAccessDenialReason.DialogueUnavailable => Create(
+                    "dialogue_unavailable",
+                    "대화 시작 불가",
+                    "진행 중인 대화를 마친 뒤 다시 시도해 주세요.",
+                    "확인",
+                    InvestigationFeedbackSeverity.Warning,
+                    result.Detail),
                 SceneAccessDenialReason.LocationLoadFailed => Create(
                     "location_load_failed",
                     "장소 표시 실패",

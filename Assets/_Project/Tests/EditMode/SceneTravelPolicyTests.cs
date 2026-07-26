@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using Wake.Core;
 using Wake.Exploration;
+using Wake.Narrative;
 using Wake.UI;
 
 namespace Wake.Tests
@@ -134,26 +135,56 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void MapTravel_UsesScheduleTimeOnlyAfterSuccessfulLoad()
+        public void MapTravel_LoadsLocationStartsDialogueAndUsesScheduleTime()
         {
             state.RecordCompletedScene("D1-01");
             GameObject loaderHost = new("LocationLoaderForMap");
             LocationLoader loader = loaderHost.AddComponent<LocationLoader>();
             EnsureAwake(loader, LocationLoader.Instance);
-            GameObject mapHost = new("MapControllerTest");
-            MapController map = mapHost.AddComponent<MapController>();
-            SerializedObject mapData = new(map);
-            mapData.FindProperty("locationGraph").objectReferenceValue = graph;
-            mapData.ApplyModifiedPropertiesWithoutUndo();
+            RecordingScenePlayer player = new();
+            int loadCount = 0;
+            int sceneEnteredCount = 0;
+            ProductionSceneTravelCoordinator coordinator = new(
+                graph,
+                state,
+                player,
+                location =>
+                {
+                    loadCount++;
+                    return loader.TryLoadLocation(location, out _);
+                });
+            System.Action<InvestigationEvent> capture = investigationEvent =>
+            {
+                if (investigationEvent.Kind == InvestigationEventKind.SceneEntered &&
+                    investigationEvent.SubjectId == "D1-02")
+                {
+                    sceneEnteredCount++;
+                }
+            };
 
-            SceneTravelResult result = map.TryTravelToScene("D1-02");
+            SceneTravelResult result;
+            SceneTravelResult repeated;
+            InvestigationEventHub.Published += capture;
+            try
+            {
+                result = coordinator.TryEnter("D1-02");
+                repeated = coordinator.TryEnter("D1-02");
+            }
+            finally
+            {
+                InvestigationEventHub.Published -= capture;
+            }
 
             Assert.That(result.IsAllowed, Is.True);
+            Assert.That(repeated.IsAllowed, Is.True);
+            Assert.That(player.StartedSceneId, Is.EqualTo("D1-02"));
+            Assert.That(player.StartCount, Is.EqualTo(1));
+            Assert.That(loadCount, Is.EqualTo(1));
+            Assert.That(sceneEnteredCount, Is.EqualTo(1));
             Assert.That(state.Day, Is.EqualTo(1));
             Assert.That(state.CurrentTimeBlock, Is.EqualTo(TimeBlock.NIGHT));
             Assert.That(state.CurrentLocationCode, Is.EqualTo("DINING"));
 
-            Object.DestroyImmediate(mapHost);
             Object.DestroyImmediate(loaderHost);
         }
 
@@ -187,6 +218,30 @@ namespace Wake.Tests
             component.GetType()
                 .GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic)
                 ?.Invoke(component, null);
+        }
+
+        private sealed class RecordingScenePlayer :
+            IProductionScenePlayer,
+            IProductionSceneLaunchAvailability
+        {
+            public string ActiveProductionSceneId { get; private set; } =
+                string.Empty;
+            public string StartedSceneId { get; private set; } = string.Empty;
+            public int StartCount { get; private set; }
+
+            public bool CanStartProductionScene(string sceneId) =>
+                string.IsNullOrEmpty(ActiveProductionSceneId);
+
+            public bool StartProductionScene(string sceneId)
+            {
+                StartCount++;
+                StartedSceneId = sceneId;
+                ActiveProductionSceneId = sceneId;
+                return true;
+            }
+
+            public bool RestoreProductionScene(
+                ProductionDialogueCheckpoint checkpoint) => false;
         }
     }
 }

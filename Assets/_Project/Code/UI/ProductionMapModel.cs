@@ -37,6 +37,8 @@ namespace Wake.UI
         public ProductionMapEntryStatus Status { get; }
         public SceneAccessDenialReason DenialReason { get; }
         public bool UsesSceneTravel => !string.IsNullOrEmpty(SceneId);
+        public bool StartsProductionScene =>
+            UsesSceneTravel && Status == ProductionMapEntryStatus.Available;
 
         public string Header
         {
