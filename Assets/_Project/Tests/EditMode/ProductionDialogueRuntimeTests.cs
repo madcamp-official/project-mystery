@@ -30,15 +30,19 @@ namespace Wake.Tests
             PlayerPrefs.DeleteKey("THE_WAKE_GAME_STATE_V1");
         }
         [Test]
-        public void PresentationMap_MapsCoreOfficialEmotions()
+        public void PresentationMap_CoversAllOfficialSourceEmotions()
         {
-            string[] required = { "observe", "focused", "warning", "system", "choice" };
+            string[] emotions = records
+                .Select(record => record.Emotion)
+                .Distinct()
+                .OrderBy(emotion => emotion)
+                .ToArray();
 
+            Assert.That(emotions, Has.Length.EqualTo(109));
             Assert.That(
-                required.All(emotion =>
-                    records.Any(record => record.Emotion == emotion)),
-                Is.True);
-            Assert.That(required.All(DialoguePresentationMap.IsKnownEmotion), Is.True);
+                emotions.Where(emotion =>
+                    !DialoguePresentationMap.IsKnownEmotion(emotion)),
+                Is.Empty);
             Assert.That(
                 DialoguePresentationMap.GetEmotion("fear"),
                 Is.EqualTo(PortraitEmotion.Concerned));

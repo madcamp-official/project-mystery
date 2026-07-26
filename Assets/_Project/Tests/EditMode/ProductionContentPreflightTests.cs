@@ -33,9 +33,8 @@ namespace Wake.Tests
             Assert.That(codes, Is.EqualTo(new[]
             {
                 "KOREAN_FONT_MISSING", "TIMELINE_SOURCE_MISSING",
-                "UNRESOLVED_LOCATION", "VOICE_CLIP_MISSING"
+                "VOICE_CLIP_MISSING"
             }));
-            Assert.That(Find("UNRESOLVED_LOCATION").Message, Does.Contain("8곳"));
             Assert.That(Find("TIMELINE_SOURCE_MISSING").Message,
                 Does.Contain("5개"));
             Assert.That(Find("VOICE_CLIP_MISSING").Message,
