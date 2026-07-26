@@ -252,7 +252,7 @@ namespace Wake.Tests.PlayMode
             Assert.That(timeline.UseHint(), Is.True);
             TimelineCompletionResult blocked = timeline.TryComplete();
             Assert.That(blocked.Completed, Is.False);
-            Assert.That(blocked.MissingCardCount, Is.EqualTo(7));
+            Assert.That(blocked.MissingCardCount, Is.EqualTo(5));
             Assert.That(
                 blocked.Diagnostics,
                 Has.Some.Contains("정확히 12장"));
@@ -261,7 +261,7 @@ namespace Wake.Tests.PlayMode
             var restored = new TimelinePuzzleSession(
                 state,
                 TimelinePuzzleCatalog.SourceBackedCards);
-            Assert.That(restored.Placements, Has.Count.EqualTo(5));
+            Assert.That(restored.Placements, Has.Count.EqualTo(7));
             Assert.That(restored.HintLevel, Is.EqualTo(1));
             Assert.That(restored.IsCompleted, Is.False);
             Assert.That(state.HasCompletedScene("D6-05"), Is.False);
