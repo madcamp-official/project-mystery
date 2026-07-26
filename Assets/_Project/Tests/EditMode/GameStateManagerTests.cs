@@ -9,7 +9,7 @@ namespace Wake.Tests
 {
     public class GameStateManagerTests
     {
-        private const string SaveKey = "THE_WAKE_GAME_STATE_V1";
+        private const string SaveKey = "UNDER_THE_HORIZON_GAME_STATE_V2";
 
         private GameObject host;
         private GameStateManager state;
@@ -19,6 +19,7 @@ namespace Wake.Tests
         {
             DestroyExistingManager();
             PlayerPrefs.DeleteKey(SaveKey);
+            PlayerPrefs.DeleteKey("THE_WAKE_GAME_STATE_V1");
             state = CreateManager();
             state.StartNewGame();
         }
@@ -33,6 +34,7 @@ namespace Wake.Tests
 
             DestroyExistingManager();
             PlayerPrefs.DeleteKey(SaveKey);
+            PlayerPrefs.DeleteKey("THE_WAKE_GAME_STATE_V1");
         }
 
         [Test]
@@ -317,7 +319,7 @@ namespace Wake.Tests
             state.RecordLocation("HORIZON");
             state.SetTime(2, TimeBlock.PM);
 
-            string savedJson = PlayerPrefs.GetString("THE_WAKE_GAME_STATE_V1");
+            string savedJson = PlayerPrefs.GetString(SaveKey);
             Assert.That(savedJson, Does.Contain("DANIEL"));
             Assert.That(savedJson, Does.Contain("\"value\":4"));
 

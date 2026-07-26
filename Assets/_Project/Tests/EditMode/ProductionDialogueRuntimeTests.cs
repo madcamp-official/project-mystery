@@ -26,6 +26,7 @@ namespace Wake.Tests
             {
                 Object.DestroyImmediate(host);
             }
+            PlayerPrefs.DeleteKey("UNDER_THE_HORIZON_GAME_STATE_V2");
             PlayerPrefs.DeleteKey("THE_WAKE_GAME_STATE_V1");
         }
         [Test]

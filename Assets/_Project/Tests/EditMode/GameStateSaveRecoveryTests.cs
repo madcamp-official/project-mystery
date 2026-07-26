@@ -10,9 +10,10 @@ namespace Wake.Tests
 {
     public class GameStateSaveRecoveryTests
     {
-        private const string Primary = "THE_WAKE_GAME_STATE_V1";
+        private const string Primary = "UNDER_THE_HORIZON_GAME_STATE_V2";
         private const string Backup = Primary + "_BACKUP";
         private const string Pending = Primary + "_PENDING";
+        private const string Legacy = "THE_WAKE_GAME_STATE_V1";
         private GameObject host;
         private GameStateManager state;
         [SetUp]
@@ -99,6 +100,45 @@ namespace Wake.Tests
             Assert.That(PlayerPrefs.GetString(Backup), Is.EqualTo(legacy));
             Assert.That(PlayerPrefs.GetString(Primary),
                 Does.Contain("\"schemaVersion\":2").And.Contain("\"checksum\":"));
+        }
+
+        [Test]
+        public void WakeV1Key_MigratesToUnderHorizonV2Key()
+        {
+            const string legacy = "{\"day\":4,\"publicAnxiety\":35," +
+                "\"evidenceIntegrity\":75,\"flags\":[\"legacy_flag\"]," +
+                "\"currentLocationCode\":\"PROMENADE\"}";
+            DestroyManager();
+            ClearSlots();
+            PlayerPrefs.SetString(Legacy, legacy);
+
+            CreateManager();
+
+            Assert.That(state.Day, Is.EqualTo(4));
+            Assert.That(state.PublicAnxiety, Is.EqualTo(35));
+            Assert.That(state.EvidenceIntegrity, Is.EqualTo(75));
+            Assert.That(state.HasFlag("legacy_flag"), Is.True);
+            Assert.That(state.CurrentLocationCode, Is.EqualTo("PROMENADE"));
+            Assert.That(PlayerPrefs.HasKey(Primary), Is.True);
+            Assert.That(
+                PlayerPrefs.GetString(Primary),
+                Does.Contain("\"format\":\"UNDER_THE_HORIZON_GAME_STATE\""));
+            Assert.That(PlayerPrefs.HasKey(Legacy), Is.False);
+        }
+
+        [Test]
+        public void NewGame_ClearsBothV2AndLegacySlots()
+        {
+            PlayerPrefs.SetString(Legacy, "{\"day\":7}");
+            PlayerPrefs.SetString(Legacy + "_BACKUP", "{\"day\":6}");
+            PlayerPrefs.SetString(Legacy + "_PENDING", "{\"day\":8}");
+
+            state.StartNewGame();
+
+            Assert.That(PlayerPrefs.HasKey(Legacy), Is.False);
+            Assert.That(PlayerPrefs.HasKey(Legacy + "_BACKUP"), Is.False);
+            Assert.That(PlayerPrefs.HasKey(Legacy + "_PENDING"), Is.False);
+            Assert.That(PlayerPrefs.HasKey(Primary), Is.True);
         }
         [Test]
         public void InterruptedJournal_UsesNewestGeneration()
@@ -207,6 +247,9 @@ namespace Wake.Tests
             PlayerPrefs.DeleteKey(Primary);
             PlayerPrefs.DeleteKey(Backup);
             PlayerPrefs.DeleteKey(Pending);
+            PlayerPrefs.DeleteKey(Legacy);
+            PlayerPrefs.DeleteKey(Legacy + "_BACKUP");
+            PlayerPrefs.DeleteKey(Legacy + "_PENDING");
             PlayerPrefs.Save();
         }
     }
