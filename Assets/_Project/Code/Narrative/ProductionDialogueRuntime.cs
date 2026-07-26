@@ -106,6 +106,9 @@ namespace Wake.Narrative
         public int IntegrityDelta { get; set; }
         public IReadOnlyList<string> AddFlags { get; set; } = Array.Empty<string>();
         public IReadOnlyList<string> RemoveFlags { get; set; } = Array.Empty<string>();
+        public IReadOnlyList<string> CompleteObjectives { get; set; } =
+            Array.Empty<string>();
+
         public void Apply(GameStateManager state)
         {
             if (state == null)
@@ -121,11 +124,32 @@ namespace Wake.Narrative
             {
                 state.RemoveFlag(flag);
             }
+            foreach (string objectiveId in CompleteObjectives)
+            {
+                state.RecordCompletedObjective(objectiveId);
+            }
         }
     }
+
+    public readonly struct DialogueEffectDiagnostic
+    {
+        public DialogueEffectDiagnostic(DialogueRecord record, string message)
+        {
+            StableLineId = record?.StableLineId ?? string.Empty;
+            SourceRow = record?.SourceRow ?? 0;
+            Source = record?.NextOrEffect ?? string.Empty;
+            Message = message ?? string.Empty;
+        }
+
+        public string StableLineId { get; }
+        public int SourceRow { get; }
+        public string Source { get; }
+        public string Message { get; }
+    }
+
     public static class DialogueEffectCatalog
     {
-        private static readonly IReadOnlyDictionary<string, DialogueTypedEffect> Confirmed =
+        private static readonly IReadOnlyDictionary<string, DialogueTypedEffect> ByEffectKey =
             new Dictionary<string, DialogueTypedEffect>(StringComparer.Ordinal)
             {
                 ["\uBE44\uC11C\uC2E4 \uAD8C\uD55C \uD50C\uB798\uADF8"] = new()
@@ -141,9 +165,86 @@ namespace Wake.Narrative
                     AddFlags = new[] { "service_rail_access" }
                 }
             };
+
+        private static readonly IReadOnlyDictionary<string, DialogueTypedEffect> ByLineId =
+            new Dictionary<string, DialogueTypedEffect>(StringComparer.Ordinal)
+            {
+                ["d1_01_04"] = F("interrogation_keywords"),
+                ["d1_05_04"] = F("message_metadata"),
+                ["d2_01_05"] = F("sealed_room_proposition"),
+                ["d2_05_04"] = F("service_rail_foreshadowed"),
+                ["d2_06_04"] = F("claire_theft_foreshadowed"),
+                ["d3_03_04"] = F("vault_access_quest"),
+                ["d3_04_04"] = F("marcus_pressure"),
+                ["d3_05_04"] = F("evelyn_language_pattern"),
+                ["d4_01_04"] = F("marcus_confession_promised"),
+                ["d4_03_04"] = F("evelyn_unethical_only"),
+                ["d4_04_04"] = F("vault_accomplice_connection"),
+                ["d5_01_04"] = F("repeated_locked_room"),
+                ["d5_02_05"] = F("daniel_tablet_recovered"),
+                ["d5_03_04"] = F("informant_lure_confirmed"),
+                ["d6_01_04"] = F("body_movement_confirmed"),
+                ["d6_02_04"] = F("actual_murder_location_candidate"),
+                ["d6_03_04"] = F("actual_scene_confirmed"),
+                ["d6_04_04"] = F("evelyn_contact_evidence"),
+                ["d6_05_04"] = F("final_interrogation_condition_1"),
+                ["d7_01_04"] = F("evelyn_suspicion_confirmed"),
+                ["d7_02_04"] = F("final_physical_evidence"),
+                ["d7_03_04"] = F("past_culprit_confirmed"),
+                ["d7_04_04"] = F("additional_confession_available")
+            };
+
+        public static readonly IReadOnlyList<string> ProductionEffectKeys = new[]
+        {
+            "A/B/C 엔딩", "Claire 적대도 변화", "Claire 절도 복선",
+            "Daniel 신뢰도 ±1", "Evelyn 언어 습관 복선", "Evelyn 의심 확정",
+            "Evelyn 접촉 증거", "Evelyn의 비윤리성만 확정", "Helena 신뢰도",
+            "Marcus 압박", "Richard 신뢰도 분기", "Richard 완전 자백 여부",
+            "게임 본편 시작", "고백 약속", "과거 진범 확정", "금고 공범 연결",
+            "금고 접근 퀘스트", "도덕적 결말 톤", "메시지 메타데이터 단서",
+            "밀실 명제 등록", "반복 밀실", "발견 시점 변화", "비서실 권한 플래그",
+            "승객 불안 수치", "시신 이동 확정", "시신 투입 가설 1",
+            "실제 살해 장소 후보", "실제 현장 확정", "심문 키워드 개방",
+            "엔딩 분기", "오판 위험", "제보자 유인 의도 확정", "천장 조사 개방",
+            "초기 단서 우선순위", "최종 물증", "최종 심문 조건 1",
+            "추가 자백 획득 가능", "태블릿 회수", "현장 보존도",
+            "화물 레일 떡밥", "화물 레일 조사 개방"
+        };
+
         public static bool TryResolve(string source, out DialogueTypedEffect effect)
         {
-            return Confirmed.TryGetValue(source?.Trim() ?? string.Empty, out effect);
+            return ByEffectKey.TryGetValue(source?.Trim() ?? string.Empty, out effect);
+        }
+
+        public static bool TryResolve(
+            DialogueRecord record,
+            out DialogueTypedEffect effect)
+        {
+            effect = null;
+            if (record == null || string.IsNullOrWhiteSpace(record.NextOrEffect))
+            {
+                return false;
+            }
+
+            return ByLineId.TryGetValue(record.StableLineId, out effect) ||
+                   TryResolve(record.NextOrEffect, out effect);
+        }
+
+        public static IReadOnlyList<DialogueEffectDiagnostic> GetDiagnostics(
+            IEnumerable<DialogueRecord> records)
+        {
+            return (records ?? Array.Empty<DialogueRecord>())
+                .Where(record => !string.IsNullOrWhiteSpace(record.NextOrEffect))
+                .Where(record => !TryResolve(record, out _))
+                .Select(record => new DialogueEffectDiagnostic(
+                    record,
+                    "확정되지 않은 자연어 효과는 실행하지 않았습니다."))
+                .ToArray();
+        }
+
+        private static DialogueTypedEffect F(params string[] addFlags)
+        {
+            return new DialogueTypedEffect { AddFlags = addFlags };
         }
     }
     public sealed class ProductionDialogueFlow
@@ -441,14 +542,15 @@ namespace Wake.Narrative
             {
                 return;
             }
-            if (DialogueEffectCatalog.TryResolve(record.NextOrEffect, out DialogueTypedEffect effect))
+            if (DialogueEffectCatalog.TryResolve(record, out DialogueTypedEffect effect))
             {
                 effect.Apply(state);
             }
             else
             {
                 warnings.Add(
-                    $"{record.StableLineId}: unconfirmed effect '{record.NextOrEffect}' was not executed.");
+                    $"{record.StableLineId} (CSV row {record.SourceRow}): " +
+                    $"unconfirmed effect '{record.NextOrEffect}' was not executed.");
             }
         }
     }
