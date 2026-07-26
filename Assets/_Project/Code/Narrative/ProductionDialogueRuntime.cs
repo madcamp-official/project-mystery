@@ -162,6 +162,9 @@ namespace Wake.Narrative
         public IReadOnlyCollection<string> CompletedSceneIds => completedScenes;
         public bool IsAwaitingChoice => Choices.Count > 0;
         public bool IsComplete { get; private set; }
+        public ProductionScenePhase Phase { get; private set; } =
+            ProductionScenePhase.NotStarted;
+        public string PendingInteractionId { get; private set; } = string.Empty;
         public string ActiveSceneId { get; private set; } = string.Empty;
         private readonly List<string> warnings = new();
         public ProductionDialogueFlow(
@@ -193,6 +196,8 @@ namespace Wake.Narrative
             warnings.Clear();
             Choices = Array.Empty<DialogueRecord>();
             IsComplete = false;
+            Phase = ProductionScenePhase.NotStarted;
+            PendingInteractionId = string.Empty;
             Current = null;
             if (!scenes.TryGetValue(sceneId, out activeScene) ||
                 !PrerequisitesAreMet(activeScene))
@@ -201,13 +206,33 @@ namespace Wake.Narrative
             }
             ActiveSceneId = sceneId;
             index = 0;
+            Phase = ProductionScenePhase.DialogueActive;
             PresentCurrent();
             return true;
         }
 
         public bool IsSceneCompleted(string sceneId)
         {
-            return completedScenes.Contains(NormalizeSceneId(sceneId));
+            string normalized = NormalizeSceneId(sceneId);
+            return completedScenes.Contains(normalized) ||
+                   (state != null && state.HasCompletedScene(normalized));
+        }
+
+        public bool CompletePendingInteraction(string interactionId)
+        {
+            if (Phase != ProductionScenePhase.InteractionPending ||
+                !ProductionSceneCompletionGate.TryComplete(
+                    state,
+                    ActiveSceneId,
+                    interactionId))
+            {
+                return false;
+            }
+
+            completedScenes.Add(ActiveSceneId);
+            PendingInteractionId = string.Empty;
+            Phase = ProductionScenePhase.Completed;
+            return true;
         }
 
         public IReadOnlyList<string> GetMissingPrerequisites(string sceneId)
@@ -266,10 +291,21 @@ namespace Wake.Narrative
         {
             if (index >= activeScene.Count)
             {
-                completedScenes.Add(ActiveSceneId);
-                state?.RecordCompletedScene(ActiveSceneId);
                 Current = null;
                 IsComplete = true;
+                if (ProductionSceneCompletionCatalog.TryGet(
+                        ActiveSceneId,
+                        out ProductionSceneCompletionRequirement requirement) &&
+                    !IsSceneCompleted(ActiveSceneId))
+                {
+                    PendingInteractionId = requirement.InteractionId;
+                    Phase = ProductionScenePhase.InteractionPending;
+                    return;
+                }
+
+                completedScenes.Add(ActiveSceneId);
+                state?.RecordCompletedScene(ActiveSceneId);
+                Phase = ProductionScenePhase.Completed;
                 return;
             }
             if (activeScene[index].Speaker == "PLAYER_CHOICE")
@@ -321,7 +357,7 @@ namespace Wake.Narrative
         {
             if (scenes.ContainsKey(condition))
             {
-                return completedScenes.Contains(condition);
+                return IsSceneCompleted(condition);
             }
 
             return condition == "D8-01 정답" &&

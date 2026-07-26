@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Wake.Core;
 using Wake.Evidence;
+using Wake.Narrative;
 
 namespace Wake.Puzzles
 {
@@ -233,7 +234,10 @@ namespace Wake.Puzzles
             IsCompleted = true;
             Save();
             state.AddFlag($"puzzle_{Definition.Id}_completed");
-            state.RecordCompletedScene(Definition.SceneId);
+            ProductionSceneCompletionGate.TryComplete(
+                state,
+                Definition.SceneId,
+                Definition.Id);
             InvestigationEventHub.Publish(
                 InvestigationEventKind.TheoryCompleted,
                 Definition.ResultTheoryId,

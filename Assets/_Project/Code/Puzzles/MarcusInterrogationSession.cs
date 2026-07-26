@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Wake.Core;
+using Wake.Narrative;
 
 namespace Wake.Puzzles
 {
@@ -193,7 +194,10 @@ namespace Wake.Puzzles
                     "Evelyn 인증 제공 확인");
             }
 
-            state.RecordCompletedScene(MarcusInterrogationCatalog.SceneId);
+            ProductionSceneCompletionGate.TryComplete(
+                state,
+                MarcusInterrogationCatalog.SceneId,
+                MarcusInterrogationCatalog.SessionId);
             InvestigationEventHub.Publish(
                 InvestigationEventKind.TheoryCompleted,
                 "vault_accomplice_connection",
