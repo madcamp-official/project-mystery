@@ -86,18 +86,7 @@ namespace Wake.Narrative
 
         public string FindNextAvailableScene()
         {
-            if (state == null)
-            {
-                return OpeningSceneId;
-            }
-
-            ProductionSceneDefinition next = ProductionSceneCatalog.All
-                .FirstOrDefault(scene =>
-                    !state.HasCompletedScene(scene.SceneId) &&
-                    scene.Prerequisites
-                        .Where(IsScenePrerequisite)
-                        .All(state.HasCompletedScene));
-            return next?.SceneId ?? string.Empty;
+            return ProductionSceneUnlockPolicy.FindNextAvailableScene(state);
         }
 
         public static string GetObjective(string sceneId)
@@ -139,6 +128,11 @@ namespace Wake.Narrative
                 return true;
             }
 
+            if (!ProductionSceneUnlockPolicy.Evaluate(sceneId, state).IsAllowed)
+            {
+                return false;
+            }
+
             if (!player.StartProductionScene(sceneId))
             {
                 return false;
@@ -177,9 +171,5 @@ namespace Wake.Narrative
                        StringComparison.OrdinalIgnoreCase);
         }
 
-        private static bool IsScenePrerequisite(string value)
-        {
-            return ProductionSceneCatalog.TryGet(value, out _);
-        }
     }
 }

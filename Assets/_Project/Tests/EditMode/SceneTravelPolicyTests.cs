@@ -138,6 +138,7 @@ namespace Wake.Tests
         public void MapTravel_LoadsLocationStartsDialogueAndUsesScheduleTime()
         {
             state.RecordCompletedScene("D1-01");
+            state.UnlockProductionScene("D1-02");
             GameObject loaderHost = new("LocationLoaderForMap");
             LocationLoader loader = loaderHost.AddComponent<LocationLoader>();
             EnsureAwake(loader, LocationLoader.Instance);
