@@ -2,7 +2,9 @@
   "name": "Wake.PlayModeTests",
   "rootNamespace": "Wake.Tests.PlayMode",
   "references": [
-    "Wake.Runtime"
+    "Wake.Runtime",
+    "Unity.TextMeshPro",
+    "UnityEngine.UI"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

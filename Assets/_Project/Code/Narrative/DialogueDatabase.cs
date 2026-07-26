@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Wake.Narrative
@@ -12,6 +14,14 @@ namespace Wake.Narrative
         private readonly Dictionary<string, DialogueLine> lines = new();
         private readonly Dictionary<string, DialogueRecord> records = new();
 
+        public TextAsset SourceAsset => csvFile;
+        public string SourceAssetName =>
+            csvFile != null ? csvFile.name : string.Empty;
+        public int RecordCount => records.Count;
+        public int SceneCount => records.Values
+            .Select(record => record.SceneId)
+            .Distinct(StringComparer.Ordinal)
+            .Count();
         public IReadOnlyDictionary<string, DialogueRecord> Records => records;
         public IReadOnlyList<string> LoadErrors { get; private set; } = new List<string>();
 
