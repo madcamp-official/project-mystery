@@ -51,8 +51,8 @@ namespace Wake.Tests
                 MurderLocation.BallastControlAnnex,
                 MurderMethod.NitrogenSuffocation,
                 BodyTransport.CeilingServiceRail,
-                DanielTargetBelief.Richard,
-                OrpheusEventDesign.InsuranceFraud,
+                DanielTargetBelief.Misconception,
+                OrpheusEventDesign.Evelyn,
                 true);
             state.ReloadSavedState();
 
@@ -76,8 +76,8 @@ namespace Wake.Tests
                 MurderLocation.BallastControlAnnex,
                 MurderMethod.NitrogenSuffocation,
                 BodyTransport.CeilingServiceRail,
-                DanielTargetBelief.Richard,
-                OrpheusEventDesign.InsuranceFraud,
+                DanielTargetBelief.Misconception,
+                OrpheusEventDesign.Evelyn,
                 true);
 
             FinalAccusationSubmission result = session.Submit();
@@ -101,8 +101,8 @@ namespace Wake.Tests
                 MurderLocation.BallastControlAnnex,
                 MurderMethod.NitrogenSuffocation,
                 BodyTransport.CeilingServiceRail,
-                DanielTargetBelief.Richard,
-                OrpheusEventDesign.InsuranceFraud,
+                DanielTargetBelief.Misconception,
+                OrpheusEventDesign.Evelyn,
                 false);
 
             FinalAccusationSubmission result = session.Submit();

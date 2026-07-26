@@ -262,8 +262,8 @@ namespace Wake.Tests
                 Location = MurderLocation.BallastControlAnnex,
                 Method = MurderMethod.NitrogenSuffocation,
                 Transport = BodyTransport.CeilingServiceRail,
-                DanielBelievedTarget = DanielTargetBelief.Richard,
-                OrpheusDesign = OrpheusEventDesign.InsuranceFraud,
+                DanielBelievedTarget = DanielTargetBelief.Misconception,
+                OrpheusDesign = OrpheusEventDesign.Evelyn,
                 DiscloseRichardCoverup = discloseCoverup
             };
         }
