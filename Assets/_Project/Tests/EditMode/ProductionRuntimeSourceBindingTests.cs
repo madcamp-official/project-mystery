@@ -11,10 +11,6 @@ namespace Wake.Tests
 {
     public sealed class ProductionRuntimeSourceBindingTests
     {
-        private const string LegacyCsvPath =
-            "Assets/_Project/Content/Dialogue/" +
-            "The_Wake_Without_Footprints_Dialogue_KR.csv";
-
         [Test]
         public void Preflight_UsesAllThreeOfficialExports()
         {
@@ -40,17 +36,28 @@ namespace Wake.Tests
                 ProductionContentPreflight.ScenePath);
             string officialGuid = AssetDatabase.AssetPathToGUID(
                 ProductionContentPreflight.CsvPath);
-            string legacyGuid = AssetDatabase.AssetPathToGUID(LegacyCsvPath);
-
             Assert.That(officialGuid, Has.Length.EqualTo(32));
             Assert.That(
                 scene,
                 Does.Contain(
                     $"csvFile: {{fileID: 4900000, guid: {officialGuid}, type: 3}}"));
+        }
+
+        [Test]
+        public void DialogueFolder_HasOnlyOfficialProductionDialogueExport()
+        {
+            string[] productionDialogueFiles = AssetDatabase
+                .FindAssets(
+                    "t:TextAsset",
+                    new[] { "Assets/_Project/Content/Dialogue" })
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Where(path => Path.GetFileName(path)
+                    .EndsWith("_Dialogue_KR.csv", StringComparison.Ordinal))
+                .ToArray();
+
             Assert.That(
-                scene,
-                Does.Not.Contain(
-                    $"csvFile: {{fileID: 4900000, guid: {legacyGuid}, type: 3}}"));
+                productionDialogueFiles,
+                Is.EqualTo(new[] { ProductionContentPreflight.CsvPath }));
         }
 
         [Test]

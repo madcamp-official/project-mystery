@@ -187,7 +187,7 @@ namespace Wake.UI
             unresolvedLabel.fontSize = 13f;
             unresolvedLabel.color = new Color32(255, 205, 120, 255);
             unresolvedLabel.alignment = TextAlignmentOptions.Center;
-            unresolvedLabel.enableWordWrapping = true;
+            unresolvedLabel.textWrappingMode = TextWrappingModes.Normal;
         }
 
         private void SelectEntry(ProductionMapEntry entry)
