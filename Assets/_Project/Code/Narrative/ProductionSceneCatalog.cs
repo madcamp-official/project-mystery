@@ -106,7 +106,7 @@ namespace Wake.Narrative
             S("D7-03", 7, 13, 0, "ARCHIVE", ProductionSceneType.Puzzle, "D7-02"),
             S("D7-04", 7, 18, 0, "PROMENADE", ProductionSceneType.Interrogation, "D7-03"),
             S("D8-01", 8, 8, 0, "HORIZON", ProductionSceneType.Finale, "D7-04"),
-            S("D8-02", 8, 9, 0, "STERN", ProductionSceneType.Finale, "D8-01 정답"),
+            S("D8-02", 8, 9, 0, "STERN", ProductionSceneType.Finale, "D8-01 correct"),
             S("D8-03", 8, 11, 30, "PORT", ProductionSceneType.Epilogue, "D8-02")
         };
 
@@ -160,7 +160,7 @@ namespace Wake.Narrative
 
     public static class ProductionSceneScheduleValidator
     {
-        private const string FinalTypedCondition = "D8-01 정답";
+        private const string FinalTypedCondition = "D8-01 correct";
 
         public static IReadOnlyList<SceneScheduleDiagnostic> Validate(
             IEnumerable<DialogueRecord> records,

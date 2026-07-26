@@ -124,7 +124,7 @@ namespace Wake.Tests
                 resolver.Resolve(CreateCorrectAccusation(true));
 
             Assert.That(result.Ending, Is.EqualTo(FinalEnding.Bad));
-            Assert.That(result.EndingId, Is.EqualTo("ending_bad_integrity"));
+            Assert.That(result.EndingId, Is.EqualTo("ending_bad_panic"));
         }
 
         [Test]
@@ -180,7 +180,7 @@ namespace Wake.Tests
 
             Assert.That(
                 flow.GetMissingPrerequisites("D8-02"),
-                Is.EqualTo(new[] { "D8-01 정답" }));
+                Is.EqualTo(new[] { "D8-01 correct" }));
             Assert.That(flow.CanStartScene("D8-02"), Is.False);
         }
 

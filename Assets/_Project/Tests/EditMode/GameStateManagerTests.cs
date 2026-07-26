@@ -195,7 +195,7 @@ namespace Wake.Tests
 
             Assert.That(state.HasUnlockedDeduction("deduction_a"), Is.True);
             Assert.That(state.HasUnlockedDeduction(" deduction_a "), Is.True);
-            Assert.That(state.UnlockedDeductionIds, Is.EqualTo(new[] { "DEDUCTION_A" }));
+            Assert.That(state.UnlockedDeductionIds, Is.EqualTo(new[] { "deduction_a" }));
         }
 
         [Test]
@@ -377,7 +377,7 @@ namespace Wake.Tests
             string savedJson = PlayerPrefs.GetString(SaveKey);
 
             Assert.That(savedJson, Does.Contain("\"unlockedDeductionIds\""));
-            Assert.That(savedJson, Does.Contain("TRANSPORT_ROUTE"));
+            Assert.That(savedJson, Does.Contain("transport_route"));
             Assert.That(savedJson, Does.Not.Contain("\"theorySlots\""));
             Assert.That(savedJson, Does.Not.Contain("\"activeTheories\""));
         }

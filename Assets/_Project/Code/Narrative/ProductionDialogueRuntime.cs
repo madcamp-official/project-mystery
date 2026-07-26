@@ -211,7 +211,7 @@ namespace Wake.Narrative
     public sealed class ProductionDialogueFlow
     {
         public const int ChoiceCapacity = 8;
-        private const string FinalAccusationPrerequisite = "D8-01 정답";
+        private const string FinalAccusationPrerequisite = "D8-01 correct";
         private readonly Dictionary<string, List<DialogueRecord>> scenes;
         private readonly HashSet<string> completedScenes;
         private readonly GameStateManager state;

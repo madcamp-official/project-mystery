@@ -54,7 +54,7 @@ namespace Wake.Tests
 
             Assert.That(
                 state.UnlockedDeductionIds,
-                Is.EquivalentTo(deductions.Select(item => item.ToUpperInvariant())));
+                Is.EquivalentTo(deductions));
         }
 
         [Test]
@@ -86,6 +86,7 @@ namespace Wake.Tests
             DestroyManager();
             ClearSaves();
             PlayerPrefs.SetString(Legacy, legacyJson);
+            PlayerPrefs.Save();
 
             CreateManager();
 
