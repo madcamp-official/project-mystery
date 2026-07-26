@@ -162,7 +162,7 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void DialogueFlow_GrantsOnlyMappedEvidenceIds()
+        public void DialogueFlow_DoesNotGrantInteractionEvidence()
         {
             var granted = new List<string>();
             var completed = new HashSet<string> { "D1-07" };
@@ -178,7 +178,13 @@ namespace Wake.Tests
 
             CompleteScene(flow, "D2-01");
 
-            Assert.That(granted, Is.EquivalentTo(new[] { "C-03", "C-04", "C-05" }));
+            Assert.That(granted, Is.Empty);
+            Assert.That(
+                CanonicalEvidenceCatalog.All
+                    .Where(entry => entry.Id is "C-03" or "C-04" or "C-05")
+                    .All(entry =>
+                        entry.GrantMode == CanonicalEvidenceGrantMode.Interaction),
+                Is.True);
         }
 
         private EvidenceInventory CreateInventory()
