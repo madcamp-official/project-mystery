@@ -478,6 +478,13 @@ namespace Wake.Narrative
             }
             else if (string.Equals(
                          completedProductionScene,
+                         OrpheusRecordCatalog.SceneId,
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                FindFirstObjectByType<OrpheusAudioRestorationUIController>()?.Open();
+            }
+            else if (string.Equals(
+                         completedProductionScene,
                          "D8-01",
                          StringComparison.OrdinalIgnoreCase))
             {

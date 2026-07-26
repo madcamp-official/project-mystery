@@ -45,6 +45,10 @@ namespace Wake.UI
             {
                 ingamePanel.AddComponent<TimelinePuzzleUIController>();
             }
+            if (ingamePanel.GetComponent<OrpheusAudioRestorationUIController>() == null)
+            {
+                ingamePanel.AddComponent<OrpheusAudioRestorationUIController>();
+            }
             mapPanel = canvas.Find("Map").gameObject;
             evidencePanel = canvas.Find("Evidence").gameObject;
             settingsPopup = canvas.Find("Settings Popup").gameObject;
