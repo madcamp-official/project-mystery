@@ -167,6 +167,7 @@ namespace Wake.UI
                 ingamePanel));
             RegisterModal(EnsureComponent<EvidenceTheoryBoardController>(
                 evidencePanel));
+            EnsureComponent<NarrativeLocationHUDController>(ingamePanel);
             if (statusHud != null)
             {
                 EnsureComponent<ObjectiveMapHUDController>(statusHud);

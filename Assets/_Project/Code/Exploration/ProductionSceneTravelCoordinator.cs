@@ -35,6 +35,24 @@ namespace Wake.Exploration
                 return evaluated;
             }
 
+            return TryLaunch(evaluated, true);
+        }
+
+        public SceneTravelResult TryEnterDialogueOnly(string sceneId)
+        {
+            SceneTravelResult evaluated = DialogueOnlySceneAccess.Evaluate(
+                sceneId,
+                state?.CompletedProductionSceneIds,
+                state?.FinalEndingId);
+            return evaluated.IsAllowed
+                ? TryLaunch(evaluated, false)
+                : evaluated;
+        }
+
+        private SceneTravelResult TryLaunch(
+            SceneTravelResult evaluated,
+            bool loadPhysicalLocation)
+        {
             if (IsAlreadyActive(evaluated.Scene.SceneId))
             {
                 return evaluated;
@@ -49,7 +67,9 @@ namespace Wake.Exploration
                     evaluated.Location);
             }
 
-            if (tryLoadLocation == null || !tryLoadLocation(evaluated.Location))
+            if (loadPhysicalLocation &&
+                (tryLoadLocation == null ||
+                 !tryLoadLocation(evaluated.Location)))
             {
                 return SceneTravelResult.Denied(
                     SceneAccessDenialReason.LocationLoadFailed,
@@ -77,7 +97,9 @@ namespace Wake.Exploration
             InvestigationEventHub.Publish(
                 InvestigationEventKind.SceneEntered,
                 evaluated.Scene.SceneId,
-                evaluated.Location.LocationCode);
+                evaluated.Location != null
+                    ? evaluated.Location.LocationCode
+                    : evaluated.Scene.NarrativeLocationCode);
             return evaluated;
         }
 

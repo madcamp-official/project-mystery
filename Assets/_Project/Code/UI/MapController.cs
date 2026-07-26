@@ -64,9 +64,11 @@ namespace Wake.UI
             CurrentViewModel = ProductionMapViewModel.Create(
                 locationGraph,
                 state?.CompletedProductionSceneIds,
-                state != null ? state.PublicAnxiety : 0);
+                state != null ? state.PublicAnxiety : 0,
+                state?.FinalEndingId);
             ProductionMapLayout layout = ProductionMapLayoutCalculator.Calculate(
-                CurrentViewModel.Entries.Count,
+                CurrentViewModel.Entries.Count +
+                CurrentViewModel.DialogueOnlyEntries.Count,
                 ((RectTransform)roomsContainer).rect.width,
                 Screen.safeArea);
             GridLayoutGroup grid = dynamicContent.GetComponent<GridLayoutGroup>();
@@ -93,6 +95,28 @@ namespace Wake.UI
 
                 button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(() => SelectEntry(entry));
+            }
+
+            foreach (DialogueOnlyMapEntry entry in
+                     CurrentViewModel.DialogueOnlyEntries)
+            {
+                Button button = Instantiate(buttonTemplate, dynamicContent);
+                button.gameObject.SetActive(true);
+                button.interactable =
+                    entry.Status == ProductionMapEntryStatus.Available;
+                TMP_Text label = button.GetComponentInChildren<TMP_Text>();
+                if (label != null)
+                {
+                    label.text = $"{entry.Header}\n{entry.StatusLabel}";
+                    label.font = StatusHUDController.RuntimeKoreanFont;
+                    label.enableAutoSizing = true;
+                    label.fontSizeMin = 13f;
+                    label.fontSizeMax = 20f;
+                }
+
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(
+                    () => TryEnterDialogueOnlyScene(entry.SceneId));
             }
 
             unresolvedLabel.text = CurrentViewModel.UnresolvedScenes.Count == 0
@@ -196,15 +220,7 @@ namespace Wake.UI
 
         public SceneTravelResult TryTravelToScene(string sceneId)
         {
-            GameStateManager state = GameStateManager.Instance;
-            ProductionSceneTravelCoordinator coordinator = new(
-                locationGraph,
-                state,
-                DialogueController.Instance,
-                location =>
-                    LocationLoader.Instance != null &&
-                    LocationLoader.Instance.TryLoadLocation(location, out _));
-            LastTravelResult = coordinator.TryEnter(sceneId);
+            LastTravelResult = CreateTravelCoordinator().TryEnter(sceneId);
             if (!LastTravelResult.IsAllowed)
             {
                 ShowTravelFeedback();
@@ -213,6 +229,31 @@ namespace Wake.UI
 
             UIManager.Instance?.ShowIngame();
             return LastTravelResult;
+        }
+
+        public SceneTravelResult TryEnterDialogueOnlyScene(string sceneId)
+        {
+            LastTravelResult =
+                CreateTravelCoordinator().TryEnterDialogueOnly(sceneId);
+            if (!LastTravelResult.IsAllowed)
+            {
+                ShowTravelFeedback();
+                return LastTravelResult;
+            }
+
+            UIManager.Instance?.ShowIngame();
+            return LastTravelResult;
+        }
+
+        private ProductionSceneTravelCoordinator CreateTravelCoordinator()
+        {
+            return new ProductionSceneTravelCoordinator(
+                locationGraph,
+                GameStateManager.Instance,
+                DialogueController.Instance,
+                location =>
+                    LocationLoader.Instance != null &&
+                    LocationLoader.Instance.TryLoadLocation(location, out _));
         }
 
         private void ShowTravelFeedback()

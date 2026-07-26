@@ -243,6 +243,8 @@ namespace Wake.Narrative
             currentNode = null;
             IsBusy = true;
             linePanel.SetActive(true);
+            FindFirstObjectByType<NarrativeLocationHUDController>()
+                ?.ShowScene(productionFlow.ActiveSceneId);
             RenderProduction();
         }
 
