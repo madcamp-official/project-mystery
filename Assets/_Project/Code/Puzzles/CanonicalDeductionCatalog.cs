@@ -158,9 +158,17 @@ namespace Wake.Puzzles
         public bool TryUnlock(string deductionId)
         {
             DeductionEvaluation evaluation = Evaluate(deductionId);
-            return evaluation != null &&
-                   evaluation.CanUnlock &&
-                   state.UnlockDeduction(evaluation.Definition.Id);
+            if (evaluation == null ||
+                !evaluation.CanUnlock ||
+                !state.UnlockDeduction(evaluation.Definition.Id))
+            {
+                return false;
+            }
+
+            InvestigationEventHub.Publish(
+                InvestigationEventKind.TheoryCompleted,
+                evaluation.Definition.Id);
+            return true;
         }
 
         public IReadOnlyList<string> EvaluateAndUnlockAll()

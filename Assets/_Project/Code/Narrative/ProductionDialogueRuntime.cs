@@ -250,7 +250,12 @@ namespace Wake.Narrative
             {
                 return false;
             }
-            ApplyEffect(Choices[choiceIndex]);
+            DialogueRecord selectedChoice = Choices[choiceIndex];
+            ApplyEffect(selectedChoice);
+            InvestigationEventHub.Publish(
+                InvestigationEventKind.ChoiceResolved,
+                selectedChoice.StableLineId,
+                ActiveSceneId);
             index += Choices.Count;
             Choices = Array.Empty<DialogueRecord>();
             PresentCurrent();

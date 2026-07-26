@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Wake.Core
@@ -38,6 +39,7 @@ namespace Wake.Core
         public List<string> flags = new();
         public List<string> collectedEvidenceIds = new();
         public List<string> completedProductionSceneIds = new();
+        public List<string> completedObjectiveIds = new();
         public List<string> unlockedDeductionIds = new();
         public string finalEndingId = string.Empty;
         public string currentLocationCode = string.Empty;
@@ -70,6 +72,7 @@ namespace Wake.Core
         public IReadOnlyList<string> CollectedEvidenceIds => data.collectedEvidenceIds;
         public IReadOnlyList<string> CompletedProductionSceneIds =>
             data.completedProductionSceneIds;
+        public IReadOnlyList<string> CompletedObjectiveIds => data.completedObjectiveIds;
         public IReadOnlyList<string> UnlockedDeductionIds => data.unlockedDeductionIds;
         public string FinalEndingId => data.finalEndingId;
         public string CurrentLocationCode => data.currentLocationCode;
@@ -208,6 +211,27 @@ namespace Wake.Core
             }
 
             data.completedProductionSceneIds.Add(normalized);
+            SaveAndNotify();
+            return true;
+        }
+
+        public bool HasCompletedObjective(string objectiveId)
+        {
+            string normalized = NormalizeObjectiveId(objectiveId);
+            return !string.IsNullOrEmpty(normalized) &&
+                   data.completedObjectiveIds.Contains(normalized);
+        }
+
+        public bool RecordCompletedObjective(string objectiveId)
+        {
+            string normalized = NormalizeObjectiveId(objectiveId);
+            if (string.IsNullOrEmpty(normalized) ||
+                data.completedObjectiveIds.Contains(normalized))
+            {
+                return false;
+            }
+
+            data.completedObjectiveIds.Add(normalized);
             SaveAndNotify();
             return true;
         }
@@ -386,6 +410,7 @@ namespace Wake.Core
             {
                 AddFlagInternal("bad_end_integrity");
                 StateThresholdReached?.Invoke(StateThresholdKind.EvidenceIntegrityBadEnd);
+                PublishThreshold(StateThresholdKind.EvidenceIntegrityBadEnd);
                 BadEndTriggered?.Invoke(
                     "\uD604\uC7A5 \uBCF4\uC874\uB3C4\uAC00 0\uC774 \uB418\uC5B4 " +
                     "\uD575\uC2EC \uC99D\uAC70\uAC00 \uD30C\uAD34\uB418\uC5C8\uC2B5\uB2C8\uB2E4.");
@@ -409,6 +434,7 @@ namespace Wake.Core
                     previousAnxiety < RestrictedAreaAnxiety)
                 {
                     StateThresholdReached?.Invoke(StateThresholdKind.PublicAnxietyRestriction);
+                    PublishThreshold(StateThresholdKind.PublicAnxietyRestriction);
                     FeedbackRequested?.Invoke(
                         "\uACBD\uACE0 \u00B7 \uC2B9\uAC1D \uBD88\uC548\uC73C\uB85C " +
                         "\uC81C\uD55C\uAD6C\uC5ED\uC774 \uD3D0\uC1C4\uB429\uB2C8\uB2E4.");
@@ -423,6 +449,7 @@ namespace Wake.Core
             {
                 AddFlagInternal("bad_end_panic");
                 StateThresholdReached?.Invoke(StateThresholdKind.PublicAnxietyBadEnd);
+                PublishThreshold(StateThresholdKind.PublicAnxietyBadEnd);
                 BadEndTriggered?.Invoke(
                     "\uC2B9\uAC1D \uBD88\uC548\uC774 100\uC5D0 \uB3C4\uB2EC\uD588\uC2B5\uB2C8\uB2E4.");
             }
@@ -476,6 +503,11 @@ namespace Wake.Core
             return NormalizeId(value).ToUpperInvariant();
         }
 
+        private static string NormalizeObjectiveId(string value)
+        {
+            return NormalizeId(value).ToLowerInvariant();
+        }
+
         private static List<string> NormalizeSceneIds(IEnumerable<string> values)
         {
             var normalized = new List<string>();
@@ -509,6 +541,11 @@ namespace Wake.Core
             data.collectedEvidenceIds ??= new List<string>();
             data.completedProductionSceneIds =
                 NormalizeSceneIds(data.completedProductionSceneIds);
+            data.completedObjectiveIds = (data.completedObjectiveIds ?? new List<string>())
+                .Select(NormalizeObjectiveId)
+                .Where(value => !string.IsNullOrEmpty(value))
+                .Distinct()
+                .ToList();
             data.unlockedDeductionIds = NormalizeIds(data.unlockedDeductionIds);
             data.finalEndingId = NormalizeId(data.finalEndingId);
             data.currentLocationCode ??= string.Empty;
@@ -537,6 +574,13 @@ namespace Wake.Core
             PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(data));
             PlayerPrefs.Save();
             StateChanged?.Invoke();
+        }
+
+        private static void PublishThreshold(StateThresholdKind kind)
+        {
+            InvestigationEventHub.Publish(
+                InvestigationEventKind.StateThresholdReached,
+                kind.ToString());
         }
 
         private static List<string> NormalizeIds(IEnumerable<string> values)
