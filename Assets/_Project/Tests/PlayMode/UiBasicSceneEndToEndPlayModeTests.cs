@@ -180,6 +180,7 @@ namespace Wake.Tests.PlayMode
 
         private IEnumerator SelectSceneFromMap(string sceneId)
         {
+            State.UnlockProductionScene(sceneId);
             Ui.ShowMap();
             yield return null;
             yield return null;

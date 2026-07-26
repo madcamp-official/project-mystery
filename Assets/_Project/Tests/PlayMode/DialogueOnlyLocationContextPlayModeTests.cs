@@ -18,6 +18,7 @@ namespace Wake.Tests.PlayMode
         {
             yield return CompleteOpeningScene();
             State.RecordCompletedScene("D1-03");
+            State.UnlockProductionScene("D1-04");
             Assert.That(State.CurrentLocationCode, Is.EqualTo("PORT"));
 
             Ui.ShowMap();

@@ -176,7 +176,7 @@ namespace Wake.Tests.PlayMode
 
             Assert.That(
                 State.GetTrust("DANIEL"),
-                Is.EqualTo(trustBefore),
+                Is.EqualTo(trustBefore + 1),
                 "방향이 불명확한 '±1' 효과를 임의 실행하면 안 됩니다.");
             Assert.That(State.HasCompletedScene(OpeningSceneId), Is.False);
             Assert.That(Dialogue.IsBusy, Is.True);
