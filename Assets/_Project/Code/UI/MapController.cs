@@ -81,6 +81,10 @@ namespace Wake.UI
                     LastTravelResult.Scene.TimeBlock);
             }
 
+            InvestigationEventHub.Publish(
+                InvestigationEventKind.SceneEntered,
+                LastTravelResult.Scene.SceneId,
+                LastTravelResult.Location.LocationCode);
             UIManager.Instance?.ShowIngame();
             return LastTravelResult;
         }

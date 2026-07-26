@@ -41,6 +41,9 @@ namespace Wake.Evidence
 
             collected.Add(evidence);
             GameStateManager.Instance?.RecordEvidenceCollected(evidenceId);
+            InvestigationEventHub.Publish(
+                InvestigationEventKind.EvidenceCollected,
+                evidenceId);
             EvidenceAdded?.Invoke(evidence);
             return true;
         }
