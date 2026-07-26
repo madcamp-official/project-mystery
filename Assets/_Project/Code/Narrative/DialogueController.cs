@@ -31,6 +31,7 @@ namespace Wake.Narrative
         private GameObject choicesContainer;
         private Button[] choiceButtons;
         private TMP_Text[] choiceLabels;
+        private ResponsiveDialogueLayout responsiveLayout;
 
         private DialogueSet currentSet;
         private DialogueNode currentNode;
@@ -79,6 +80,21 @@ namespace Wake.Narrative
             }
 
             nextButton.onClick.AddListener(OnNextClicked);
+            responsiveLayout = canvas.gameObject
+                .GetComponent<ResponsiveDialogueLayout>();
+            if (responsiveLayout == null)
+            {
+                responsiveLayout = canvas.gameObject
+                    .AddComponent<ResponsiveDialogueLayout>();
+            }
+            responsiveLayout.Initialize(
+                canvas.GetComponent<Canvas>(),
+                linePanelTransform.GetComponent<RectTransform>(),
+                speakerPortrait.GetComponent<RectTransform>(),
+                lineText,
+                speakerText,
+                selectBtn.GetComponent<RectTransform>(),
+                choiceButtons);
             linePanel.SetActive(false);
         }
 
@@ -303,6 +319,7 @@ namespace Wake.Narrative
             speakerText.text =
                 DialoguePresentationMap.GetSpeakerLabel(record.Speaker, speaker);
             lineText.text = record.TextKo;
+            responsiveLayout?.ResetTextScroll();
             ShowPortrait(
                 speaker.PortraitId,
                 DialoguePresentationMap.GetEmotion(record.Emotion));
@@ -328,6 +345,7 @@ namespace Wake.Narrative
             {
                 speakerText.text = line.Speaker;
                 lineText.text = line.Text;
+                responsiveLayout?.ResetTextScroll();
                 ShowPortrait(line.Speaker);
                 StatusHUDController hud = FindFirstObjectByType<StatusHUDController>();
                 hud?.SetContextCharacter(line.Speaker);
@@ -336,6 +354,7 @@ namespace Wake.Narrative
             {
                 speakerText.text = string.Empty;
                 lineText.text = $"[MISSING LINE: {currentNode.LineId}]";
+                responsiveLayout?.ResetTextScroll();
                 ShowPortrait(string.Empty);
                 StatusHUDController hud = FindFirstObjectByType<StatusHUDController>();
                 hud?.ClearContextCharacter();
