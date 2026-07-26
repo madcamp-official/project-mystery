@@ -243,6 +243,8 @@ namespace Wake.Tests.PlayMode
         private static void ClearSavedGame()
         {
             PlayerPrefs.DeleteKey(SaveKey);
+            PlayerPrefs.DeleteKey(SaveKey + "_BACKUP");
+            PlayerPrefs.DeleteKey(SaveKey + "_PENDING");
             PlayerPrefs.Save();
         }
     }
