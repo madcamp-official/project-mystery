@@ -226,6 +226,76 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void CompletedScenes_AreCanonicalAndUnique()
+        {
+            int stateChanges = 0;
+            state.StateChanged += () => stateChanges++;
+
+            Assert.That(state.RecordCompletedScene(" p-01 "), Is.True);
+            Assert.That(state.RecordCompletedScene("P-01"), Is.False);
+            Assert.That(state.RecordCompletedScene("  "), Is.False);
+
+            Assert.That(state.HasCompletedScene("P-01"), Is.True);
+            Assert.That(state.HasCompletedScene(" p-01 "), Is.True);
+            Assert.That(state.HasCompletedScene(null), Is.False);
+            Assert.That(state.CompletedProductionSceneIds, Is.EqualTo(new[] { "P-01" }));
+            Assert.That(stateChanges, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void CompletedScenes_RestoreAfterManagerRecreation()
+        {
+            state.RecordCompletedScene("P-01");
+            state.RecordCompletedScene("D1-01");
+
+            Object.DestroyImmediate(host);
+            state = CreateManager();
+            state.ReloadSavedState();
+
+            Assert.That(state.HasCompletedScene("P-01"), Is.True);
+            Assert.That(state.HasCompletedScene("D1-01"), Is.True);
+            Assert.That(
+                state.CompletedProductionSceneIds,
+                Is.EquivalentTo(new[] { "P-01", "D1-01" }));
+        }
+
+        [Test]
+        public void LegacySaveWithoutCompletedScenes_LoadsEmptyProgress()
+        {
+            const string legacyJson =
+                "{\"day\":2,\"timeBlock\":1,\"publicAnxiety\":25," +
+                "\"evidenceIntegrity\":80,\"theorySlots\":3," +
+                "\"activeTheories\":[],\"trust\":[],\"flags\":[]," +
+                "\"collectedEvidenceIds\":[\"C-02\"]," +
+                "\"currentLocationCode\":\"HORIZON\"}";
+
+            PlayerPrefs.SetString("THE_WAKE_GAME_STATE_V1", legacyJson);
+            state.ReloadSavedState();
+
+            Assert.That(state.CompletedProductionSceneIds, Is.Empty);
+            Assert.That(state.HasCompletedScene("P-01"), Is.False);
+            Assert.That(state.Day, Is.EqualTo(2));
+            Assert.That(state.PublicAnxiety, Is.EqualTo(25));
+            Assert.That(state.EvidenceIntegrity, Is.EqualTo(80));
+            Assert.That(state.CollectedEvidenceIds, Contains.Item("C-02"));
+            Assert.That(state.CurrentLocationCode, Is.EqualTo("HORIZON"));
+        }
+
+        [Test]
+        public void LoadedSceneProgress_DropsBlankAndDuplicateValues()
+        {
+            const string malformedJson =
+                "{\"completedProductionSceneIds\":[\" p-01 \",\"P-01\",\"\",\"d1-01\"]}";
+
+            PlayerPrefs.SetString("THE_WAKE_GAME_STATE_V1", malformedJson);
+            state.ReloadSavedState();
+
+            Assert.That(
+                state.CompletedProductionSceneIds,
+                Is.EqualTo(new[] { "P-01", "D1-01" }));
+        }
+
+        [Test]
         public void Time_ClampsDayToOneAndPreservesBlock()
         {
             state.SetTime(-5, TimeBlock.NIGHT);
@@ -243,6 +313,7 @@ namespace Wake.Tests
             state.ActivateTheory("ceiling_insertion");
             state.AddFlag("ceiling_access");
             state.RecordEvidenceCollected("C-03");
+            state.RecordCompletedScene("P-01");
             state.RecordLocation("HORIZON");
             state.SetTime(2, TimeBlock.PM);
 
@@ -260,6 +331,7 @@ namespace Wake.Tests
             Assert.That(state.ActiveTheoryCount, Is.EqualTo(1));
             Assert.That(state.HasFlag("ceiling_access"), Is.True);
             Assert.That(state.CollectedEvidenceIds, Contains.Item("C-03"));
+            Assert.That(state.HasCompletedScene("P-01"), Is.True);
             Assert.That(state.CurrentLocationCode, Is.EqualTo("HORIZON"));
             Assert.That(state.Day, Is.EqualTo(2));
             Assert.That(state.CurrentTimeBlock, Is.EqualTo(TimeBlock.PM));
