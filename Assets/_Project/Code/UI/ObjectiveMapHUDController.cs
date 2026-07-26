@@ -300,7 +300,7 @@ namespace Wake.UI
             text.fontSize = fontSize;
             text.alignment = alignment;
             text.color = Color.white;
-            text.enableWordWrapping = false;
+            text.textWrappingMode = TextWrappingModes.NoWrap;
             text.raycastTarget = false;
             return text;
         }

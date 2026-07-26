@@ -29,6 +29,10 @@ namespace Wake.UI
             Transform canvas = GameObject.Find("Canvas").transform;
             startScenePanel = canvas.Find("StartScene").gameObject;
             ingamePanel = canvas.Find("Ingame").gameObject;
+            if (ingamePanel.GetComponent<ProductionPuzzleUIController>() == null)
+            {
+                ingamePanel.AddComponent<ProductionPuzzleUIController>();
+            }
             mapPanel = canvas.Find("Map").gameObject;
             evidencePanel = canvas.Find("Evidence").gameObject;
             settingsPopup = canvas.Find("Settings Popup").gameObject;

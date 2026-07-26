@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Wake.Evidence;
+using Wake.Puzzles;
 using Wake.UI;
 
 namespace Wake.Narrative
@@ -390,6 +391,7 @@ namespace Wake.Narrative
 
         private void EndDialogue()
         {
+            string completedProductionScene = productionFlow?.ActiveSceneId;
             IsBusy = false;
             currentSet = null;
             currentNode = null;
@@ -400,6 +402,12 @@ namespace Wake.Narrative
             }
             StatusHUDController hud = FindFirstObjectByType<StatusHUDController>();
             hud?.ClearContextCharacter();
+            if (ProductionPuzzleCatalog.TryGetByScene(
+                    completedProductionScene,
+                    out ProductionPuzzleDefinition puzzle))
+            {
+                FindFirstObjectByType<ProductionPuzzleUIController>()?.Open(puzzle.Id);
+            }
         }
     }
 }

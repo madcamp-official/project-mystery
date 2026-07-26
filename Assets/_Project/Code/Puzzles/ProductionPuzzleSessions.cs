@@ -100,6 +100,16 @@ namespace Wake.Puzzles
             ById.TryGetValue(
                 ProductionPuzzleDefinition.Normalize(puzzleId),
                 out definition);
+
+        public static bool TryGetByScene(
+            string sceneId,
+            out ProductionPuzzleDefinition definition)
+        {
+            string normalized = sceneId?.Trim().ToUpperInvariant();
+            definition = Definitions.FirstOrDefault(item =>
+                string.Equals(item.SceneId, normalized, StringComparison.Ordinal));
+            return definition != null;
+        }
     }
 
     public readonly struct PuzzleCompletionResult
