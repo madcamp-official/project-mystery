@@ -18,6 +18,7 @@ namespace Wake.Narrative
         Flag,
         Evidence,
         SceneUnlock,
+        Theory,
         Ending,
         Metadata
     }
@@ -162,6 +163,7 @@ namespace Wake.Narrative
                 "flag" => ProductionEffectKind.Flag,
                 "evidence" => ProductionEffectKind.Evidence,
                 "scene_unlock" => ProductionEffectKind.SceneUnlock,
+                "theory" => ProductionEffectKind.Theory,
                 "ending" => ProductionEffectKind.Ending,
                 _ => hasValue
                     ? ProductionEffectKind.Metadata

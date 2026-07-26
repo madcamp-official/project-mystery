@@ -27,6 +27,13 @@ namespace Wake.Core
     }
 
     [Serializable]
+    public class RuntimeCounterState
+    {
+        public string key = string.Empty;
+        public int value;
+    }
+
+    [Serializable]
     public class PuzzleSessionState
     {
         public string puzzleId = string.Empty;
@@ -82,6 +89,8 @@ namespace Wake.Core
         public List<string> completedObjectiveIds = new();
         public List<PuzzleSessionState> puzzleSessions = new();
         public List<string> unlockedDeductionIds = new();
+        public List<string> unlockedProductionSceneIds = new();
+        public List<RuntimeCounterState> runtimeCounters = new();
         public string finalEndingId = string.Empty;
         public string currentLocationCode = string.Empty;
         public ProductionDialogueCheckpoint dialogueCheckpoint;
@@ -115,6 +124,9 @@ namespace Wake.Core
             data.completedProductionSceneIds;
         public IReadOnlyList<string> CompletedObjectiveIds => data.completedObjectiveIds;
         public IReadOnlyList<string> UnlockedDeductionIds => data.unlockedDeductionIds;
+        public IReadOnlyList<string> UnlockedProductionSceneIds =>
+            data.unlockedProductionSceneIds;
+        public int WrongStrikeCount => GetRuntimeCounter("wrong_strike");
         public string FinalEndingId => data.finalEndingId;
         public string CurrentLocationCode => data.currentLocationCode;
         public ProductionDialogueCheckpoint DialogueCheckpoint =>
@@ -235,6 +247,27 @@ namespace Wake.Core
             data.completedProductionSceneIds.Add(normalized);
             SaveAndNotify();
             return true;
+        }
+
+        public bool UnlockProductionScene(string sceneId)
+        {
+            string normalized = NormalizeSceneId(sceneId);
+            if (string.IsNullOrEmpty(normalized) ||
+                data.unlockedProductionSceneIds.Contains(normalized))
+            {
+                return false;
+            }
+
+            data.unlockedProductionSceneIds.Add(normalized);
+            SaveAndNotify();
+            return true;
+        }
+
+        public bool IsProductionSceneUnlocked(string sceneId)
+        {
+            string normalized = NormalizeSceneId(sceneId);
+            return !string.IsNullOrEmpty(normalized) &&
+                   data.unlockedProductionSceneIds.Contains(normalized);
         }
 
         public bool SaveDialogueCheckpoint(
@@ -460,6 +493,64 @@ namespace Wake.Core
             data.day = normalizedDay;
             data.timeBlock = timeBlock;
             SaveAndNotify();
+        }
+
+        public void ConsumeTimeBlocks(int count)
+        {
+            int remaining = Mathf.Max(0, count);
+            if (remaining == 0)
+            {
+                return;
+            }
+
+            int day = data.day;
+            int block = (int)data.timeBlock;
+            while (remaining-- > 0)
+            {
+                block++;
+                if (block > (int)TimeBlock.NIGHT)
+                {
+                    block = (int)TimeBlock.AM;
+                    day++;
+                }
+            }
+
+            data.day = day;
+            data.timeBlock = (TimeBlock)block;
+            SaveAndNotify();
+        }
+
+        public int GetRuntimeCounter(string key)
+        {
+            string normalized = NormalizeObjectiveId(key);
+            RuntimeCounterState entry = data.runtimeCounters.Find(item =>
+                item != null && item.key == normalized);
+            return entry?.value ?? 0;
+        }
+
+        public int ChangeRuntimeCounter(string key, int delta, int minimum = 0)
+        {
+            string normalized = NormalizeObjectiveId(key);
+            if (string.IsNullOrEmpty(normalized) || delta == 0)
+            {
+                return GetRuntimeCounter(normalized);
+            }
+
+            RuntimeCounterState entry = data.runtimeCounters.Find(item =>
+                item != null && item.key == normalized);
+            if (entry == null)
+            {
+                entry = new RuntimeCounterState { key = normalized };
+                data.runtimeCounters.Add(entry);
+            }
+
+            int next = Mathf.Max(minimum, entry.value + delta);
+            if (entry.value != next)
+            {
+                entry.value = next;
+                SaveAndNotify();
+            }
+            return entry.value;
         }
 
         public bool HasFlag(string flag)
@@ -746,6 +837,23 @@ namespace Wake.Core
                 .Select(group => group.First())
                 .ToList();
             data.unlockedDeductionIds = NormalizeIds(data.unlockedDeductionIds);
+            data.unlockedProductionSceneIds =
+                NormalizeSceneIds(data.unlockedProductionSceneIds);
+            data.runtimeCounters = (data.runtimeCounters ?? new List<RuntimeCounterState>())
+                .Where(item => item != null)
+                .Select(item => new RuntimeCounterState
+                {
+                    key = NormalizeObjectiveId(item.key),
+                    value = Mathf.Max(0, item.value)
+                })
+                .Where(item => !string.IsNullOrEmpty(item.key))
+                .GroupBy(item => item.key)
+                .Select(group => new RuntimeCounterState
+                {
+                    key = group.Key,
+                    value = group.Sum(item => item.value)
+                })
+                .ToList();
             data.finalEndingId = NormalizeId(data.finalEndingId);
             data.currentLocationCode ??= string.Empty;
             if (data.dialogueCheckpoint != null)

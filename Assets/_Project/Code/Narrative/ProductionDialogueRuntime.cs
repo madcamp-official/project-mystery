@@ -568,7 +568,20 @@ namespace Wake.Narrative
             {
                 return;
             }
-            if (DialogueEffectCatalog.TryResolve(record, out DialogueTypedEffect effect))
+            ProductionEffectParseResult parsed =
+                ProductionEffectParser.Parse(record.NextOrEffect);
+            if (parsed.Success && parsed.Instructions.Count > 0)
+            {
+                var executor = new ProductionEffectExecutor(state, tryGrantEvidence);
+                ProductionEffectExecutionResult result =
+                    executor.Execute(record.NextOrEffect);
+                foreach (string warning in result.Warnings)
+                {
+                    warnings.Add(
+                        $"{record.StableLineId} (CSV row {record.SourceRow}): {warning}");
+                }
+            }
+            else if (DialogueEffectCatalog.TryResolve(record, out DialogueTypedEffect effect))
             {
                 effect.Apply(state);
             }

@@ -152,18 +152,23 @@ namespace Wake.Tests
             Assert.That(DialogueEffectCatalog.TryResolve("Daniel \uC2E0\uB8B0\uB3C4 \u00B11", out _), Is.False);
         }
         [Test]
-        public void P01ThroughP03_FlowInOrderWithTwoChoices()
+        public void P01ThroughP03_FlowExecutesOfficialSceneUnlockEffects()
         {
+            host = new GameObject("ProductionDialogueEffectFlow");
+            GameStateManager state = host.AddComponent<GameStateManager>();
             var completed = new HashSet<string>();
-            var flow = new ProductionDialogueFlow(records, completed);
+            var flow = new ProductionDialogueFlow(records, completed, state);
             Assert.That(flow.StartScene("P-02"), Is.False);
             CompleteScene(flow, "P-01");
             Assert.That(completed, Contains.Item("P-01"));
+            Assert.That(state.IsProductionSceneUnlocked("P-02"), Is.True);
             CompleteScene(flow, "P-02");
             Assert.That(completed, Contains.Item("P-02"));
+            Assert.That(state.IsProductionSceneUnlocked("P-03"), Is.True);
             CompleteScene(flow, "P-03");
             Assert.That(completed, Contains.Item("P-03"));
-            Assert.That(flow.Warnings.Any(item => item.Contains("unconfirmed effect")), Is.True);
+            Assert.That(state.IsProductionSceneUnlocked("D1-01"), Is.True);
+            Assert.That(flow.Warnings, Is.Empty);
         }
 
         [Test]
