@@ -135,15 +135,12 @@ namespace Wake.Tests.PlayMode
         {
             yield return StartNewGameFromVisibleButton();
 
-            Button next =
-                RequireComponent<Button>("Ingame/Line Panel/Panel/Next");
-            for (int advance = 0; advance < 19; advance++)
-            {
-                yield return InvokeAndSettle(next);
-            }
+            yield return AdvanceToVisibleChoices();
 
             GameObject choices =
                 RequireObject("Ingame/Line Panel/Select Btn");
+            Button next =
+                RequireComponent<Button>("Ingame/Line Panel/Panel/Next");
             Assert.That(choices.activeInHierarchy, Is.True);
             Assert.That(next.gameObject.activeSelf, Is.False);
             Assert.That(State.DialogueCheckpoint, Is.Not.Null);

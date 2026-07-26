@@ -17,7 +17,7 @@ namespace Wake.Tests.PlayMode
     {
         protected const string UiScenePath =
             "Assets/_Project/Scenes/UI/UI Basic Scene.unity";
-        protected const string SaveKey = "THE_WAKE_GAME_STATE_V1";
+        protected const string SaveKey = "UNDER_THE_HORIZON_GAME_STATE_V2";
 
         private readonly List<string> runtimeErrors = new();
         private Scene loadedScene;
@@ -117,6 +117,70 @@ namespace Wake.Tests.PlayMode
             button.onClick.Invoke();
             yield return null;
             yield return null;
+        }
+
+        protected IEnumerator AdvanceToVisibleChoices(int maximumSteps = 200)
+        {
+            Button next =
+                RequireComponent<Button>("Ingame/Line Panel/Panel/Next");
+            GameObject choices =
+                RequireObject("Ingame/Line Panel/Select Btn");
+            int steps = 0;
+            while (!choices.activeInHierarchy && Dialogue.IsBusy)
+            {
+                Assert.That(
+                    steps++,
+                    Is.LessThan(maximumSteps),
+                    "선택지가 나타나기 전에 대사 진행 상한을 초과했습니다.");
+                yield return InvokeAndSettle(next);
+            }
+
+            Assert.That(
+                choices.activeInHierarchy,
+                Is.True,
+                "현재 프로덕션 대사에 선택지가 표시되지 않았습니다.");
+        }
+
+        protected IEnumerator CompleteActiveProductionDialogue(
+            int maximumSteps = 500)
+        {
+            Button next =
+                RequireComponent<Button>("Ingame/Line Panel/Panel/Next");
+            GameObject choices =
+                RequireObject("Ingame/Line Panel/Select Btn");
+            int steps = 0;
+            while (Dialogue.IsBusy)
+            {
+                Assert.That(
+                    steps++,
+                    Is.LessThan(maximumSteps),
+                    "프로덕션 대사가 완료되기 전에 진행 상한을 초과했습니다.");
+
+                if (choices.activeInHierarchy)
+                {
+                    Button choice = choices
+                        .GetComponentsInChildren<Button>(false)
+                        .FirstOrDefault(button =>
+                            button.gameObject.activeInHierarchy &&
+                            button.interactable);
+                    Assert.That(
+                        choice,
+                        Is.Not.Null,
+                        "활성화된 선택지 버튼을 찾지 못했습니다.");
+                    yield return InvokeAndSettle(choice);
+                }
+                else
+                {
+                    yield return InvokeAndSettle(next);
+                }
+            }
+        }
+
+        protected IEnumerator CompleteOpeningScene()
+        {
+            yield return StartNewGameFromVisibleButton();
+            yield return CompleteActiveProductionDialogue();
+            Assert.That(State.HasCompletedScene("P-01"), Is.True);
         }
 
         protected GameObject RequireObject(string path)

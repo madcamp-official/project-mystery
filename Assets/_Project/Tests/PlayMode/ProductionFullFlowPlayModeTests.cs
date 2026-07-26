@@ -14,7 +14,7 @@ namespace Wake.Tests.PlayMode
 {
     public sealed class ProductionFullFlowPlayModeTests
     {
-        private const string SaveKey = "THE_WAKE_GAME_STATE_V1";
+        private const string SaveKey = "UNDER_THE_HORIZON_GAME_STATE_V2";
 
         private GameObject host;
         private GameStateManager state;
@@ -24,8 +24,7 @@ namespace Wake.Tests.PlayMode
         public IEnumerator SetUp()
         {
             yield return DestroyRuntime();
-            PlayerPrefs.DeleteKey(SaveKey);
-            PlayerPrefs.Save();
+            ClearSaves();
             CreateRuntime("ProductionFullFlow");
             yield return null;
         }
@@ -34,8 +33,7 @@ namespace Wake.Tests.PlayMode
         public IEnumerator TearDown()
         {
             yield return DestroyRuntime();
-            PlayerPrefs.DeleteKey(SaveKey);
-            PlayerPrefs.Save();
+            ClearSaves();
         }
 
         [UnityTest]
@@ -332,6 +330,9 @@ namespace Wake.Tests.PlayMode
             yield return RecreateRuntime("IntegrityThreshold");
 
             PlayerPrefs.DeleteKey(SaveKey);
+            PlayerPrefs.DeleteKey(SaveKey + "_BACKUP");
+            PlayerPrefs.DeleteKey(SaveKey + "_PENDING");
+            PlayerPrefs.Save();
             Object.Destroy(host);
             yield return null;
             CreateRuntime("IntegrityThresholdFresh");
@@ -419,6 +420,17 @@ namespace Wake.Tests.PlayMode
                 Object.Destroy(GameStateManager.Instance.gameObject);
                 yield return null;
             }
+        }
+
+        private static void ClearSaves()
+        {
+            PlayerPrefs.DeleteKey(SaveKey);
+            PlayerPrefs.DeleteKey(SaveKey + "_BACKUP");
+            PlayerPrefs.DeleteKey(SaveKey + "_PENDING");
+            PlayerPrefs.DeleteKey("THE_WAKE_GAME_STATE_V1");
+            PlayerPrefs.DeleteKey("THE_WAKE_GAME_STATE_V1_BACKUP");
+            PlayerPrefs.DeleteKey("THE_WAKE_GAME_STATE_V1_PENDING");
+            PlayerPrefs.Save();
         }
 
         private sealed class RecordingScenePlayer : IProductionScenePlayer

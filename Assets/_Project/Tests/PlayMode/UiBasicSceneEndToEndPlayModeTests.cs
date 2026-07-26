@@ -178,19 +178,6 @@ namespace Wake.Tests.PlayMode
             AssertNoRuntimeErrors("같은 씬에서 새 수사 재시작");
         }
 
-        private IEnumerator CompleteOpeningScene()
-        {
-            yield return StartNewGameFromVisibleButton();
-            Button next =
-                RequireComponent<Button>("Ingame/Line Panel/Panel/Next");
-            for (int index = 0; index < 5; index++)
-            {
-                yield return InvokeAndSettle(next);
-            }
-            yield return InvokeAndSettle(RequireComponent<Button>(
-                "Ingame/Line Panel/Select Btn/Choice"));
-        }
-
         private IEnumerator SelectSceneFromMap(string sceneId)
         {
             Ui.ShowMap();
