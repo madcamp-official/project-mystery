@@ -56,6 +56,67 @@ namespace Wake.Tests
             Assert.That(identity.PortraitId, Is.EqualTo(portrait));
             Assert.That(identity.Kind, Is.EqualTo(kind));
         }
+
+        [TestCase("ADRIAN_독백", "Adrian Vale · 독백")]
+        [TestCase("EVELYN_RECORD", "Evelyn Shaw · 기록 음성")]
+        [TestCase("NARRATION", "내레이션")]
+        [TestCase("SYSTEM", "시스템")]
+        [TestCase("승무원_NPC", "승무원")]
+        public void PresentationMap_ProvidesPlayerFacingSpecialSpeakerLabels(
+            string source,
+            string expected)
+        {
+            DialogueSpeakerIdentity identity =
+                DialoguePresentationMap.GetSpeaker(source);
+
+            Assert.That(
+                DialoguePresentationMap.GetSpeakerLabel(source, identity),
+                Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void PortraitCatalog_MapsFourStatesForEveryPlayableCharacter()
+        {
+            foreach (DialoguePortraitDefinition definition in
+                     DialoguePortraitCatalog.All)
+            {
+                string[] names =
+                {
+                    DialoguePortraitCatalog.GetSpriteName(
+                        definition, PortraitEmotion.Neutral),
+                    DialoguePortraitCatalog.GetSpriteName(
+                        definition, PortraitEmotion.Concerned),
+                    DialoguePortraitCatalog.GetSpriteName(
+                        definition, PortraitEmotion.Angry),
+                    DialoguePortraitCatalog.GetSpriteName(
+                        definition, PortraitEmotion.Positive)
+                };
+
+                Assert.That(names, Has.Length.EqualTo(4));
+                Assert.That(names.Distinct().Count(), Is.EqualTo(4));
+                Assert.That(names[3], Does.EndWith("_happy"));
+            }
+        }
+
+        [Test]
+        public void PortraitCatalog_LoadsAllThirtySixExpressionSprites()
+        {
+            int loaded = 0;
+            foreach (DialoguePortraitDefinition definition in
+                     DialoguePortraitCatalog.All)
+            {
+                Sprite[] sprites = Resources.LoadAll<Sprite>(
+                    $"{DialoguePortraitCatalog.ResourceFolder}/" +
+                    $"portrait_{definition.ExpressionSheet}_expressions");
+                loaded += sprites.Length;
+                Assert.That(sprites.Select(item => item.name), Does.Contain(
+                    DialoguePortraitCatalog.GetSpriteName(
+                        definition,
+                        PortraitEmotion.Neutral)));
+            }
+
+            Assert.That(loaded, Is.EqualTo(36));
+        }
         [Test]
         public void TypedEffect_ConnectsEverySupportedStateMutation()
         {

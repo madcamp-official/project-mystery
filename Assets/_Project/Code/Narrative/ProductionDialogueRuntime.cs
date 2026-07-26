@@ -97,6 +97,26 @@ namespace Wake.Narrative
                 _ => new DialogueSpeakerIdentity(speaker ?? string.Empty, DialogueSpeakerKind.Character)
             };
         }
+
+        public static string GetSpeakerLabel(
+            string sourceSpeaker,
+            DialogueSpeakerIdentity identity)
+        {
+            string displayName =
+                DialoguePortraitCatalog.GetDisplayName(identity.PortraitId);
+            return identity.Kind switch
+            {
+                DialogueSpeakerKind.Monologue => $"{displayName} · 독백",
+                DialogueSpeakerKind.RecordedVoice =>
+                    $"{displayName} · 기록 음성",
+                DialogueSpeakerKind.Narration => "내레이션",
+                DialogueSpeakerKind.System => "시스템",
+                DialogueSpeakerKind.NonPlayer => "승무원",
+                _ => string.IsNullOrEmpty(displayName)
+                    ? sourceSpeaker ?? string.Empty
+                    : displayName
+            };
+        }
     }
     public sealed class DialogueTypedEffect
     {

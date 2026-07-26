@@ -32,24 +32,9 @@ namespace Wake.Narrative
         private DialogueNode currentNode;
         private ProductionDialogueFlow productionFlow;
 
-        private readonly Dictionary<string, PortraitDefinition> portraits =
-            new Dictionary<string, PortraitDefinition>(StringComparer.OrdinalIgnoreCase);
-
         public bool IsBusy { get; private set; }
         public string ActiveProductionSceneId =>
             productionFlow?.ActiveSceneId ?? string.Empty;
-
-        private readonly struct PortraitDefinition
-        {
-            public readonly string ResourceName;
-            public readonly Rect Crop;
-
-            public PortraitDefinition(string resourceName, Rect crop)
-            {
-                ResourceName = resourceName;
-                Crop = crop;
-            }
-        }
 
         private void Awake()
         {
@@ -75,7 +60,6 @@ namespace Wake.Narrative
             lineText.font = koreanFont;
             speakerText.font = koreanFont;
             CreatePortrait(linePanelTransform);
-            RegisterPortraits();
 
             Transform selectBtn = linePanelTransform.Find("Select Btn");
             choicesContainer = selectBtn.gameObject;
@@ -120,96 +104,27 @@ namespace Wake.Narrative
             portraitObject.SetActive(false);
         }
 
-        private void RegisterPortraits()
-        {
-            // Character sheets use the right-hand close-up as the dialogue portrait.
-            Rect standardCloseUp = new Rect(0.46f, 0f, 0.54f, 1f);
-            AddPortrait("ADRIAN", "adrian_vale", standardCloseUp);
-            AddPortrait("CLAIRE", "claire_hawthorne", standardCloseUp);
-            AddPortrait("DANIEL", "daniel_mercer", standardCloseUp);
-            AddPortrait("RICHARD", "richard_hawthorne", standardCloseUp);
-            AddPortrait("EVELYN", "evelyn_shaw", standardCloseUp);
-            AddPortrait("THOMAS", "thomas_reed", standardCloseUp);
-            AddPortrait("OWEN", "owen_price", standardCloseUp);
-
-            // Marcus and Helena share one four-pose character sheet.
-            AddPortrait("MARCUS", "marcus_bell_and_helena_ward", new Rect(0.25f, 0f, 0.28f, 1f));
-            AddPortrait("HELENA", "marcus_bell_and_helena_ward", new Rect(0.70f, 0f, 0.30f, 1f));
-        }
-
-        private void AddPortrait(string id, string resourceName, Rect crop)
-        {
-            PortraitDefinition definition = new PortraitDefinition(resourceName, crop);
-            portraits[id] = definition;
-
-            // Current CSV files use display names while the final data contract uses IDs.
-            portraits[GetDisplayName(id)] = definition;
-        }
-
-        private static string GetDisplayName(string id)
-        {
-            switch (id)
-            {
-                case "ADRIAN": return "Adrian Vale";
-                case "CLAIRE": return "Claire Hawthorne";
-                case "DANIEL": return "Daniel Mercer";
-                case "RICHARD": return "Richard Hawthorne";
-                case "EVELYN": return "Evelyn Shaw";
-                case "THOMAS": return "Thomas Reed";
-                case "MARCUS": return "Marcus Bell";
-                case "HELENA": return "Helena Ward";
-                case "OWEN": return "Owen Price";
-                default: return id;
-            }
-        }
-
-        private void ShowPortrait(string speaker)
+        private void ShowPortrait(
+            string speaker,
+            PortraitEmotion emotion = PortraitEmotion.Neutral)
         {
             if (speakerPortrait == null)
             {
                 return;
             }
 
-            string lookup = string.IsNullOrWhiteSpace(speaker) ? string.Empty : speaker.Trim();
-            int modeSeparator = lookup.IndexOf('_');
-            if (modeSeparator > 0)
-            {
-                lookup = lookup.Substring(0, modeSeparator);
-            }
-
-            if (!portraits.TryGetValue(lookup, out PortraitDefinition definition))
-            {
-                // Keep compatibility with the short display names in prototype CSV files.
-                foreach (KeyValuePair<string, PortraitDefinition> pair in portraits)
-                {
-                    if (pair.Key.StartsWith(lookup, StringComparison.OrdinalIgnoreCase) ||
-                        lookup.StartsWith(pair.Key, StringComparison.OrdinalIgnoreCase))
-                    {
-                        definition = pair.Value;
-                        lookup = pair.Key;
-                        break;
-                    }
-                }
-            }
-
-            if (string.IsNullOrEmpty(lookup) || string.IsNullOrEmpty(definition.ResourceName))
-            {
-                speakerPortrait.gameObject.SetActive(false);
-                return;
-            }
-
-            Texture2D texture = Resources.Load<Texture2D>($"Characters/{definition.ResourceName}");
-            if (texture == null)
+            DialoguePortraitAsset asset =
+                DialoguePortraitCatalog.Resolve(speaker, emotion);
+            if (!asset.Found)
             {
                 Debug.LogWarning($"No portrait texture found for speaker '{speaker}'.");
                 speakerPortrait.gameObject.SetActive(false);
                 return;
             }
 
-            speakerPortrait.texture = texture;
-            speakerPortrait.uvRect = definition.Crop;
-            speakerPortraitAspect.aspectRatio =
-                texture.width * definition.Crop.width / (texture.height * definition.Crop.height);
+            speakerPortrait.texture = asset.Texture;
+            speakerPortrait.uvRect = asset.UvRect;
+            speakerPortraitAspect.aspectRatio = asset.AspectRatio;
             speakerPortrait.gameObject.SetActive(true);
         }
 
@@ -336,9 +251,12 @@ namespace Wake.Narrative
 
             DialogueRecord record = productionFlow.Current;
             DialogueSpeakerIdentity speaker = DialoguePresentationMap.GetSpeaker(record.Speaker);
-            speakerText.text = record.Speaker;
+            speakerText.text =
+                DialoguePresentationMap.GetSpeakerLabel(record.Speaker, speaker);
             lineText.text = record.TextKo;
-            ShowPortrait(speaker.PortraitId);
+            ShowPortrait(
+                speaker.PortraitId,
+                DialoguePresentationMap.GetEmotion(record.Emotion));
             FindFirstObjectByType<StatusHUDController>()?.SetContextCharacter(speaker.PortraitId);
         }
 
