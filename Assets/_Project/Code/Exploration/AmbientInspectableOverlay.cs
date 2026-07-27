@@ -185,9 +185,11 @@ namespace Wake.Exploration
             art.raycastTarget = false;
 
             CreateText(panel.transform, spec.Title, 32f, FontStyles.Bold,
-                new Vector2(40f, 158f), new Vector2(-40f, 220f));
+                new Vector2(40f, 158f), new Vector2(-40f, 220f),
+                TypographyRole.Heading);
             CreateText(panel.transform, spec.Description, 22f, FontStyles.Normal,
-                new Vector2(54f, 42f), new Vector2(-54f, 150f));
+                new Vector2(54f, 42f), new Vector2(-54f, 150f),
+                TypographyRole.Body);
         }
 
         private static void CreateText(
@@ -196,7 +198,8 @@ namespace Wake.Exploration
             float size,
             FontStyles style,
             Vector2 offsetMin,
-            Vector2 offsetMax)
+            Vector2 offsetMax,
+            TypographyRole role)
         {
             GameObject textObject = new(
                 "Text", typeof(RectTransform), typeof(TextMeshProUGUI));
@@ -207,7 +210,7 @@ namespace Wake.Exploration
             rect.offsetMin = offsetMin;
             rect.offsetMax = offsetMax;
             TMP_Text label = textObject.GetComponent<TMP_Text>();
-            label.font = StatusHUDController.RuntimeKoreanFont;
+            TypographyService.Apply(label, role);
             label.text = text;
             label.fontSize = size;
             label.fontStyle = style;

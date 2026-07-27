@@ -71,7 +71,7 @@ namespace Wake.Exploration
             labelRect.offsetMin = new Vector2(8f, 4f);
             labelRect.offsetMax = new Vector2(-8f, -4f);
             TMP_Text label = labelObject.GetComponent<TMP_Text>();
-            label.font = StatusHUDController.RuntimeKoreanFont;
+            TypographyService.Apply(label, TypographyRole.Choice);
             label.text =
                 $"{DialoguePortraitCatalog.GetDisplayName(bark.Speaker)}\n대화하기";
             label.fontSize = 18f;
