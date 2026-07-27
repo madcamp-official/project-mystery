@@ -1,4 +1,3 @@
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,7 +12,6 @@ namespace Wake.UI
         private const float HudHeight = 168f;
         private const float TimeFontSize = 46f;
         private const float IndicatorFontSize = 34f;
-        private const float ProgressFontSize = 28f;
         private const float TrustFontSize = 30f;
         private const float IconSize = 44f;
         private const float MarkerSize = 18f;
@@ -49,7 +47,6 @@ namespace Wake.UI
         private TMP_Text timeText;
         private TMP_Text anxietyText;
         private TMP_Text integrityText;
-        private TMP_Text progressText;
         private TMP_Text trustText;
         private Image anxietyFill;
         private Image integrityFill;
@@ -124,14 +121,16 @@ namespace Wake.UI
                 legacyTheoryPanel.gameObject.SetActive(false);
             }
 
-            Transform timePanel = EnsurePanel(root, "Time Badge", 0.01f, 0.17f);
+            Transform timePanel = EnsurePanel(
+                root, "Time Badge", "hud.time", 0.01f, 0.25f);
             timeText = EnsureText(
                 timePanel,
                 "Value",
                 TextAlignmentOptions.Center,
                 TimeFontSize);
 
-            Transform anxietyPanel = EnsurePanel(root, "Anxiety Indicator", 0.18f, 0.42f);
+            Transform anxietyPanel = EnsurePanel(
+                root, "Anxiety Indicator", "hud.anxiety", 0.26f, 0.62f);
             bool hasAnxietyIcon = EnsureIcon(anxietyPanel, "Icon", anxietyIconSprite) != null;
             anxietyText = EnsureText(
                 anxietyPanel,
@@ -143,7 +142,8 @@ namespace Wake.UI
             EnsureMarker(anxietyPanel.Find("Bar"), "Marker70", anxietyMarker70Sprite, 0.7f);
             anxietyPanicOverlay = EnsureOverlay(anxietyPanel, "PanicOverlay", anxietyPanicOverlaySprite);
 
-            Transform integrityPanel = EnsurePanel(root, "Integrity Indicator", 0.43f, 0.67f);
+            Transform integrityPanel = EnsurePanel(
+                root, "Integrity Indicator", "hud.integrity", 0.63f, 0.99f);
             bool hasIntegrityIcon = EnsureIcon(integrityPanel, "Icon", integrityIconSprite) != null;
             integrityText = EnsureText(
                 integrityPanel,
@@ -155,16 +155,9 @@ namespace Wake.UI
             integrityDamageOverlay = EnsureOverlay(integrityPanel, "DamageOverlay", integrityDamageOverlaySprite);
             integrityCriticalOverlay = EnsureOverlay(integrityPanel, "CriticalOverlay", integrityCriticalOverlaySprite);
 
-            Transform progressPanel = EnsurePanel(
-                root,
-                "Investigation Progress",
-                0.68f,
-                0.99f);
-            progressText = EnsureText(
-                progressPanel,
-                "Label",
-                TextAlignmentOptions.Center,
-                ProgressFontSize);
+            Transform progressPanel = root.Find("Investigation Progress");
+            if (progressPanel != null)
+                progressPanel.gameObject.SetActive(false);
 
             Transform portraitFrame = transform.parent?.Find("Ingame/Line Panel/Image");
             if (portraitFrame != null)
@@ -280,10 +273,6 @@ namespace Wake.UI
             SetActiveSafe(integrityDamageOverlay, state.EvidenceIntegrity > 0 && state.EvidenceIntegrity <= 50);
             SetActiveSafe(integrityCriticalOverlay, state.EvidenceIntegrity <= 25);
 
-            progressText.text = InvestigationProgressPresentation.Create(
-                state.CompletedProductionSceneIds,
-                ProductionSceneCatalog.All.Select(scene => scene.SceneId)).Label;
-
             if (trustRoot != null)
             {
                 bool showTrust = !string.IsNullOrWhiteSpace(contextCharacter);
@@ -304,7 +293,6 @@ namespace Wake.UI
                 timeText.text = "DAY 1  ·  AM";
                 anxietyText.text = "승객 불안  15/100";
                 integrityText.text = "현장 보존도  100/100";
-                progressText.text = "수사 진행  0/41";
                 SetFill(anxietyFill, 15);
                 SetFill(integrityFill, 100);
                 SetActiveSafe(anxietyPanicOverlay, false);
@@ -373,6 +361,7 @@ namespace Wake.UI
         private static Transform EnsurePanel(
             RectTransform parent,
             string name,
+            string slotId,
             float anchorMinX,
             float anchorMaxX)
         {
@@ -382,6 +371,7 @@ namespace Wake.UI
             rect.anchorMax = new Vector2(anchorMaxX, 0.92f);
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
+            RuntimeUiLayoutRegistry.CopyLayout(rect, slotId);
             panel.GetComponent<Image>().color = Panel;
             panel.GetComponent<Image>().raycastTarget = false;
             return rect;
@@ -456,7 +446,7 @@ namespace Wake.UI
                 timeText,
                 anxietyText,
                 integrityText,
-                progressText,
+                null,
                 trustText,
                 trustRoot != null ? trustRoot.transform : null);
         }

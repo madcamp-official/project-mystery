@@ -66,8 +66,8 @@ namespace Wake.Tests
             Assert.That(identity.Kind, Is.EqualTo(kind));
         }
 
-        [TestCase("ADRIAN_독백", "Adrian Vale · 독백")]
-        [TestCase("EVELYN_RECORD", "Evelyn Shaw · 기록 음성")]
+        [TestCase("ADRIAN_독백", "에이드리언 베일 · 독백")]
+        [TestCase("EVELYN_RECORD", "에벌린 쇼 · 기록 음성")]
         [TestCase("NARRATION", "내레이션")]
         [TestCase("SYSTEM", "시스템")]
         [TestCase("승무원_NPC", "승무원")]
@@ -81,6 +81,24 @@ namespace Wake.Tests
             Assert.That(
                 DialoguePresentationMap.GetSpeakerLabel(source, identity),
                 Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void PresentationMap_UsesLineTypeForAdrianMonologue()
+        {
+            DialogueSpeakerIdentity identity =
+                DialoguePresentationMap.GetSpeaker(
+                    "ADRIAN",
+                    "monologue");
+
+            Assert.That(
+                identity.Kind,
+                Is.EqualTo(DialogueSpeakerKind.Monologue));
+            Assert.That(
+                DialoguePresentationMap.GetSpeakerLabel(
+                    "ADRIAN",
+                    identity),
+                Is.EqualTo("에이드리언 베일 · 독백"));
         }
 
         [Test]
@@ -194,18 +212,40 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void ReplayingCompletedScene_DoesNotDuplicateSavedProgress()
+        public void CompletedScene_CannotBeStartedAgain()
         {
             host = new GameObject("ReplayProductionScene");
             GameStateManager state = host.AddComponent<GameStateManager>();
             var flow = new ProductionDialogueFlow(records, null, state);
             CompleteScene(flow, "P-01");
 
-            CompleteScene(flow, "P-01");
+            Assert.That(flow.CanStartScene("P-01"), Is.False);
+            Assert.That(flow.StartScene("P-01"), Is.False);
+            Assert.That(state.CompletedProductionSceneIds, Is.EqualTo(
+                new[] { "P-01" }));
+        }
 
+        [Test]
+        public void ReplayingIncompleteChoice_DoesNotApplyTrustTwice()
+        {
+            host = new GameObject("OneShotDialogueEffect");
+            GameStateManager state = host.AddComponent<GameStateManager>();
+            var first = new ProductionDialogueFlow(records, null, state);
+
+            Assert.That(first.StartScene("P-01"), Is.True);
+            AdvanceUntilChoice(first);
+            SelectChoice(first, "P-01_C1");
+            Assert.That(state.GetTrust("DANIEL"), Is.EqualTo(3));
+
+            var restarted = new ProductionDialogueFlow(records, null, state);
+            Assert.That(restarted.StartScene("P-01"), Is.True);
+            AdvanceUntilChoice(restarted);
+            SelectChoice(restarted, "P-01_C1");
+
+            Assert.That(state.GetTrust("DANIEL"), Is.EqualTo(3));
             Assert.That(
-                state.CompletedProductionSceneIds.Count(item => item == "P-01"),
-                Is.EqualTo(1));
+                state.AppliedDialogueEffectIds,
+                Has.Member("p_01_20"));
         }
 
         [Test]

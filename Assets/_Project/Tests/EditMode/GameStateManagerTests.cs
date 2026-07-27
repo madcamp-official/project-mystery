@@ -258,6 +258,35 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void OneShotDialogueAndNpcInteractionIds_AreUniqueAndPersisted()
+        {
+            Assert.That(
+                state.RecordAppliedDialogueEffect(" D1-02_014 "),
+                Is.True);
+            Assert.That(
+                state.RecordAppliedDialogueEffect("d1-02_014"),
+                Is.False);
+            Assert.That(
+                state.RecordCompletedNpcInteraction(
+                    "NPC:BARK:D1-02:DINING:ANX_LOW_04"),
+                Is.True);
+
+            Object.DestroyImmediate(host);
+            state = CreateManager();
+            state.ReloadSavedState();
+
+            Assert.That(
+                state.HasAppliedDialogueEffect("D1-02_014"),
+                Is.True);
+            Assert.That(
+                state.HasCompletedNpcInteraction(
+                    "npc:bark:d1-02:dining:anx_low_04"),
+                Is.True);
+            Assert.That(state.AppliedDialogueEffectIds, Has.Count.EqualTo(1));
+            Assert.That(state.CompletedNpcInteractionIds, Has.Count.EqualTo(1));
+        }
+
+        [Test]
         public void LegacyTheoryFields_AreDiscardedWhileOtherProgressMigrates()
         {
             const string legacyJson =

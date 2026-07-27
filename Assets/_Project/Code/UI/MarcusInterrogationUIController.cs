@@ -196,6 +196,9 @@ namespace Wake.UI
             rootRect.anchorMin = new Vector2(0.5f, 0.5f);
             rootRect.anchorMax = new Vector2(0.5f, 0.5f);
             rootRect.sizeDelta = new Vector2(1000f, 700f);
+            RuntimeUiLayoutRegistry.CopyLayout(
+                rootRect,
+                "modal.marcus-interrogation");
             root.GetComponent<Image>().color = Panel;
 
             MakeText(root.transform, "제한 심문: Marcus", 0.88f, 0.98f, 34f);

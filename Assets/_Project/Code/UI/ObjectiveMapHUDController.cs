@@ -255,6 +255,7 @@ namespace Wake.UI
             rect.pivot = new Vector2(0.5f, 1f);
             rect.anchoredPosition = new Vector2(0f, -180f);
             rect.sizeDelta = new Vector2(660f, 92f);
+            RuntimeUiLayoutRegistry.CopyLayout(rect, "hud.objective");
 
             Image background = root.GetComponent<Image>();
             background.color = PanelColor;

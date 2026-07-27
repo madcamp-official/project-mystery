@@ -301,6 +301,9 @@ namespace Wake.UI
             rootRect.anchorMin = new Vector2(0.5f, 0.5f);
             rootRect.anchorMax = new Vector2(0.5f, 0.5f);
             rootRect.sizeDelta = new Vector2(960f, 640f);
+            RuntimeUiLayoutRegistry.CopyLayout(
+                rootRect,
+                "modal.orpheus-restoration");
             root.GetComponent<Image>().color = Panel;
 
             MakeText(
