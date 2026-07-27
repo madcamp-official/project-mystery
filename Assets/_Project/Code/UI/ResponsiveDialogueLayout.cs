@@ -297,8 +297,18 @@ namespace Wake.UI
 
         private void ConfigureText()
         {
-            ConfigureLabel(lineText, 28f, 44f, TextOverflowModes.Overflow);
-            ConfigureLabel(speakerText, 26f, 40f, TextOverflowModes.Ellipsis);
+            ConfigureLabel(
+                lineText,
+                DialogueTypographyMetrics.LineMinimum,
+                DialogueTypographyMetrics.LineMaximum,
+                DialogueTypographyMetrics.BodyLineSpacing,
+                TextOverflowModes.Overflow);
+            ConfigureLabel(
+                speakerText,
+                DialogueTypographyMetrics.SpeakerMinimum,
+                DialogueTypographyMetrics.SpeakerMaximum,
+                DialogueTypographyMetrics.HeadingLineSpacing,
+                TextOverflowModes.Ellipsis);
             if (textPanel == null || lineText == null)
                 return;
 
@@ -368,8 +378,9 @@ namespace Wake.UI
                 TMP_Text label = button.GetComponentInChildren<TMP_Text>();
                 ConfigureLabel(
                     label,
-                    24f,
-                    34f,
+                    DialogueTypographyMetrics.ChoiceMinimum,
+                    DialogueTypographyMetrics.ChoiceMaximum,
+                    DialogueTypographyMetrics.ChoiceLineSpacing,
                     TextOverflowModes.Ellipsis);
             }
         }
@@ -393,6 +404,7 @@ namespace Wake.UI
             TMP_Text label,
             float minimumSize,
             float maximumSize,
+            float lineSpacing,
             TextOverflowModes overflowMode)
         {
             if (label == null)
@@ -400,6 +412,7 @@ namespace Wake.UI
             label.enableAutoSizing = true;
             label.fontSizeMin = minimumSize;
             label.fontSizeMax = maximumSize;
+            label.lineSpacing = lineSpacing;
             label.textWrappingMode = TextWrappingModes.Normal;
             label.overflowMode = overflowMode;
         }
