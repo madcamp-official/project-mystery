@@ -10,7 +10,7 @@ namespace Wake.Tests
         [Test]
         public void WorkbookAmbientBarks_AreAllRepresented()
         {
-            Assert.That(AmbientBarkCatalog.All, Has.Count.EqualTo(32));
+            Assert.That(AmbientBarkCatalog.All.Count, Is.EqualTo(32));
             Assert.That(
                 AmbientBarkCatalog.All.Select(item => item.Id),
                 Is.Unique);
@@ -50,7 +50,7 @@ namespace Wake.Tests
         [Test]
         public void InspectableMacguffins_HaveUniqueContentAndValidCrops()
         {
-            Assert.That(AmbientInspectableCatalog.All, Has.Count.EqualTo(9));
+            Assert.That(AmbientInspectableCatalog.All.Count, Is.EqualTo(9));
             Assert.That(
                 AmbientInspectableCatalog.All.Select(item => item.Id),
                 Is.Unique);
@@ -84,6 +84,22 @@ namespace Wake.Tests
             Assert.That(
                 passengerA.FallbackTexture,
                 Is.EqualTo("AmbientCharacters/passenger_a"));
+        }
+
+        [Test]
+        public void SharedPassengerDisplayName_DoesNotBreakPortraitLookup()
+        {
+            Assert.That(
+                DialoguePortraitCatalog.TryGet(
+                    "승객",
+                    out DialoguePortraitDefinition genericPassenger),
+                Is.True);
+            Assert.That(
+                genericPassenger.CharacterId,
+                Is.EqualTo("PASSENGER_A"));
+            Assert.That(
+                DialoguePortraitCatalog.GetDisplayName("PASSENGER_F"),
+                Is.EqualTo("승객"));
         }
     }
 }

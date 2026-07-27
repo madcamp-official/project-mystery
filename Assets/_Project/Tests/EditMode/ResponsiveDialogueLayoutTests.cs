@@ -244,6 +244,27 @@ namespace Wake.Tests
                 Is.EqualTo(rig.AuthoredLineTextSize).Using(Vector2Comparer));
         }
 
+        [Test]
+        public void ResetTextScroll_DoesNotOverrideInspectorAuthoredLayout()
+        {
+            using LayoutRig rig = new(1920f, 1080f);
+            RectTransform lineRect = rig.LineText.rectTransform;
+            Vector2 position = lineRect.anchoredPosition;
+            Vector2 size = lineRect.sizeDelta;
+            TextOverflowModes overflow = rig.LineText.overflowMode;
+
+            // DialogueController invokes this for every presented line.
+            // The compatibility hook must remain layout-neutral now that
+            // scrolling is intentionally disabled.
+            rig.Layout.ResetTextScroll();
+
+            Assert.That(lineRect.anchoredPosition,
+                Is.EqualTo(position).Using(Vector2Comparer));
+            Assert.That(lineRect.sizeDelta,
+                Is.EqualTo(size).Using(Vector2Comparer));
+            Assert.That(rig.LineText.overflowMode, Is.EqualTo(overflow));
+        }
+
         private static readonly Vector2EqualityComparer Vector2Comparer =
             new(0.01f);
 

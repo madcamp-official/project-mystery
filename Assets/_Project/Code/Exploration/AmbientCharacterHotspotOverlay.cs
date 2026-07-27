@@ -48,14 +48,17 @@ namespace Wake.Exploration
                 typeof(Outline));
             target.transform.SetParent(contentRect, false);
             RectTransform rect = target.GetComponent<RectTransform>();
-            float center = .5f + (index - (count - 1) * .5f) * .15f;
-            rect.anchorMin = new Vector2(center, .03f);
-            rect.anchorMax = new Vector2(center, .03f);
+            AmbientCharacterPlacement placement =
+                AmbientInteractionPresentation.CharacterPlacement(
+                    index,
+                    count);
+            rect.anchorMin = new Vector2(placement.AnchorX, .03f);
+            rect.anchorMax = new Vector2(placement.AnchorX, .03f);
             rect.pivot = new Vector2(.5f, 0f);
-            rect.sizeDelta = new Vector2(150f, 64f);
+            rect.sizeDelta = placement.Size;
 
             Image image = target.GetComponent<Image>();
-            image.color = new Color32(24, 31, 46, 238);
+            image.color = Color.white;
             Outline outline = target.GetComponent<Outline>();
             outline.effectColor = new Color32(210, 164, 83, 230);
             outline.effectDistance = new Vector2(2f, -2f);
@@ -71,15 +74,16 @@ namespace Wake.Exploration
             labelRect.offsetMin = new Vector2(8f, 4f);
             labelRect.offsetMax = new Vector2(-8f, -4f);
             TMP_Text label = labelObject.GetComponent<TMP_Text>();
-            label.font = StatusHUDController.RuntimeKoreanFont;
-            label.text =
-                $"{DialoguePortraitCatalog.GetDisplayName(bark.Speaker)}\n대화하기";
+            TypographyService.Apply(label, TypographyRole.Body);
+            label.text = AmbientInteractionPresentation.CharacterLabel(
+                DialoguePortraitCatalog.GetDisplayName(bark.Speaker));
             label.fontSize = 18f;
             label.alignment = TextAlignmentOptions.Center;
             label.color = Color.white;
             label.raycastTarget = false;
 
             Button button = target.GetComponent<Button>();
+            button.colors = AmbientInteractionPresentation.CharacterColors();
             button.onClick.AddListener(() =>
                 DialogueController.Instance?.StartAmbientLine(
                     bark.Speaker,
