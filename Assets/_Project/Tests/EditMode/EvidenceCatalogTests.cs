@@ -59,6 +59,8 @@ namespace Wake.Tests
             {
                 Assert.That(entry.DisplayName, Is.Not.Empty, entry.Id);
                 Assert.That(entry.Description, Is.Not.Empty, entry.Id);
+                Assert.That(entry.SourceScenes, Is.Not.Empty, entry.Id);
+                Assert.That(entry.ArgumentRole, Is.Not.Empty, entry.Id);
                 Assert.That(entry.Category, Is.Not.Empty, entry.Id);
                 Assert.That(entry.DisplayName.IndexOf('\uFFFD'), Is.EqualTo(-1), entry.Id);
                 Assert.That(entry.Description.IndexOf('\uFFFD'), Is.EqualTo(-1), entry.Id);
@@ -66,6 +68,51 @@ namespace Wake.Tests
                 Assert.That(entry.Description, Does.Not.Contain("???"), entry.Id);
                 Assert.That(entry.GrantLineIds, Is.Not.Empty, entry.Id);
             }
+        }
+
+        [Test]
+        public void Catalog_UsesEvidenceMasterSourceScenesAndArgumentRoles()
+        {
+            Assert.That(EvidenceMasterCatalog.All, Has.Count.EqualTo(18));
+            foreach (EvidenceMasterRecord master in EvidenceMasterCatalog.All)
+            {
+                Assert.That(
+                    CanonicalEvidenceCatalog.TryGet(
+                        master.EvidenceId,
+                        out CanonicalEvidenceEntry entry),
+                    Is.True,
+                    master.EvidenceId);
+                Assert.That(
+                    entry.DisplayName,
+                    Is.EqualTo(master.DisplayName),
+                    master.EvidenceId);
+                Assert.That(
+                    entry.Description,
+                    Is.EqualTo(master.Interpretation),
+                    master.EvidenceId);
+                Assert.That(
+                    entry.SourceScenes,
+                    Is.EqualTo(master.SourceScenes),
+                    master.EvidenceId);
+                Assert.That(
+                    entry.ArgumentRole,
+                    Is.EqualTo(master.ArgumentRole),
+                    master.EvidenceId);
+                Assert.That(
+                    master.SourceScenes.All(sceneId =>
+                        ProductionSceneCatalog.TryGet(sceneId, out _)),
+                    Is.True,
+                    master.EvidenceId);
+            }
+
+            Assert.That(
+                EvidenceMasterCatalog.All.Single(item =>
+                    item.EvidenceId == "C-01").SourceScenes,
+                Is.EqualTo(new[] { "P-01", "P-02", "D7-04" }));
+            Assert.That(
+                EvidenceMasterCatalog.All.Single(item =>
+                    item.EvidenceId == "C-18").ArgumentRole,
+                Is.EqualTo("완전 엔딩"));
         }
 
         [Test]

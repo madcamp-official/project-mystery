@@ -17,6 +17,8 @@ namespace Wake.Evidence
         public string Id { get; }
         public string DisplayName { get; }
         public string Description { get; }
+        public IReadOnlyList<string> SourceScenes { get; }
+        public string ArgumentRole { get; }
         public string Category { get; }
         public bool IsDirect { get; }
         public CanonicalEvidenceGrantMode GrantMode { get; }
@@ -48,10 +50,35 @@ namespace Wake.Evidence
             bool isDirect,
             CanonicalEvidenceGrantMode grantMode,
             params string[] grantLineIds)
+            : this(
+                id,
+                displayName,
+                description,
+                Array.Empty<string>(),
+                string.Empty,
+                category,
+                isDirect,
+                grantMode,
+                grantLineIds)
+        {
+        }
+
+        internal CanonicalEvidenceEntry(
+            string id,
+            string displayName,
+            string description,
+            IReadOnlyList<string> sourceScenes,
+            string argumentRole,
+            string category,
+            bool isDirect,
+            CanonicalEvidenceGrantMode grantMode,
+            params string[] grantLineIds)
         {
             Id = id;
             DisplayName = displayName;
             Description = description;
+            SourceScenes = sourceScenes ?? Array.Empty<string>();
+            ArgumentRole = argumentRole ?? string.Empty;
             Category = category;
             IsDirect = isDirect;
             GrantMode = grantMode;
@@ -63,61 +90,28 @@ namespace Wake.Evidence
     {
         private static readonly CanonicalEvidenceEntry[] Entries =
         {
-            new("C-01", "Daniel의 초대장",
-                "Richard 전자서명은 진짜지만 발송 서버는 비서실이다.",
-                "invitation", false, "p_01_05", "p_02_14"),
-            new("C-02", "열린 출입문",
-                "잠금 트릭이 아니라 출입 흔적 부재가 문제다.",
-                "exit", true, "d1_06_10"),
-            new("C-03", "외벽 발판",
-                "염분막과 센서 기록이 온전하다.",
-                "exit", true, CanonicalEvidenceGrantMode.Interaction, "d2_01_09"),
-            new("C-04", "덕트 먼지",
-                "통과 흔적이 없다.",
-                "exit", true, CanonicalEvidenceGrantMode.Interaction, "d2_01_13"),
-            new("C-05", "점검구 먼지",
-                "먼지가 균일하게 유지되어 있다.",
-                "exit", true, CanonicalEvidenceGrantMode.Interaction, "d2_01_17"),
-            new("C-06", "구두 밑창",
-                "Horizon 카펫이 아니라 Ballast 바닥 고무가 묻어 있다.",
-                "forensic", true, "d6_03_05"),
-            new("C-07", "혈흔 중심",
-                "상처 위치와 혈흔 중심이 일치하지 않는다.",
-                "forensic", true, "d2_02_14"),
-            new("C-08", "화재감지기 오류",
-                "22:18 천장 레일 통과 시각에 오류가 기록됐다.",
-                "timeline", false, "d2_04_06", "d2_04_14"),
-            new("C-09", "안정화 로그",
-                "86kg이 7층에서 8층으로 이동했다.",
-                "transport", false, "d6_01_10"),
-            new("C-10", "운반백 자국",
-                "어깨와 허리에 압박 흔적이 남아 있다.",
-                "transport", true, "d6_04_10"),
-            new("C-11", "안정제",
-                "사망 시각 오판에 기여했다.",
-                "medical", true, "d2_03_07"),
-            new("C-12", "질소 로그",
-                "Daniel의 실제 직접 사인을 입증한다.",
-                "medical", false, "d6_03_16"),
-            new("C-13", "익명 채팅",
-                "Richard 유죄 가설을 강화하는 선택적 진실이다.",
-                "communication", false, "d5_03_08"),
-            new("C-14", "문장 습관",
-                "Evelyn이 반복해서 사용하는 표현이다.",
-                "communication", false, "d3_05_10"),
-            new("C-15", "Marcus 인증",
-                "금고 접근을 지원한 인증 기록이다.",
-                "authentication", false,
-                CanonicalEvidenceGrantMode.Interaction, "d4_04_15"),
-            new("C-16", "보호면 DNA",
-                "Daniel과 Evelyn의 직접 접촉을 입증한다.",
-                "identity", true, "d7_02_06"),
-            new("C-17", "Orpheus 음성",
-                "Richard의 무지와 Evelyn의 계획을 분리한다.",
-                "history", false, "d7_03_15"),
-            new("C-18", "수정 기사",
-                "피해자의 오판을 사후에 바로잡는다.",
-                "resolution", false, "d8_03_12")
+            Create("C-01", "invitation", false, "p_01_05", "p_02_14"),
+            Create("C-02", "exit", true, "d1_06_10"),
+            CreateInteraction("C-03", "exit", true, "d2_01_09"),
+            CreateInteraction("C-04", "exit", true, "d2_01_13"),
+            CreateInteraction("C-05", "exit", true, "d2_01_17"),
+            Create("C-06", "forensic", true, "d6_03_05"),
+            Create("C-07", "forensic", true, "d2_02_14"),
+            Create("C-08", "timeline", false, "d2_04_06", "d2_04_14"),
+            Create("C-09", "transport", false, "d6_01_10"),
+            Create("C-10", "transport", true, "d6_04_10"),
+            Create("C-11", "medical", true, "d2_03_07"),
+            Create("C-12", "medical", false, "d6_03_16"),
+            Create("C-13", "communication", false, "d5_03_08"),
+            Create("C-14", "communication", false, "d3_05_10"),
+            CreateInteraction(
+                "C-15",
+                "authentication",
+                false,
+                "d4_04_15"),
+            Create("C-16", "identity", true, "d7_02_06"),
+            Create("C-17", "history", false, "d7_03_15"),
+            Create("C-18", "resolution", false, "d8_03_12")
         };
 
         private static readonly IReadOnlyDictionary<string, CanonicalEvidenceEntry> ById =
@@ -135,6 +129,61 @@ namespace Wake.Evidence
                     StringComparer.Ordinal);
 
         public static IReadOnlyList<CanonicalEvidenceEntry> All => Entries;
+
+        private static CanonicalEvidenceEntry Create(
+            string id,
+            string category,
+            bool isDirect,
+            params string[] grantLineIds)
+        {
+            return Create(
+                id,
+                category,
+                isDirect,
+                CanonicalEvidenceGrantMode.DialogueEffect,
+                grantLineIds);
+        }
+
+        private static CanonicalEvidenceEntry CreateInteraction(
+            string id,
+            string category,
+            bool isDirect,
+            params string[] grantLineIds)
+        {
+            return Create(
+                id,
+                category,
+                isDirect,
+                CanonicalEvidenceGrantMode.Interaction,
+                grantLineIds);
+        }
+
+        private static CanonicalEvidenceEntry Create(
+            string id,
+            string category,
+            bool isDirect,
+            CanonicalEvidenceGrantMode grantMode,
+            params string[] grantLineIds)
+        {
+            if (!EvidenceMasterCatalog.TryGet(
+                    id,
+                    out EvidenceMasterRecord metadata))
+            {
+                throw new InvalidOperationException(
+                    $"Evidence_Master metadata is missing: {id}");
+            }
+
+            return new CanonicalEvidenceEntry(
+                metadata.EvidenceId,
+                metadata.DisplayName,
+                metadata.Interpretation,
+                metadata.SourceScenes,
+                metadata.ArgumentRole,
+                category,
+                isDirect,
+                grantMode,
+                grantLineIds);
+        }
 
         public static bool TryGet(string evidenceId, out CanonicalEvidenceEntry entry)
         {

@@ -87,6 +87,8 @@ namespace Wake.Tests
                 EvidencePanelPresentation.Create(inventory, 100).Items[0];
             Assert.That(item.Title, Does.Contain("수정 기사"));
             Assert.That(item.Detail, Does.Contain("피해자의 오판"));
+            Assert.That(item.Detail, Does.Contain("논증 역할 · 완전 엔딩"));
+            Assert.That(item.Detail, Does.Contain("획득 장면 · D8-03"));
             Assert.That(item.HasImage, Is.False);
         }
 

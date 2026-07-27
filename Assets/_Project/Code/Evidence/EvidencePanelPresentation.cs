@@ -158,12 +158,17 @@ namespace Wake.Evidence
             string warning = unreliable
                 ? "\n현장 훼손으로 직접 증거의 신뢰성이 사라졌습니다."
                 : string.Empty;
+            string source =
+                string.Join(" · ", entry.SourceScenes);
             return new EvidencePanelItem(
                 entry,
                 definition,
                 state,
                 $"{entry.Id} · {entry.DisplayName}",
-                $"[{reliability}]\n{entry.Description}{warning}",
+                $"[{reliability}]\n" +
+                $"논증 역할 · {entry.ArgumentRole}\n" +
+                $"획득 장면 · {source}\n" +
+                $"{entry.Description}{warning}",
                 $"{entry.Id}\n{(unreliable ? "무결성 저하" : entry.DisplayName)}");
         }
     }
