@@ -294,7 +294,7 @@ namespace Wake.UI
         private static readonly Color Gold = new(0.79f, 0.60f, 0.29f, 1f);
         private static readonly Color Ivory = new(0.94f, 0.89f, 0.78f, 1f);
 
-        private void Start()
+        private void Awake()
         {
             Build();
         }
