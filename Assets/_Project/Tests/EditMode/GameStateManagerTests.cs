@@ -195,7 +195,7 @@ namespace Wake.Tests
 
             Assert.That(state.HasUnlockedDeduction("deduction_a"), Is.True);
             Assert.That(state.HasUnlockedDeduction(" deduction_a "), Is.True);
-            Assert.That(state.UnlockedDeductionIds, Is.EqualTo(new[] { "DEDUCTION_A" }));
+            Assert.That(state.UnlockedDeductionIds, Is.EqualTo(new[] { "deduction_a" }));
         }
 
         [Test]
@@ -269,6 +269,9 @@ namespace Wake.Tests
                 "\"currentLocationCode\":\"HORIZON\"}";
 
             PlayerPrefs.SetString("THE_WAKE_GAME_STATE_V1", legacyJson);
+            PlayerPrefs.DeleteKey(SaveKey);
+            PlayerPrefs.DeleteKey(SaveKey + "_BACKUP");
+            PlayerPrefs.DeleteKey(SaveKey + "_PENDING");
             state.ReloadSavedState();
 
             Assert.That(state.CompletedProductionSceneIds, Is.Empty);
@@ -291,6 +294,9 @@ namespace Wake.Tests
                 "{\"completedProductionSceneIds\":[\" p-01 \",\"P-01\",\"\",\"d1-01\"]}";
 
             PlayerPrefs.SetString("THE_WAKE_GAME_STATE_V1", malformedJson);
+            PlayerPrefs.DeleteKey(SaveKey);
+            PlayerPrefs.DeleteKey(SaveKey + "_BACKUP");
+            PlayerPrefs.DeleteKey(SaveKey + "_PENDING");
             state.ReloadSavedState();
 
             Assert.That(
@@ -371,7 +377,7 @@ namespace Wake.Tests
             string savedJson = PlayerPrefs.GetString(SaveKey);
 
             Assert.That(savedJson, Does.Contain("\"unlockedDeductionIds\""));
-            Assert.That(savedJson, Does.Contain("TRANSPORT_ROUTE"));
+            Assert.That(savedJson, Does.Contain("transport_route"));
             Assert.That(savedJson, Does.Not.Contain("\"theorySlots\""));
             Assert.That(savedJson, Does.Not.Contain("\"activeTheories\""));
         }

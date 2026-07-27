@@ -18,6 +18,7 @@ namespace Wake.Tests.PlayMode
         {
             yield return CompleteOpeningScene();
             State.RecordCompletedScene("D1-03");
+            State.UnlockProductionScene("D1-04");
             Assert.That(State.CurrentLocationCode, Is.EqualTo("PORT"));
 
             Ui.ShowMap();
@@ -68,19 +69,5 @@ namespace Wake.Tests.PlayMode
             AssertNoRuntimeErrors("공식 장면 배경 위치 매핑");
         }
 
-        private IEnumerator CompleteOpeningScene()
-        {
-            yield return StartNewGameFromVisibleButton();
-            Button next =
-                RequireComponent<Button>("Ingame/Line Panel/Panel/Next");
-            for (int index = 0; index < 5; index++)
-            {
-                yield return InvokeAndSettle(next);
-            }
-
-            yield return InvokeAndSettle(
-                RequireComponent<Button>(
-                    "Ingame/Line Panel/Select Btn/Choice"));
-        }
     }
 }

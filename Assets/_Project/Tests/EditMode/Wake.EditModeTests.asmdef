@@ -3,7 +3,9 @@
   "rootNamespace": "Wake.Tests",
   "references": [
     "Wake.Runtime",
-    "Wake.Editor"
+    "Wake.Editor",
+    "Unity.TextMeshPro",
+    "UnityEngine.UI"
   ],
   "includePlatforms": [
     "Editor"

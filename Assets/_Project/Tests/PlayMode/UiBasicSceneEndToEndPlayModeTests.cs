@@ -47,7 +47,8 @@ namespace Wake.Tests.PlayMode
             Assert.That(State.DialogueCheckpoint.activeSceneId,
                 Is.EqualTo("D2-01"));
 
-            Assert.That(EvidenceInventory.Instance.TryAddById("C-01"), Is.True);
+            Assert.That(EvidenceInventory.Instance.Contains("C-01"), Is.True);
+            Assert.That(EvidenceInventory.Instance.TryAddById("C-01"), Is.False);
             Ui.ShowEvidence();
             yield return null;
             Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Evidence));
@@ -178,21 +179,9 @@ namespace Wake.Tests.PlayMode
             AssertNoRuntimeErrors("같은 씬에서 새 수사 재시작");
         }
 
-        private IEnumerator CompleteOpeningScene()
-        {
-            yield return StartNewGameFromVisibleButton();
-            Button next =
-                RequireComponent<Button>("Ingame/Line Panel/Panel/Next");
-            for (int index = 0; index < 5; index++)
-            {
-                yield return InvokeAndSettle(next);
-            }
-            yield return InvokeAndSettle(RequireComponent<Button>(
-                "Ingame/Line Panel/Select Btn/Choice"));
-        }
-
         private IEnumerator SelectSceneFromMap(string sceneId)
         {
+            State.UnlockProductionScene(sceneId);
             Ui.ShowMap();
             yield return null;
             yield return null;

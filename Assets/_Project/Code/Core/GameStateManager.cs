@@ -218,7 +218,7 @@ namespace Wake.Core
 
         public void RecordEvidenceCollected(string evidenceId)
         {
-            string normalized = NormalizeId(evidenceId);
+            string normalized = NormalizeCanonicalId(evidenceId);
             if (string.IsNullOrEmpty(normalized) || data.collectedEvidenceIds.Contains(normalized))
             {
                 return;
@@ -436,14 +436,14 @@ namespace Wake.Core
 
         public bool HasUnlockedDeduction(string deductionId)
         {
-            string normalized = NormalizeId(deductionId);
+            string normalized = NormalizeDeductionId(deductionId);
             return !string.IsNullOrEmpty(normalized) &&
                    data.unlockedDeductionIds.Contains(normalized);
         }
 
         public bool UnlockDeduction(string deductionId)
         {
-            string normalized = NormalizeId(deductionId);
+            string normalized = NormalizeDeductionId(deductionId);
             if (string.IsNullOrEmpty(normalized) ||
                 data.unlockedDeductionIds.Contains(normalized))
             {
@@ -472,7 +472,7 @@ namespace Wake.Core
 
         public void RecordLocation(string locationCode)
         {
-            string normalized = NormalizeId(locationCode);
+            string normalized = NormalizeCanonicalId(locationCode);
             if (string.IsNullOrEmpty(normalized) || data.currentLocationCode == normalized)
             {
                 return;
@@ -555,7 +555,7 @@ namespace Wake.Core
 
         public bool HasFlag(string flag)
         {
-            string normalized = NormalizeId(flag);
+            string normalized = NormalizeObjectiveId(flag);
             return !string.IsNullOrEmpty(normalized) && data.flags.Contains(normalized);
         }
 
@@ -573,7 +573,7 @@ namespace Wake.Core
 
         public void RemoveFlag(string flag)
         {
-            if (!data.flags.Remove(NormalizeId(flag)))
+            if (!data.flags.Remove(NormalizeObjectiveId(flag)))
             {
                 return;
             }
@@ -706,7 +706,7 @@ namespace Wake.Core
 
         private bool AddFlagInternal(string flag)
         {
-            string normalized = NormalizeId(flag);
+            string normalized = NormalizeObjectiveId(flag);
             if (string.IsNullOrEmpty(normalized) || data.flags.Contains(normalized))
             {
                 return false;
@@ -775,12 +775,22 @@ namespace Wake.Core
 
         private static string NormalizeSceneId(string value)
         {
+            return NormalizeCanonicalId(value);
+        }
+
+        private static string NormalizeCanonicalId(string value)
+        {
             return NormalizeId(value).ToUpperInvariant();
         }
 
         private static string NormalizeObjectiveId(string value)
         {
             return NormalizeId(value).ToLowerInvariant();
+        }
+
+        private static string NormalizeDeductionId(string value)
+        {
+            return NormalizeObjectiveId(value).Replace(' ', '_');
         }
 
         private static List<string> NormalizeSceneIds(IEnumerable<string> values)
@@ -810,7 +820,11 @@ namespace Wake.Core
             data.publicAnxiety = Mathf.Clamp(data.publicAnxiety, 0, MaxPercent);
             data.evidenceIntegrity = Mathf.Clamp(data.evidenceIntegrity, 0, MaxPercent);
             data.trust ??= new List<CharacterTrustState>();
-            data.flags ??= new List<string>();
+            data.flags = (data.flags ?? new List<string>())
+                .Select(NormalizeObjectiveId)
+                .Where(value => !string.IsNullOrEmpty(value))
+                .Distinct()
+                .ToList();
             data.collectedEvidenceIds ??= new List<string>();
             data.completedProductionSceneIds =
                 NormalizeSceneIds(data.completedProductionSceneIds);
@@ -935,7 +949,7 @@ namespace Wake.Core
 
             foreach (string value in values)
             {
-                string id = NormalizeId(value);
+                string id = NormalizeDeductionId(value);
                 if (!string.IsNullOrEmpty(id) && !normalized.Contains(id))
                 {
                     normalized.Add(id);

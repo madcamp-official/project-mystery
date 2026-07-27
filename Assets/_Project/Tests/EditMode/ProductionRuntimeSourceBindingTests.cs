@@ -70,13 +70,14 @@ namespace Wake.Tests
 
             Assert.That(parsed.Success, Is.True, string.Join("\n", parsed.Errors));
             Assert.That(
-                parsed.Records,
-                Has.Count.EqualTo(
+                parsed.Records.Count,
+                Is.EqualTo(
                     OfficialDialogueContractValidator.ExpectedDialogueCount));
             Assert.That(
                 parsed.Records.Select(record => record.SceneId)
-                    .Distinct(StringComparer.Ordinal),
-                Has.Count.EqualTo(
+                    .Distinct(StringComparer.Ordinal)
+                    .Count(),
+                Is.EqualTo(
                     OfficialDialogueContractValidator.ExpectedSceneCount));
             Assert.That(
                 parsed.Records.Count(record =>
@@ -99,8 +100,9 @@ namespace Wake.Tests
                 Is.True);
             Assert.That(
                 records.Select(record => record.LineId)
-                    .Distinct(StringComparer.Ordinal),
-                Has.Count.EqualTo(records.Length));
+                    .Distinct(StringComparer.Ordinal)
+                    .Count(),
+                Is.EqualTo(records.Length));
             Assert.That(records[0].LineId, Is.EqualTo("P-01_001"));
             Assert.That(records[0].CanonicalLineId, Is.EqualTo("P-01_001"));
             Assert.That(records[0].StableLineId, Is.EqualTo("p_01_01"));

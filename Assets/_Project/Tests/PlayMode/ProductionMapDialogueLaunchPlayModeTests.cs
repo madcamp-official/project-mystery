@@ -80,8 +80,7 @@ namespace Wake.Tests.PlayMode
             Assert.That(result.IsAllowed, Is.False);
             Assert.That(
                 result.DenialReason,
-                Is.EqualTo(
-                    SceneAccessDenialReason.PrerequisiteSceneIncomplete));
+                Is.EqualTo(SceneAccessDenialReason.SceneNotUnlocked));
             Assert.That(State.CurrentLocationCode, Is.Empty);
             Assert.That(Dialogue.IsBusy, Is.False);
             Assert.That(Dialogue.ActiveProductionSceneId, Is.Empty);
@@ -120,6 +119,7 @@ namespace Wake.Tests.PlayMode
             yield return StartNewGameFromVisibleButton();
             Assert.That(Dialogue.ActiveProductionSceneId, Is.EqualTo("P-01"));
             State.RecordCompletedScene("P-01");
+            State.UnlockProductionScene("P-02");
             MapController map = RequireMap();
 
             SceneTravelResult result = map.TryTravelToScene("P-02");
@@ -135,21 +135,6 @@ namespace Wake.Tests.PlayMode
                 State.DialogueCheckpoint.activeSceneId,
                 Is.EqualTo("P-01"));
             AssertNoRuntimeErrors("진행 중 대화의 이중 시작 방지");
-        }
-
-        private IEnumerator CompleteOpeningScene()
-        {
-            yield return StartNewGameFromVisibleButton();
-            Button next =
-                RequireComponent<Button>("Ingame/Line Panel/Panel/Next");
-            for (int index = 0; index < 5; index++)
-            {
-                yield return InvokeAndSettle(next);
-            }
-
-            yield return InvokeAndSettle(
-                RequireComponent<Button>(
-                    "Ingame/Line Panel/Select Btn/Choice"));
         }
 
         private IEnumerator WaitForMap()

@@ -23,12 +23,7 @@ namespace Wake.Tests.PlayMode
             State.RecordCompletedScene("D1-07");
             Ui.ShowIngame();
             Assert.That(Dialogue.StartProductionScene("D2-01"), Is.True);
-            Button next =
-                RequireComponent<Button>("Ingame/Line Panel/Panel/Next");
-            for (int line = 0; line < 5; line++)
-            {
-                yield return InvokeAndSettle(next);
-            }
+            yield return CompleteActiveProductionDialogue();
 
             ExitInspectionUIController controller = RequireObject("Ingame")
                 .GetComponent<ExitInspectionUIController>();

@@ -41,7 +41,7 @@ namespace Wake.Tests
         public void Validator_ReportsVoiceValueWithSourceRow()
         {
             DialogueValidationReport report = DialogueContentValidator.Validate(
-                csv.Replace(",N\r\n", ",MAYBE\r\n"));
+                ReplaceFirst(csv, ",UI,N,,", ",UI,MAYBE,,"));
             DialogueDiagnostic diagnostic = report.Diagnostics.First(item =>
                 item.Code == "VOICE_VALUE");
             Assert.That(diagnostic.SourceRow, Is.GreaterThan(1));
@@ -73,7 +73,7 @@ namespace Wake.Tests
         public void Validator_ReportsMissingConditionScene()
         {
             DialogueValidationReport report = DialogueContentValidator.Validate(
-                csv.Replace("choice(P-01_C1)", "choice(P-99_C1)"));
+                ReplaceFirst(csv, "choice(P-01_C1)", "P-99"));
             Assert.That(
                 report.Diagnostics.Any(item => item.Code == "CONDITION_SCENE_MISSING"),
                 Is.True);
@@ -105,13 +105,25 @@ namespace Wake.Tests
         public void Validator_ReportsInvalidOfficialEffectDsl()
         {
             DialogueValidationReport report = DialogueContentValidator.Validate(
-                csv.Replace("evidence:C-01", "evidence:"));
+                ReplaceFirst(csv, "evidence:C-01", "evidence:"));
 
             DialogueDiagnostic diagnostic = report.Diagnostics.Single(item =>
                 item.Code == "EFFECT_INVALID");
             Assert.That(diagnostic.Field, Is.EqualTo("next_or_effect"));
             Assert.That(diagnostic.SourceRow, Is.GreaterThan(1));
             Assert.That(diagnostic.Message, Does.Contain("no value"));
+        }
+
+        private static string ReplaceFirst(
+            string source,
+            string oldValue,
+            string newValue)
+        {
+            int index = source.IndexOf(oldValue, System.StringComparison.Ordinal);
+            Assert.That(index, Is.GreaterThanOrEqualTo(0), oldValue);
+            return source.Substring(0, index) +
+                   newValue +
+                   source.Substring(index + oldValue.Length);
         }
     }
 }

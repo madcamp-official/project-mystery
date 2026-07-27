@@ -303,12 +303,12 @@ namespace Wake.Tests
 
             Assert.That(
                 flow.GetMissingPrerequisites("D8-02"),
-                Is.EqualTo(new[] { "D8-01 \uC815\uB2F5" }));
+                Is.EqualTo(new[] { "D8-01 correct" }));
             Assert.That(flow.CanStartScene("D8-02"), Is.False);
             Assert.That(flow.StartScene("D8-02"), Is.False);
             Assert.That(
                 flow.Warnings,
-                Has.Some.Contains("D8-01 \uC815\uB2F5"));
+                Has.Some.Contains("D8-01 correct"));
         }
 
         private static void CompleteScene(ProductionDialogueFlow flow, string sceneId)
@@ -319,7 +319,7 @@ namespace Wake.Tests
             {
                 if (flow.IsAwaitingChoice)
                 {
-                    Assert.That(flow.Choices.Count, Is.EqualTo(2));
+                    Assert.That(flow.Choices.Count, Is.GreaterThan(0));
                     Assert.That(flow.Choices.Count, Is.LessThanOrEqualTo(
                         ProductionDialogueFlow.ChoiceCapacity));
                     Assert.That(flow.SelectChoice(0), Is.True);

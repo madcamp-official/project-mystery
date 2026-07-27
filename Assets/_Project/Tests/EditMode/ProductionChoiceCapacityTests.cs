@@ -11,7 +11,7 @@ namespace Wake.Tests
         {
             ProductionDialogueFlow flow = CreateFlow(8);
 
-            Assert.That(flow.StartScene("D4-04"), Is.True);
+            Assert.That(flow.StartScene("TEST"), Is.True);
             Assert.That(flow.IsAwaitingChoice, Is.True);
             Assert.That(
                 flow.Choices.Select(record => record.ChoiceId),
@@ -24,12 +24,12 @@ namespace Wake.Tests
         public void Flow_CanSelectLastChoiceAndCompleteScene()
         {
             ProductionDialogueFlow flow = CreateFlow(8);
-            flow.StartScene("D4-04");
+            flow.StartScene("TEST");
 
             Assert.That(flow.SelectChoice(7), Is.True);
             Assert.That(flow.IsAwaitingChoice, Is.False);
             Assert.That(flow.IsComplete, Is.True);
-            Assert.That(flow.IsSceneCompleted("D4-04"), Is.True);
+            Assert.That(flow.IsSceneCompleted("TEST"), Is.True);
         }
 
         [Test]
@@ -37,7 +37,7 @@ namespace Wake.Tests
         {
             ProductionDialogueFlow flow = CreateFlow(9);
 
-            Assert.That(flow.StartScene("D4-04"), Is.True);
+            Assert.That(flow.StartScene("TEST"), Is.True);
             Assert.That(
                 flow.Choices,
                 Has.Count.EqualTo(ProductionDialogueFlow.ChoiceCapacity));
@@ -52,7 +52,7 @@ namespace Wake.Tests
             string rows = string.Join(
                 "\n",
                 Enumerable.Range(1, choiceCount).Select(index =>
-                    $"D4-04_{index:D3},D4-04,{index},choice,choice," +
+                    $"TEST_{index:D3},TEST,{index},choice,choice," +
                     $"PLAYER_CHOICE,선택 {index},choice,,D4-04_Q{index}," +
                     $",UI,N,D4-04_Q,"));
             DialogueCsvParseResult parsed =

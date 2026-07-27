@@ -63,7 +63,9 @@ namespace Wake.Tests
             Assert.That(state.WrongStrikeCount, Is.EqualTo(1));
             Assert.That(state.HasFlag("accusation1_correct"), Is.True);
             Assert.That(state.HasFlag("question_used"), Is.True);
-            Assert.That(state.FinalEndingId, Is.EqualTo("A"));
+            Assert.That(
+                state.FinalEndingId,
+                Is.EqualTo(FinalAccusationResolver.CompleteEndingId));
         }
 
         [Test]

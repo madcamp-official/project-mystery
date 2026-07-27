@@ -29,9 +29,6 @@ namespace Wake.Tests
         [Test]
         public void Database_LoadsCurrentContractWithoutLosingRecords()
         {
-            LogAssert.Expect(
-                LogType.Warning,
-                "DialogueDatabase has no CSV assigned.");
             var gameObject = new GameObject("Dialogue Database Test");
             DialogueDatabase database =
                 gameObject.AddComponent<DialogueDatabase>();
@@ -55,9 +52,6 @@ namespace Wake.Tests
         [Test]
         public void Database_ResolvesOfficialAndCompatibilityLineIds()
         {
-            LogAssert.Expect(
-                LogType.Warning,
-                "DialogueDatabase has no CSV assigned.");
             var gameObject = new GameObject("Dialogue Alias Test");
             DialogueDatabase database =
                 gameObject.AddComponent<DialogueDatabase>();

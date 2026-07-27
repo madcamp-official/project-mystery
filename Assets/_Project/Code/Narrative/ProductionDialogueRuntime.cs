@@ -443,7 +443,8 @@ namespace Wake.Narrative
                     continue;
                 }
 
-                if (condition == "D8-01 정답")
+                if (condition ==
+                    ProductionSceneCatalog.FinalAccusationPrerequisite)
                 {
                     warnings.Add(
                         $"Typed prerequisite '{condition}' requires ending A or B.");
@@ -470,9 +471,25 @@ namespace Wake.Narrative
                 return IsSceneCompleted(condition);
             }
 
-            return condition == "D8-01 정답" &&
-                   state != null &&
-                   FinalAccusationResolver.OpensD8Confession(state.FinalEndingId);
+            if (state == null)
+            {
+                return false;
+            }
+            if (condition ==
+                ProductionSceneCatalog.FinalAccusationPrerequisite)
+            {
+                return FinalAccusationResolver.OpensD8Confession(
+                    state.FinalEndingId);
+            }
+            if (condition == ProductionSceneCatalog.EpiloguePrerequisite)
+            {
+                string route = FinalAccusationResolver.ToOfficialRoute(
+                    state.FinalEndingId);
+                return IsSceneCompleted("D8-02") ||
+                       route == "C" ||
+                       route == "Bad";
+            }
+            return false;
         }
 
         private void NormalizeCompletedScenes(IEnumerable<string> source)
@@ -497,9 +514,17 @@ namespace Wake.Narrative
         private static bool IsPrerequisite(string value)
         {
             return !string.IsNullOrWhiteSpace(value) &&
-                   System.Text.RegularExpressions.Regex.IsMatch(
-                       value.Trim(),
-                       @"^(P|D\d+)-\d+$");
+                   (string.Equals(
+                        value.Trim(),
+                        ProductionSceneCatalog.FinalAccusationPrerequisite,
+                        StringComparison.Ordinal) ||
+                    string.Equals(
+                        value.Trim(),
+                        ProductionSceneCatalog.EpiloguePrerequisite,
+                        StringComparison.Ordinal) ||
+                    System.Text.RegularExpressions.Regex.IsMatch(
+                        value.Trim(),
+                        @"^(P|D\d+)-\d+$"));
         }
 
         private static string NormalizeSceneId(string value)

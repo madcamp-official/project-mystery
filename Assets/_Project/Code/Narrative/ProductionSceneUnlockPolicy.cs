@@ -79,20 +79,11 @@ namespace Wake.Narrative
 
             foreach (string prerequisite in scene.Prerequisites)
             {
-                if (scene.SceneId == ProductionEndingCatalog.EpilogueSceneId &&
-                    prerequisite ==
-                    ProductionEndingCatalog.ConfessionSceneId &&
-                    ProductionEndingCatalog.TryGet(
-                        state.FinalEndingId,
-                        out ProductionEndingDefinition ending) &&
-                    !ending.OpensConfession)
+                if (prerequisite ==
+                    ProductionSceneCatalog.FinalAccusationPrerequisite)
                 {
-                    continue;
-                }
-
-                if (!ProductionSceneCatalog.TryGet(prerequisite, out _))
-                {
-                    if (!FinalAccusationResolver.OpensD8Confession(state.FinalEndingId))
+                    if (!FinalAccusationResolver.OpensD8Confession(
+                            state.FinalEndingId))
                     {
                         return ProductionSceneUnlockResult.Denied(
                             ProductionSceneUnlockDenial.FinalAccusationIncomplete,
@@ -101,7 +92,30 @@ namespace Wake.Narrative
                     }
                     continue;
                 }
+                if (prerequisite == ProductionSceneCatalog.EpiloguePrerequisite)
+                {
+                    string route = FinalAccusationResolver.ToOfficialRoute(
+                        state.FinalEndingId);
+                    if (!state.HasCompletedScene(
+                            ProductionEndingCatalog.ConfessionSceneId) &&
+                        route != "C" &&
+                        route != "Bad")
+                    {
+                        return ProductionSceneUnlockResult.Denied(
+                            ProductionSceneUnlockDenial.PrerequisiteIncomplete,
+                            "The epilogue requires D8-02 or an unresolved ending.",
+                            scene);
+                    }
+                    continue;
+                }
 
+                if (!ProductionSceneCatalog.TryGet(prerequisite, out _))
+                {
+                    return ProductionSceneUnlockResult.Denied(
+                        ProductionSceneUnlockDenial.PrerequisiteIncomplete,
+                        $"Unknown prerequisite '{prerequisite}'.",
+                        scene);
+                }
                 if (!state.HasCompletedScene(prerequisite))
                 {
                     return ProductionSceneUnlockResult.Denied(
