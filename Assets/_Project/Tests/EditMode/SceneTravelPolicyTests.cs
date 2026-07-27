@@ -12,7 +12,7 @@ namespace Wake.Tests
 {
     public class SceneTravelPolicyTests
     {
-        private const string SaveKey = "THE_WAKE_GAME_STATE_V1";
+        private const string SaveKey = "UNDER_THE_HORIZON_GAME_STATE_V2";
         private const string GraphPath =
             "Assets/_Project/Content/Locations/LocationGraph.asset";
 

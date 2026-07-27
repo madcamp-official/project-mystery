@@ -10,7 +10,7 @@ namespace Wake.Tests
 {
     public class FinalAccusationTests
     {
-        private const string SaveKey = "THE_WAKE_GAME_STATE_V1";
+        private const string SaveKey = "UNDER_THE_HORIZON_GAME_STATE_V2";
         private const string DialoguePath =
             "Assets/_Project/Content/Dialogue/The_Wake_Without_Footprints_Dialogue_KR.csv";
 

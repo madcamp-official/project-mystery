@@ -9,7 +9,7 @@ namespace Wake.Tests
 {
     public class OrpheusAudioRestorationTests
     {
-        private const string SaveKey = "THE_WAKE_GAME_STATE_V1";
+        private const string SaveKey = "UNDER_THE_HORIZON_GAME_STATE_V2";
         private GameObject host;
         private GameStateManager state;
 

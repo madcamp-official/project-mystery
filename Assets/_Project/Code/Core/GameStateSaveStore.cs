@@ -34,10 +34,14 @@ namespace Wake.Core
     }
     internal static class GameStateSaveStore
     {
-        public const string PrimaryKey = "THE_WAKE_GAME_STATE_V1";
+        public const string PrimaryKey = "UNDER_THE_HORIZON_GAME_STATE_V2";
         public const string BackupKey = PrimaryKey + "_BACKUP";
         public const string PendingKey = PrimaryKey + "_PENDING";
-        private const string Format = "THE_WAKE_GAME_STATE";
+        public const string LegacyPrimaryKey = "THE_WAKE_GAME_STATE_V1";
+        public const string LegacyBackupKey = LegacyPrimaryKey + "_BACKUP";
+        public const string LegacyPendingKey = LegacyPrimaryKey + "_PENDING";
+        private const string Format = "UNDER_THE_HORIZON_GAME_STATE";
+        private const string LegacyFormat = "THE_WAKE_GAME_STATE";
         private const int SchemaVersion = 2;
         private const string InterruptedWarning = "중단된 저장 작업을 복구했습니다.";
         private const string BackupWarning =
@@ -53,7 +57,14 @@ namespace Wake.Core
             "completedObjectiveIds", "puzzleSessions", "unlockedDeductionIds",
             "finalEndingId", "currentLocationCode", "dialogueCheckpoint"
         };
-        private enum SaveSource { Primary, Pending, Backup }
+        private enum SaveSource
+        {
+            Primary,
+            Pending,
+            Backup,
+            LegacyPrimary,
+            LegacyPending
+        }
 
         private sealed class Candidate
         {
@@ -85,6 +96,7 @@ namespace Wake.Core
             {
                 SaveSource.Backup => BackupWarning,
                 SaveSource.Pending => InterruptedWarning,
+                SaveSource.LegacyPending => InterruptedWarning,
                 _ when pendingPresent => InterruptedWarning,
                 _ => string.Empty
             };
@@ -109,6 +121,7 @@ namespace Wake.Core
             }
             Write(PrimaryKey, pending);
             PlayerPrefs.DeleteKey(PendingKey);
+            ClearLegacySlots();
             PlayerPrefs.Save();
             return generation;
         }
@@ -118,6 +131,7 @@ namespace Wake.Core
             PlayerPrefs.DeleteKey(PrimaryKey);
             PlayerPrefs.DeleteKey(BackupKey);
             PlayerPrefs.DeleteKey(PendingKey);
+            ClearLegacySlots();
             PlayerPrefs.Save();
         }
         private static Candidate SelectCandidate(
@@ -137,7 +151,17 @@ namespace Wake.Core
                 (primaryPresent && primary == null) ||
                 (pendingPresent && pending == null) ||
                 (backupEligible && backupPresent && backup == null);
-            return Newer(Newer(primary, pending), backup);
+            Candidate current = Newer(Newer(primary, pending), backup);
+            if (current != null)
+            {
+                return current;
+            }
+
+            Candidate legacyPrimary =
+                ReadLegacy(LegacyPrimaryKey, SaveSource.LegacyPrimary);
+            Candidate legacyPending =
+                ReadLegacy(LegacyPendingKey, SaveSource.LegacyPending);
+            return Newer(legacyPrimary, legacyPending);
         }
 
         private static Candidate Newer(Candidate current, Candidate candidate)
@@ -203,6 +227,62 @@ namespace Wake.Core
             }
         }
 
+        private static Candidate ReadLegacy(string key, SaveSource source)
+        {
+            if (!PlayerPrefs.HasKey(key))
+            {
+                return null;
+            }
+
+            string raw = PlayerPrefs.GetString(key);
+            try
+            {
+                if (LooksLikeEnvelope(raw))
+                {
+                    GameStateSaveEnvelope envelope =
+                        JsonUtility.FromJson<GameStateSaveEnvelope>(raw);
+                    if (envelope == null ||
+                        envelope.format != LegacyFormat ||
+                        envelope.schemaVersion != SchemaVersion ||
+                        envelope.generation < 1 ||
+                        envelope.payload == null ||
+                        !string.Equals(
+                            envelope.checksum,
+                            ComputeChecksum(envelope),
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        return null;
+                    }
+                    return new Candidate
+                    {
+                        Data = envelope.payload,
+                        Generation = envelope.generation,
+                        Legacy = true,
+                        Raw = raw,
+                        Source = source
+                    };
+                }
+                if (!LooksLikeLegacy(raw))
+                {
+                    return null;
+                }
+                GameStateSaveData data =
+                    JsonUtility.FromJson<GameStateSaveData>(raw);
+                return data == null ? null : new Candidate
+                {
+                    Data = data,
+                    Generation = 0,
+                    Legacy = true,
+                    Raw = raw,
+                    Source = source
+                };
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         private static string Serialize(GameStateSaveData data, long generation)
         {
             var envelope = new GameStateSaveEnvelope
@@ -230,6 +310,13 @@ namespace Wake.Core
         {
             PlayerPrefs.SetString(key, value);
             PlayerPrefs.Save();
+        }
+
+        private static void ClearLegacySlots()
+        {
+            PlayerPrefs.DeleteKey(LegacyPrimaryKey);
+            PlayerPrefs.DeleteKey(LegacyBackupKey);
+            PlayerPrefs.DeleteKey(LegacyPendingKey);
         }
 
         private static bool LooksLikeEnvelope(string raw) =>
