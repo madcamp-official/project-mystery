@@ -76,7 +76,10 @@ namespace Wake.Tests
                 Does.Contain("22:18"));
             Assert.That(
                 ProductionPuzzlePresentation.GetHint(definition, 2),
-                Does.Contain("C-08"));
+                Does.Contain("3개"));
+            Assert.That(
+                ProductionPuzzlePresentation.GetHint(definition, 2),
+                Does.Not.Match(@"\bC-\d{2}\b"));
             Assert.That(
                 ProductionPuzzlePresentation.GetHint(definition, 3),
                 Does.Contain("비활성화"));

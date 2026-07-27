@@ -14,8 +14,8 @@ namespace Wake.Evidence
     {
         public static EvidencePanelController Instance { get; private set; }
 
-        private const float ItemSpacing = 100f;
-        private const float SelectedScale = 1.25f;
+        private const float ItemSpacing = 180f;
+        private const float SelectedScale = 1.15f;
 
         private Transform carouselContainer;
         private GameObject itemTemplate;
@@ -91,6 +91,10 @@ namespace Wake.Evidence
             nextButton = evidenceRoot.Find("Next").GetComponent<Button>();
             prevButton = evidenceRoot.Find("Next (1)").GetComponent<Button>();
             backButton = evidenceRoot.Find("Back Btn").GetComponent<Button>();
+            SetRect(
+                backButton.GetComponent<RectTransform>(),
+                new Vector2(790f, -455f),
+                new Vector2(190f, 62f));
             turnLeftButton = evidenceRoot.Find("Turn").GetComponent<Button>();
             turnRightButton = evidenceRoot.Find("Turn (1)").GetComponent<Button>();
             theoryBoardButton =
@@ -113,16 +117,40 @@ namespace Wake.Evidence
 
         private void LayoutRects()
         {
-            const float CarouselY = -195f;
+            RectTransform root = evidenceRoot as RectTransform;
+            root.anchorMin = Vector2.zero;
+            root.anchorMax = Vector2.one;
+            root.offsetMin = root.offsetMax = Vector2.zero;
+            root.localScale = Vector3.one;
+            Image background = evidenceRoot.GetComponent<Image>() ??
+                               evidenceRoot.gameObject.AddComponent<Image>();
+            background.color = new Color32(8, 18, 34, 255);
+            background.raycastTarget = false;
 
-            SetRect(detailImage.rectTransform, new Vector2(-160f, -30f), new Vector2(240f, 160f));
-            SetRect(titleText.rectTransform, new Vector2(180f, 60f), new Vector2(260f, 44f));
-            titleText.fontSize = 32f;
+            const float CarouselY = -300f;
+
+            SetRect(
+                detailImage.rectTransform,
+                new Vector2(-360f, 70f),
+                new Vector2(520f, 340f));
+            SetRect(
+                titleText.rectTransform,
+                new Vector2(280f, 185f),
+                new Vector2(650f, 70f));
+            titleText.fontSize = 38f;
             titleText.alignment = TextAlignmentOptions.TopLeft;
+            titleText.color = new Color32(242, 222, 180, 255);
 
-            SetRect(detailText.rectTransform, new Vector2(180f, -30f), new Vector2(260f, 160f));
+            SetRect(
+                detailText.rectTransform,
+                new Vector2(280f, -30f),
+                new Vector2(650f, 340f));
+            detailText.color = new Color32(222, 211, 190, 255);
 
-            SetRect(carouselContainer.GetComponent<RectTransform>(), new Vector2(0f, CarouselY), new Vector2(600f, 110f));
+            SetRect(
+                carouselContainer.GetComponent<RectTransform>(),
+                new Vector2(0f, CarouselY),
+                new Vector2(1260f, 190f));
 
             RectTransform turnLeftRect = (RectTransform)evidenceRoot.Find("Turn");
             SetRect(turnLeftRect, new Vector2(-160f, -135f), turnLeftRect.sizeDelta);
@@ -130,9 +158,9 @@ namespace Wake.Evidence
             SetRect(turnRightRect, new Vector2(-160f, 75f), turnRightRect.sizeDelta);
 
             RectTransform prevRect = (RectTransform)evidenceRoot.Find("Next (1)");
-            SetRect(prevRect, new Vector2(-360f, CarouselY), prevRect.sizeDelta);
+            SetRect(prevRect, new Vector2(-720f, CarouselY), prevRect.sizeDelta);
             RectTransform nextRect = (RectTransform)evidenceRoot.Find("Next");
-            SetRect(nextRect, new Vector2(360f, CarouselY), nextRect.sizeDelta);
+            SetRect(nextRect, new Vector2(720f, CarouselY), nextRect.sizeDelta);
         }
 
         private void ConfigureTheoryBoardButton()

@@ -198,7 +198,10 @@ namespace Wake.Tests
                 Is.EqualTo(EvidenceTheoryState.MissingEvidence));
             Assert.That(
                 EvidenceTheoryPresentation.StateLabel(missingView),
-                Does.Contain("C-03"));
+                Does.Contain("3개"));
+            Assert.That(
+                EvidenceTheoryPresentation.StateLabel(missingView),
+                Does.Not.Match(@"\bC-\d{2}\b"));
             Assert.That(
                 unlockedView.State,
                 Is.EqualTo(EvidenceTheoryState.Unlocked));

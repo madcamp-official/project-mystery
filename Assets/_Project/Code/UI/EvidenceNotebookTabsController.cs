@@ -46,7 +46,7 @@ namespace Wake.UI
             tabs.transform.SetParent(root, false);
             RectTransform tabsRect = tabs.GetComponent<RectTransform>();
             tabsRect.anchorMin = tabsRect.anchorMax = new Vector2(.5f, 1f);
-            tabsRect.anchoredPosition = new Vector2(0f, -28f);
+            tabsRect.anchoredPosition = new Vector2(0f, -180f);
             tabsRect.sizeDelta = new Vector2(610f, 62f);
 
             Button evidence = SaveSlotSelectionController.MakeButton(
@@ -154,6 +154,8 @@ namespace Wake.UI
         {
             SetEvidenceContent(true);
             characters?.SetActive(false);
+            // Re-apply the collected-only state after legacy objects are shown.
+            Wake.Evidence.EvidencePanelController.Instance?.Refresh();
         }
 
         private void ShowCharacters()

@@ -107,7 +107,7 @@ namespace Wake.UI
                 back.anchorMin = new Vector2(0f, 1f);
                 back.anchorMax = new Vector2(0f, 1f);
                 back.pivot = new Vector2(0f, 1f);
-                back.anchoredPosition = new Vector2(24f, -18f);
+                back.anchoredPosition = new Vector2(24f, -150f);
                 back.sizeDelta = new Vector2(164f, 54f);
                 back.localScale = Vector3.one;
             }
@@ -127,8 +127,8 @@ namespace Wake.UI
             titleRect.anchorMin = new Vector2(0f, 1f);
             titleRect.anchorMax = new Vector2(1f, 1f);
             titleRect.pivot = new Vector2(0.5f, 1f);
-            titleRect.offsetMin = new Vector2(210f, -76f);
-            titleRect.offsetMax = new Vector2(-210f, -14f);
+            titleRect.offsetMin = new Vector2(210f, -205f);
+            titleRect.offsetMax = new Vector2(-210f, -140f);
             TMP_Text title = titleObject.GetComponent<TMP_Text>();
             MapTypography.ApplyLocation(title);
             title.text = "MV ELYSIUM  ·  장소 선택";
