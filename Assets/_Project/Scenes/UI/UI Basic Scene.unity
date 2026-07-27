@@ -3348,15 +3348,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58c980b20fd44b8bab0258aa89758569, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.ResponsiveDialogueLayout
-  dialogueHeight: 360
-  edgePadding: 24
+  dialogueHeight: 460
+  edgePadding: 28
   navigationTop: 184
-  navigationButtonWidth: 220
-  navigationButtonHeight: 64
-  portraitSize: {x: 320, y: 430}
-  speakerPlateSize: {x: 420, y: 56}
-  speakerPlateOffsetX: 384
-  nextButtonSize: {x: 176, y: 60}
+  navigationButtonWidth: 260
+  navigationButtonHeight: 76
+  portraitSize: {x: 260, y: 300}
+  speakerPlateSize: {x: 460, y: 68}
+  nextButtonSize: {x: 220, y: 76}
 --- !u!1 &430565432
 GameObject:
   m_ObjectHideFlags: 0

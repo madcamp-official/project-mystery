@@ -185,7 +185,7 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void Portrait_UsesFixedLeftAnchorAndHeightControlledAspect()
+        public void Portrait_UsesFixedTopLeftAnchorAndHeightControlledAspect()
         {
             using LayoutRig rig = new(1920f, 1080f);
 
@@ -193,13 +193,14 @@ namespace Wake.Tests
                 new Rect(0f, 0f, 1920f, 1080f),
                 new Vector2(1920f, 1080f));
 
-            Assert.That(rig.Portrait.anchorMin, Is.EqualTo(Vector2.zero));
-            Assert.That(rig.Portrait.anchorMax, Is.EqualTo(Vector2.zero));
-            Assert.That(rig.Portrait.pivot, Is.EqualTo(Vector2.zero));
+            Assert.That(rig.Portrait.anchorMin, Is.EqualTo(new Vector2(0f, 1f)));
+            Assert.That(rig.Portrait.anchorMax, Is.EqualTo(new Vector2(0f, 1f)));
+            Assert.That(rig.Portrait.pivot, Is.EqualTo(new Vector2(0f, 1f)));
             Assert.That(rig.Portrait.anchoredPosition.x,
                 Is.EqualTo(ResponsiveDialogueLayout.EdgePadding));
-            Assert.That(rig.Portrait.anchoredPosition.y, Is.EqualTo(18f));
-            Assert.That(rig.Portrait.sizeDelta.y, Is.EqualTo(430f));
+            Assert.That(rig.Portrait.anchoredPosition.y,
+                Is.EqualTo(-ResponsiveDialogueLayout.EdgePadding));
+            Assert.That(rig.Portrait.sizeDelta.y, Is.EqualTo(300f));
             Assert.That(
                 rig.Portrait.GetComponent<AspectRatioFitter>().aspectMode,
                 Is.EqualTo(
@@ -259,7 +260,7 @@ namespace Wake.Tests
                     ResponsiveDialogueLayout.EdgePadding)));
             Assert.That(
                 rig.NextButton.sizeDelta,
-                Is.EqualTo(new Vector2(176f, 60f)));
+                Is.EqualTo(new Vector2(220f, 76f)));
         }
 
         private static void AssertLeftNavigationButton(

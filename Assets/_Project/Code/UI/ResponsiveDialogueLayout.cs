@@ -40,11 +40,11 @@ namespace Wake.UI
     public sealed class ResponsiveDialogueLayout : MonoBehaviour
     {
         public static readonly Vector2 ReferenceResolution = new(2880f, 1800f);
-        public const float DialogueHeight = 360f;
-        public const float EdgePadding = 24f;
+        public const float DialogueHeight = 460f;
+        public const float EdgePadding = 28f;
         public const float NavigationTop = 184f;
-        public const float NavigationButtonWidth = 220f;
-        public const float NavigationButtonHeight = 64f;
+        public const float NavigationButtonWidth = 260f;
+        public const float NavigationButtonHeight = 76f;
 
         [Header("Layout (Inspector-editable, used instead of the constants above)")]
         [SerializeField] private float dialogueHeight = DialogueHeight;
@@ -52,10 +52,9 @@ namespace Wake.UI
         [SerializeField] private float navigationTop = NavigationTop;
         [SerializeField] private float navigationButtonWidth = NavigationButtonWidth;
         [SerializeField] private float navigationButtonHeight = NavigationButtonHeight;
-        [SerializeField] private Vector2 portraitSize = new(320f, 430f);
-        [SerializeField] private Vector2 speakerPlateSize = new(420f, 56f);
-        [SerializeField] private float speakerPlateOffsetX = 384f;
-        [SerializeField] private Vector2 nextButtonSize = new(176f, 60f);
+        [SerializeField] private Vector2 portraitSize = new(260f, 300f);
+        [SerializeField] private Vector2 speakerPlateSize = new(460f, 68f);
+        [SerializeField] private Vector2 nextButtonSize = new(220f, 76f);
 
         private Canvas canvas;
         private RectTransform ingameRoot;
@@ -129,20 +128,22 @@ namespace Wake.UI
             linePanel.anchoredPosition = new Vector2(0f, edgePadding);
             linePanel.sizeDelta = new Vector2(0f, dialogueHeight);
 
+            float topRowReserve = edgePadding + portraitSize.y + edgePadding;
             if (textPanel != null)
             {
-                textPanel.anchorMin = new Vector2(0.19f, 0f);
+                textPanel.anchorMin = Vector2.zero;
                 textPanel.anchorMax = Vector2.one;
                 textPanel.offsetMin = new Vector2(edgePadding, 12f);
-                textPanel.offsetMax = new Vector2(-edgePadding, -12f);
+                textPanel.offsetMax = new Vector2(-edgePadding, -topRowReserve);
             }
 
             if (portrait != null)
             {
-                portrait.anchorMin = Vector2.zero;
-                portrait.anchorMax = Vector2.zero;
-                portrait.pivot = Vector2.zero;
-                portrait.anchoredPosition = new Vector2(edgePadding, 18f);
+                portrait.anchorMin = new Vector2(0f, 1f);
+                portrait.anchorMax = new Vector2(0f, 1f);
+                portrait.pivot = new Vector2(0f, 1f);
+                portrait.anchoredPosition =
+                    new Vector2(edgePadding, -edgePadding);
                 portrait.sizeDelta = portraitSize;
             }
 
@@ -151,8 +152,9 @@ namespace Wake.UI
                 speakerPlate.anchorMin = new Vector2(0f, 1f);
                 speakerPlate.anchorMax = new Vector2(0f, 1f);
                 speakerPlate.pivot = new Vector2(0f, 1f);
-                speakerPlate.anchoredPosition =
-                    new Vector2(speakerPlateOffsetX, -edgePadding);
+                speakerPlate.anchoredPosition = new Vector2(
+                    edgePadding * 2f + portraitSize.x,
+                    -edgePadding);
                 speakerPlate.sizeDelta = speakerPlateSize;
             }
 
@@ -257,8 +259,8 @@ namespace Wake.UI
 
         private void ConfigureText()
         {
-            ConfigureLabel(lineText, 22f, 36f, TextOverflowModes.Overflow);
-            ConfigureLabel(speakerText, 20f, 32f, TextOverflowModes.Ellipsis);
+            ConfigureLabel(lineText, 28f, 44f, TextOverflowModes.Overflow);
+            ConfigureLabel(speakerText, 26f, 40f, TextOverflowModes.Ellipsis);
             if (textPanel == null || lineText == null)
                 return;
 
@@ -313,8 +315,8 @@ namespace Wake.UI
             choiceGrid.constraint =
                 GridLayoutGroup.Constraint.FixedColumnCount;
             choiceGrid.constraintCount = 2;
-            choiceGrid.spacing = new Vector2(12f, 12f);
-            choiceGrid.padding = new RectOffset(8, 8, 8, 8);
+            choiceGrid.spacing = new Vector2(16f, 16f);
+            choiceGrid.padding = new RectOffset(10, 10, 10, 10);
             choiceGrid.childAlignment = TextAnchor.MiddleCenter;
             foreach (Button button in choiceButtons)
             {
@@ -323,13 +325,13 @@ namespace Wake.UI
                 LayoutElement element = button.GetComponent<LayoutElement>();
                 if (element == null)
                     element = button.gameObject.AddComponent<LayoutElement>();
-                element.minHeight = 58f;
-                element.preferredHeight = 72f;
+                element.minHeight = 72f;
+                element.preferredHeight = 90f;
                 TMP_Text label = button.GetComponentInChildren<TMP_Text>();
                 ConfigureLabel(
                     label,
-                    18f,
-                    28f,
+                    24f,
+                    34f,
                     TextOverflowModes.Ellipsis);
             }
         }
@@ -346,7 +348,7 @@ namespace Wake.UI
                  choiceGrid.spacing.x) / 2f;
             choiceGrid.cellSize = new Vector2(
                 Mathf.Max(280f, cellWidth),
-                68f);
+                88f);
         }
 
         private static void ConfigureLabel(
