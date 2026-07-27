@@ -72,8 +72,16 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator IngameNavigationIcons_HaveNoTextLabels()
+        public IEnumerator NavigationIcons_HaveNoTextLabels()
         {
+            TMP_Text startSettings = RequireObject("StartScene/Settings Btn")
+                .GetComponentInChildren<TMP_Text>(true);
+            Assert.That(startSettings, Is.Not.Null);
+            Assert.That(
+                startSettings.text,
+                Is.Empty,
+                "The start screen Settings button should render only its icon.");
+
             yield return StartNewGameFromVisibleButton();
 
             string[] iconButtonPaths =
