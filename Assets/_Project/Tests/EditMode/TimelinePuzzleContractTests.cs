@@ -127,7 +127,7 @@ namespace Wake.Tests
 
             Assert.That(
                 cards.Select(card => card.Id).Distinct().ToArray(),
-                Has.Count.EqualTo(TimelinePuzzleCatalog.RequiredCardCount));
+                Has.Length.EqualTo(TimelinePuzzleCatalog.RequiredCardCount));
             Assert.That(cards.Select(card => card.Id), Has.All.Not.Empty);
             Assert.That(cards.Select(card => card.Label), Has.All.Not.Empty);
             Assert.That(
