@@ -45,8 +45,7 @@ namespace Wake.Tests
             Assert.That(state.GetTrust("DANIEL"), Is.EqualTo(2));
             Assert.That(state.PublicAnxiety, Is.EqualTo(15));
             Assert.That(state.EvidenceIntegrity, Is.EqualTo(100));
-            Assert.That(state.TheorySlots, Is.EqualTo(3));
-            Assert.That(state.ActiveTheoryCount, Is.Zero);
+            Assert.That(state.UnlockedDeductionIds, Is.Empty);
         }
 
         [Test]
@@ -177,29 +176,26 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void Theories_AllowThreeUniqueActiveEntries()
+        public void Deductions_AllowEveryUniqueUnlockedEntry()
         {
-            Assert.That(state.ActivateTheory("theory_a"), Is.True);
-            Assert.That(state.ActivateTheory("theory_b"), Is.True);
-            Assert.That(state.ActivateTheory("theory_c"), Is.True);
+            for (int index = 0; index < 8; index++)
+            {
+                Assert.That(state.UnlockDeduction($"deduction_{index}"), Is.True);
+            }
 
-            Assert.That(state.ActiveTheoryCount, Is.EqualTo(3));
-            Assert.That(state.ActivateTheory("theory_d"), Is.False);
-            Assert.That(state.ActivateTheory("theory_a"), Is.False);
-            Assert.That(state.ActivateTheory("  "), Is.False);
+            Assert.That(state.UnlockedDeductionIds, Has.Count.EqualTo(8));
+            Assert.That(state.UnlockDeduction("deduction_0"), Is.False);
+            Assert.That(state.UnlockDeduction("  "), Is.False);
         }
 
         [Test]
-        public void TheoryIds_AreTrimmedAndRemovingOneFreesSlot()
+        public void DeductionIds_AreTrimmedAndCannotBeRemoved()
         {
-            state.ActivateTheory(" theory_a ");
-            state.ActivateTheory("theory_b");
-            state.ActivateTheory("theory_c");
+            Assert.That(state.UnlockDeduction(" deduction_a "), Is.True);
 
-            Assert.That(state.ActivateTheory("theory_a"), Is.False);
-            Assert.That(state.RemoveTheory(" theory_b "), Is.True);
-            Assert.That(state.ActivateTheory("theory_d"), Is.True);
-            Assert.That(state.ActiveTheoryCount, Is.EqualTo(3));
+            Assert.That(state.HasUnlockedDeduction("deduction_a"), Is.True);
+            Assert.That(state.HasUnlockedDeduction(" deduction_a "), Is.True);
+            Assert.That(state.UnlockedDeductionIds, Is.EqualTo(new[] { "DEDUCTION_A" }));
         }
 
         [Test]
@@ -262,13 +258,14 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void LegacySaveWithoutCompletedScenes_LoadsEmptyProgress()
+        public void LegacyTheoryFields_AreDiscardedWhileOtherProgressMigrates()
         {
             const string legacyJson =
                 "{\"day\":2,\"timeBlock\":1,\"publicAnxiety\":25," +
                 "\"evidenceIntegrity\":80,\"theorySlots\":3," +
-                "\"activeTheories\":[],\"trust\":[],\"flags\":[]," +
+                "\"activeTheories\":[\"old_theory\"],\"trust\":[],\"flags\":[]," +
                 "\"collectedEvidenceIds\":[\"C-02\"]," +
+                "\"unlockedDeductionIds\":[\"transport_route\"]," +
                 "\"currentLocationCode\":\"HORIZON\"}";
 
             PlayerPrefs.SetString("THE_WAKE_GAME_STATE_V1", legacyJson);
@@ -280,7 +277,11 @@ namespace Wake.Tests
             Assert.That(state.PublicAnxiety, Is.EqualTo(25));
             Assert.That(state.EvidenceIntegrity, Is.EqualTo(80));
             Assert.That(state.CollectedEvidenceIds, Contains.Item("C-02"));
+            Assert.That(state.HasUnlockedDeduction("transport_route"), Is.True);
             Assert.That(state.CurrentLocationCode, Is.EqualTo("HORIZON"));
+            string migratedJson = PlayerPrefs.GetString(SaveKey);
+            Assert.That(migratedJson, Does.Not.Contain("\"theorySlots\""));
+            Assert.That(migratedJson, Does.Not.Contain("\"activeTheories\""));
         }
 
         [Test]
@@ -312,7 +313,7 @@ namespace Wake.Tests
             state.ChangeTrust("DANIEL", 2);
             state.ChangePublicAnxiety(60);
             state.ChangeEvidenceIntegrity(-40);
-            state.ActivateTheory("ceiling_insertion");
+            state.UnlockDeduction("ceiling_insertion");
             state.AddFlag("ceiling_access");
             state.RecordEvidenceCollected("C-03");
             state.RecordCompletedScene("P-01");
@@ -330,13 +331,49 @@ namespace Wake.Tests
             Assert.That(state.GetTrust("DANIEL"), Is.EqualTo(4));
             Assert.That(state.PublicAnxiety, Is.EqualTo(75));
             Assert.That(state.EvidenceIntegrity, Is.EqualTo(60));
-            Assert.That(state.ActiveTheoryCount, Is.EqualTo(1));
+            Assert.That(state.HasUnlockedDeduction("ceiling_insertion"), Is.True);
             Assert.That(state.HasFlag("ceiling_access"), Is.True);
             Assert.That(state.CollectedEvidenceIds, Contains.Item("C-03"));
             Assert.That(state.HasCompletedScene("P-01"), Is.True);
             Assert.That(state.CurrentLocationCode, Is.EqualTo("HORIZON"));
             Assert.That(state.Day, Is.EqualTo(2));
             Assert.That(state.CurrentTimeBlock, Is.EqualTo(TimeBlock.PM));
+        }
+
+        [Test]
+        public void PublicApi_DoesNotExposeRemovedTheorySlotOperations()
+        {
+            var publicMembers = typeof(GameStateManager).GetMembers();
+            string[] removedNames =
+            {
+                "TheorySlots",
+                "ActiveTheoryCount",
+                "ActivateTheory",
+                "RemoveTheory",
+                "IsTheoryActive"
+            };
+
+            foreach (string removedName in removedNames)
+            {
+                Assert.That(
+                    publicMembers,
+                    Has.None.Matches<System.Reflection.MemberInfo>(
+                        member => member.Name == removedName),
+                    $"{removedName} must not return to the production state contract.");
+            }
+        }
+
+        [Test]
+        public void V2Save_ContainsDeductionProgressWithoutRemovedTheoryFields()
+        {
+            state.UnlockDeduction("transport_route");
+
+            string savedJson = PlayerPrefs.GetString(SaveKey);
+
+            Assert.That(savedJson, Does.Contain("\"unlockedDeductionIds\""));
+            Assert.That(savedJson, Does.Contain("TRANSPORT_ROUTE"));
+            Assert.That(savedJson, Does.Not.Contain("\"theorySlots\""));
+            Assert.That(savedJson, Does.Not.Contain("\"activeTheories\""));
         }
 
         [TestCase(

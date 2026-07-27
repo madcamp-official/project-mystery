@@ -37,10 +37,6 @@ namespace Wake.Tests
             state.ChangeTrust("CLAIRE", 2);
             state.ChangePublicAnxiety(40);
             state.ChangeEvidenceIntegrity(-30);
-            foreach (string theory in new[] { "route", "motive", "identity" })
-            {
-                state.ActivateTheory(theory);
-            }
             state.AddFlag("service_rail_access");
             foreach (CanonicalEvidenceEntry item in CanonicalEvidenceCatalog.All)
             {
@@ -73,7 +69,6 @@ namespace Wake.Tests
             Assert.That(state.GetTrust("CLAIRE"), Is.EqualTo(4));
             Assert.That(state.PublicAnxiety, Is.EqualTo(55));
             Assert.That(state.EvidenceIntegrity, Is.EqualTo(70));
-            Assert.That(state.ActiveTheoryCount, Is.EqualTo(3));
             Assert.That(state.CollectedEvidenceIds, Has.Count.EqualTo(18));
             Assert.That(state.CompletedProductionSceneIds, Has.Count.EqualTo(41));
             Assert.That(state.HasCompletedObjective("inspect_horizon"), Is.True);
