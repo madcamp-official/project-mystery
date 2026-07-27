@@ -128,6 +128,24 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator TitleScreen_HidesDecorativeTaglines()
+        {
+            yield return null;
+
+            TMP_Text[] labels = RequireObject("StartScene/Title Presentation")
+                .GetComponentsInChildren<TMP_Text>(true);
+            Assert.That(
+                labels,
+                Has.None.Matches<TMP_Text>(label =>
+                    label.text.Contains("2D 내러티브 미스터리 어드벤처")));
+            Assert.That(
+                labels,
+                Has.None.Matches<TMP_Text>(label =>
+                    label.text.Contains("PRESS ANY KEY")));
+            AssertNoRuntimeErrors("타이틀 장식 문구 제거");
+        }
+
+        [UnityTest]
         public IEnumerator FinalAccusation_AutoPreparesDeductionsAndAdvances()
         {
             yield return StartNewGameFromVisibleButton();
