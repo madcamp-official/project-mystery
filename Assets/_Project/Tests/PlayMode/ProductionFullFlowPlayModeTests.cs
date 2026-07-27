@@ -190,6 +190,7 @@ namespace Wake.Tests.PlayMode
         {
             var marcus = new MarcusInterrogationSession(
                 state,
+                CreateMarcusQuestionFixtures(),
                 tryGrantEvidence: inventory.TryAddById);
             Assert.That(
                 marcus.Ask(
@@ -219,7 +220,9 @@ namespace Wake.Tests.PlayMode
             inventory.RestoreFromIds(state.CollectedEvidenceIds);
 
             var restoredMarcus =
-                new MarcusInterrogationSession(state);
+                new MarcusInterrogationSession(
+                    state,
+                    CreateMarcusQuestionFixtures());
             var restoredOrpheus =
                 new OrpheusAudioRestorationSession(state);
             Assert.That(restoredMarcus.IsCompleted, Is.True);
@@ -395,6 +398,21 @@ namespace Wake.Tests.PlayMode
             {
                 Assert.That(state.UnlockDeduction(definition.Id), Is.True);
             }
+        }
+
+        private static IReadOnlyList<MarcusQuestionDefinition>
+            CreateMarcusQuestionFixtures()
+        {
+            return Enumerable.Range(
+                    1,
+                    MarcusInterrogationCatalog.OfficialQuestionCount)
+                .Select(index => new MarcusQuestionDefinition(
+                    index == 2
+                        ? MarcusInterrogationCatalog.AuthenticationQuestion
+                        : $"d4-04_q{index}",
+                    $"공식 질문 {index}",
+                    index == 2))
+                .ToArray();
         }
 
         private void CreateRuntime(string name)

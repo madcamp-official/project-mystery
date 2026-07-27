@@ -52,41 +52,57 @@ namespace Wake.Puzzles
     {
         public const string SessionId = "marcus_interrogation";
         public const string SceneId = "D4-04";
+        public const string BranchGroup = "D4-04_Q";
+        public const int OfficialQuestionCount = 8;
         public const string AuthenticationQuestion = "evelyn_authentication";
         public const string AuthenticationEvidence = "C-15";
         public const string AuthenticationFlag = "evelyn_authentication_confirmed";
 
-        private static readonly MarcusQuestionDefinition[] Questions =
+        public static IReadOnlyList<MarcusQuestionDefinition> Create(
+            IEnumerable<DialogueRecord> dialogueRecords)
         {
-            new(
-                AuthenticationQuestion,
-                "Evelyn에게 금고 접근 인증을 제공했습니까?",
-                true),
-            new(
-                "direct_request",
-                "인증 수단을 요구한 사람은 Evelyn이었습니까?"),
-            new(
-                "cargo_access",
-                "Daniel이 사라진 밤 화물 설비 접근을 승인했습니까?"),
-            new(
-                "confession_intent",
-                "계단 추락 전에 인증 제공 사실을 고백하려 했습니까?"),
-            new(
-                "richard_order",
-                "Richard의 지시로 인증 수단을 제공했습니까?")
-        };
+            return (dialogueRecords ?? Array.Empty<DialogueRecord>())
+                .Where(record =>
+                    record != null &&
+                    string.Equals(
+                        record.SceneId,
+                        SceneId,
+                        StringComparison.Ordinal) &&
+                    string.Equals(
+                        record.LineType,
+                        "choice",
+                        StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(
+                        record.BranchGroup,
+                        BranchGroup,
+                        StringComparison.Ordinal) &&
+                    !string.IsNullOrWhiteSpace(record.ChoiceId))
+                .OrderBy(record => record.Order)
+                .Select(record =>
+                {
+                    bool authenticates = HasEffectToken(
+                        record.NextOrEffect,
+                        $"evidence:{AuthenticationEvidence}");
+                    return new MarcusQuestionDefinition(
+                        authenticates
+                            ? AuthenticationQuestion
+                            : record.ChoiceId,
+                        record.TextKo,
+                        authenticates);
+                })
+                .ToArray();
+        }
 
-        private static readonly IReadOnlyDictionary<string, MarcusQuestionDefinition>
-            ById = Questions.ToDictionary(item => item.Id, StringComparer.Ordinal);
-
-        public static IReadOnlyList<MarcusQuestionDefinition> All => Questions;
-
-        public static bool TryGet(
-            string questionId,
-            out MarcusQuestionDefinition definition) =>
-            ById.TryGetValue(
-                MarcusQuestionDefinition.Normalize(questionId),
-                out definition);
+        private static bool HasEffectToken(string effect, string expected)
+        {
+            return (effect ?? string.Empty)
+                .Split(';')
+                .Select(token => token.Trim())
+                .Any(token => string.Equals(
+                    token,
+                    expected,
+                    StringComparison.OrdinalIgnoreCase));
+        }
     }
 
     public readonly struct MarcusAnswerRecord
@@ -124,6 +140,7 @@ namespace Wake.Puzzles
 
         private readonly GameStateManager state;
         private readonly Func<string, bool> tryGrantEvidence;
+        private readonly IReadOnlyList<MarcusQuestionDefinition> definitions;
         private readonly IReadOnlyDictionary<string, MarcusQuestionDefinition> questions;
         private readonly List<MarcusAnswerRecord> answers = new();
 
@@ -133,10 +150,16 @@ namespace Wake.Puzzles
         {
             this.state = state ?? throw new ArgumentNullException(nameof(state));
             this.tryGrantEvidence = tryGrantEvidence ?? (_ => false);
-            questions = (definitions ?? MarcusInterrogationCatalog.All)
+            this.definitions = (definitions ??
+                    MarcusInterrogationCatalog.Create(
+                        DialogueDatabase.Instance?.Records.Values))
                 .Where(item => item != null && !string.IsNullOrEmpty(item.Id))
                 .GroupBy(item => item.Id, StringComparer.Ordinal)
-                .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+                .Select(group => group.First())
+                .ToArray();
+            questions = this.definitions.ToDictionary(
+                item => item.Id,
+                StringComparer.Ordinal);
 
             if (state.TryGetPuzzleSession(
                     MarcusInterrogationCatalog.SessionId,
@@ -147,8 +170,12 @@ namespace Wake.Puzzles
         }
 
         public IReadOnlyList<MarcusAnswerRecord> Answers => answers;
+        public IReadOnlyList<MarcusQuestionDefinition> Definitions => definitions;
         public int RemainingQuestions => Math.Max(0, MaximumQuestions - answers.Count);
         public bool IsCompleted { get; private set; }
+        public bool ContainsQuestion(string questionId) =>
+            questions.ContainsKey(
+                MarcusQuestionDefinition.Normalize(questionId));
 
         public MarcusQuestionResult Ask(string questionId, MarcusAnswer answer)
         {
@@ -376,10 +403,12 @@ namespace Wake.Puzzles
                     $"Evelyn 인증 판정 질문은 정확히 1개여야 합니다: {authenticationCount}개");
             }
 
-            if (items.Length > MarcusInterrogationSession.MaximumQuestions)
+            if (items.Length != MarcusInterrogationCatalog.OfficialQuestionCount)
             {
                 warnings.Add(
-                    $"심문 질문은 최대 {MarcusInterrogationSession.MaximumQuestions}개입니다.");
+                    "심문 질문 후보는 정확히 " +
+                    $"{MarcusInterrogationCatalog.OfficialQuestionCount}개여야 합니다: " +
+                    $"{items.Length}개");
             }
 
             return warnings;

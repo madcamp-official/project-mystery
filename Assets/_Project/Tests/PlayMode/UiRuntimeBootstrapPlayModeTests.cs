@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using NUnit.Framework;
 using TMPro;
 using UnityEngine;
@@ -35,6 +36,13 @@ namespace Wake.Tests.PlayMode
             Assert.That(
                 ingame.GetComponents<MarcusInterrogationUIController>(),
                 Has.Length.EqualTo(1));
+            Transform marcusRoot = RequireObject("Marcus Interrogation")
+                .transform;
+            Assert.That(
+                marcusRoot.GetComponentsInChildren<Button>(true)
+                    .Count(button =>
+                        button.name.StartsWith("Question ")),
+                Is.EqualTo(8));
             Assert.That(
                 ingame.GetComponents<TimelinePuzzleUIController>(),
                 Has.Length.EqualTo(1));
