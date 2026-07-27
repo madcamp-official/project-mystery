@@ -39,9 +39,9 @@ namespace Wake.Editor
         public const string CatalogPath =
             OutputRoot + "/TypographyCatalog.asset";
 
-        private const int SamplingPointSize = 90;
-        private const int AtlasPadding = 9;
-        private const int AtlasSize = 2048;
+        private const int SamplingPointSize = 60;
+        private const int AtlasPadding = 6;
+        private const int AtlasSize = 1024;
 
         private static readonly FontBuildSpec[] FontSpecifications =
         {
