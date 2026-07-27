@@ -2,7 +2,8 @@
   "name": "Wake.Editor",
   "rootNamespace": "Wake.Editor",
   "references": [
-    "Wake.Runtime"
+    "Wake.Runtime",
+    "Unity.TextMeshPro"
   ],
   "includePlatforms": [
     "Editor"
