@@ -98,16 +98,26 @@ namespace Wake.Narrative
 
         private static readonly IReadOnlyDictionary<string, DialoguePortraitDefinition>
             ById = Entries
-                .SelectMany(entry => new[]
-                {
+                .Select(entry =>
                     new KeyValuePair<string, DialoguePortraitDefinition>(
                         entry.CharacterId,
-                        entry),
-                    new KeyValuePair<string, DialoguePortraitDefinition>(
-                        entry.DisplayName,
-                        entry)
-                })
-                .ToDictionary(pair => pair.Key, pair => pair.Value,
+                        entry))
+                .Concat(Entries
+                    .Where(entry =>
+                        !string.IsNullOrWhiteSpace(entry.DisplayName))
+                    .GroupBy(
+                        entry => entry.DisplayName,
+                        StringComparer.OrdinalIgnoreCase)
+                    .Select(group =>
+                        new KeyValuePair<string, DialoguePortraitDefinition>(
+                            group.Key,
+                            group.First())))
+                .GroupBy(
+                    pair => pair.Key,
+                    StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.First().Value,
                     StringComparer.OrdinalIgnoreCase);
 
         public static IReadOnlyList<DialoguePortraitDefinition> All => Entries;

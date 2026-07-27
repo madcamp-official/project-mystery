@@ -134,6 +134,12 @@ namespace Wake.Narrative
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(speaker))
+            {
+                speakerPortrait.gameObject.SetActive(false);
+                return;
+            }
+
             DialoguePortraitAsset asset =
                 DialoguePortraitCatalog.Resolve(speaker, emotion);
             if (!asset.Found)

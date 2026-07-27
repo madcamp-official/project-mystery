@@ -93,24 +93,53 @@ namespace Wake.Exploration
                     typeof(RectTransform),
                     typeof(CanvasRenderer),
                     typeof(Image),
-                    typeof(Button));
+                    typeof(Button),
+                    typeof(Outline));
                 target.transform.SetParent(contentRect, false);
                 RectTransform rect = target.GetComponent<RectTransform>();
-                rect.anchorMin = spec.Hotspot.min;
-                rect.anchorMax = spec.Hotspot.max;
+                Rect hotspot =
+                    AmbientInteractionPresentation.ClampHotspot(spec.Hotspot);
+                rect.anchorMin = hotspot.min;
+                rect.anchorMax = hotspot.max;
                 rect.offsetMin = Vector2.zero;
                 rect.offsetMax = Vector2.zero;
                 Image image = target.GetComponent<Image>();
-                image.color = new Color(0.4f, .75f, 1f, .001f);
+                image.color = Color.white;
+                Outline outline = target.GetComponent<Outline>();
+                outline.effectColor = new Color32(87, 202, 212, 120);
+                outline.effectDistance = new Vector2(2f, -2f);
                 Button button = target.GetComponent<Button>();
-                ColorBlock colors = button.colors;
-                colors.highlightedColor = new Color(.55f, .82f, 1f, .16f);
-                colors.pressedColor = new Color(.4f, .7f, 1f, .24f);
-                button.colors = colors;
+                button.colors = AmbientInteractionPresentation.HotspotColors();
                 button.onClick.AddListener(() =>
                     AmbientInspectablePopup.Show(spec));
+                CreateHotspotLabel(target.transform, spec.Title);
                 spawned.Add(target);
             }
+        }
+
+        private static void CreateHotspotLabel(
+            Transform parent,
+            string title)
+        {
+            GameObject labelObject = new(
+                "State Label",
+                typeof(RectTransform),
+                typeof(TextMeshProUGUI));
+            labelObject.transform.SetParent(parent, false);
+            RectTransform rect = labelObject.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0f);
+            rect.anchorMax = new Vector2(0.5f, 0f);
+            rect.pivot = new Vector2(0.5f, 1f);
+            rect.anchoredPosition = new Vector2(0f, -4f);
+            rect.sizeDelta = new Vector2(190f, 30f);
+
+            TMP_Text label = labelObject.GetComponent<TMP_Text>();
+            TypographyService.Apply(label, TypographyRole.TechnicalStrong);
+            label.text = AmbientInteractionPresentation.HotspotLabel(title);
+            label.fontSize = 14f;
+            label.alignment = TextAlignmentOptions.Center;
+            label.color = new Color32(226, 238, 224, 235);
+            label.raycastTarget = false;
         }
 
         private void Clear()
@@ -159,12 +188,17 @@ namespace Wake.Exploration
                 typeof(RectTransform),
                 typeof(CanvasRenderer),
                 typeof(Image),
-                typeof(Outline));
+                typeof(Outline),
+                typeof(Button));
             panel.transform.SetParent(active.transform, false);
             RectTransform panelRect = panel.GetComponent<RectTransform>();
             panelRect.anchorMin = panelRect.anchorMax = new Vector2(.5f, .5f);
-            panelRect.sizeDelta = new Vector2(720f, 780f);
+            panelRect.sizeDelta =
+                AmbientInteractionPresentation.PopupSize(
+                    scaler.referenceResolution);
             panel.GetComponent<Image>().color = new Color32(24, 29, 43, 252);
+            Button inputBlocker = panel.GetComponent<Button>();
+            inputBlocker.transition = Selectable.Transition.None;
             Outline outline = panel.GetComponent<Outline>();
             outline.effectColor = new Color32(200, 155, 76, 255);
             outline.effectDistance = new Vector2(3f, -3f);
@@ -183,11 +217,15 @@ namespace Wake.Exploration
             art.texture = sheet;
             art.uvRect = spec.ImageUv;
             art.raycastTarget = false;
+            artObject.SetActive(sheet != null);
 
             CreateText(panel.transform, spec.Title, 32f, FontStyles.Bold,
+                TypographyRole.HeadingStrong,
                 new Vector2(40f, 158f), new Vector2(-40f, 220f));
             CreateText(panel.transform, spec.Description, 22f, FontStyles.Normal,
+                TypographyRole.BodyRegular,
                 new Vector2(54f, 42f), new Vector2(-54f, 150f));
+            CreateCloseButton(panel.transform);
         }
 
         private static void CreateText(
@@ -195,6 +233,7 @@ namespace Wake.Exploration
             string text,
             float size,
             FontStyles style,
+            TypographyRole role,
             Vector2 offsetMin,
             Vector2 offsetMax)
         {
@@ -207,13 +246,52 @@ namespace Wake.Exploration
             rect.offsetMin = offsetMin;
             rect.offsetMax = offsetMax;
             TMP_Text label = textObject.GetComponent<TMP_Text>();
-            label.font = StatusHUDController.RuntimeKoreanFont;
+            TypographyService.Apply(label, role);
             label.text = text;
             label.fontSize = size;
             label.fontStyle = style;
             label.alignment = TextAlignmentOptions.Center;
             label.color = Color.white;
             label.textWrappingMode = TextWrappingModes.Normal;
+            label.raycastTarget = false;
+        }
+
+        private static void CreateCloseButton(Transform parent)
+        {
+            GameObject target = new(
+                "Close",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(Button));
+            target.transform.SetParent(parent, false);
+            RectTransform rect = target.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(1f, 1f);
+            rect.anchoredPosition = new Vector2(-20f, -20f);
+            rect.sizeDelta = new Vector2(96f, 48f);
+            target.GetComponent<Image>().color = Color.white;
+
+            Button button = target.GetComponent<Button>();
+            button.colors = AmbientInteractionPresentation.CharacterColors();
+            button.onClick.AddListener(Close);
+
+            GameObject labelObject = new(
+                "Label",
+                typeof(RectTransform),
+                typeof(TextMeshProUGUI));
+            labelObject.transform.SetParent(target.transform, false);
+            RectTransform labelRect = labelObject.GetComponent<RectTransform>();
+            labelRect.anchorMin = Vector2.zero;
+            labelRect.anchorMax = Vector2.one;
+            labelRect.offsetMin = Vector2.zero;
+            labelRect.offsetMax = Vector2.zero;
+            TMP_Text label = labelObject.GetComponent<TMP_Text>();
+            TypographyService.Apply(label, TypographyRole.Choice);
+            label.text = "닫기";
+            label.fontSize = 18f;
+            label.alignment = TextAlignmentOptions.Center;
+            label.color = Color.white;
             label.raycastTarget = false;
         }
 

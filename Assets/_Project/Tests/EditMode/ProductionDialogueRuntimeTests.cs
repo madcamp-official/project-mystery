@@ -108,11 +108,13 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void PortraitCatalog_LoadsAllThirtySixExpressionSprites()
+        public void PortraitCatalog_LoadsThirtySixCoreCharacterExpressionSprites()
         {
             int loaded = 0;
             foreach (DialoguePortraitDefinition definition in
-                     DialoguePortraitCatalog.All)
+                     DialoguePortraitCatalog.All.Where(definition =>
+                         !definition.FallbackTexture.StartsWith(
+                             "AmbientCharacters/")))
             {
                 Sprite[] sprites = Resources.LoadAll<Sprite>(
                     $"{DialoguePortraitCatalog.ResourceFolder}/" +
