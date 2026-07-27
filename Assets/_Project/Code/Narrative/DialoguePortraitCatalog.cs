@@ -77,23 +77,23 @@ namespace Wake.Narrative
                 new Rect(0.70f, 0f, 0.30f, 1f)),
             D("OWEN", "Owen Price", "owen_price"),
             D("PASSENGER_A", "승객", "passenger_a",
-                "AmbientCharacters/passengers_a_c", Third(0)),
+                "AmbientCharacters/passenger_a"),
             D("PASSENGER_B", "승객", "passenger_b",
-                "AmbientCharacters/passengers_a_c", Third(1)),
+                "AmbientCharacters/passenger_b"),
             D("PASSENGER_C", "승객", "passenger_c",
-                "AmbientCharacters/passengers_a_c", Third(2)),
+                "AmbientCharacters/passenger_c"),
             D("PASSENGER_D", "승객", "passenger_d",
-                "AmbientCharacters/passengers_d_f", Third(0)),
+                "AmbientCharacters/passenger_d"),
             D("PASSENGER_E", "승객", "passenger_e",
-                "AmbientCharacters/passengers_d_f", Third(1)),
+                "AmbientCharacters/passenger_e"),
             D("PASSENGER_F", "승객", "passenger_f",
-                "AmbientCharacters/passengers_d_f", Third(2)),
+                "AmbientCharacters/passenger_f"),
             D("CREW_ATTENDANT", "객실 승무원", "crew_attendant",
-                "AmbientCharacters/crew_ambient", Third(0)),
+                "AmbientCharacters/crew_attendant"),
             D("CREW_ENGINEER", "기관 승무원", "crew_engineer",
-                "AmbientCharacters/crew_ambient", Third(1)),
+                "AmbientCharacters/crew_engineer"),
             D("CREW_SECURITY", "보안 승무원", "crew_security",
-                "AmbientCharacters/crew_ambient", Third(2))
+                "AmbientCharacters/crew_security")
         };
 
         private static readonly IReadOnlyDictionary<string, DialoguePortraitDefinition>
@@ -209,9 +209,6 @@ namespace Wake.Narrative
                 fallback ?? sheet,
                 crop ?? StandardFallback);
         }
-
-        private static Rect Third(int index) =>
-            new(index / 3f, 0f, 1f / 3f, 1f);
 
         private static string EmotionSuffix(PortraitEmotion emotion) => emotion switch
         {

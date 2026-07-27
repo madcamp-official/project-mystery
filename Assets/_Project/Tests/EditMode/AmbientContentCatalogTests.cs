@@ -43,7 +43,7 @@ namespace Wake.Tests
                         PortraitEmotion.Neutral);
                 Assert.That(asset.Found, Is.True, speaker);
                 Assert.That(asset.Texture, Is.Not.Null, speaker);
-                Assert.That(asset.UvRect.width, Is.EqualTo(1f / 3f).Within(.001f));
+                Assert.That(asset.UvRect.width, Is.EqualTo(.54f).Within(.001f));
             }
         }
 
@@ -81,6 +81,9 @@ namespace Wake.Tests
             Assert.That(
                 passengerA.FallbackTexture,
                 Is.Not.EqualTo(passengerF.FallbackTexture));
+            Assert.That(
+                passengerA.FallbackTexture,
+                Is.EqualTo("AmbientCharacters/passenger_a"));
         }
     }
 }
