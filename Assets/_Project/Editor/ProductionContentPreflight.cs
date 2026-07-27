@@ -62,7 +62,11 @@ namespace Wake.Editor
         public const string ScenePath =
             "Assets/_Project/Scenes/UI/UI Basic Scene.unity";
         public const string CsvPath = "Assets/_Project/Content/Dialogue/" +
-            "The_Wake_Without_Footprints_Dialogue_KR.csv";
+            "Under_the_Horizon_Dialogue_KR.csv";
+        public const string ChoicesPath = "Assets/_Project/Content/Dialogue/" +
+            "Under_the_Horizon_Choices_KR.csv";
+        public const string SceneIndexPath = "Assets/_Project/Content/Dialogue/" +
+            "Under_the_Horizon_Scene_Index_KR.csv";
         private const string DialogueScriptPath =
             "Assets/_Project/Code/Narrative/DialogueDatabase.cs";
         private const string LocationFolder =
@@ -133,10 +137,29 @@ namespace Wake.Editor
             DialogueCsvParseResult parsed = DialogueCsvParser.Parse(csv.text);
             int scenes = parsed.Records.Select(record => record.SceneId)
                 .Distinct(StringComparer.Ordinal).Count();
-            if (parsed.Records.Count != 200 || scenes != 41)
+            if (parsed.Records.Count !=
+                    OfficialDialogueContractValidator.ExpectedDialogueCount ||
+                scenes != OfficialDialogueContractValidator.ExpectedSceneCount)
                 Error(items, "DIALOGUE_SHAPE", CsvPath,
-                    $"200행/41개 장면이 필요합니다. " +
+                    $"1,063행/41개 장면이 필요합니다. " +
                     $"{parsed.Records.Count}행/{scenes}개 장면");
+            TextAsset choices =
+                AssetDatabase.LoadAssetAtPath<TextAsset>(ChoicesPath);
+            TextAsset sceneIndex =
+                AssetDatabase.LoadAssetAtPath<TextAsset>(SceneIndexPath);
+            if (choices == null || sceneIndex == null)
+            {
+                Error(items, "DIALOGUE_SHAPE", CsvPath,
+                    "Choice_Flow 또는 Scene_Index CSV가 없습니다.");
+            }
+            else
+            {
+                OfficialDialogueContractReport contract =
+                    OfficialDialogueContractValidator.Validate(
+                        csv.text, choices.text, sceneIndex.text);
+                foreach (string error in contract.Errors)
+                    Error(items, "DIALOGUE_SHAPE", CsvPath, error);
+            }
             foreach (DialogueDiagnostic diagnostic in
                      DialogueContentValidator.Validate(csv.text).Diagnostics
                          .Where(item => item.Severity ==

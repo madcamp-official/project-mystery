@@ -7,7 +7,7 @@ namespace Wake.Tests
     public class DialogueContentValidatorTests
     {
         private const string Path =
-            "Assets/_Project/Content/Dialogue/The_Wake_Without_Footprints_Dialogue_KR.csv";
+            "Assets/_Project/Content/Dialogue/Under_the_Horizon_Dialogue_KR.csv";
         private string csv;
         [OneTimeSetUp]
         public void LoadCsv()
@@ -65,18 +65,39 @@ namespace Wake.Tests
         public void Validator_ReportsChoiceGroupContract()
         {
             DialogueValidationReport report = DialogueContentValidator.Validate(
-                csv.Replace(",P-01_C1,Daniel", ",BROKEN_CHOICE,Daniel"));
+                csv.Replace(",P-01_C1,", ",BROKEN_CHOICE,"));
             Assert.That(report.Diagnostics.Any(item => item.Code == "CHOICE_ID"), Is.True);
-            Assert.That(report.Diagnostics.Any(item => item.Code == "CHOICE_GROUP_SIZE"), Is.True);
         }
 
         [Test]
         public void Validator_ReportsMissingConditionScene()
         {
             DialogueValidationReport report = DialogueContentValidator.Validate(
-                csv.Replace(",observe,P-01,,,GANGWAY,", ",observe,P-99,,,GANGWAY,"));
+                csv.Replace("choice(P-01_C1)", "choice(P-99_C1)"));
             Assert.That(
                 report.Diagnostics.Any(item => item.Code == "CONDITION_SCENE_MISSING"),
+                Is.True);
+        }
+
+        [Test]
+        public void Validator_ReportsMissingBranchGroup()
+        {
+            DialogueValidationReport report = DialogueContentValidator.Validate(
+                csv.Replace(",P-01_WARN,", ",,"));
+            Assert.That(
+                report.Diagnostics.Any(item =>
+                    item.Code == "BRANCH_GROUP_REQUIRED"),
+                Is.True);
+        }
+
+        [Test]
+        public void Validator_ReportsUnknownLineType()
+        {
+            DialogueValidationReport report = DialogueContentValidator.Validate(
+                csv.Replace(",narration,NARRATION,", ",unknown_type,NARRATION,"));
+            Assert.That(
+                report.Diagnostics.Any(item =>
+                    item.Code == "LINE_TYPE_UNKNOWN"),
                 Is.True);
         }
     }

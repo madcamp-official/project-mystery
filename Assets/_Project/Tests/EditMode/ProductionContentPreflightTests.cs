@@ -39,7 +39,7 @@ namespace Wake.Tests
             Assert.That(Find("TIMELINE_SOURCE_MISSING").Message,
                 Does.Contain("5개"));
             Assert.That(Find("VOICE_CLIP_MISSING").Message,
-                Does.Contain("105개"));
+                Does.Contain("668개"));
             Assert.That(Find("KOREAN_FONT_MISSING").Message,
                 Does.Contain("한국어 글꼴"));
         }

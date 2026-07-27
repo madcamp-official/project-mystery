@@ -57,35 +57,23 @@ namespace Wake.Narrative
 
     public static class DialogueContentValidator
     {
-        private const int ExpectedChoiceGroups = 15;
-        private const int ExpectedChoicesPerGroup = 2;
+        private const int MaximumChoicesPerGroup = 8;
         private static readonly HashSet<string> KnownSpeakers = new(StringComparer.Ordinal)
         {
-            "ADRIAN", "ADRIAN_\uB3C5\uBC31", "CLAIRE", "CLAIRE(\uC120\uD0DD)",
-            "DANIEL", "EVELYN", "EVELYN_RECORD", "HELENA", "JULIAN_RECORD",
-            "MARCUS", "NARRATION", "OWEN", "PLAYER_CHOICE", "RICHARD",
-            "SYSTEM", "THOMAS", "\uC0DD\uC874\uC790", "\uC2B9\uBB34\uC6D0_NPC",
-            "\uC804\uC6D0"
+            "ADRIAN", "ANON_CHAT", "CLAIRE", "CREW_ATTENDANT", "DANIEL",
+            "DANIEL_CHAT", "EVELYN", "EVELYN_MESSAGE", "EVELYN_RECORD",
+            "HELENA", "JULIAN_RECORD", "MARCUS", "NARRATION", "NEWS_REPORT",
+            "OWEN", "PASSENGER_A", "PASSENGER_B", "PLAYER_CHOICE", "RICHARD",
+            "SYSTEM", "THOMAS", "THOMAS_RECORD", "UI_HINT"
         };
-        private static readonly HashSet<string> KnownEmotions = new(StringComparer.Ordinal)
+        private static readonly HashSet<string> KnownLineTypes = new(StringComparer.Ordinal)
         {
-            "accuse", "alarmed", "anger", "ashamed", "broken", "calm", "choice",
-            "clinical", "cold", "confused", "controlled", "deduction", "defeated",
-            "defensive", "defiant", "dry", "fake_fear", "fear", "final", "focused",
-            "grim", "hard", "neutral", "observe", "recorded", "shaken", "system",
-            "tense", "warning"
-        };
-        private static readonly HashSet<string> KnownStages = new(StringComparer.Ordinal)
-        {
-            "ARCHIVE", "BALLAST", "BRIDGE", "CABIN_CLAIRE", "CABIN_DANIEL",
-            "DECK10_SUITE", "DECK8_ATRIUM", "DECK9_BALLROOM", "DECK9_DINING",
-            "ENGINE_CTRL", "EVIDENCE_BOARD", "FORENSIC", "GANGWAY", "HORIZON",
-            "INTERVIEW", "MEDBAY", "NEWS_LOUNGE", "PORT", "PROMENADE",
-            "SECURITY", "SERVICE7", "SERVICE_RAIL", "STAIR_B", "STERN", "VAULT",
-            "UI choice"
+            "branch_response", "choice", "dialogue", "ending_title",
+            "ending_trigger", "fallback", "hint", "inspection", "monologue",
+            "narration", "puzzle_feedback", "recording", "system"
         };
         private static readonly Regex ChoicePattern =
-            new(@"^(?<group>[A-Z0-9]+-\d{2})_C[12]$", RegexOptions.Compiled);
+            new(@"^[A-Z0-9]+-\d{2}_[A-Z0-9_]+$", RegexOptions.Compiled);
         private static readonly Regex SceneReferencePattern =
             new(@"\b(?:P|D\d|I|F)-\d{2}\b", RegexOptions.Compiled);
 
@@ -139,7 +127,8 @@ namespace Wake.Narrative
                 Require(record.Speaker, record, "speaker", diagnostics);
                 Require(record.TextKo, record, "text_ko", diagnostics);
                 Require(record.Emotion, record, "emotion", diagnostics);
-                Require(record.StageDirection, record, "stage_direction", diagnostics);
+                Require(record.LineId, record, "line_id", diagnostics);
+                Require(record.LineType, record, "line_type", diagnostics);
                 ValidateOrder(record, sceneOrders, diagnostics);
                 ValidateStableId(record, stableIds, diagnostics);
                 ValidateToken(record, diagnostics);
@@ -216,18 +205,14 @@ namespace Wake.Narrative
             {
                 Error(diagnostics, "SPEAKER_UNKNOWN", record, "speaker", record.Speaker);
             }
-            if (!KnownEmotions.Contains(record.Emotion))
-            {
-                Error(diagnostics, "EMOTION_UNKNOWN", record, "emotion", record.Emotion);
-            }
-            if (!KnownStages.Contains(record.StageDirection))
+            if (!KnownLineTypes.Contains(record.LineType))
             {
                 Error(
                     diagnostics,
-                    "STAGE_UNKNOWN",
+                    "LINE_TYPE_UNKNOWN",
                     record,
-                    "stage_direction",
-                    record.StageDirection);
+                    "line_type",
+                    record.LineType);
             }
         }
 
@@ -277,13 +262,22 @@ namespace Wake.Narrative
             {
                 return;
             }
-            Match match = ChoicePattern.Match(record.ChoiceId);
-            if (!match.Success)
+            if (!ChoicePattern.IsMatch(record.ChoiceId))
             {
                 Error(diagnostics, "CHOICE_ID", record, "choice_id", record.ChoiceId);
                 return;
             }
-            string group = match.Groups["group"].Value;
+            if (string.IsNullOrWhiteSpace(record.BranchGroup))
+            {
+                Error(
+                    diagnostics,
+                    "BRANCH_GROUP_REQUIRED",
+                    record,
+                    "branch_group",
+                    "A choice must declare its branch group.");
+                return;
+            }
+            string group = record.BranchGroup;
             if (!groups.TryGetValue(group, out List<DialogueRecord> choices))
             {
                 choices = new List<DialogueRecord>();
@@ -320,26 +314,17 @@ namespace Wake.Narrative
             IReadOnlyDictionary<string, List<DialogueRecord>> groups,
             ICollection<DialogueDiagnostic> diagnostics)
         {
-            if (groups.Count != ExpectedChoiceGroups)
-            {
-                Add(
-                    diagnostics,
-                    DialogueDiagnosticSeverity.Error,
-                    "CHOICE_GROUP_COUNT",
-                    0,
-                    "choice_id",
-                    $"Expected {ExpectedChoiceGroups} groups but found {groups.Count}.");
-            }
             foreach ((string group, List<DialogueRecord> choices) in groups)
             {
-                if (choices.Count != ExpectedChoicesPerGroup)
+                if (choices.Count > MaximumChoicesPerGroup)
                 {
                     Error(
                         diagnostics,
                         "CHOICE_GROUP_SIZE",
                         choices[0],
                         "choice_id",
-                        $"Group '{group}' has {choices.Count} choices.");
+                        $"Group '{group}' has {choices.Count} choices; " +
+                        $"the UI supports at most {MaximumChoicesPerGroup}.");
                 }
             }
         }
@@ -394,7 +379,7 @@ namespace Wake.Narrative.Editor
     public static class DialogueValidationMenu
     {
         private const string ProductionPath =
-            "Assets/_Project/Content/Dialogue/The_Wake_Without_Footprints_Dialogue_KR.csv";
+            "Assets/_Project/Content/Dialogue/Under_the_Horizon_Dialogue_KR.csv";
 
         [MenuItem("Wake/Dialogue/Validate Production CSV")]
         public static void ValidateProductionCsv()
