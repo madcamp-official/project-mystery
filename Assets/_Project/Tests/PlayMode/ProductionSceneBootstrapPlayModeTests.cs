@@ -239,7 +239,7 @@ namespace Wake.Tests.PlayMode
             Assert.That(GameStateManager.HasSaveData, Is.True);
             Assert.That(
                 RequireObject("StartScene/Continue Btn").activeSelf,
-                Is.True);
+                Is.False);
             yield return ContinueFromVisibleButton();
 
             Assert.That(Dialogue.IsBusy, Is.True);

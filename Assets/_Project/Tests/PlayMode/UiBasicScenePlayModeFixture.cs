@@ -88,18 +88,33 @@ namespace Wake.Tests.PlayMode
                 "새 게임 버튼은 시작 화면에서 보여야 합니다.");
 
             yield return InvokeAndSettle(startButton);
+            Button slot = RequireObject("StartScene/Save Slot Selection")
+                .GetComponentsInChildren<Button>(true)
+                .First(button =>
+                    button.name.StartsWith("Save Slot") &&
+                    button.GetComponentInChildren<TMP_Text>(true).text.Contains("빈 슬롯"));
+            yield return InvokeAndSettle(slot);
+            Button confirm = RequireObject(
+                    "StartScene/Save Slot Selection/Start Confirmation/Confirm")
+                .GetComponent<Button>();
+            yield return InvokeAndSettle(confirm);
         }
 
         protected IEnumerator ContinueFromVisibleButton()
         {
-            Button continueButton =
-                RequireComponent<Button>("StartScene/Continue Btn");
-            Assert.That(
-                continueButton.gameObject.activeInHierarchy,
-                Is.True,
-                "저장된 체크포인트가 있으면 이어하기 버튼이 보여야 합니다.");
-
-            yield return InvokeAndSettle(continueButton);
+            Button startButton =
+                RequireComponent<Button>("StartScene/Start Game Btn");
+            yield return InvokeAndSettle(startButton);
+            Button slot = RequireObject("StartScene/Save Slot Selection")
+                .GetComponentsInChildren<Button>(true)
+                .First(button =>
+                    button.name.StartsWith("Save Slot") &&
+                    button.GetComponentInChildren<TMP_Text>(true).text.Contains("저장된 수사"));
+            yield return InvokeAndSettle(slot);
+            Button confirm = RequireObject(
+                    "StartScene/Save Slot Selection/Start Confirmation/Confirm")
+                .GetComponent<Button>();
+            yield return InvokeAndSettle(confirm);
         }
 
         protected IEnumerator InvokeAndSettle(Button button)
@@ -326,9 +341,17 @@ namespace Wake.Tests.PlayMode
 
         private static void ClearSavedGame()
         {
+            GameStateManager.SetActiveSaveSlot(1);
             PlayerPrefs.DeleteKey(SaveKey);
             PlayerPrefs.DeleteKey(SaveKey + "_BACKUP");
             PlayerPrefs.DeleteKey(SaveKey + "_PENDING");
+            for (int slot = 2; slot <= 3; slot++)
+            {
+                string slotKey = $"{SaveKey}_SLOT_{slot}";
+                PlayerPrefs.DeleteKey(slotKey);
+                PlayerPrefs.DeleteKey(slotKey + "_BACKUP");
+                PlayerPrefs.DeleteKey(slotKey + "_PENDING");
+            }
             PlayerPrefs.Save();
         }
     }
