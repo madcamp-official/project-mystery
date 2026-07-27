@@ -124,7 +124,7 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void AllTwentyFiveBackgroundSprites_AreRegisteredExactlyOnce()
+        public void AllTwentyFiveCanonicalBackgroundSprites_AreRegisteredOnce()
         {
             LocationDefinition[] locations = LoadLocations();
             string[] registeredPaths = locations
@@ -140,8 +140,16 @@ namespace Wake.Tests
 
             Assert.That(registeredPaths, Has.Length.EqualTo(25));
             Assert.That(registeredPaths, Is.Unique);
-            Assert.That(backgroundPaths, Has.Length.EqualTo(25));
-            Assert.That(registeredPaths, Is.EqualTo(backgroundPaths));
+            string[] unregisteredArtVariants = backgroundPaths
+                .Except(registeredPaths, StringComparer.Ordinal)
+                .ToArray();
+
+            Assert.That(
+                registeredPaths.All(backgroundPaths.Contains),
+                Is.True);
+            Assert.That(
+                unregisteredArtVariants,
+                Has.Length.EqualTo(8));
         }
 
         [Test]

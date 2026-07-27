@@ -183,6 +183,14 @@ namespace Wake.Editor
             fontAsset.atlasPopulationMode = AtlasPopulationMode.Dynamic;
             fontAsset.isMultiAtlasTexturesEnabled = true;
             AssetDatabase.CreateAsset(fontAsset, assetPath);
+            TypographyWhitespaceResult whitespace =
+                TypographyWhitespacePolicy.Ensure(fontAsset);
+            if (!whitespace.IsReady)
+            {
+                throw new InvalidOperationException(
+                    $"{specification.AssetName} cannot render required " +
+                    "whitespace characters.");
+            }
             AddGeneratedSubAssets(fontAsset);
             EditorUtility.SetDirty(fontAsset);
             return fontAsset;

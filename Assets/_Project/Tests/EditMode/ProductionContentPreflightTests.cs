@@ -1,7 +1,9 @@
 using System.Linq;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEditor.Build;
 using Wake.Editor;
+using Wake.Narrative;
 
 namespace Wake.Tests
 {
@@ -32,10 +34,8 @@ namespace Wake.Tests
                 .Select(item => item.Code).OrderBy(code => code).ToArray();
             Assert.That(codes, Is.EqualTo(new[]
             {
-                "TIMELINE_SOURCE_MISSING", "VOICE_CLIP_MISSING"
+                "VOICE_CLIP_MISSING"
             }));
-            Assert.That(Find("TIMELINE_SOURCE_MISSING").Message,
-                Does.Contain("5개"));
             Assert.That(Find("VOICE_CLIP_MISSING").Message,
                 Does.Contain("668개"));
         }
@@ -64,6 +64,38 @@ namespace Wake.Tests
                 "SERIALIZED_REFERENCE", "TEXT_ENCODING"
             };
             Assert.That(codes.Distinct().Count(), Is.EqualTo(8));
+        }
+
+        [Test]
+        public void PortraitContract_SeparatesCoreExpressionsAndAmbientFallbacks()
+        {
+            DialoguePortraitDefinition[] expressions =
+                DialoguePortraitCatalog.All
+                    .Where(item => item.UsesExpressionSprites)
+                    .ToArray();
+            DialoguePortraitDefinition[] fallbacks =
+                DialoguePortraitCatalog.All
+                    .Where(item => !item.UsesExpressionSprites)
+                    .ToArray();
+
+            Assert.That(expressions, Has.Length.EqualTo(9));
+            Assert.That(fallbacks, Has.Length.EqualTo(9));
+            Assert.That(
+                fallbacks.All(item =>
+                    item.FallbackTexture.StartsWith(
+                        "AmbientCharacters/")),
+                Is.True);
+            foreach (DialoguePortraitDefinition portrait in fallbacks)
+            {
+                string path =
+                    $"Assets/_Project/Resources/" +
+                    $"{portrait.FallbackTexture}.png";
+                Assert.That(
+                    AssetDatabase.LoadAssetAtPath<UnityEngine.Texture2D>(
+                        path),
+                    Is.Not.Null,
+                    portrait.CharacterId);
+            }
         }
 
         private ProductionPreflightDiagnostic Find(string code) =>
