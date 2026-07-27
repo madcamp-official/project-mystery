@@ -127,6 +127,14 @@ namespace Wake.Tests
                     asset.VisibleBottomMargin,
                     Is.InRange(0f, 0.15f),
                     speaker);
+                Assert.That(
+                    asset.VisibleTopMargin,
+                    Is.InRange(0f, 0.13f),
+                    speaker);
+                Assert.That(
+                    asset.VisibleVerticalSpan,
+                    Is.InRange(0.72f, 0.98f),
+                    speaker);
             }
         }
 

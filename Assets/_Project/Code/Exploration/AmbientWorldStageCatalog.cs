@@ -163,7 +163,7 @@ namespace Wake.Exploration
                 NeutralInterior, -.014f, -.010f, .45f, .62f),
             S("ARCHIVE", "ARCHIVIST", .68f, .035f, .56f, true,
                 WarmInterior, -.018f, -.010f, .40f, .62f),
-            S("LAUNDRY", "LAUNDRY_SUPERVISOR", .38f, .055f, .50f, false,
+            S("LAUNDRY", "LAUNDRY_SUPERVISOR", .38f, .055f, .60f, false,
                 new Color32(188, 169, 165, 255),
                 .014f, -.010f, .44f, .62f),
             S("SERVICE_HUB", "ROBOTICS_TECH", .72f, .035f, .55f, true,
