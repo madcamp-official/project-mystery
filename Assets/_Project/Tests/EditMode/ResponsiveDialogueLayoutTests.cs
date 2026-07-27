@@ -214,12 +214,46 @@ namespace Wake.Tests
             Assert.That(
                 fitter.verticalFit,
                 Is.EqualTo(ContentSizeFitter.FitMode.PreferredSize));
+        }
+
+        [Test]
+        public void DialogueLabels_KeepAuthoredFontSettingsUntouched()
+        {
+            using LayoutRig rig = new(1920f, 1080f);
+
+            // Font size/wrapping/overflow are left exactly as the scene
+            // (Inspector) authored them - ConfigureText must not force
+            // any of these, unlike the scroll/mask plumbing above.
             Assert.That(
                 rig.LineText.overflowMode,
-                Is.EqualTo(TextOverflowModes.Overflow));
+                Is.EqualTo(rig.AuthoredLineTextOverflow));
+            Assert.That(
+                rig.LineText.fontSize,
+                Is.EqualTo(rig.AuthoredLineTextFontSize));
+            Assert.That(
+                rig.LineText.enableAutoSizing,
+                Is.EqualTo(rig.AuthoredLineTextAutoSizing));
             Assert.That(
                 rig.SpeakerText.overflowMode,
-                Is.EqualTo(TextOverflowModes.Ellipsis));
+                Is.EqualTo(rig.AuthoredSpeakerTextOverflow));
+        }
+
+        [TestCase(1920f, 1080f)]
+        [TestCase(1920f, 1200f)]
+        public void LineText_PlacementFollowsBaselineNotFormula(
+            float width,
+            float height)
+        {
+            using LayoutRig rig = new(width, height);
+            Rect fullSafeArea = new(0f, 0f, width, height);
+            Vector2 screenSize = new(width, height);
+
+            rig.Layout.ApplyLayout(fullSafeArea, screenSize);
+
+            Assert.That(rig.LineText.rectTransform.anchoredPosition,
+                Is.EqualTo(rig.AuthoredLineTextPosition).Using(Vector2Comparer));
+            Assert.That(rig.LineText.rectTransform.sizeDelta,
+                Is.EqualTo(rig.AuthoredLineTextSize).Using(Vector2Comparer));
         }
 
         private static readonly Vector2EqualityComparer Vector2Comparer =
@@ -304,7 +338,23 @@ namespace Wake.Tests
                 Choices = CreateRect("Select Btn", LinePanel);
 
                 LineText = CreateText("line", Panel);
+                AuthoredLineTextOverflow = TextOverflowModes.Linked;
+                AuthoredLineTextFontSize = 31f;
+                AuthoredLineTextAutoSizing = true;
+                AuthoredLineTextPosition = new Vector2(-40f, -30f);
+                AuthoredLineTextSize = new Vector2(-120f, 0f);
+                LineText.overflowMode = AuthoredLineTextOverflow;
+                LineText.fontSize = AuthoredLineTextFontSize;
+                LineText.enableAutoSizing = AuthoredLineTextAutoSizing;
+                LineText.rectTransform.anchorMin = new Vector2(0f, 1f);
+                LineText.rectTransform.anchorMax = new Vector2(1f, 1f);
+                LineText.rectTransform.pivot = new Vector2(0.5f, 1f);
+                LineText.rectTransform.anchoredPosition = AuthoredLineTextPosition;
+                LineText.rectTransform.sizeDelta = AuthoredLineTextSize;
+
                 SpeakerText = CreateText("Text (TMP)", SpeakerPlate);
+                AuthoredSpeakerTextOverflow = TextOverflowModes.Truncate;
+                SpeakerText.overflowMode = AuthoredSpeakerTextOverflow;
                 Portrait = CreateRect(
                     "Speaker Portrait",
                     LinePanel,
@@ -360,6 +410,12 @@ namespace Wake.Tests
             public Vector2 AuthoredLinePanelSize { get; }
             public Vector2 AuthoredNextButtonPosition { get; }
             public Vector2 AuthoredNextButtonSize { get; }
+            public TextOverflowModes AuthoredLineTextOverflow { get; private set; }
+            public float AuthoredLineTextFontSize { get; private set; }
+            public bool AuthoredLineTextAutoSizing { get; private set; }
+            public Vector2 AuthoredLineTextPosition { get; private set; }
+            public Vector2 AuthoredLineTextSize { get; private set; }
+            public TextOverflowModes AuthoredSpeakerTextOverflow { get; private set; }
 
             public void Dispose()
             {

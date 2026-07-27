@@ -98,6 +98,7 @@ namespace Wake.UI
         private RectBaseline evidenceBtnBaseline;
         private RectBaseline mapBtnBaseline;
         private RectBaseline settingsBtnBaseline;
+        private RectBaseline lineTextBaseline;
 
         public ScrollRect DialogueScroll => dialogueScroll;
 
@@ -140,15 +141,20 @@ namespace Wake.UI
 
             ConfigureCanvasScaler();
             ConfigureIngameRoot();
+
+            // Capture the baseline before ConfigureText/ConfigureChoices
+            // run: those add ContentSizeFitter/GridLayoutGroup, and
+            // Unity's layout system can nudge anchoredPosition/sizeDelta
+            // the moment such a component is configured. Capturing
+            // after that would baseline the post-mutation values
+            // instead of what was actually authored in the scene.
+            CaptureBaselines(
+                Screen.safeArea, new Vector2(Screen.width, Screen.height));
+            baselineCaptured = true;
+
             ConfigureText();
             ConfigurePortrait();
             ConfigureChoices();
-            baselineCaptured = false;
-            // The first ApplyLayout call (from LateUpdate on the next
-            // tick, or from a caller that wants a specific starting
-            // point) captures whatever is on the RectTransforms right
-            // now as the baseline. We don't force that call here so
-            // tests can control exactly what the baseline is.
         }
 
         /// <summary>
@@ -175,6 +181,8 @@ namespace Wake.UI
                 mapBtnBaseline = new RectBaseline(mapBtn);
             if (settingsBtn != null)
                 settingsBtnBaseline = new RectBaseline(settingsBtn);
+            if (lineText != null)
+                lineTextBaseline = new RectBaseline(lineText.rectTransform);
         }
 
         /// <summary>
@@ -228,6 +236,10 @@ namespace Wake.UI
             ApplyBaseline(evidenceBtn, evidenceBtnBaseline, scale);
             ApplyBaseline(mapBtn, mapBtnBaseline, scale);
             ApplyBaseline(settingsBtn, settingsBtnBaseline, scale);
+            ApplyBaseline(
+                lineText != null ? lineText.rectTransform : null,
+                lineTextBaseline,
+                scale);
             UpdateChoiceGrid();
 
             // Portrait/speaker plate are created fresh in code every run
@@ -297,8 +309,9 @@ namespace Wake.UI
 
         private void ConfigureText()
         {
-            ConfigureLabel(lineText, 28f, 44f, TextOverflowModes.Overflow);
-            ConfigureLabel(speakerText, 26f, 40f, TextOverflowModes.Ellipsis);
+            // Font size, wrapping, and overflow mode are left exactly as
+            // authored on the TMP components in the scene (Inspector),
+            // not forced here.
             if (textPanel == null || lineText == null)
                 return;
 
@@ -309,11 +322,6 @@ namespace Wake.UI
                 textPanel.gameObject.AddComponent<RectMask2D>();
 
             RectTransform lineRect = lineText.rectTransform;
-            lineRect.anchorMin = new Vector2(0f, 1f);
-            lineRect.anchorMax = new Vector2(1f, 1f);
-            lineRect.pivot = new Vector2(0.5f, 1f);
-            lineRect.anchoredPosition = new Vector2(-76f, -72f);
-            lineRect.sizeDelta = new Vector2(-232f, 0f);
             ContentSizeFitter fitter =
                 lineText.GetComponent<ContentSizeFitter>();
             if (fitter == null)
