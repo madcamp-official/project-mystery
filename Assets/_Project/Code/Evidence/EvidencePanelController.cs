@@ -174,13 +174,21 @@ namespace Wake.Evidence
 
         public void Refresh()
         {
+            Refresh(null);
+        }
+
+        public void Refresh(string preferredEvidenceId)
+        {
             string selectedId = GetSelectedItem()?.Id;
             viewModel = EvidencePanelPresentation.Create(
                 EvidenceInventory.Instance,
                 Wake.Core.GameStateManager.Instance?.EvidenceIntegrity ?? 100);
-            int restoredIndex = string.IsNullOrEmpty(selectedId)
+            string targetId = string.IsNullOrEmpty(preferredEvidenceId)
+                ? selectedId
+                : preferredEvidenceId;
+            int restoredIndex = string.IsNullOrEmpty(targetId)
                 ? selectedIndex
-                : FindIndex(selectedId);
+                : FindIndex(targetId);
             selectedIndex = Mathf.Clamp(
                 restoredIndex,
                 0,

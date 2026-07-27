@@ -288,6 +288,12 @@ namespace Wake.UI
             EvidencePanelController.Instance?.Refresh();
         }
 
+        public void ShowEvidence(string evidenceId)
+        {
+            SetActivePanel(evidencePanel, UiPrimaryPanel.Evidence);
+            EvidencePanelController.Instance?.Refresh(evidenceId);
+        }
+
         public void OpenSettings()
         {
             if (!IsInitialized || settingsPopup == null || IsSettingsOpen)

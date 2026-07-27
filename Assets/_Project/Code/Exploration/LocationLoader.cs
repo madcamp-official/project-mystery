@@ -19,6 +19,7 @@ namespace Wake.Exploration
         private GameObject currentInstance;
         private Transform container;
         private BackgroundCoverPresenter backgroundPresenter;
+        private EvidenceLocationHotspotOverlay evidenceHotspots;
 
         private void Awake()
         {
@@ -80,6 +81,7 @@ namespace Wake.Exploration
                 location.BackgroundSprite,
                 location.BackgroundFocus,
                 location.BackgroundZoom);
+            evidenceHotspots?.Show(location.LocationCode);
             CurrentLocation = location;
             AudioManager.Instance?.PlayLocationTheme(location.LocationCode);
             GameStateManager.Instance?.RecordLocation(location.LocationCode);
@@ -89,7 +91,10 @@ namespace Wake.Exploration
 
         private void CreateBackgroundPresenter()
         {
-            GameObject canvasObject = new("LocationBackgroundCanvas", typeof(Canvas));
+            GameObject canvasObject = new(
+                "LocationBackgroundCanvas",
+                typeof(Canvas),
+                typeof(UnityEngine.UI.GraphicRaycaster));
             canvasObject.transform.SetParent(container, false);
             Canvas canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -103,6 +108,9 @@ namespace Wake.Exploration
                 presenterObject.GetComponent<BackgroundCoverPresenter>();
             backgroundPresenter.Initialize(
                 canvasObject.GetComponent<RectTransform>());
+            evidenceHotspots =
+                presenterObject.AddComponent<EvidenceLocationHotspotOverlay>();
+            evidenceHotspots.Initialize(backgroundPresenter.ContentRect);
         }
     }
 }

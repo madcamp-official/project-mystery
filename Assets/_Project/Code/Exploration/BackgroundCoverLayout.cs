@@ -65,6 +65,7 @@ namespace Wake.Exploration
         public Sprite Sprite => image != null ? image.sprite : null;
         public Vector2 Focus => focus;
         public float Zoom => zoom;
+        public RectTransform ContentRect => imageRect;
 
         public void Initialize(RectTransform parent)
         {
