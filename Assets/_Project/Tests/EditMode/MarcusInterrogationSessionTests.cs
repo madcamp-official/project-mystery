@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 using Wake.Core;
 using Wake.Evidence;
+using Wake.Narrative;
 using Wake.Puzzles;
 
 namespace Wake.Tests
@@ -10,9 +13,25 @@ namespace Wake.Tests
     public class MarcusInterrogationSessionTests
     {
         private const string SaveKey = "UNDER_THE_HORIZON_GAME_STATE_V2";
+        private const string DialoguePath =
+            "Assets/_Project/Content/Dialogue/Under_the_Horizon_Dialogue_KR.csv";
         private GameObject host;
         private GameStateManager state;
         private EvidenceInventory inventory;
+        private IReadOnlyList<MarcusQuestionDefinition> officialQuestions;
+
+        [OneTimeSetUp]
+        public void LoadOfficialQuestions()
+        {
+            TextAsset asset =
+                AssetDatabase.LoadAssetAtPath<TextAsset>(DialoguePath);
+            Assert.That(asset, Is.Not.Null, DialoguePath);
+            DialogueCsvParseResult parsed =
+                DialogueCsvParser.Parse(asset.text);
+            Assert.That(parsed.Success, Is.True, string.Join("\n", parsed.Errors));
+            officialQuestions =
+                MarcusInterrogationCatalog.Create(parsed.Records);
+        }
 
         [SetUp]
         public void SetUp()
@@ -35,7 +54,7 @@ namespace Wake.Tests
         [Test]
         public void AskingQuestion_PersistsAnswerAcrossManagerRecreation()
         {
-            var session = new MarcusInterrogationSession(state);
+            MarcusInterrogationSession session = CreateSession();
             Assert.That(
                 session.Ask(
                     MarcusInterrogationCatalog.AuthenticationQuestion,
@@ -47,7 +66,7 @@ namespace Wake.Tests
             inventory = host.AddComponent<EvidenceInventory>();
             inventory.BindState(state);
             state.ReloadSavedState();
-            var restored = new MarcusInterrogationSession(state);
+            MarcusInterrogationSession restored = CreateSession();
 
             Assert.That(restored.Answers, Has.Count.EqualTo(1));
             Assert.That(
@@ -86,7 +105,7 @@ namespace Wake.Tests
         [Test]
         public void Completion_RequiresAuthenticationAnswer()
         {
-            var session = new MarcusInterrogationSession(state);
+            MarcusInterrogationSession session = CreateSession();
             MarcusInterrogationCompletion result = session.Complete();
 
             Assert.That(result.Completed, Is.False);
@@ -102,9 +121,8 @@ namespace Wake.Tests
         [Test]
         public void ConfirmedAuthentication_GrantsC15AndTypedFlag()
         {
-            var session = new MarcusInterrogationSession(
-                state,
-                tryGrantEvidence: id => inventory.TryAddById(id));
+            MarcusInterrogationSession session =
+                CreateSession(id => inventory.TryAddById(id));
             session.Ask(
                 MarcusInterrogationCatalog.AuthenticationQuestion,
                 MarcusAnswer.Yes);
@@ -135,9 +153,8 @@ namespace Wake.Tests
                     MarcusInterrogationCatalog.AuthenticationEvidence),
                 Is.True);
             int grantAttempts = 0;
-            var session = new MarcusInterrogationSession(
-                state,
-                tryGrantEvidence: _ =>
+            MarcusInterrogationSession session =
+                CreateSession(_ =>
                 {
                     grantAttempts++;
                     return false;
@@ -158,9 +175,8 @@ namespace Wake.Tests
         [Test]
         public void ConfirmedAuthentication_WaitsWhenEvidenceInventoryRejectsC15()
         {
-            var session = new MarcusInterrogationSession(
-                state,
-                tryGrantEvidence: _ => false);
+            MarcusInterrogationSession session =
+                CreateSession(_ => false);
             session.Ask(
                 MarcusInterrogationCatalog.AuthenticationQuestion,
                 MarcusAnswer.Yes);
@@ -195,7 +211,16 @@ namespace Wake.Tests
             Assert.That(warnings, Has.Some.Contains("문구가 비어"));
             Assert.That(warnings, Has.Some.Contains("중복"));
             Assert.That(warnings, Has.Some.Contains("정확히 1개"));
-            Assert.That(warnings, Has.Some.Contains("최대 5개"));
+            Assert.That(warnings, Has.Some.Contains("정확히 8개"));
+        }
+
+        private MarcusInterrogationSession CreateSession(
+            System.Func<string, bool> tryGrantEvidence = null)
+        {
+            return new MarcusInterrogationSession(
+                state,
+                officialQuestions,
+                tryGrantEvidence);
         }
 
         private void DestroyManager()

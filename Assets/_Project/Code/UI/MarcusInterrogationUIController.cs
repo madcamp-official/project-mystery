@@ -54,9 +54,19 @@ namespace Wake.UI
 
             session = new MarcusInterrogationSession(
                 state,
+                MarcusInterrogationCatalog.Create(
+                    DialogueDatabase.Instance?.Records.Values),
                 tryGrantEvidence: evidenceId =>
                     EvidenceInventory.Instance != null &&
                     EvidenceInventory.Instance.TryAddById(evidenceId));
+            IReadOnlyList<string> diagnostics =
+                MarcusInterrogationValidator.Validate(session.Definitions);
+            if (diagnostics.Count > 0)
+            {
+                Debug.LogError(string.Join("\n", diagnostics));
+                session = null;
+                return false;
+            }
             selectedQuestionId = null;
             statusText.text = "질문을 선택한 뒤 Marcus의 답변을 기록하세요.";
             root.SetActive(true);
@@ -73,7 +83,7 @@ namespace Wake.UI
         {
             if (session == null ||
                 session.IsCompleted ||
-                !MarcusInterrogationCatalog.TryGet(questionId, out _) ||
+                !session.ContainsQuestion(questionId) ||
                 session.Answers.Any(answer => answer.QuestionId == questionId))
             {
                 return false;
@@ -146,7 +156,7 @@ namespace Wake.UI
             for (int index = 0; index < questionButtons.Count; index++)
             {
                 MarcusQuestionDefinition definition =
-                    MarcusInterrogationCatalog.All[index];
+                    session.Definitions[index];
                 Button button = questionButtons[index];
                 MarcusAnswerRecord? record = session.Answers
                     .Cast<MarcusAnswerRecord?>()
@@ -185,7 +195,7 @@ namespace Wake.UI
             RectTransform rootRect = root.GetComponent<RectTransform>();
             rootRect.anchorMin = new Vector2(0.5f, 0.5f);
             rootRect.anchorMax = new Vector2(0.5f, 0.5f);
-            rootRect.sizeDelta = new Vector2(860f, 650f);
+            rootRect.sizeDelta = new Vector2(1000f, 700f);
             root.GetComponent<Image>().color = Panel;
 
             MakeText(root.transform, "제한 심문: Marcus", 0.88f, 0.98f, 34f);
@@ -202,39 +212,44 @@ namespace Wake.UI
                 0.80f,
                 22f);
 
-            for (int index = 0; index < MarcusInterrogationCatalog.All.Count; index++)
+            for (int index = 0;
+                 index < MarcusInterrogationCatalog.OfficialQuestionCount;
+                 index++)
             {
                 int captured = index;
+                MarcusQuestionGridCell cell =
+                    MarcusQuestionGridLayout.Calculate(
+                        index,
+                        MarcusInterrogationCatalog.OfficialQuestionCount);
                 Button button = MakeButton(
                     root.transform,
                     $"Question {index + 1}",
-                    0.43f + (4 - index) * 0.058f,
-                    0.485f + (4 - index) * 0.058f,
+                    cell.AnchorMin.y,
+                    cell.AnchorMax.y,
                     string.Empty,
-                    0.08f,
-                    0.92f);
-                button.onClick.AddListener(() =>
-                    SelectQuestion(MarcusInterrogationCatalog.All[captured].Id));
+                    cell.AnchorMin.x,
+                    cell.AnchorMax.x);
+                button.onClick.AddListener(() => SelectQuestionAt(captured));
                 questionButtons.Add(button);
             }
 
             statusText = MakeText(
                 root.transform,
                 string.Empty,
-                0.29f,
-                0.39f,
+                0.24f,
+                0.32f,
                 20f);
             yesButton = MakeButton(
-                root.transform, "Yes", 0.18f, 0.27f, "예", 0.17f, 0.39f);
+                root.transform, "Yes", 0.13f, 0.21f, "예", 0.17f, 0.39f);
             yesButton.onClick.AddListener(() => RecordAnswer(MarcusAnswer.Yes));
             noButton = MakeButton(
-                root.transform, "No", 0.18f, 0.27f, "아니오", 0.42f, 0.64f);
+                root.transform, "No", 0.13f, 0.21f, "아니오", 0.42f, 0.64f);
             noButton.onClick.AddListener(() => RecordAnswer(MarcusAnswer.No));
             completeButton = MakeButton(
-                root.transform, "Complete", 0.06f, 0.15f, "심문 종료", 0.56f, 0.79f);
+                root.transform, "Complete", 0.03f, 0.10f, "심문 종료", 0.56f, 0.79f);
             completeButton.onClick.AddListener(() => Submit());
             Button close = MakeButton(
-                root.transform, "Close", 0.06f, 0.15f, "닫기", 0.21f, 0.44f);
+                root.transform, "Close", 0.03f, 0.10f, "닫기", 0.21f, 0.44f);
             close.onClick.AddListener(Close);
             InteractionTypography.Apply(
                 root.transform,
@@ -242,6 +257,16 @@ namespace Wake.UI
                 null,
                 statusText);
             root.SetActive(false);
+        }
+
+        private void SelectQuestionAt(int index)
+        {
+            if (session != null &&
+                index >= 0 &&
+                index < session.Definitions.Count)
+            {
+                SelectQuestion(session.Definitions[index].Id);
+            }
         }
 
         private static GameObject MakeObject(

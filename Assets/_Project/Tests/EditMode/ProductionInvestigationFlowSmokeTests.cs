@@ -150,6 +150,7 @@ namespace Wake.Tests
 
             var marcus = new MarcusInterrogationSession(
                 state,
+                MarcusInterrogationCatalog.Create(records),
                 tryGrantEvidence: id => inventory.TryAddById(id));
             marcus.Ask(
                 MarcusInterrogationCatalog.AuthenticationQuestion,
