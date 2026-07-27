@@ -62,9 +62,6 @@ namespace Wake.Narrative
             lineText = linePanelTransform.Find("Panel/line").GetComponent<TMP_Text>();
             nextButton = linePanelTransform.Find("Panel/Next").GetComponent<Button>();
             speakerText = linePanelTransform.Find("Image/Text (TMP)").GetComponent<TMP_Text>();
-            TMP_FontAsset koreanFont = StatusHUDController.RuntimeKoreanFont;
-            lineText.font = koreanFont;
-            speakerText.font = koreanFont;
             CreatePortrait(linePanelTransform);
 
             Transform selectBtn = linePanelTransform.Find("Select Btn");
@@ -77,10 +74,10 @@ namespace Wake.Narrative
                     ProductionDialogueFlow.ChoiceCapacity);
             choiceButtons = choiceSet.Buttons;
             choiceLabels = choiceSet.Labels;
-            for (int i = 0; i < choiceButtons.Length; i++)
-            {
-                choiceLabels[i].font = koreanFont;
-            }
+            DialogueTypography.ApplySurface(
+                lineText,
+                speakerText,
+                choiceLabels);
 
             nextButton.onClick.AddListener(OnNextClicked);
             responsiveLayout = canvas.gameObject
