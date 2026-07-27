@@ -131,15 +131,13 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void SafeAreaInsetChange_RescalesBaselineProportionally()
+        public void SafeAreaInsetChange_UsesSafeRootAndPreservesBaselines()
         {
             using LayoutRig rig = new(2000f, 1000f);
 
-            // First call establishes the baseline against a full-bleed
-            // safe area (no inset). Then simulate a notch that removes
-            // 25% of the usable height - the vertically-offset elements
-            // should scale down proportionally instead of staying fixed
-            // or snapping to a hardcoded value.
+            // Simulate a top inset that removes 25% of the usable height.
+            // The root follows the Safe Area while child coordinates
+            // remain the exact values authored in the Inspector.
             rig.Layout.ApplyLayout(
                 new Rect(0f, 0f, 2000f, 1000f),
                 new Vector2(2000f, 1000f));
@@ -147,19 +145,23 @@ namespace Wake.Tests
                 new Rect(0f, 0f, 2000f, 750f),
                 new Vector2(2000f, 1000f));
 
-            float expectedScaleY = 0.75f;
             Assert.That(
-                rig.NextButton.anchoredPosition.y,
-                Is.EqualTo(rig.AuthoredNextButtonPosition.y * expectedScaleY)
-                    .Within(0.01f));
+                rig.Ingame.anchorMin,
+                Is.EqualTo(Vector2.zero));
+            Assert.That(
+                rig.Ingame.anchorMax,
+                Is.EqualTo(new Vector2(1f, 0.75f)));
+            Assert.That(
+                rig.NextButton.anchoredPosition,
+                Is.EqualTo(rig.AuthoredNextButtonPosition)
+                    .Using(Vector2Comparer));
             Assert.That(
                 rig.LinePanel.sizeDelta.y,
-                Is.EqualTo(rig.AuthoredLinePanelSize.y * expectedScaleY)
-                    .Within(0.01f));
+                Is.EqualTo(rig.AuthoredLinePanelSize.y).Within(0.01f));
         }
 
         [Test]
-        public void HorizontalSafeAreaInsets_AreAddedToAuthoredChoiceMargins()
+        public void HorizontalSafeAreaInsets_AreAppliedByTheGameplayRoot()
         {
             using LayoutRig rig = new(2000f, 1000f);
             Vector2 screenSize = new(2000f, 1000f);
@@ -171,15 +173,20 @@ namespace Wake.Tests
                 new Rect(100f, 0f, 1800f, 1000f),
                 screenSize);
 
-            float leftMargin =
-                rig.Choices.anchoredPosition.x -
-                rig.Choices.sizeDelta.x * 0.5f;
-            float rightMargin =
-                -rig.Choices.anchoredPosition.x -
-                rig.Choices.sizeDelta.x * 0.5f;
-
-            Assert.That(leftMargin, Is.EqualTo(520f).Within(0.01f));
-            Assert.That(rightMargin, Is.EqualTo(140f).Within(0.01f));
+            Assert.That(
+                rig.Ingame.anchorMin,
+                Is.EqualTo(new Vector2(0.05f, 0f)));
+            Assert.That(
+                rig.Ingame.anchorMax,
+                Is.EqualTo(new Vector2(0.95f, 1f)));
+            Assert.That(
+                rig.Choices.anchoredPosition,
+                Is.EqualTo(new Vector2(190f, 20f))
+                    .Using(Vector2Comparer));
+            Assert.That(
+                rig.Choices.sizeDelta,
+                Is.EqualTo(new Vector2(-460f, 132f))
+                    .Using(Vector2Comparer));
         }
 
         [Test]

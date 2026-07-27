@@ -78,7 +78,6 @@ namespace Wake.UI
         [SerializeField] private float portraitTopGap = 20f;
 
         private RectTransform ingameRoot;
-        private Canvas canvas;
         private RectTransform linePanel;
         private RectTransform textPanel;
         private RectTransform portrait;
@@ -96,8 +95,6 @@ namespace Wake.UI
         private Vector2Int lastScreen;
 
         private bool baselineCaptured;
-        private Rect baselineSafeArea;
-        private Vector2 baselineScreen;
         private RectBaseline linePanelBaseline;
         private RectBaseline textPanelBaseline;
         private RectBaseline nextButtonBaseline;
@@ -118,7 +115,6 @@ namespace Wake.UI
             RectTransform targetChoices,
             IReadOnlyList<Button> targetChoiceButtons)
         {
-            canvas = targetCanvas;
             linePanel = targetLinePanel;
             ingameRoot = linePanel != null
                 ? linePanel.parent as RectTransform
@@ -153,8 +149,7 @@ namespace Wake.UI
             // component is configured. Capturing after that would
             // baseline the post-mutation values instead of what was
             // actually authored in the scene.
-            CaptureBaselines(
-                Screen.safeArea, new Vector2(Screen.width, Screen.height));
+            CaptureBaselines();
             baselineCaptured = true;
 
             ConfigurePortrait();
@@ -167,10 +162,8 @@ namespace Wake.UI
         /// layout ApplyLayout reproduces; it is not overwritten with
         /// hardcoded positions.
         /// </summary>
-        private void CaptureBaselines(Rect safeArea, Vector2 screenSize)
+        private void CaptureBaselines()
         {
-            baselineSafeArea = safeArea;
-            baselineScreen = screenSize;
             if (linePanel != null)
                 linePanelBaseline = new RectBaseline(linePanel);
             if (textPanel != null)
@@ -192,24 +185,10 @@ namespace Wake.UI
         }
 
         /// <summary>
-        /// How much the safe-area inset (as a fraction of the screen)
-        /// has changed since the baseline was captured. (1,1) whenever
-        /// there is no notch/inset change, which is always true on
-        /// desktop — baseline values then apply completely untouched.
+        /// Reapplies the captured Inspector-authored position and size.
+        /// Safe Area placement is handled by the gameplay root, so child
+        /// baselines remain unchanged for every supported screen shape.
         /// </summary>
-        private Vector2 ComputeInsetScale(Rect safeArea, Vector2 screenSize)
-        {
-            Vector2 baselineFraction = new(
-                baselineScreen.x > 0f ? baselineSafeArea.width / baselineScreen.x : 1f,
-                baselineScreen.y > 0f ? baselineSafeArea.height / baselineScreen.y : 1f);
-            Vector2 currentFraction = new(
-                screenSize.x > 0f ? safeArea.width / screenSize.x : 1f,
-                screenSize.y > 0f ? safeArea.height / screenSize.y : 1f);
-            return new Vector2(
-                baselineFraction.x > 0.0001f ? currentFraction.x / baselineFraction.x : 1f,
-                baselineFraction.y > 0.0001f ? currentFraction.y / baselineFraction.y : 1f);
-        }
-
         private static void ApplyBaseline(
             RectTransform rect, RectBaseline baseline, Vector2 scale)
         {
@@ -230,16 +209,16 @@ namespace Wake.UI
 
             if (!baselineCaptured)
             {
-                CaptureBaselines(safeArea, screenSize);
+                CaptureBaselines();
                 baselineCaptured = true;
             }
 
-            Vector2 scale = ComputeInsetScale(safeArea, screenSize);
+            ApplySafeAreaRoot(safeArea, screenSize);
+            Vector2 scale = Vector2.one;
             ApplyBaseline(linePanel, linePanelBaseline, scale);
             ApplyBaseline(textPanel, textPanelBaseline, scale);
             ApplyBaseline(nextButton, nextButtonBaseline, scale);
             ApplyBaseline(choices, choicesBaseline, scale);
-            ApplyChoiceHorizontalSafeArea(safeArea, screenSize);
             ApplyBaseline(evidenceBtn, evidenceBtnBaseline, scale);
             ApplyBaseline(mapBtn, mapBtnBaseline, scale);
             ApplyBaseline(settingsBtn, settingsBtnBaseline, scale);
@@ -272,37 +251,19 @@ namespace Wake.UI
                 Mathf.RoundToInt(screenSize.y));
         }
 
-        private void ApplyChoiceHorizontalSafeArea(
+        private void ApplySafeAreaRoot(
             Rect safeArea,
             Vector2 screenSize)
         {
-            if (choices == null)
+            if (ingameRoot == null)
                 return;
 
-            float canvasScale = canvas != null
-                ? Mathf.Max(0.0001f, canvas.scaleFactor)
-                : 1f;
-            float leftInset =
-                Mathf.Max(0f, safeArea.xMin) / canvasScale;
-            float rightInset = Mathf.Max(
-                    0f,
-                    screenSize.x - safeArea.xMax) /
-                canvasScale;
-            float authoredLeft =
-                choicesBaseline.AnchoredPosition.x -
-                choicesBaseline.SizeDelta.x * 0.5f;
-            float authoredRight =
-                -choicesBaseline.AnchoredPosition.x -
-                choicesBaseline.SizeDelta.x * 0.5f;
-            float left = authoredLeft + leftInset;
-            float right = authoredRight + rightInset;
-
-            choices.anchoredPosition = new Vector2(
-                (left - right) * 0.5f,
-                choices.anchoredPosition.y);
-            choices.sizeDelta = new Vector2(
-                -(left + right),
-                choices.sizeDelta.y);
+            SafeAreaAnchors anchors =
+                SafeAreaUtility.ToAnchors(safeArea, screenSize);
+            ingameRoot.anchorMin = anchors.Minimum;
+            ingameRoot.anchorMax = anchors.Maximum;
+            ingameRoot.anchoredPosition = Vector2.zero;
+            ingameRoot.sizeDelta = Vector2.zero;
         }
 
         private void ConfigureIngameRoot()
