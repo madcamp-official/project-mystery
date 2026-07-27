@@ -1,6 +1,6 @@
 # Character Expression Portraits
 
-`The Wake Without Footprints`의 주요 인물 9명을 위한 표정 Sprite 모음입니다.
+`Under the Horizon`의 주요 인물 9명을 위한 표정 Sprite 모음입니다.
 각 PNG는 2×2 표정 시트이며 Unity에서 `Sprite Mode: Multiple`로 분할됩니다.
 
 ## 포함 인물

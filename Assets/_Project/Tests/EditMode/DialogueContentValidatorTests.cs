@@ -100,5 +100,18 @@ namespace Wake.Tests
                     item.Code == "LINE_TYPE_UNKNOWN"),
                 Is.True);
         }
+
+        [Test]
+        public void Validator_ReportsInvalidOfficialEffectDsl()
+        {
+            DialogueValidationReport report = DialogueContentValidator.Validate(
+                csv.Replace("evidence:C-01", "evidence:"));
+
+            DialogueDiagnostic diagnostic = report.Diagnostics.Single(item =>
+                item.Code == "EFFECT_INVALID");
+            Assert.That(diagnostic.Field, Is.EqualTo("next_or_effect"));
+            Assert.That(diagnostic.SourceRow, Is.GreaterThan(1));
+            Assert.That(diagnostic.Message, Does.Contain("no value"));
+        }
     }
 }
