@@ -36,6 +36,7 @@ namespace Wake.Narrative
         private DialogueSet currentSet;
         private DialogueNode currentNode;
         private ProductionDialogueFlow productionFlow;
+        private bool ambientLineActive;
 
         public bool IsBusy { get; private set; }
         public string ActiveProductionSceneId =>
@@ -162,6 +163,35 @@ namespace Wake.Narrative
             GoToNode(dialogueSet.StartNodeId);
         }
 
+        public bool StartAmbientLine(
+            string speaker,
+            string text,
+            string emotion = "neutral")
+        {
+            if (IsBusy || string.IsNullOrWhiteSpace(text))
+            {
+                return false;
+            }
+
+            currentSet = null;
+            currentNode = null;
+            productionFlow = null;
+            ambientLineActive = true;
+            IsBusy = true;
+            linePanel.SetActive(true);
+            choicesContainer.SetActive(false);
+            nextButton.gameObject.SetActive(true);
+            speakerText.text = DialoguePortraitCatalog.GetDisplayName(speaker);
+            lineText.text = text;
+            responsiveLayout?.ResetTextScroll();
+            ShowPortrait(
+                speaker,
+                DialoguePresentationMap.GetEmotion(emotion));
+            FindFirstObjectByType<StatusHUDController>()
+                ?.SetContextCharacter(speaker);
+            return true;
+        }
+
         public bool StartProductionScene(string sceneId)
         {
             if (productionFlow != null &&
@@ -223,6 +253,7 @@ namespace Wake.Narrative
             currentSet = null;
             currentNode = null;
             productionFlow = null;
+            ambientLineActive = false;
             linePanel?.SetActive(false);
             choicesContainer?.SetActive(false);
             speakerPortrait?.gameObject.SetActive(false);
@@ -393,6 +424,12 @@ namespace Wake.Narrative
 
         private void OnNextClicked()
         {
+            if (ambientLineActive)
+            {
+                EndDialogue();
+                return;
+            }
+
             if (productionFlow != null)
             {
                 productionFlow.Advance();
@@ -438,6 +475,7 @@ namespace Wake.Narrative
             currentSet = null;
             currentNode = null;
             productionFlow = null;
+            ambientLineActive = false;
             if (linePanel != null)
             {
                 linePanel.SetActive(false);

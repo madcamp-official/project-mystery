@@ -20,6 +20,8 @@ namespace Wake.Exploration
         private Transform container;
         private BackgroundCoverPresenter backgroundPresenter;
         private EvidenceLocationHotspotOverlay evidenceHotspots;
+        private AmbientCharacterHotspotOverlay ambientCharacters;
+        private AmbientInspectableOverlay ambientInspectables;
 
         private void Awake()
         {
@@ -82,6 +84,8 @@ namespace Wake.Exploration
                 location.BackgroundFocus,
                 location.BackgroundZoom);
             evidenceHotspots?.Show(location.LocationCode);
+            ambientCharacters?.Show(location.LocationCode);
+            ambientInspectables?.Show(location.LocationCode);
             CurrentLocation = location;
             AudioManager.Instance?.PlayLocationTheme(location.LocationCode);
             GameStateManager.Instance?.RecordLocation(location.LocationCode);
@@ -111,6 +115,12 @@ namespace Wake.Exploration
             evidenceHotspots =
                 presenterObject.AddComponent<EvidenceLocationHotspotOverlay>();
             evidenceHotspots.Initialize(backgroundPresenter.ContentRect);
+            ambientCharacters =
+                presenterObject.AddComponent<AmbientCharacterHotspotOverlay>();
+            ambientCharacters.Initialize(backgroundPresenter.ContentRect);
+            ambientInspectables =
+                presenterObject.AddComponent<AmbientInspectableOverlay>();
+            ambientInspectables.Initialize(backgroundPresenter.ContentRect);
         }
     }
 }
