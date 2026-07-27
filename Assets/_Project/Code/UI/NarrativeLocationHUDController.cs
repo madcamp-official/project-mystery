@@ -10,19 +10,20 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class NarrativeLocationHUDController : MonoBehaviour
     {
-        private static readonly Color ResolvedColor =
-            new(0.08f, 0.16f, 0.21f, 0.94f);
-        private static readonly Color WarningColor =
-            new(0.32f, 0.18f, 0.08f, 0.96f);
-
         private GameObject root;
         private TMP_Text label;
 
         public NarrativeLocationContext CurrentContext { get; private set; }
+        public NarrativeLocationHUDViewModel CurrentPresentation
+        {
+            get;
+            private set;
+        }
+        public NarrativeLocationHUDLayout CurrentLayout { get; private set; }
         public bool IsWarningVisible =>
             root != null &&
             root.activeSelf &&
-            CurrentContext.IsDialogueOnly;
+            CurrentPresentation.IsWarning;
 
         private void OnEnable()
         {
@@ -40,33 +41,34 @@ namespace Wake.UI
         {
             CurrentContext =
                 NarrativeLocationContextResolver.Resolve(sceneId);
+            CurrentPresentation =
+                NarrativeLocationHUDPresentation.Create(CurrentContext);
             if (root == null)
             {
                 BuildUi();
             }
 
-            bool hasContext =
-                CurrentContext.Kind != NarrativeLocationKind.Undocumented;
-            root.SetActive(hasContext);
-            if (!hasContext)
+            root.SetActive(CurrentPresentation.IsVisible);
+            if (!CurrentPresentation.IsVisible)
             {
                 return;
             }
 
-            label.text = CurrentContext.IsDialogueOnly
-                ? $"⚠ {CurrentContext.DisplayName}\n" +
-                  CurrentContext.WarningMessage
-                : $"장소 · {CurrentContext.DisplayName}";
+            label.text = CurrentPresentation.DisplayText;
             root.GetComponent<Image>().color =
-                CurrentContext.IsDialogueOnly
-                    ? WarningColor
-                    : ResolvedColor;
+                CurrentPresentation.BackgroundColor;
         }
 
         public void Clear()
         {
             CurrentContext = default;
+            CurrentPresentation = default;
             root?.SetActive(false);
+        }
+
+        private void OnRectTransformDimensionsChange()
+        {
+            UpdateLayout();
         }
 
         private void HandleInvestigationEvent(
@@ -107,11 +109,10 @@ namespace Wake.UI
             root.transform.SetParent(transform, false);
 
             RectTransform rect = root.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0f, 1f);
-            rect.anchorMax = new Vector2(0f, 1f);
-            rect.pivot = new Vector2(0f, 1f);
-            rect.anchoredPosition = new Vector2(20f, -184f);
-            rect.sizeDelta = new Vector2(430f, 76f);
+            rect.anchorMin = new Vector2(0.5f, 1f);
+            rect.anchorMax = new Vector2(0.5f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);
+            UpdateLayout();
 
             root.GetComponent<Image>().raycastTarget = false;
             GameObject labelObject = new(
@@ -128,11 +129,34 @@ namespace Wake.UI
             labelRect.offsetMax = new Vector2(-12f, -6f);
             label = labelObject.GetComponent<TMP_Text>();
             MapTypography.ApplyLocation(label);
-            label.fontSize = 21f;
+            label.fontSize = 18f;
             label.alignment = TextAlignmentOptions.Center;
             label.textWrappingMode = TextWrappingModes.Normal;
             label.raycastTarget = false;
             root.SetActive(false);
+        }
+
+        private void UpdateLayout()
+        {
+            if (root == null ||
+                transform is not RectTransform parentRect)
+            {
+                return;
+            }
+
+            float viewportWidth = parentRect.rect.width;
+            float safeRatio = Screen.width > 0
+                ? Screen.safeArea.width / Screen.width
+                : 1f;
+            CurrentLayout =
+                NarrativeLocationHUDPresentation.CalculateLayout(
+                    viewportWidth,
+                    viewportWidth * safeRatio);
+            RectTransform rect = root.GetComponent<RectTransform>();
+            rect.anchoredPosition =
+                new Vector2(0f, -CurrentLayout.TopOffset);
+            rect.sizeDelta =
+                new Vector2(CurrentLayout.Width, CurrentLayout.Height);
         }
     }
 }

@@ -71,6 +71,9 @@ namespace Wake.Tests
             Assert.That(
                 gangway.DenialReason,
                 Is.EqualTo(SceneAccessDenialReason.SceneNotUnlocked));
+            Assert.That(
+                gangway.StatusLabel,
+                Is.EqualTo("P-02 · 선행 장면 필요"));
         }
 
         [Test]

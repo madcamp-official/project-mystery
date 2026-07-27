@@ -229,7 +229,7 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator SourceBackedTimeline_RemainsBlockedAndRestoresWork()
+        public IEnumerator SourceBackedTimeline_CompletesAndRestoresWork()
         {
             var timeline = new TimelinePuzzleSession(
                 state,
@@ -246,21 +246,21 @@ namespace Wake.Tests.PlayMode
             }
 
             Assert.That(timeline.UseHint(), Is.True);
-            TimelineCompletionResult blocked = timeline.TryComplete();
-            Assert.That(blocked.Completed, Is.False);
-            Assert.That(blocked.MissingCardCount, Is.EqualTo(5));
-            Assert.That(
-                blocked.Diagnostics,
-                Has.Some.Contains("정확히 12장"));
+            TimelineCompletionResult completed = timeline.TryComplete();
+            Assert.That(completed.Completed, Is.True);
+            Assert.That(completed.MissingCardCount, Is.Zero);
             yield return RecreateRuntime("RestoredTimeline");
 
             var restored = new TimelinePuzzleSession(
                 state,
                 TimelinePuzzleCatalog.SourceBackedCards);
-            Assert.That(restored.Placements, Has.Count.EqualTo(7));
+            Assert.That(
+                restored.Placements,
+                Has.Count.EqualTo(
+                    TimelinePuzzleCatalog.RequiredSequence.Count));
             Assert.That(restored.HintLevel, Is.EqualTo(1));
-            Assert.That(restored.IsCompleted, Is.False);
-            Assert.That(state.HasCompletedScene("D6-05"), Is.False);
+            Assert.That(restored.IsCompleted, Is.True);
+            Assert.That(state.HasCompletedScene("D6-05"), Is.True);
         }
 
         [UnityTest]

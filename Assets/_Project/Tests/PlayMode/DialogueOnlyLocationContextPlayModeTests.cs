@@ -53,6 +53,23 @@ namespace Wake.Tests.PlayMode
                 .GetComponent<NarrativeLocationHUDController>();
             Assert.That(contextHud, Is.Not.Null);
             Assert.That(contextHud.IsWarningVisible, Is.False);
+            RectTransform locationBanner = contextHud.transform
+                .Find("Narrative Location Context")
+                .GetComponent<RectTransform>();
+            Assert.That(locationBanner.anchorMin,
+                Is.EqualTo(new Vector2(0.5f, 1f)));
+            Assert.That(locationBanner.anchorMax,
+                Is.EqualTo(new Vector2(0.5f, 1f)));
+            Assert.That(locationBanner.pivot,
+                Is.EqualTo(new Vector2(0.5f, 1f)));
+            Assert.That(locationBanner.anchoredPosition.x,
+                Is.Zero.Within(0.01f));
+            Assert.That(locationBanner.anchoredPosition.y,
+                Is.EqualTo(-NarrativeLocationHUDPresentation.TopOffset)
+                    .Within(0.01f));
+            Assert.That(locationBanner.rect.width,
+                Is.LessThanOrEqualTo(
+                    NarrativeLocationHUDPresentation.MaximumWidth));
             Assert.That(contextHud.CurrentContext.NarrativeCode, Is.EqualTo("SERVICE7"));
             Assert.That(contextHud.CurrentContext.PhysicalLocationCode,
                 Is.EqualTo("CREW_STAIRS"));

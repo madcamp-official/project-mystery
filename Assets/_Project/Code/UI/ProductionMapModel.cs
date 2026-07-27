@@ -61,6 +61,8 @@ namespace Wake.UI
             {
                 SceneAccessDenialReason.PrerequisiteSceneIncomplete =>
                     $"{SceneId} · 선행 장면 필요",
+                SceneAccessDenialReason.SceneNotUnlocked =>
+                    $"{SceneId} · 선행 장면 필요",
                 SceneAccessDenialReason.RestrictedByPublicAnxiety =>
                     $"{SceneId} · 승객 불안으로 폐쇄",
                 SceneAccessDenialReason.LocationVisualMissing =>
