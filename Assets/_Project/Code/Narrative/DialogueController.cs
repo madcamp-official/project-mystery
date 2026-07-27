@@ -48,6 +48,7 @@ namespace Wake.Narrative
         private AudioClip typewriterClip;
         private Coroutine typewriterRoutine;
         private bool isTypewriterActive;
+        private int lastAdvanceInputFrame = -1;
 
         public bool IsBusy { get; private set; }
         public string ActiveProductionSceneId =>
@@ -567,6 +568,19 @@ namespace Wake.Narrative
 
         private void OnNextClicked()
         {
+            // Enter both drives our own keyboard polling below and Unity's
+            // built-in UI Submit action on the currently-selected button
+            // (InputSystemUIInputModule binds Submit to Enter by default,
+            // and clicking Next with the mouse leaves it selected). One
+            // physical keypress can therefore call this twice in the same
+            // frame - once from each path - which would skip and advance
+            // in a single press. Collapse same-frame calls into one.
+            if (Time.frameCount == lastAdvanceInputFrame)
+            {
+                return;
+            }
+            lastAdvanceInputFrame = Time.frameCount;
+
             if (isTypewriterActive)
             {
                 SkipTypewriter();
