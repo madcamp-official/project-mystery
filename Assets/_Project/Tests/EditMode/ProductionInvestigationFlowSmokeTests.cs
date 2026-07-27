@@ -208,7 +208,14 @@ namespace Wake.Tests
                 DanielTargetBelief.Misconception,
                 OrpheusEventDesign.Evelyn,
                 true);
-            FinalAccusationSubmission submission = final.Submit();
+            FinalAccusationSubmission submission = default;
+            for (int stage = 0;
+                 stage <= FinalAccusationStageCatalog.All.Count &&
+                 !submission.Submitted;
+                 stage++)
+            {
+                submission = final.Submit();
+            }
 
             Assert.That(submission.Submitted, Is.True);
             Assert.That(submission.Result.Ending, Is.EqualTo(FinalEnding.Complete));

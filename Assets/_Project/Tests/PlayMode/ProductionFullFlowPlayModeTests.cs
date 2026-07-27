@@ -282,7 +282,7 @@ namespace Wake.Tests.PlayMode
                 Has.Count.EqualTo(CanonicalDeductionCatalog.All.Count));
 
             var accusation = CreateCorrectAccusation(discloseCoverup: true);
-            FinalAccusationSubmission result = accusation.Submit();
+            FinalAccusationSubmission result = SubmitAllStages(accusation);
             Assert.That(result.Submitted, Is.True);
             Assert.That(result.Result.Ending, Is.EqualTo(FinalEnding.Complete));
             Assert.That(
@@ -321,7 +321,8 @@ namespace Wake.Tests.PlayMode
             UnlockAllDeductionsDirectly();
             state.ChangePublicAnxiety(85);
             FinalAccusationSubmission panic =
-                CreateCorrectAccusation(discloseCoverup: false).Submit();
+                SubmitAllStages(
+                    CreateCorrectAccusation(discloseCoverup: false));
 
             Assert.That(panic.Submitted, Is.True);
             Assert.That(panic.Result.Ending, Is.EqualTo(FinalEnding.Bad));
@@ -337,7 +338,8 @@ namespace Wake.Tests.PlayMode
             UnlockAllDeductionsDirectly();
             state.ChangeEvidenceIntegrity(-100);
             FinalAccusationSubmission integrity =
-                CreateCorrectAccusation(discloseCoverup: false).Submit();
+                SubmitAllStages(
+                    CreateCorrectAccusation(discloseCoverup: false));
 
             Assert.That(integrity.Submitted, Is.True);
             Assert.That(
@@ -361,6 +363,20 @@ namespace Wake.Tests.PlayMode
                 OrpheusEventDesign.Evelyn,
                 discloseCoverup);
             return session;
+        }
+
+        private static FinalAccusationSubmission SubmitAllStages(
+            FinalAccusationSession session)
+        {
+            FinalAccusationSubmission result = default;
+            for (int stage = 0;
+                 stage <= FinalAccusationStageCatalog.All.Count &&
+                 !result.Submitted;
+                 stage++)
+            {
+                result = session.Submit();
+            }
+            return result;
         }
 
         private void CollectEvidence(params string[] evidenceIds)
