@@ -18,6 +18,7 @@ namespace Wake.UI
 
         private Transform roomsContainer;
         private RectTransform dynamicContent;
+        private ScrollRect deckScroll;
         private bool initialized;
 
         private void Start()
@@ -144,7 +145,8 @@ namespace Wake.UI
                 "Dynamic Location Viewport",
                 typeof(RectTransform),
                 typeof(Image),
-                typeof(RectMask2D));
+                typeof(RectMask2D),
+                typeof(ScrollRect));
             viewportObject.transform.SetParent(roomsContainer, false);
             RectTransform viewport = viewportObject.GetComponent<RectTransform>();
             viewport.anchorMin = Vector2.zero;
@@ -153,20 +155,26 @@ namespace Wake.UI
             viewport.offsetMax = Vector2.zero;
             Image viewportImage = viewportObject.GetComponent<Image>();
             viewportImage.color = new Color(0.015f, 0.025f, 0.045f, 1f);
+            deckScroll = viewportObject.GetComponent<ScrollRect>();
 
             GameObject contentObject = new(
                 "Dynamic Location Content",
-                typeof(RectTransform),
-                typeof(AspectRatioFitter));
+                typeof(RectTransform));
             contentObject.transform.SetParent(viewport, false);
             dynamicContent = contentObject.GetComponent<RectTransform>();
-            dynamicContent.anchorMin = new Vector2(0.5f, 0.5f);
-            dynamicContent.anchorMax = new Vector2(0.5f, 0.5f);
-            dynamicContent.pivot = new Vector2(0.5f, 0.5f);
+            dynamicContent.anchorMin = new Vector2(0f, 1f);
+            dynamicContent.anchorMax = new Vector2(1f, 1f);
+            dynamicContent.pivot = new Vector2(0.5f, 1f);
             dynamicContent.anchoredPosition = Vector2.zero;
-            AspectRatioFitter fitter = contentObject.GetComponent<AspectRatioFitter>();
-            fitter.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
-            fitter.aspectRatio = 16f / 9f;
+            dynamicContent.sizeDelta = new Vector2(0f, 1480f);
+            deckScroll.viewport = viewport;
+            deckScroll.content = dynamicContent;
+            deckScroll.horizontal = false;
+            deckScroll.vertical = true;
+            deckScroll.movementType = ScrollRect.MovementType.Elastic;
+            deckScroll.inertia = true;
+            deckScroll.scrollSensitivity = 42f;
+            deckScroll.verticalNormalizedPosition = 1f;
 
             GameObject backgroundObject = new(
                 "MV Elysium Cutaway",
