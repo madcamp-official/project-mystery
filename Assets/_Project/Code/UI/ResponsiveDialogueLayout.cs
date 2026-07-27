@@ -57,19 +57,26 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class ResponsiveDialogueLayout : MonoBehaviour
     {
-        public static readonly Vector2 ReferenceResolution = new(2880f, 1800f);
         public const float DialogueHeight = 460f;
         public const float EdgePadding = 28f;
         public const float NavigationTop = 184f;
         public const float NavigationButtonWidth = 260f;
         public const float NavigationButtonHeight = 76f;
 
-        [Header("Portrait (code-created, no scene baseline to respect)")]
-        [SerializeField] private float edgePadding = EdgePadding;
-        [SerializeField] private Vector2 portraitSize = new(260f, 300f);
-        [SerializeField] private Vector2 speakerPlateSize = new(460f, 68f);
+        // Design-time canvas resolution used only as the denominator for
+        // DialogueTypographyMetrics' per-screen font scaling math. Not
+        // wired to CanvasScaler at runtime - that's handled upstream.
+        public static readonly Vector2 ReferenceResolution = new(2880f, 1800f);
 
-        private Canvas canvas;
+        [Header("Portrait (code-created every run, no scene baseline to " +
+            "respect - the speaker plate/text next to it ARE scene " +
+            "objects and follow their own Inspector placement instead)")]
+        [SerializeField] private float edgePadding = EdgePadding;
+        [SerializeField] private Vector2 portraitSize = new(320f, 400f);
+        [Tooltip("Gap between the portrait's bottom edge and the dialogue " +
+            "panel's top edge. Portrait sits above the panel, not inside it.")]
+        [SerializeField] private float portraitTopGap = 20f;
+
         private RectTransform ingameRoot;
         private RectTransform linePanel;
         private RectTransform textPanel;
@@ -82,7 +89,6 @@ namespace Wake.UI
         private RectTransform settingsBtn;
         private TMP_Text lineText;
         private TMP_Text speakerText;
-        private ScrollRect dialogueScroll;
         private GridLayoutGroup choiceGrid;
         private IReadOnlyList<Button> choiceButtons;
         private Rect lastSafeArea;
@@ -98,8 +104,8 @@ namespace Wake.UI
         private RectBaseline evidenceBtnBaseline;
         private RectBaseline mapBtnBaseline;
         private RectBaseline settingsBtnBaseline;
-
-        public ScrollRect DialogueScroll => dialogueScroll;
+        private RectBaseline lineTextBaseline;
+        private RectBaseline speakerPlateBaseline;
 
         public void Initialize(
             Canvas targetCanvas,
@@ -111,7 +117,6 @@ namespace Wake.UI
             RectTransform targetChoices,
             IReadOnlyList<Button> targetChoiceButtons)
         {
-            canvas = targetCanvas;
             linePanel = targetLinePanel;
             ingameRoot = linePanel != null
                 ? linePanel.parent as RectTransform
@@ -138,17 +143,20 @@ namespace Wake.UI
                 ? ingameRoot.Find("Settings Btn") as RectTransform
                 : null;
 
-            ConfigureCanvasScaler();
             ConfigureIngameRoot();
-            ConfigureText();
+
+            // Capture the baseline before ConfigureChoices runs: that
+            // adds a GridLayoutGroup, and Unity's layout system can
+            // nudge anchoredPosition/sizeDelta the moment such a
+            // component is configured. Capturing after that would
+            // baseline the post-mutation values instead of what was
+            // actually authored in the scene.
+            CaptureBaselines(
+                Screen.safeArea, new Vector2(Screen.width, Screen.height));
+            baselineCaptured = true;
+
             ConfigurePortrait();
             ConfigureChoices();
-            baselineCaptured = false;
-            // The first ApplyLayout call (from LateUpdate on the next
-            // tick, or from a caller that wants a specific starting
-            // point) captures whatever is on the RectTransforms right
-            // now as the baseline. We don't force that call here so
-            // tests can control exactly what the baseline is.
         }
 
         /// <summary>
@@ -175,6 +183,10 @@ namespace Wake.UI
                 mapBtnBaseline = new RectBaseline(mapBtn);
             if (settingsBtn != null)
                 settingsBtnBaseline = new RectBaseline(settingsBtn);
+            if (lineText != null)
+                lineTextBaseline = new RectBaseline(lineText.rectTransform);
+            if (speakerPlate != null)
+                speakerPlateBaseline = new RectBaseline(speakerPlate);
         }
 
         /// <summary>
@@ -228,30 +240,27 @@ namespace Wake.UI
             ApplyBaseline(evidenceBtn, evidenceBtnBaseline, scale);
             ApplyBaseline(mapBtn, mapBtnBaseline, scale);
             ApplyBaseline(settingsBtn, settingsBtnBaseline, scale);
+            ApplyBaseline(
+                lineText != null ? lineText.rectTransform : null,
+                lineTextBaseline,
+                scale);
+            ApplyBaseline(speakerPlate, speakerPlateBaseline, scale);
             UpdateChoiceGrid();
 
-            // Portrait/speaker plate are created fresh in code every run
+            // Portrait is created fresh in code every run
             // (DialogueController.CreatePortrait) — there is no scene
-            // placement to respect, so these stay formula-driven.
+            // placement to respect, so it stays formula-driven. It's
+            // parented to Line Panel but sits ABOVE it (positive Y,
+            // since pivot/anchor are both 1 = the panel's top edge) so
+            // it doesn't overlap the dialogue text inside the panel.
             if (portrait != null)
             {
                 portrait.anchorMin = new Vector2(0f, 1f);
                 portrait.anchorMax = new Vector2(0f, 1f);
                 portrait.pivot = new Vector2(0f, 1f);
-                portrait.anchoredPosition =
-                    new Vector2(edgePadding, -edgePadding);
+                portrait.anchoredPosition = new Vector2(
+                    edgePadding, portraitSize.y + portraitTopGap);
                 portrait.sizeDelta = portraitSize;
-            }
-
-            if (speakerPlate != null)
-            {
-                speakerPlate.anchorMin = new Vector2(0f, 1f);
-                speakerPlate.anchorMax = new Vector2(0f, 1f);
-                speakerPlate.pivot = new Vector2(0f, 1f);
-                speakerPlate.anchoredPosition = new Vector2(
-                    edgePadding * 2f + portraitSize.x,
-                    -edgePadding);
-                speakerPlate.sizeDelta = speakerPlateSize;
             }
 
             lastSafeArea = safeArea;
@@ -273,70 +282,12 @@ namespace Wake.UI
             ingameRoot.localScale = Vector3.one;
         }
 
+        // No-op: dialogue text no longer scrolls - there's no ScrollRect
+        // to reset. DialogueController still calls this on every line
+        // change; kept as a harmless no-op instead of touching that
+        // call site.
         public void ResetTextScroll()
         {
-            if (dialogueScroll == null)
-                return;
-            Canvas.ForceUpdateCanvases();
-            dialogueScroll.verticalNormalizedPosition = 1f;
-        }
-
-        private void ConfigureCanvasScaler()
-        {
-            CanvasScaler scaler = canvas != null
-                ? canvas.GetComponent<CanvasScaler>()
-                : null;
-            if (scaler == null)
-                return;
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = ReferenceResolution;
-            scaler.screenMatchMode =
-                CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0.5f;
-        }
-
-        private void ConfigureText()
-        {
-            ConfigureLabel(
-                lineText,
-                DialogueTypographyMetrics.LineMinimum,
-                DialogueTypographyMetrics.LineMaximum,
-                DialogueTypographyMetrics.BodyLineSpacing,
-                TextOverflowModes.Overflow);
-            ConfigureLabel(
-                speakerText,
-                DialogueTypographyMetrics.SpeakerMinimum,
-                DialogueTypographyMetrics.SpeakerMaximum,
-                DialogueTypographyMetrics.HeadingLineSpacing,
-                TextOverflowModes.Ellipsis);
-            if (textPanel == null || lineText == null)
-                return;
-
-            dialogueScroll = textPanel.GetComponent<ScrollRect>();
-            if (dialogueScroll == null)
-                dialogueScroll = textPanel.gameObject.AddComponent<ScrollRect>();
-            if (textPanel.GetComponent<RectMask2D>() == null)
-                textPanel.gameObject.AddComponent<RectMask2D>();
-
-            RectTransform lineRect = lineText.rectTransform;
-            lineRect.anchorMin = new Vector2(0f, 1f);
-            lineRect.anchorMax = new Vector2(1f, 1f);
-            lineRect.pivot = new Vector2(0.5f, 1f);
-            lineRect.anchoredPosition = new Vector2(-76f, -72f);
-            lineRect.sizeDelta = new Vector2(-232f, 0f);
-            ContentSizeFitter fitter =
-                lineText.GetComponent<ContentSizeFitter>();
-            if (fitter == null)
-                fitter = lineText.gameObject.AddComponent<ContentSizeFitter>();
-            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-
-            dialogueScroll.viewport = textPanel;
-            dialogueScroll.content = lineRect;
-            dialogueScroll.horizontal = false;
-            dialogueScroll.vertical = true;
-            dialogueScroll.movementType = ScrollRect.MovementType.Clamped;
-            dialogueScroll.scrollSensitivity = 36f;
         }
 
         private void ConfigurePortrait()
