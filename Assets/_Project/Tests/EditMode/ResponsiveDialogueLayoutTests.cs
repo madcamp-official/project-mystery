@@ -75,65 +75,6 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void Initialize_ConfiguresCanvasScalerForReferenceResolution()
-        {
-            using LayoutRig rig = new(1920f, 1080f);
-
-            CanvasScaler scaler = rig.CanvasRect.GetComponent<CanvasScaler>();
-            Assert.That(
-                scaler.referenceResolution,
-                Is.EqualTo(ResponsiveDialogueLayout.ReferenceResolution));
-            Assert.That(scaler.matchWidthOrHeight, Is.EqualTo(0.5f));
-            Assert.That(
-                scaler.uiScaleMode,
-                Is.EqualTo(CanvasScaler.ScaleMode.ScaleWithScreenSize));
-        }
-
-        [Test]
-        public void Initialize_ConfiguresDialogueBodyTypographyMetrics()
-        {
-            using LayoutRig rig = new(1920f, 1080f);
-
-            Assert.That(rig.LineText.enableAutoSizing, Is.True);
-            Assert.That(
-                rig.LineText.fontSizeMin,
-                Is.EqualTo(DialogueTypographyMetrics.LineMinimum));
-            Assert.That(
-                rig.LineText.fontSizeMax,
-                Is.EqualTo(DialogueTypographyMetrics.LineMaximum));
-            Assert.That(
-                rig.LineText.lineSpacing,
-                Is.EqualTo(
-                    DialogueTypographyMetrics.BodyLineSpacing));
-            Assert.That(
-                rig.LineText.textWrappingMode,
-                Is.EqualTo(TextWrappingModes.Normal));
-        }
-
-        [Test]
-        public void Initialize_ConfiguresSpeakerTypographyMetrics()
-        {
-            using LayoutRig rig = new(1920f, 1080f);
-
-            Assert.That(rig.SpeakerText.enableAutoSizing, Is.True);
-            Assert.That(
-                rig.SpeakerText.fontSizeMin,
-                Is.EqualTo(
-                    DialogueTypographyMetrics.SpeakerMinimum));
-            Assert.That(
-                rig.SpeakerText.fontSizeMax,
-                Is.EqualTo(
-                    DialogueTypographyMetrics.SpeakerMaximum));
-            Assert.That(
-                rig.SpeakerText.lineSpacing,
-                Is.EqualTo(
-                    DialogueTypographyMetrics.HeadingLineSpacing));
-            Assert.That(
-                rig.SpeakerText.overflowMode,
-                Is.EqualTo(TextOverflowModes.Ellipsis));
-        }
-
-        [Test]
         public void GameplayRoot_IsResetToFullStretchRegardlessOfAuthoredScale()
         {
             using LayoutRig rig = new(1920f, 1080f);
@@ -182,6 +123,11 @@ namespace Wake.Tests
                 Is.EqualTo(rig.AuthoredSettingsButtonAnchor));
             Assert.That(rig.SettingsButton.anchoredPosition,
                 Is.EqualTo(rig.AuthoredSettingsButtonPosition).Using(Vector2Comparer));
+
+            Assert.That(rig.SpeakerPlate.anchoredPosition,
+                Is.EqualTo(rig.AuthoredSpeakerPlatePosition).Using(Vector2Comparer));
+            Assert.That(rig.SpeakerPlate.sizeDelta,
+                Is.EqualTo(rig.AuthoredSpeakerPlateSize).Using(Vector2Comparer));
         }
 
         [Test]
@@ -213,7 +159,7 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void Portrait_UsesFixedTopLeftAnchorAndHeightControlledAspect()
+        public void Portrait_SitsAbovePanelTopEdgeNotInsideIt()
         {
             using LayoutRig rig = new(1920f, 1080f);
 
@@ -226,9 +172,14 @@ namespace Wake.Tests
             Assert.That(rig.Portrait.pivot, Is.EqualTo(new Vector2(0f, 1f)));
             Assert.That(rig.Portrait.anchoredPosition.x,
                 Is.EqualTo(ResponsiveDialogueLayout.EdgePadding));
-            Assert.That(rig.Portrait.anchoredPosition.y,
-                Is.EqualTo(-ResponsiveDialogueLayout.EdgePadding));
-            Assert.That(rig.Portrait.sizeDelta.y, Is.EqualTo(300f));
+            // Positive Y (not negative) is the point: with a top anchor/
+            // pivot, positive Y means the portrait's bottom edge sits at
+            // or above the panel's top edge instead of inside the panel.
+            Assert.That(rig.Portrait.anchoredPosition.y, Is.GreaterThan(0f));
+            Assert.That(
+                rig.Portrait.anchoredPosition.y -
+                    rig.Portrait.sizeDelta.y,
+                Is.GreaterThanOrEqualTo(-0.01f));
             Assert.That(
                 rig.Portrait.GetComponent<AspectRatioFitter>().aspectMode,
                 Is.EqualTo(
@@ -236,34 +187,82 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void DialogueText_IsMaskedScrollableAndCannotPaintOutsidePanel()
+        public void DialogueText_HasNoScrollOrAutoSizeComponents()
         {
             using LayoutRig rig = new(1920f, 1080f);
 
-            ScrollRect scroll = rig.Panel.GetComponent<ScrollRect>();
-            RectMask2D mask = rig.Panel.GetComponent<RectMask2D>();
-            ContentSizeFitter fitter =
-                rig.LineText.GetComponent<ContentSizeFitter>();
+            // Dialogue text no longer scrolls - long lines are left to
+            // overflow per whatever overflowMode is authored in the
+            // Inspector. Nothing should add a ScrollRect, RectMask2D, or
+            // ContentSizeFitter to the panel/line text.
+            Assert.That(rig.Panel.GetComponent<ScrollRect>(), Is.Null);
+            Assert.That(rig.Panel.GetComponent<RectMask2D>(), Is.Null);
+            Assert.That(
+                rig.LineText.GetComponent<ContentSizeFitter>(), Is.Null);
+        }
 
-            Assert.That(scroll, Is.Not.Null);
-            Assert.That(mask, Is.Not.Null);
-            Assert.That(scroll.viewport, Is.SameAs(rig.Panel));
-            Assert.That(scroll.content, Is.SameAs(rig.LineText.rectTransform));
-            Assert.That(scroll.horizontal, Is.False);
-            Assert.That(scroll.vertical, Is.True);
-            Assert.That(
-                scroll.movementType,
-                Is.EqualTo(ScrollRect.MovementType.Clamped));
-            Assert.That(fitter, Is.Not.Null);
-            Assert.That(
-                fitter.verticalFit,
-                Is.EqualTo(ContentSizeFitter.FitMode.PreferredSize));
+        [Test]
+        public void DialogueLabels_KeepAuthoredFontSettingsUntouched()
+        {
+            using LayoutRig rig = new(1920f, 1080f);
+
+            // Font size/wrapping/overflow are left exactly as the scene
+            // (Inspector) authored them - ConfigureText must not force
+            // any of these, unlike the scroll/mask plumbing above.
             Assert.That(
                 rig.LineText.overflowMode,
-                Is.EqualTo(TextOverflowModes.Overflow));
+                Is.EqualTo(rig.AuthoredLineTextOverflow));
+            Assert.That(
+                rig.LineText.fontSize,
+                Is.EqualTo(rig.AuthoredLineTextFontSize));
+            Assert.That(
+                rig.LineText.enableAutoSizing,
+                Is.EqualTo(rig.AuthoredLineTextAutoSizing));
             Assert.That(
                 rig.SpeakerText.overflowMode,
-                Is.EqualTo(TextOverflowModes.Ellipsis));
+                Is.EqualTo(rig.AuthoredSpeakerTextOverflow));
+        }
+
+        [TestCase(1920f, 1080f)]
+        [TestCase(1920f, 1200f)]
+        public void LineText_PlacementFollowsBaselineNotFormula(
+            float width,
+            float height)
+        {
+            using LayoutRig rig = new(width, height);
+            Rect fullSafeArea = new(0f, 0f, width, height);
+            Vector2 screenSize = new(width, height);
+
+            rig.Layout.ApplyLayout(fullSafeArea, screenSize);
+
+            // No ScrollRect owns Y anymore, so the line text is a full
+            // baseline citizen like everything else: both axes of
+            // position and size follow whatever was authored.
+            Assert.That(rig.LineText.rectTransform.anchoredPosition,
+                Is.EqualTo(rig.AuthoredLineTextPosition).Using(Vector2Comparer));
+            Assert.That(rig.LineText.rectTransform.sizeDelta,
+                Is.EqualTo(rig.AuthoredLineTextSize).Using(Vector2Comparer));
+        }
+
+        [Test]
+        public void ResetTextScroll_DoesNotOverrideInspectorAuthoredLayout()
+        {
+            using LayoutRig rig = new(1920f, 1080f);
+            RectTransform lineRect = rig.LineText.rectTransform;
+            Vector2 position = lineRect.anchoredPosition;
+            Vector2 size = lineRect.sizeDelta;
+            TextOverflowModes overflow = rig.LineText.overflowMode;
+
+            // DialogueController invokes this for every presented line.
+            // The compatibility hook must remain layout-neutral now that
+            // scrolling is intentionally disabled.
+            rig.Layout.ResetTextScroll();
+
+            Assert.That(lineRect.anchoredPosition,
+                Is.EqualTo(position).Using(Vector2Comparer));
+            Assert.That(lineRect.sizeDelta,
+                Is.EqualTo(size).Using(Vector2Comparer));
+            Assert.That(rig.LineText.overflowMode, Is.EqualTo(overflow));
         }
 
         private static readonly Vector2EqualityComparer Vector2Comparer =
@@ -345,10 +344,33 @@ namespace Wake.Tests
 
                 Panel = CreateRect("Panel", LinePanel);
                 SpeakerPlate = CreateRect("Image", LinePanel);
+                AuthoredSpeakerPlatePosition = new Vector2(348f, 420f);
+                AuthoredSpeakerPlateSize = new Vector2(460f, 68f);
+                SpeakerPlate.anchorMin = new Vector2(0f, 1f);
+                SpeakerPlate.anchorMax = new Vector2(0f, 1f);
+                SpeakerPlate.pivot = new Vector2(0f, 1f);
+                SpeakerPlate.anchoredPosition = AuthoredSpeakerPlatePosition;
+                SpeakerPlate.sizeDelta = AuthoredSpeakerPlateSize;
                 Choices = CreateRect("Select Btn", LinePanel);
 
                 LineText = CreateText("line", Panel);
+                AuthoredLineTextOverflow = TextOverflowModes.Linked;
+                AuthoredLineTextFontSize = 31f;
+                AuthoredLineTextAutoSizing = true;
+                AuthoredLineTextPosition = new Vector2(-40f, -30f);
+                AuthoredLineTextSize = new Vector2(-120f, 0f);
+                LineText.overflowMode = AuthoredLineTextOverflow;
+                LineText.fontSize = AuthoredLineTextFontSize;
+                LineText.enableAutoSizing = AuthoredLineTextAutoSizing;
+                LineText.rectTransform.anchorMin = new Vector2(0f, 1f);
+                LineText.rectTransform.anchorMax = new Vector2(1f, 1f);
+                LineText.rectTransform.pivot = new Vector2(0.5f, 1f);
+                LineText.rectTransform.anchoredPosition = AuthoredLineTextPosition;
+                LineText.rectTransform.sizeDelta = AuthoredLineTextSize;
+
                 SpeakerText = CreateText("Text (TMP)", SpeakerPlate);
+                AuthoredSpeakerTextOverflow = TextOverflowModes.Truncate;
+                SpeakerText.overflowMode = AuthoredSpeakerTextOverflow;
                 Portrait = CreateRect(
                     "Speaker Portrait",
                     LinePanel,
@@ -387,6 +409,8 @@ namespace Wake.Tests
             public RectTransform LinePanel { get; }
             public RectTransform Panel { get; }
             public RectTransform SpeakerPlate { get; }
+            public Vector2 AuthoredSpeakerPlatePosition { get; private set; }
+            public Vector2 AuthoredSpeakerPlateSize { get; private set; }
             public RectTransform Portrait { get; }
             public RectTransform Choices { get; }
             public RectTransform NextButton { get; }
@@ -404,6 +428,12 @@ namespace Wake.Tests
             public Vector2 AuthoredLinePanelSize { get; }
             public Vector2 AuthoredNextButtonPosition { get; }
             public Vector2 AuthoredNextButtonSize { get; }
+            public TextOverflowModes AuthoredLineTextOverflow { get; private set; }
+            public float AuthoredLineTextFontSize { get; private set; }
+            public bool AuthoredLineTextAutoSizing { get; private set; }
+            public Vector2 AuthoredLineTextPosition { get; private set; }
+            public Vector2 AuthoredLineTextSize { get; private set; }
+            public TextOverflowModes AuthoredSpeakerTextOverflow { get; private set; }
 
             public void Dispose()
             {
