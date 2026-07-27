@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,6 +17,9 @@ namespace Wake.UI
         public static ToastController Instance { get; private set; }
 
         [SerializeField] private float displaySeconds = 1.5f;
+
+        private readonly Queue<(string Message, ToastTypographyStyle Style)> pendingToasts =
+            new();
 
         private GameObject toastRoot;
         private TMP_Text toastText;
@@ -75,11 +79,11 @@ namespace Wake.UI
             string message,
             ToastTypographyStyle style)
         {
-            if (activeRoutine != null)
+            pendingToasts.Enqueue((message, style));
+            if (activeRoutine == null)
             {
-                StopCoroutine(activeRoutine);
+                activeRoutine = StartCoroutine(ProcessQueue());
             }
-            activeRoutine = StartCoroutine(ShowRoutine(message, style));
         }
 
         public static TypographyRole ResolveRole(
@@ -90,15 +94,17 @@ namespace Wake.UI
                 : TypographyRole.Body;
         }
 
-        private IEnumerator ShowRoutine(
-            string message,
-            ToastTypographyStyle style)
+        private IEnumerator ProcessQueue()
         {
-            toastText.text = message;
-            TypographyService.Apply(toastText, ResolveRole(style));
-            toastRoot.SetActive(true);
-            yield return new WaitForSeconds(displaySeconds);
-            toastRoot.SetActive(false);
+            while (pendingToasts.Count > 0)
+            {
+                (string message, ToastTypographyStyle style) = pendingToasts.Dequeue();
+                toastText.text = message;
+                TypographyService.Apply(toastText, ResolveRole(style));
+                toastRoot.SetActive(true);
+                yield return new WaitForSeconds(displaySeconds);
+                toastRoot.SetActive(false);
+            }
             activeRoutine = null;
         }
     }
