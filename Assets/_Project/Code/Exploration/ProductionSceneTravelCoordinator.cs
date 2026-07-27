@@ -25,6 +25,16 @@ namespace Wake.Exploration
 
         public SceneTravelResult TryEnter(string sceneId)
         {
+            ProductionSceneUnlockResult unlock =
+                ProductionSceneUnlockPolicy.Evaluate(sceneId, state);
+            if (!unlock.IsAllowed)
+            {
+                return SceneTravelResult.Denied(
+                    SceneAccessDenialReason.SceneNotUnlocked,
+                    unlock.Detail,
+                    unlock.Scene);
+            }
+
             SceneTravelResult evaluated = SceneTravelPolicy.EvaluateScene(
                 sceneId,
                 graph,
@@ -40,6 +50,16 @@ namespace Wake.Exploration
 
         public SceneTravelResult TryEnterDialogueOnly(string sceneId)
         {
+            ProductionSceneUnlockResult unlock =
+                ProductionSceneUnlockPolicy.Evaluate(sceneId, state);
+            if (!unlock.IsAllowed)
+            {
+                return SceneTravelResult.Denied(
+                    SceneAccessDenialReason.SceneNotUnlocked,
+                    unlock.Detail,
+                    unlock.Scene);
+            }
+
             SceneTravelResult evaluated = DialogueOnlySceneAccess.Evaluate(
                 sceneId,
                 state?.CompletedProductionSceneIds,

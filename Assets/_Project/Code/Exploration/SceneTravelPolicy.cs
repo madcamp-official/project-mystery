@@ -12,6 +12,7 @@ namespace Wake.Exploration
         SceneNotRegistered,
         PhysicalLocationUnresolved,
         LocationVisualMissing,
+        SceneNotUnlocked,
         PrerequisiteSceneIncomplete,
         RestrictedByPublicAnxiety,
         DialogueUnavailable,
