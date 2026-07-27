@@ -72,6 +72,32 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator IngameNavigationIcons_HaveNoTextLabels()
+        {
+            yield return StartNewGameFromVisibleButton();
+
+            string[] iconButtonPaths =
+            {
+                "Ingame/Evidence Btn",
+                "Ingame/Map Btn",
+                "Ingame/Settings Btn"
+            };
+            foreach (string path in iconButtonPaths)
+            {
+                TMP_Text label = RequireObject(path)
+                    .GetComponentInChildren<TMP_Text>(true);
+                Assert.That(
+                    label,
+                    Is.Not.Null,
+                    $"{path} should preserve its existing text component.");
+                Assert.That(
+                    label.text,
+                    Is.Empty,
+                    $"{path} should render only its icon.");
+            }
+        }
+
+        [UnityTest]
         public IEnumerator PrimaryButtons_RoundTripWithoutOrphanModal()
         {
             yield return StartNewGameFromVisibleButton();
