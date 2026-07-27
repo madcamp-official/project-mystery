@@ -10,7 +10,9 @@ namespace Wake.Tests
         [Test]
         public void WorkbookSchedule_ContainsFortyOneOrderedScenes()
         {
-            Assert.That(ScenePresenceCatalog.All, Has.Count.EqualTo(41));
+            Assert.That(
+                ScenePresenceCatalog.All.Count,
+                Is.EqualTo(41));
             Assert.That(
                 ScenePresenceCatalog.All.Select(record => record.SceneId),
                 Is.Unique);
