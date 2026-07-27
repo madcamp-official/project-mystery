@@ -1,7 +1,7 @@
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using System.Linq;
 using Wake.Core;
 using Wake.Exploration;
 using Wake.Narrative;
@@ -11,6 +11,8 @@ namespace Wake.UI
     public class MapController : MonoBehaviour
     {
         [SerializeField] private LocationGraph locationGraph;
+        [SerializeField] private Sprite cruiseMapSprite;
+        [SerializeField] private Sprite mapNodeSprite;
 
         public SceneTravelResult LastTravelResult { get; private set; }
         public ProductionMapViewModel CurrentViewModel { get; private set; }
@@ -18,44 +20,22 @@ namespace Wake.UI
         private Transform roomsContainer;
         private Button buttonTemplate;
         private RectTransform dynamicContent;
-        private TMP_Text unresolvedLabel;
+        private bool initialized;
 
         private void Start()
         {
-            if (locationGraph == null)
-            {
-                Debug.LogWarning("MapController has no LocationGraph assigned.");
-                return;
-            }
-
-            Transform canvas = GameObject.Find("Canvas").transform;
-            roomsContainer = canvas.Find("Map/Rooms");
-            Button[] buttons = roomsContainer.GetComponentsInChildren<Button>(true);
-            buttonTemplate = buttons.FirstOrDefault();
-            if (buttonTemplate == null)
-            {
-                Debug.LogError("MapController requires one scene button as a style template.");
-                return;
-            }
-
-            foreach (Button button in buttons)
-            {
-                button.gameObject.SetActive(false);
-            }
-
-            CreateScrollContent();
-            CreateUnresolvedLabel();
+            EnsureInitialized();
             RefreshMap();
         }
 
         public void RefreshMap()
         {
-            if (dynamicContent == null || locationGraph == null)
+            if (!EnsureInitialized() || locationGraph == null)
             {
                 return;
             }
 
-            for (int index = dynamicContent.childCount - 1; index >= 0; index--)
+            for (int index = dynamicContent.childCount - 1; index >= 1; index--)
             {
                 Destroy(dynamicContent.GetChild(index).gameObject);
             }
@@ -65,70 +45,48 @@ namespace Wake.UI
                 locationGraph,
                 state?.CompletedProductionSceneIds,
                 state != null ? state.PublicAnxiety : 0,
-                state?.FinalEndingId);
-            ProductionMapLayout layout = ProductionMapLayoutCalculator.Calculate(
-                CurrentViewModel.Entries.Count +
-                CurrentViewModel.DialogueOnlyEntries.Count,
-                ((RectTransform)roomsContainer).rect.width,
-                Screen.safeArea);
-            GridLayoutGroup grid = dynamicContent.GetComponent<GridLayoutGroup>();
-            grid.constraintCount = layout.Columns;
-            grid.cellSize = layout.CellSize;
-            dynamicContent.SetSizeWithCurrentAnchors(
-                RectTransform.Axis.Vertical,
-                layout.ContentHeight);
+                state?.FinalEndingId,
+                state?.UnlockedProductionSceneIds);
 
             foreach (ProductionMapEntry entry in CurrentViewModel.Entries)
             {
-                Button button = Instantiate(buttonTemplate, dynamicContent);
-                button.gameObject.SetActive(true);
-                button.interactable = entry.Status != ProductionMapEntryStatus.Locked;
-                TMP_Text label = button.GetComponentInChildren<TMP_Text>();
-                if (label != null)
-                {
-                    label.text = $"{entry.Header}\n{entry.StatusLabel}";
-                    label.font = StatusHUDController.RuntimeKoreanFont;
-                    label.enableAutoSizing = true;
-                    label.fontSizeMin = 13f;
-                    label.fontSizeMax = 20f;
-                }
-
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => SelectEntry(entry));
+                CreateLocationNode(entry);
             }
-
-            foreach (DialogueOnlyMapEntry entry in
-                     CurrentViewModel.DialogueOnlyEntries)
-            {
-                Button button = Instantiate(buttonTemplate, dynamicContent);
-                button.gameObject.SetActive(true);
-                button.interactable =
-                    entry.Status == ProductionMapEntryStatus.Available;
-                TMP_Text label = button.GetComponentInChildren<TMP_Text>();
-                if (label != null)
-                {
-                    label.text = $"{entry.Header}\n{entry.StatusLabel}";
-                    label.font = StatusHUDController.RuntimeKoreanFont;
-                    label.enableAutoSizing = true;
-                    label.fontSizeMin = 13f;
-                    label.fontSizeMax = 20f;
-                }
-
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(
-                    () => TryEnterDialogueOnlyScene(entry.SceneId));
-            }
-
-            unresolvedLabel.text = CurrentViewModel.UnresolvedScenes.Count == 0
-                ? string.Empty
-                : "배경 미확정 장면: " + string.Join(
-                    ", ",
-                    CurrentViewModel.UnresolvedScenes
-                        .Select(scene =>
-                            $"{scene.SceneId}({scene.NarrativeLocationCode})"));
         }
 
-        private void CreateScrollContent()
+        private bool EnsureInitialized()
+        {
+            if (initialized)
+            {
+                return dynamicContent != null;
+            }
+            if (locationGraph == null)
+            {
+                Debug.LogWarning("MapController has no LocationGraph assigned.");
+                return false;
+            }
+
+            GameObject canvas = GameObject.Find("Canvas");
+            roomsContainer = canvas?.transform.Find("Map/Rooms");
+            if (roomsContainer == null)
+            {
+                Debug.LogError("MapController could not find Map/Rooms.");
+                return false;
+            }
+
+            Button[] buttons = roomsContainer.GetComponentsInChildren<Button>(true);
+            buttonTemplate = buttons.FirstOrDefault();
+            foreach (Button button in buttons)
+            {
+                button.gameObject.SetActive(false);
+            }
+
+            CreateMapSurface();
+            initialized = true;
+            return true;
+        }
+
+        private void CreateMapSurface()
         {
             GameObject viewportObject = new(
                 "Dynamic Location Viewport",
@@ -139,55 +97,101 @@ namespace Wake.UI
             RectTransform viewport = viewportObject.GetComponent<RectTransform>();
             viewport.anchorMin = Vector2.zero;
             viewport.anchorMax = Vector2.one;
-            viewport.offsetMin = new Vector2(0f, 52f);
-            viewport.offsetMax = Vector2.zero;
-            Image maskImage = viewportObject.GetComponent<Image>();
-            maskImage.color = new Color(0f, 0f, 0f, 0.01f);
-            maskImage.raycastTarget = true;
+            viewport.offsetMin = new Vector2(1.5f, 2f);
+            viewport.offsetMax = new Vector2(-1.5f, -2f);
+            Image viewportImage = viewportObject.GetComponent<Image>();
+            viewportImage.color = new Color(0.015f, 0.025f, 0.045f, 1f);
 
             GameObject contentObject = new(
                 "Dynamic Location Content",
                 typeof(RectTransform),
-                typeof(GridLayoutGroup));
+                typeof(AspectRatioFitter));
             contentObject.transform.SetParent(viewport, false);
             dynamicContent = contentObject.GetComponent<RectTransform>();
-            dynamicContent.anchorMin = new Vector2(0f, 1f);
-            dynamicContent.anchorMax = new Vector2(1f, 1f);
-            dynamicContent.pivot = new Vector2(0.5f, 1f);
+            dynamicContent.anchorMin = new Vector2(0.5f, 0.5f);
+            dynamicContent.anchorMax = new Vector2(0.5f, 0.5f);
+            dynamicContent.pivot = new Vector2(0.5f, 0.5f);
             dynamicContent.anchoredPosition = Vector2.zero;
-            GridLayoutGroup grid = contentObject.GetComponent<GridLayoutGroup>();
-            grid.padding = new RectOffset(16, 16, 16, 16);
-            grid.spacing = new Vector2(12f, 12f);
-            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            AspectRatioFitter fitter = contentObject.GetComponent<AspectRatioFitter>();
+            fitter.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+            fitter.aspectRatio = 16f / 9f;
 
-            ScrollRect scroll = roomsContainer.gameObject.GetComponent<ScrollRect>() ??
-                                roomsContainer.gameObject.AddComponent<ScrollRect>();
-            scroll.viewport = viewport;
-            scroll.content = dynamicContent;
-            scroll.horizontal = false;
-            scroll.vertical = true;
-            scroll.movementType = ScrollRect.MovementType.Clamped;
+            GameObject backgroundObject = new(
+                "MV Elysium Cutaway",
+                typeof(RectTransform),
+                typeof(Image));
+            backgroundObject.transform.SetParent(dynamicContent, false);
+            RectTransform background = backgroundObject.GetComponent<RectTransform>();
+            background.anchorMin = Vector2.zero;
+            background.anchorMax = Vector2.one;
+            background.offsetMin = Vector2.zero;
+            background.offsetMax = Vector2.zero;
+            Image image = backgroundObject.GetComponent<Image>();
+            image.sprite = cruiseMapSprite;
+            image.preserveAspect = false;
+            image.raycastTarget = false;
         }
 
-        private void CreateUnresolvedLabel()
+        private void CreateLocationNode(ProductionMapEntry entry)
         {
+            GameObject nodeObject = new(
+                $"Map Node {entry.Spec.Code}",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(Button),
+                typeof(Outline));
+            nodeObject.transform.SetParent(dynamicContent, false);
+            RectTransform rect = nodeObject.GetComponent<RectTransform>();
+            Vector2 position = CruiseMapLayoutCatalog.PositionFor(entry.Spec.Code);
+            rect.anchorMin = position;
+            rect.anchorMax = position;
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(19f, 8f);
+
+            bool locked = entry.Status == ProductionMapEntryStatus.Locked;
+            Image image = nodeObject.GetComponent<Image>();
+            image.sprite = mapNodeSprite;
+            image.type = mapNodeSprite != null
+                ? Image.Type.Sliced
+                : Image.Type.Simple;
+            image.color = locked
+                ? new Color32(48, 53, 62, 235)
+                : entry.Status == ProductionMapEntryStatus.Completed
+                    ? new Color32(55, 105, 105, 245)
+                    : new Color32(183, 133, 54, 250);
+            Outline outline = nodeObject.GetComponent<Outline>();
+            outline.effectColor = locked
+                ? new Color32(15, 18, 24, 230)
+                : new Color32(246, 211, 135, 240);
+            outline.effectDistance = new Vector2(0.45f, -0.45f);
+
+            Button button = nodeObject.GetComponent<Button>();
+            button.interactable = !locked;
+            button.onClick.AddListener(() => SelectEntry(entry));
+
             GameObject labelObject = new(
-                "Unresolved Scene Notice",
+                "Label",
                 typeof(RectTransform),
                 typeof(TextMeshProUGUI));
-            labelObject.transform.SetParent(roomsContainer, false);
-            RectTransform rect = labelObject.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0f, 0f);
-            rect.anchorMax = new Vector2(1f, 0f);
-            rect.pivot = new Vector2(0.5f, 0f);
-            rect.offsetMin = new Vector2(12f, 4f);
-            rect.offsetMax = new Vector2(-12f, 48f);
-            unresolvedLabel = labelObject.GetComponent<TMP_Text>();
-            unresolvedLabel.font = StatusHUDController.RuntimeKoreanFont;
-            unresolvedLabel.fontSize = 13f;
-            unresolvedLabel.color = new Color32(255, 205, 120, 255);
-            unresolvedLabel.alignment = TextAlignmentOptions.Center;
-            unresolvedLabel.textWrappingMode = TextWrappingModes.Normal;
+            labelObject.transform.SetParent(nodeObject.transform, false);
+            RectTransform labelRect = labelObject.GetComponent<RectTransform>();
+            labelRect.anchorMin = Vector2.zero;
+            labelRect.anchorMax = Vector2.one;
+            labelRect.offsetMin = new Vector2(0.6f, 0.3f);
+            labelRect.offsetMax = new Vector2(-0.6f, -0.3f);
+            TMP_Text label = labelObject.GetComponent<TMP_Text>();
+            label.font = StatusHUDController.RuntimeKoreanFont;
+            label.text = $"{entry.Spec.DisplayName}\n{entry.StatusLabel}";
+            label.alignment = TextAlignmentOptions.Center;
+            label.enableAutoSizing = true;
+            label.fontSizeMin = 2.4f;
+            label.fontSizeMax = 4.4f;
+            label.color = locked
+                ? new Color32(175, 180, 188, 255)
+                : Color.white;
+            label.raycastTarget = false;
+            label.textWrappingMode = TextWrappingModes.Normal;
         }
 
         private void SelectEntry(ProductionMapEntry entry)
@@ -226,21 +230,18 @@ namespace Wake.UI
                 ShowTravelFeedback();
                 return LastTravelResult;
             }
-
             UIManager.Instance?.ShowIngame();
             return LastTravelResult;
         }
 
         public SceneTravelResult TryEnterDialogueOnlyScene(string sceneId)
         {
-            LastTravelResult =
-                CreateTravelCoordinator().TryEnterDialogueOnly(sceneId);
+            LastTravelResult = CreateTravelCoordinator().TryEnterDialogueOnly(sceneId);
             if (!LastTravelResult.IsAllowed)
             {
                 ShowTravelFeedback();
                 return LastTravelResult;
             }
-
             UIManager.Instance?.ShowIngame();
             return LastTravelResult;
         }
@@ -271,7 +272,6 @@ namespace Wake.UI
             {
                 return result.IsAllowed && LocationLoader.Instance != null;
             }
-
             LastTravelResult = SceneTravelResult.Denied(
                 SceneAccessDenialReason.LocationLoadFailed,
                 $"Location '{result.Location.LocationCode}' could not load visual content.",

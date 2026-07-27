@@ -7069,6 +7069,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   locationGraph: {fileID: 11400000, guid: a16dfc97ecc94ecda071ce6ad7b6917a, type: 2}
+  cruiseMapSprite: {fileID: 21300000, guid: 2e5501ad70b7463aaa04fc83b6b48925, type: 3}
+  mapNodeSprite: {fileID: 21300000, guid: 24950248d7e88dd498c7d66ab0c60415, type: 3}
 --- !u!114 &999000005
 MonoBehaviour:
   m_ObjectHideFlags: 0
