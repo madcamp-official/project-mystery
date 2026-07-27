@@ -75,113 +75,97 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void Layout_AppliesReferenceScalerAndBottomSafePanel()
+        public void Initialize_ConfiguresCanvasScalerForReferenceResolution()
         {
-            GameObject canvasObject = new(
-                "Canvas",
-                typeof(RectTransform),
-                typeof(Canvas),
-                typeof(CanvasScaler),
-                typeof(ResponsiveDialogueLayout));
-            GameObject lineObject = new("Line Panel", typeof(RectTransform));
-            lineObject.transform.SetParent(canvasObject.transform, false);
-            try
-            {
-                ResponsiveDialogueLayout layout =
-                    canvasObject.GetComponent<ResponsiveDialogueLayout>();
-                layout.Initialize(
-                    canvasObject.GetComponent<Canvas>(),
-                    lineObject.GetComponent<RectTransform>(),
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null);
-                layout.ApplyLayout(
-                    new Rect(96f, 54f, 1728f, 972f),
-                    new Vector2(1920f, 1080f));
+            using LayoutRig rig = new(1920f, 1080f);
 
-                CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-                Assert.That(
-                    scaler.referenceResolution,
-                    Is.EqualTo(ResponsiveDialogueLayout.ReferenceResolution));
-                Assert.That(scaler.matchWidthOrHeight, Is.EqualTo(0.5f));
-
-                RectTransform panel =
-                    lineObject.GetComponent<RectTransform>();
-                Assert.That(panel.anchorMin.x, Is.EqualTo(0.05f).Within(Tolerance));
-                Assert.That(panel.anchorMax.x, Is.EqualTo(0.95f).Within(Tolerance));
-                Assert.That(panel.anchorMin.y, Is.EqualTo(0.05f).Within(Tolerance));
-                Assert.That(panel.anchorMax.y, Is.EqualTo(0.05f).Within(Tolerance));
-                Assert.That(
-                    panel.sizeDelta.y,
-                    Is.EqualTo(ResponsiveDialogueLayout.DialogueHeight));
-            }
-            finally
-            {
-                Object.DestroyImmediate(canvasObject);
-            }
+            CanvasScaler scaler = rig.CanvasRect.GetComponent<CanvasScaler>();
+            Assert.That(
+                scaler.referenceResolution,
+                Is.EqualTo(ResponsiveDialogueLayout.ReferenceResolution));
+            Assert.That(scaler.matchWidthOrHeight, Is.EqualTo(0.5f));
+            Assert.That(
+                scaler.uiScaleMode,
+                Is.EqualTo(CanvasScaler.ScaleMode.ScaleWithScreenSize));
         }
 
-        [TestCase(1920f, 1080f)]
-        [TestCase(1920f, 1200f)]
-        public void GameplayRoot_UsesFullCanvasAtSupportedRatios(
-            float width,
-            float height)
+        [Test]
+        public void GameplayRoot_IsResetToFullStretchRegardlessOfAuthoredScale()
         {
-            using LayoutRig rig = new(width, height);
-
-            rig.Layout.ApplyLayout(
-                new Rect(0f, 0f, width, height),
-                new Vector2(width, height));
+            using LayoutRig rig = new(1920f, 1080f);
 
             Assert.That(rig.Ingame.anchorMin, Is.EqualTo(Vector2.zero));
             Assert.That(rig.Ingame.anchorMax, Is.EqualTo(Vector2.one));
             Assert.That(rig.Ingame.anchoredPosition, Is.EqualTo(Vector2.zero));
             Assert.That(rig.Ingame.sizeDelta, Is.EqualTo(Vector2.zero));
             Assert.That(rig.Ingame.localScale, Is.EqualTo(Vector3.one));
-            Assert.That(rig.LinePanel.anchorMin.x, Is.Zero.Within(Tolerance));
-            Assert.That(rig.LinePanel.anchorMax.x, Is.EqualTo(1f).Within(Tolerance));
-            Assert.That(rig.LinePanel.anchorMin.y, Is.Zero.Within(Tolerance));
-            Assert.That(rig.LinePanel.sizeDelta.y,
-                Is.EqualTo(ResponsiveDialogueLayout.DialogueHeight));
         }
 
         [TestCase(1920f, 1080f)]
         [TestCase(1920f, 1200f)]
-        public void NavigationButtons_UseSafeTopAnchorsAtSupportedRatios(
+        public void SceneAuthoredPlacement_IsPreservedWhenSafeAreaIsUnchanged(
             float width,
             float height)
         {
             using LayoutRig rig = new(width, height);
 
-            rig.Layout.ApplyLayout(
-                new Rect(0f, 0f, width, height),
-                new Vector2(width, height));
+            // The first ApplyLayout call captures whatever was on the
+            // RectTransforms (the "Inspector placement") as the
+            // baseline. A second call with the same safe area must
+            // reproduce it byte-for-byte, not fall back to a formula.
+            Rect fullSafeArea = new(0f, 0f, width, height);
+            Vector2 screenSize = new(width, height);
+            rig.Layout.ApplyLayout(fullSafeArea, screenSize);
+            rig.Layout.ApplyLayout(fullSafeArea, screenSize);
 
-            AssertLeftNavigationButton(
-                rig.EvidenceButton,
-                ResponsiveDialogueLayout.EdgePadding);
-            AssertLeftNavigationButton(
-                rig.MapButton,
-                ResponsiveDialogueLayout.EdgePadding * 2f +
-                ResponsiveDialogueLayout.NavigationButtonWidth);
+            Assert.That(rig.LinePanel.anchorMin, Is.EqualTo(rig.AuthoredLinePanelAnchorMin));
+            Assert.That(rig.LinePanel.anchorMax, Is.EqualTo(rig.AuthoredLinePanelAnchorMax));
+            Assert.That(rig.LinePanel.anchoredPosition,
+                Is.EqualTo(rig.AuthoredLinePanelPosition).Using(Vector2Comparer));
+            Assert.That(rig.LinePanel.sizeDelta,
+                Is.EqualTo(rig.AuthoredLinePanelSize).Using(Vector2Comparer));
+
+            Assert.That(rig.NextButton.anchoredPosition,
+                Is.EqualTo(rig.AuthoredNextButtonPosition).Using(Vector2Comparer));
+            Assert.That(rig.NextButton.sizeDelta,
+                Is.EqualTo(rig.AuthoredNextButtonSize).Using(Vector2Comparer));
+
+            Assert.That(rig.EvidenceButton.anchoredPosition,
+                Is.EqualTo(rig.AuthoredEvidenceButtonPosition).Using(Vector2Comparer));
+            Assert.That(rig.EvidenceButton.sizeDelta,
+                Is.EqualTo(rig.AuthoredEvidenceButtonSize).Using(Vector2Comparer));
             Assert.That(rig.SettingsButton.anchorMin,
-                Is.EqualTo(new Vector2(1f, 1f)));
-            Assert.That(rig.SettingsButton.anchorMax,
-                Is.EqualTo(new Vector2(1f, 1f)));
-            Assert.That(rig.SettingsButton.pivot,
-                Is.EqualTo(new Vector2(1f, 1f)));
-            Assert.That(rig.SettingsButton.anchoredPosition.x,
-                Is.EqualTo(-ResponsiveDialogueLayout.EdgePadding));
-            Assert.That(rig.SettingsButton.anchoredPosition.y,
-                Is.EqualTo(-ResponsiveDialogueLayout.NavigationTop));
+                Is.EqualTo(rig.AuthoredSettingsButtonAnchor));
+            Assert.That(rig.SettingsButton.anchoredPosition,
+                Is.EqualTo(rig.AuthoredSettingsButtonPosition).Using(Vector2Comparer));
+        }
+
+        [Test]
+        public void SafeAreaInsetChange_RescalesBaselineProportionally()
+        {
+            using LayoutRig rig = new(2000f, 1000f);
+
+            // First call establishes the baseline against a full-bleed
+            // safe area (no inset). Then simulate a notch that removes
+            // 25% of the usable height - the vertically-offset elements
+            // should scale down proportionally instead of staying fixed
+            // or snapping to a hardcoded value.
+            rig.Layout.ApplyLayout(
+                new Rect(0f, 0f, 2000f, 1000f),
+                new Vector2(2000f, 1000f));
+            rig.Layout.ApplyLayout(
+                new Rect(0f, 0f, 2000f, 750f),
+                new Vector2(2000f, 1000f));
+
+            float expectedScaleY = 0.75f;
             Assert.That(
-                rig.SettingsButton.sizeDelta,
-                Is.EqualTo(new Vector2(
-                    ResponsiveDialogueLayout.NavigationButtonWidth,
-                    ResponsiveDialogueLayout.NavigationButtonHeight)));
+                rig.NextButton.anchoredPosition.y,
+                Is.EqualTo(rig.AuthoredNextButtonPosition.y * expectedScaleY)
+                    .Within(0.01f));
+            Assert.That(
+                rig.LinePanel.sizeDelta.y,
+                Is.EqualTo(rig.AuthoredLinePanelSize.y * expectedScaleY)
+                    .Within(0.01f));
         }
 
         [Test]
@@ -238,46 +222,24 @@ namespace Wake.Tests
                 Is.EqualTo(TextOverflowModes.Ellipsis));
         }
 
-        [Test]
-        public void NextButton_RemainsInsideDialoguePanel()
+        private static readonly Vector2EqualityComparer Vector2Comparer =
+            new(0.01f);
+
+        private sealed class Vector2EqualityComparer :
+            System.Collections.Generic.IEqualityComparer<Vector2>
         {
-            using LayoutRig rig = new(1920f, 1080f);
+            private readonly float tolerance;
 
-            rig.Layout.ApplyLayout(
-                new Rect(0f, 0f, 1920f, 1080f),
-                new Vector2(1920f, 1080f));
+            public Vector2EqualityComparer(float tolerance)
+            {
+                this.tolerance = tolerance;
+            }
 
-            Assert.That(rig.NextButton.anchorMin,
-                Is.EqualTo(new Vector2(1f, 0f)));
-            Assert.That(rig.NextButton.anchorMax,
-                Is.EqualTo(new Vector2(1f, 0f)));
-            Assert.That(rig.NextButton.pivot,
-                Is.EqualTo(new Vector2(1f, 0f)));
-            Assert.That(
-                rig.NextButton.anchoredPosition,
-                Is.EqualTo(new Vector2(
-                    -ResponsiveDialogueLayout.EdgePadding,
-                    ResponsiveDialogueLayout.EdgePadding)));
-            Assert.That(
-                rig.NextButton.sizeDelta,
-                Is.EqualTo(new Vector2(220f, 76f)));
-        }
+            public bool Equals(Vector2 a, Vector2 b) =>
+                Mathf.Abs(a.x - b.x) <= tolerance &&
+                Mathf.Abs(a.y - b.y) <= tolerance;
 
-        private static void AssertLeftNavigationButton(
-            RectTransform button,
-            float expectedInset)
-        {
-            Assert.That(button.anchorMin, Is.EqualTo(new Vector2(0f, 1f)));
-            Assert.That(button.anchorMax, Is.EqualTo(new Vector2(0f, 1f)));
-            Assert.That(button.pivot, Is.EqualTo(new Vector2(0f, 1f)));
-            Assert.That(button.anchoredPosition.x, Is.EqualTo(expectedInset));
-            Assert.That(button.anchoredPosition.y,
-                Is.EqualTo(-ResponsiveDialogueLayout.NavigationTop));
-            Assert.That(
-                button.sizeDelta,
-                Is.EqualTo(new Vector2(
-                    ResponsiveDialogueLayout.NavigationButtonWidth,
-                    ResponsiveDialogueLayout.NavigationButtonHeight)));
+            public int GetHashCode(Vector2 obj) => 0;
         }
 
         private sealed class LayoutRig : System.IDisposable
@@ -302,9 +264,41 @@ namespace Wake.Tests
                 Ingame.localScale = Vector3.one * 3.5f;
 
                 EvidenceButton = CreateRect("Evidence Btn", Ingame);
+                AuthoredEvidenceButtonPosition = new Vector2(64f, -140f);
+                AuthoredEvidenceButtonSize = new Vector2(210f, 82f);
+                EvidenceButton.anchorMin = new Vector2(0f, 1f);
+                EvidenceButton.anchorMax = new Vector2(0f, 1f);
+                EvidenceButton.pivot = new Vector2(0f, 1f);
+                EvidenceButton.anchoredPosition = AuthoredEvidenceButtonPosition;
+                EvidenceButton.sizeDelta = AuthoredEvidenceButtonSize;
+
                 MapButton = CreateRect("Map Btn", Ingame);
+                MapButton.anchorMin = new Vector2(0f, 1f);
+                MapButton.anchorMax = new Vector2(0f, 1f);
+                MapButton.pivot = new Vector2(0f, 1f);
+                MapButton.anchoredPosition = new Vector2(320f, -140f);
+                MapButton.sizeDelta = new Vector2(210f, 82f);
+
                 SettingsButton = CreateRect("Settings Btn", Ingame);
+                AuthoredSettingsButtonAnchor = new Vector2(1f, 1f);
+                AuthoredSettingsButtonPosition = new Vector2(-40f, -96f);
+                SettingsButton.anchorMin = AuthoredSettingsButtonAnchor;
+                SettingsButton.anchorMax = AuthoredSettingsButtonAnchor;
+                SettingsButton.pivot = AuthoredSettingsButtonAnchor;
+                SettingsButton.anchoredPosition = AuthoredSettingsButtonPosition;
+                SettingsButton.sizeDelta = new Vector2(210f, 82f);
+
                 LinePanel = CreateRect("Line Panel", Ingame);
+                AuthoredLinePanelAnchorMin = new Vector2(0f, 0f);
+                AuthoredLinePanelAnchorMax = new Vector2(1f, 0f);
+                AuthoredLinePanelPosition = new Vector2(0f, 36f);
+                AuthoredLinePanelSize = new Vector2(0f, 480f);
+                LinePanel.anchorMin = AuthoredLinePanelAnchorMin;
+                LinePanel.anchorMax = AuthoredLinePanelAnchorMax;
+                LinePanel.pivot = new Vector2(0.5f, 0f);
+                LinePanel.anchoredPosition = AuthoredLinePanelPosition;
+                LinePanel.sizeDelta = AuthoredLinePanelSize;
+
                 Panel = CreateRect("Panel", LinePanel);
                 SpeakerPlate = CreateRect("Image", LinePanel);
                 Choices = CreateRect("Select Btn", LinePanel);
@@ -321,6 +315,13 @@ namespace Wake.Tests
                     Panel,
                     typeof(Image),
                     typeof(Button));
+                AuthoredNextButtonPosition = new Vector2(-44f, 44f);
+                AuthoredNextButtonSize = new Vector2(224f, 80f);
+                NextButton.anchorMin = new Vector2(1f, 0f);
+                NextButton.anchorMax = new Vector2(1f, 0f);
+                NextButton.pivot = new Vector2(1f, 0f);
+                NextButton.anchoredPosition = AuthoredNextButtonPosition;
+                NextButton.sizeDelta = AuthoredNextButtonSize;
 
                 Layout = canvasObject.GetComponent<ResponsiveDialogueLayout>();
                 Layout.Initialize(
@@ -348,6 +349,17 @@ namespace Wake.Tests
             public TMP_Text LineText { get; }
             public TMP_Text SpeakerText { get; }
             public ResponsiveDialogueLayout Layout { get; }
+
+            public Vector2 AuthoredEvidenceButtonPosition { get; }
+            public Vector2 AuthoredEvidenceButtonSize { get; }
+            public Vector2 AuthoredSettingsButtonAnchor { get; }
+            public Vector2 AuthoredSettingsButtonPosition { get; }
+            public Vector2 AuthoredLinePanelAnchorMin { get; }
+            public Vector2 AuthoredLinePanelAnchorMax { get; }
+            public Vector2 AuthoredLinePanelPosition { get; }
+            public Vector2 AuthoredLinePanelSize { get; }
+            public Vector2 AuthoredNextButtonPosition { get; }
+            public Vector2 AuthoredNextButtonSize { get; }
 
             public void Dispose()
             {

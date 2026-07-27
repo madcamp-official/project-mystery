@@ -36,6 +36,24 @@ namespace Wake.UI
         }
     }
 
+    /// <summary>
+    /// Captured RectTransform state used as the layout's source of truth.
+    /// Whatever is placed in the Inspector/scene at Initialize time wins;
+    /// ApplyLayout only rescales it when the safe-area inset fraction
+    /// actually changes (e.g. a notch), which never happens on desktop.
+    /// </summary>
+    public readonly struct RectBaseline
+    {
+        public RectBaseline(RectTransform rect)
+        {
+            AnchoredPosition = rect.anchoredPosition;
+            SizeDelta = rect.sizeDelta;
+        }
+
+        public Vector2 AnchoredPosition { get; }
+        public Vector2 SizeDelta { get; }
+    }
+
     [DisallowMultipleComponent]
     public sealed class ResponsiveDialogueLayout : MonoBehaviour
     {
@@ -46,15 +64,10 @@ namespace Wake.UI
         public const float NavigationButtonWidth = 260f;
         public const float NavigationButtonHeight = 76f;
 
-        [Header("Layout (Inspector-editable, used instead of the constants above)")]
-        [SerializeField] private float dialogueHeight = DialogueHeight;
+        [Header("Portrait (code-created, no scene baseline to respect)")]
         [SerializeField] private float edgePadding = EdgePadding;
-        [SerializeField] private float navigationTop = NavigationTop;
-        [SerializeField] private float navigationButtonWidth = NavigationButtonWidth;
-        [SerializeField] private float navigationButtonHeight = NavigationButtonHeight;
         [SerializeField] private Vector2 portraitSize = new(260f, 300f);
         [SerializeField] private Vector2 speakerPlateSize = new(460f, 68f);
-        [SerializeField] private Vector2 nextButtonSize = new(220f, 76f);
 
         private Canvas canvas;
         private RectTransform ingameRoot;
@@ -64,6 +77,9 @@ namespace Wake.UI
         private RectTransform speakerPlate;
         private RectTransform nextButton;
         private RectTransform choices;
+        private RectTransform evidenceBtn;
+        private RectTransform mapBtn;
+        private RectTransform settingsBtn;
         private TMP_Text lineText;
         private TMP_Text speakerText;
         private ScrollRect dialogueScroll;
@@ -71,6 +87,17 @@ namespace Wake.UI
         private IReadOnlyList<Button> choiceButtons;
         private Rect lastSafeArea;
         private Vector2Int lastScreen;
+
+        private bool baselineCaptured;
+        private Rect baselineSafeArea;
+        private Vector2 baselineScreen;
+        private RectBaseline linePanelBaseline;
+        private RectBaseline textPanelBaseline;
+        private RectBaseline nextButtonBaseline;
+        private RectBaseline choicesBaseline;
+        private RectBaseline evidenceBtnBaseline;
+        private RectBaseline mapBtnBaseline;
+        private RectBaseline settingsBtnBaseline;
 
         public ScrollRect DialogueScroll => dialogueScroll;
 
@@ -101,42 +128,111 @@ namespace Wake.UI
             textPanel = lineText != null
                 ? lineText.transform.parent as RectTransform
                 : null;
+            evidenceBtn = ingameRoot != null
+                ? ingameRoot.Find("Evidence Btn") as RectTransform
+                : null;
+            mapBtn = ingameRoot != null
+                ? ingameRoot.Find("Map Btn") as RectTransform
+                : null;
+            settingsBtn = ingameRoot != null
+                ? ingameRoot.Find("Settings Btn") as RectTransform
+                : null;
 
             ConfigureCanvasScaler();
             ConfigureIngameRoot();
             ConfigureText();
             ConfigurePortrait();
             ConfigureChoices();
-            ApplyLayout(Screen.safeArea, new Vector2(Screen.width, Screen.height));
+            baselineCaptured = false;
+            // The first ApplyLayout call (from LateUpdate on the next
+            // tick, or from a caller that wants a specific starting
+            // point) captures whatever is on the RectTransforms right
+            // now as the baseline. We don't force that call here so
+            // tests can control exactly what the baseline is.
+        }
+
+        /// <summary>
+        /// Snapshots the current (Inspector/scene-authored) placement of
+        /// every element that persists in the scene. This becomes the
+        /// layout ApplyLayout reproduces; it is not overwritten with
+        /// hardcoded positions.
+        /// </summary>
+        private void CaptureBaselines(Rect safeArea, Vector2 screenSize)
+        {
+            baselineSafeArea = safeArea;
+            baselineScreen = screenSize;
+            if (linePanel != null)
+                linePanelBaseline = new RectBaseline(linePanel);
+            if (textPanel != null)
+                textPanelBaseline = new RectBaseline(textPanel);
+            if (nextButton != null)
+                nextButtonBaseline = new RectBaseline(nextButton);
+            if (choices != null)
+                choicesBaseline = new RectBaseline(choices);
+            if (evidenceBtn != null)
+                evidenceBtnBaseline = new RectBaseline(evidenceBtn);
+            if (mapBtn != null)
+                mapBtnBaseline = new RectBaseline(mapBtn);
+            if (settingsBtn != null)
+                settingsBtnBaseline = new RectBaseline(settingsBtn);
+        }
+
+        /// <summary>
+        /// How much the safe-area inset (as a fraction of the screen)
+        /// has changed since the baseline was captured. (1,1) whenever
+        /// there is no notch/inset change, which is always true on
+        /// desktop — baseline values then apply completely untouched.
+        /// </summary>
+        private Vector2 ComputeInsetScale(Rect safeArea, Vector2 screenSize)
+        {
+            Vector2 baselineFraction = new(
+                baselineScreen.x > 0f ? baselineSafeArea.width / baselineScreen.x : 1f,
+                baselineScreen.y > 0f ? baselineSafeArea.height / baselineScreen.y : 1f);
+            Vector2 currentFraction = new(
+                screenSize.x > 0f ? safeArea.width / screenSize.x : 1f,
+                screenSize.y > 0f ? safeArea.height / screenSize.y : 1f);
+            return new Vector2(
+                baselineFraction.x > 0.0001f ? currentFraction.x / baselineFraction.x : 1f,
+                baselineFraction.y > 0.0001f ? currentFraction.y / baselineFraction.y : 1f);
+        }
+
+        private static void ApplyBaseline(
+            RectTransform rect, RectBaseline baseline, Vector2 scale)
+        {
+            if (rect == null)
+                return;
+            rect.anchoredPosition = new Vector2(
+                baseline.AnchoredPosition.x * scale.x,
+                baseline.AnchoredPosition.y * scale.y);
+            rect.sizeDelta = new Vector2(
+                baseline.SizeDelta.x * scale.x,
+                baseline.SizeDelta.y * scale.y);
         }
 
         public void ApplyLayout(Rect safeArea, Vector2 screenSize)
         {
             if (linePanel == null)
                 return;
-            SafeAreaAnchors anchors =
-                SafeAreaUtility.ToAnchors(safeArea, screenSize);
 
-            ApplyNavigationLayout();
-            linePanel.anchorMin = new Vector2(
-                anchors.Minimum.x,
-                anchors.Minimum.y);
-            linePanel.anchorMax = new Vector2(
-                anchors.Maximum.x,
-                anchors.Minimum.y);
-            linePanel.pivot = new Vector2(0.5f, 0f);
-            linePanel.anchoredPosition = new Vector2(0f, edgePadding);
-            linePanel.sizeDelta = new Vector2(0f, dialogueHeight);
-
-            float topRowReserve = edgePadding + portraitSize.y + edgePadding;
-            if (textPanel != null)
+            if (!baselineCaptured)
             {
-                textPanel.anchorMin = Vector2.zero;
-                textPanel.anchorMax = Vector2.one;
-                textPanel.offsetMin = new Vector2(edgePadding, 12f);
-                textPanel.offsetMax = new Vector2(-edgePadding, -topRowReserve);
+                CaptureBaselines(safeArea, screenSize);
+                baselineCaptured = true;
             }
 
+            Vector2 scale = ComputeInsetScale(safeArea, screenSize);
+            ApplyBaseline(linePanel, linePanelBaseline, scale);
+            ApplyBaseline(textPanel, textPanelBaseline, scale);
+            ApplyBaseline(nextButton, nextButtonBaseline, scale);
+            ApplyBaseline(choices, choicesBaseline, scale);
+            ApplyBaseline(evidenceBtn, evidenceBtnBaseline, scale);
+            ApplyBaseline(mapBtn, mapBtnBaseline, scale);
+            ApplyBaseline(settingsBtn, settingsBtnBaseline, scale);
+            UpdateChoiceGrid();
+
+            // Portrait/speaker plate are created fresh in code every run
+            // (DialogueController.CreatePortrait) — there is no scene
+            // placement to respect, so these stay formula-driven.
             if (portrait != null)
             {
                 portrait.anchorMin = new Vector2(0f, 1f);
@@ -158,24 +254,6 @@ namespace Wake.UI
                 speakerPlate.sizeDelta = speakerPlateSize;
             }
 
-            if (nextButton != null)
-            {
-                nextButton.anchorMin = new Vector2(1f, 0f);
-                nextButton.anchorMax = new Vector2(1f, 0f);
-                nextButton.pivot = new Vector2(1f, 0f);
-                nextButton.anchoredPosition =
-                    new Vector2(-edgePadding, edgePadding);
-                nextButton.sizeDelta = nextButtonSize;
-            }
-
-            if (choices != null)
-            {
-                choices.anchorMin = new Vector2(0.21f, 0.08f);
-                choices.anchorMax = new Vector2(0.98f, 0.84f);
-                choices.offsetMin = Vector2.zero;
-                choices.offsetMax = Vector2.zero;
-                UpdateChoiceGrid();
-            }
             lastSafeArea = safeArea;
             lastScreen = new Vector2Int(
                 Mathf.RoundToInt(screenSize.x),
@@ -193,46 +271,6 @@ namespace Wake.UI
             ingameRoot.anchoredPosition = Vector2.zero;
             ingameRoot.sizeDelta = Vector2.zero;
             ingameRoot.localScale = Vector3.one;
-        }
-
-        private void ApplyNavigationLayout()
-        {
-            if (ingameRoot == null)
-                return;
-
-            PlaceNavigationButton(
-                ingameRoot.Find("Evidence Btn") as RectTransform,
-                false,
-                edgePadding);
-            PlaceNavigationButton(
-                ingameRoot.Find("Map Btn") as RectTransform,
-                false,
-                edgePadding * 2f + navigationButtonWidth);
-            PlaceNavigationButton(
-                ingameRoot.Find("Settings Btn") as RectTransform,
-                true,
-                edgePadding);
-        }
-
-        private void PlaceNavigationButton(
-            RectTransform button,
-            bool alignRight,
-            float horizontalInset)
-        {
-            if (button == null)
-                return;
-
-            float anchorX = alignRight ? 1f : 0f;
-            button.anchorMin = new Vector2(anchorX, 1f);
-            button.anchorMax = new Vector2(anchorX, 1f);
-            button.pivot = new Vector2(anchorX, 1f);
-            button.anchoredPosition = new Vector2(
-                alignRight ? -horizontalInset : horizontalInset,
-                -navigationTop);
-            button.sizeDelta = new Vector2(
-                navigationButtonWidth,
-                navigationButtonHeight);
-            button.localScale = Vector3.one;
         }
 
         public void ResetTextScroll()
