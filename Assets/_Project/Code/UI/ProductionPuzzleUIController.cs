@@ -293,6 +293,11 @@ namespace Wake.UI
             Button close = MakeButton("Close Button", 0.04f, 0.13f, "나가기");
             close.GetComponent<RectTransform>().anchoredPosition = new Vector2(-180f, 0f);
             close.onClick.AddListener(Close);
+            FeatureTypography.ApplyPuzzle(
+                root.transform,
+                titleText,
+                objectiveText,
+                hintText);
             root.SetActive(false);
         }
 
@@ -314,7 +319,7 @@ namespace Wake.UI
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
             TMP_Text text = target.GetComponent<TMP_Text>();
-            text.font = StatusHUDController.RuntimeKoreanFont;
+            TypographyService.Apply(text, TypographyRole.Body);
             text.fontSize = fontSize;
             text.color = Color.white;
             text.alignment = TextAlignmentOptions.Center;
@@ -359,7 +364,7 @@ namespace Wake.UI
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
             TMP_Text text = target.GetComponent<TMP_Text>();
-            text.font = StatusHUDController.RuntimeKoreanFont;
+            TypographyService.Apply(text, TypographyRole.Choice);
             text.fontSize = 20f;
             text.alignment = TextAlignmentOptions.Center;
             text.color = Color.white;
