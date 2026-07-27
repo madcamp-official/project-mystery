@@ -90,6 +90,50 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void Initialize_ConfiguresDialogueBodyTypographyMetrics()
+        {
+            using LayoutRig rig = new(1920f, 1080f);
+
+            Assert.That(rig.LineText.enableAutoSizing, Is.True);
+            Assert.That(
+                rig.LineText.fontSizeMin,
+                Is.EqualTo(DialogueTypographyMetrics.LineMinimum));
+            Assert.That(
+                rig.LineText.fontSizeMax,
+                Is.EqualTo(DialogueTypographyMetrics.LineMaximum));
+            Assert.That(
+                rig.LineText.lineSpacing,
+                Is.EqualTo(
+                    DialogueTypographyMetrics.BodyLineSpacing));
+            Assert.That(
+                rig.LineText.textWrappingMode,
+                Is.EqualTo(TextWrappingModes.Normal));
+        }
+
+        [Test]
+        public void Initialize_ConfiguresSpeakerTypographyMetrics()
+        {
+            using LayoutRig rig = new(1920f, 1080f);
+
+            Assert.That(rig.SpeakerText.enableAutoSizing, Is.True);
+            Assert.That(
+                rig.SpeakerText.fontSizeMin,
+                Is.EqualTo(
+                    DialogueTypographyMetrics.SpeakerMinimum));
+            Assert.That(
+                rig.SpeakerText.fontSizeMax,
+                Is.EqualTo(
+                    DialogueTypographyMetrics.SpeakerMaximum));
+            Assert.That(
+                rig.SpeakerText.lineSpacing,
+                Is.EqualTo(
+                    DialogueTypographyMetrics.HeadingLineSpacing));
+            Assert.That(
+                rig.SpeakerText.overflowMode,
+                Is.EqualTo(TextOverflowModes.Ellipsis));
+        }
+
+        [Test]
         public void GameplayRoot_IsResetToFullStretchRegardlessOfAuthoredScale()
         {
             using LayoutRig rig = new(1920f, 1080f);
