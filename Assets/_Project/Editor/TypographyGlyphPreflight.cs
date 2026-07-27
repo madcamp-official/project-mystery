@@ -223,6 +223,8 @@ namespace Wake.Editor
                 TMP_FontAsset font = catalog.Resolve(role);
                 if (font != null)
                 {
+                    font.atlasPopulationMode =
+                        AtlasPopulationMode.Static;
                     EditorUtility.SetDirty(font);
                 }
             }
