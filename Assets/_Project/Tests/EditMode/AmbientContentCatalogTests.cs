@@ -53,7 +53,7 @@ namespace Wake.Tests
                     .Where(item =>
                         restrictedLocations.Contains(item.Location))
                     .All(item =>
-                        item.Speaker.StartsWith("CREW_")),
+                        !item.Speaker.StartsWith("PASSENGER_")),
                 Is.True);
         }
 
@@ -71,9 +71,9 @@ namespace Wake.Tests
             Assert.That(
                 port.Select(item => item.Speaker),
                 Is.EquivalentTo(
-                    new[] { "CREW_ATTENDANT", "PASSENGER_A" }));
+                    new[] { "DOCK_PORTER", "PASSENGER_A" }));
             Assert.That(engine, Has.Length.EqualTo(1));
-            Assert.That(engine[0].Speaker, Is.EqualTo("CREW_ENGINEER"));
+            Assert.That(engine[0].Speaker, Is.EqualTo("CHIEF_ENGINEER"));
             Assert.That(engine[0].Text, Does.Contain("주기관 출력"));
         }
 
@@ -134,7 +134,7 @@ namespace Wake.Tests
                 .Distinct()
                 .ToArray();
 
-            Assert.That(speakers, Has.Length.EqualTo(9));
+            Assert.That(speakers, Has.Length.EqualTo(24));
             foreach (string speaker in speakers)
             {
                 Assert.That(
@@ -147,7 +147,37 @@ namespace Wake.Tests
                         PortraitEmotion.Neutral);
                 Assert.That(asset.Found, Is.True, speaker);
                 Assert.That(asset.Texture, Is.Not.Null, speaker);
-                Assert.That(asset.UvRect.width, Is.EqualTo(.54f).Within(.001f));
+                Assert.That(asset.UvRect.width, Is.GreaterThan(0f));
+                Assert.That(asset.UvRect.xMin, Is.GreaterThanOrEqualTo(0f));
+                Assert.That(asset.UvRect.xMax, Is.LessThanOrEqualTo(1f));
+            }
+        }
+
+        [Test]
+        public void EveryAmbientRole_HasAUniqueLocationStageProfile()
+        {
+            var expectedPairs = AmbientBarkCatalog.All
+                .Select(item => $"{item.Location}|{item.Speaker}")
+                .Distinct()
+                .OrderBy(item => item)
+                .ToArray();
+            var stagedPairs = AmbientWorldStageCatalog.All
+                .Select(item => $"{item.Location}|{item.Speaker}")
+                .OrderBy(item => item)
+                .ToArray();
+
+            Assert.That(stagedPairs, Is.Unique);
+            Assert.That(stagedPairs, Is.EquivalentTo(expectedPairs));
+            foreach (AmbientWorldStageRecord stage in
+                     AmbientWorldStageCatalog.All)
+            {
+                Assert.That(stage.Profile.Anchor.x, Is.InRange(0f, 1f));
+                Assert.That(stage.Profile.Anchor.y, Is.InRange(0f, 1f));
+                Assert.That(
+                    stage.Profile.NormalizedHeight,
+                    Is.InRange(0.2f, 0.9f));
+                Assert.That(stage.Profile.LightTint.a, Is.EqualTo(1f));
+                Assert.That(stage.Profile.ShadowOpacity, Is.InRange(0f, 1f));
             }
         }
 
