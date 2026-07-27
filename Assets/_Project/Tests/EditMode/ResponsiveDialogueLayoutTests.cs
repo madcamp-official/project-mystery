@@ -181,11 +181,11 @@ namespace Wake.Tests
                 Is.EqualTo(new Vector2(0.95f, 1f)));
             Assert.That(
                 rig.Choices.anchoredPosition,
-                Is.EqualTo(new Vector2(400f, 20f))
+                Is.EqualTo(new Vector2(280f, 20f))
                     .Using(Vector2Comparer));
             Assert.That(
                 rig.Choices.sizeDelta,
-                Is.EqualTo(new Vector2(-880f, 132f))
+                Is.EqualTo(new Vector2(-1120f, 132f))
                     .Using(Vector2Comparer));
         }
 
@@ -386,8 +386,8 @@ namespace Wake.Tests
                 Choices.anchorMin = new Vector2(0f, 1f);
                 Choices.anchorMax = new Vector2(1f, 1f);
                 Choices.pivot = new Vector2(0.5f, 0f);
-                Choices.anchoredPosition = new Vector2(400f, 20f);
-                Choices.sizeDelta = new Vector2(-880f, 132f);
+                Choices.anchoredPosition = new Vector2(280f, 20f);
+                Choices.sizeDelta = new Vector2(-1120f, 132f);
 
                 LineText = CreateText("line", Panel);
                 AuthoredLineTextOverflow = TextOverflowModes.Linked;
