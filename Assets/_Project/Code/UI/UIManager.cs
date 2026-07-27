@@ -26,7 +26,7 @@ namespace Wake.UI
     }
 
     [DisallowMultipleComponent]
-    public class UIManager : MonoBehaviour
+    public class UIManager : MonoBehaviour, IIngameUiHost
     {
         public static UIManager Instance { get; private set; }
 
@@ -42,6 +42,7 @@ namespace Wake.UI
 
         public bool IsInitialized { get; private set; }
         public UiPrimaryPanel ActivePanel { get; private set; }
+        public bool IsShowingIngamePanel => ActivePanel == UiPrimaryPanel.Ingame;
         public bool IsSettingsOpen =>
             settingsPopup != null && settingsPopup.activeSelf;
         public int RuntimeModalControllerCount => runtimeModals.Count;
@@ -71,6 +72,7 @@ namespace Wake.UI
 
             Instance = this;
             EnsureInitialized();
+            IngameUi.Register(this);
         }
 
         private void OnDestroy()
@@ -78,6 +80,7 @@ namespace Wake.UI
             if (Instance == this)
             {
                 Instance = null;
+                IngameUi.Register(null);
             }
         }
 
