@@ -37,6 +37,8 @@ ExportedObj/
 *.sln
 *.suo
 *.tmp
+__pycache__/
+*.py[cod]
 *.user
 *.userprefs
 *.pidb

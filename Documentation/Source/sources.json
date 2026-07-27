@@ -1,0 +1,36 @@
+{
+  "title": "Under the Horizon",
+  "revisionDate": "2026-07-27",
+  "files": [
+    {
+      "name": "Under_the_Horizon_Dialogue_Complete_KR.xlsx",
+      "sha256": "F3330B3775B5FDA57778C34877103DC7F60E39B9C8DD9BE626D41EA01C1B3020",
+      "bytes": 160341
+    },
+    {
+      "name": "Under_the_Horizon_Production_Manual_KR.pdf",
+      "sha256": "1116AD83AA70655CE765B1110B537CDC2BA35C8DE9D708AAB5A2EEAE1C32EEDA",
+      "bytes": 8140342,
+      "pages": 42
+    },
+    {
+      "name": "Under_the_Horizon_Game_Scenario_KR.pdf",
+      "sha256": "E9AF158CBE15852E0B79A911D0FA5F64C9DC7D4CB0865C36BCC20F64814468EB",
+      "bytes": 7757122,
+      "pages": 16
+    },
+    {
+      "name": "Under_the_Horizon_MV_Elysium_Cruise_Structure_Map_KR.pdf",
+      "sha256": "8AECC10E86409775F32FA928EC53B3BEBC9422878E21D8F4A56823A3C64635A8",
+      "bytes": 7625873,
+      "pages": 7
+    }
+  ],
+  "dialogueContract": {
+    "scenes": 41,
+    "dialogueRows": 1063,
+    "choices": 90,
+    "evidence": 18,
+    "endings": ["A", "B", "C", "Bad"]
+  }
+}
