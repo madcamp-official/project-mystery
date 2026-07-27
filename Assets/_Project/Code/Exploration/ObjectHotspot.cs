@@ -25,7 +25,6 @@ namespace Wake.Exploration
                 if (added)
                 {
                     ToastController.Instance.Show($"단서 확보: {evidenceDefinition.DisplayName}");
-                    AudioManager.Instance?.PlayEvidencePickup();
                 }
             }
         }

@@ -203,7 +203,6 @@ namespace Wake.Exploration
             }
 
             ToastController.Instance?.Show($"단서 확보: {displayName}");
-            AudioManager.Instance?.PlayEvidencePickup();
             UIManager.Instance?.ShowEvidence(spec.EvidenceId);
         }
 

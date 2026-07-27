@@ -20,24 +20,12 @@ namespace Wake.Tests
             Object.DestroyImmediate(host);
         }
         [Test]
-        public void EmptyInventory_ShowsEighteenSpoilerSafeSlots()
+        public void EmptyInventory_ShowsNoUnknownSlots()
         {
             EvidencePanelViewModel view =
                 EvidencePanelPresentation.Create(inventory, 100);
-            Assert.That(view.Items, Has.Count.EqualTo(18));
-            Assert.That(
-                view.Items.Select(item => item.Id),
-                Is.EqualTo(Enumerable.Range(1, 18)
-                    .Select(number => $"C-{number:00}")));
-            Assert.That(
-                view.Items.All(item =>
-                    item.State == EvidencePanelItemState.Missing),
-                Is.True);
-            Assert.That(view.Items[0].Title, Does.Not.Contain("Daniel"));
-            Assert.That(view.Items[0].Detail, Does.Not.Contain("Richard"));
-            Assert.That(
-                view.Items[0].Detail,
-                Does.Contain("확보한 증거가 없습니다"));
+            Assert.That(view.Items, Is.Empty);
+            Assert.That(view.CollectedCount, Is.Zero);
         }
 
         [Test]
@@ -53,7 +41,7 @@ namespace Wake.Tests
                 Is.EqualTo(new[] { "C-09", "C-01", "C-16" }));
             Assert.That(
                 view.Items.Select(item => item.Id).Distinct().Count(),
-                Is.EqualTo(18));
+                Is.EqualTo(3));
             Assert.That(view.CollectedCount, Is.EqualTo(3));
             Assert.That(
                 view.Items.Take(3).All(item =>
@@ -88,7 +76,8 @@ namespace Wake.Tests
             Assert.That(item.Title, Does.Contain("수정 기사"));
             Assert.That(item.Detail, Does.Contain("피해자의 오판"));
             Assert.That(item.Detail, Does.Contain("논증 역할 · 완전 엔딩"));
-            Assert.That(item.Detail, Does.Contain("획득 장면 · D8-03"));
+            Assert.That(item.Detail, Does.Not.Contain("D8-03"));
+            Assert.That(item.Title, Does.Not.Contain("C-18"));
             Assert.That(item.HasImage, Is.False);
         }
 
