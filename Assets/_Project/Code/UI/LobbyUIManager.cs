@@ -88,6 +88,13 @@ namespace Wake.UI
             }
 
             continueButton.SetActive(false);
+            // A successful EnsureInitialized() defines "the" live Lobby UI, so it
+            // must also hold the singleton reference. Awake() is not the only
+            // caller that can reach this point (EnsureInitialized is public and
+            // is invoked directly elsewhere, e.g. as a recovery/re-init path),
+            // so leaving Instance assignment solely to Awake() lets IsInitialized
+            // become true while Instance stays null or stale.
+            Instance = this;
             IsInitialized = true;
             return true;
         }
