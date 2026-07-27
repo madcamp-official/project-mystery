@@ -46,6 +46,12 @@ namespace Wake.Exploration
             "AmbientCharacters/world_atlas_crew_passengers_ab";
         private const string AtlasB =
             "AmbientCharacters/world_atlas_passengers_cdef";
+        private const string PublicSpecialists =
+            "AmbientCharacters/world_atlas_public_specialists";
+        private const string OperationsSpecialists =
+            "AmbientCharacters/world_atlas_operations_specialists";
+        private const string ServiceSpecialists =
+            "AmbientCharacters/world_atlas_service_specialists";
 
         private static readonly IReadOnlyDictionary<string, AmbientWorldCharacterAsset>
             Assets = new Dictionary<string, AmbientWorldCharacterAsset>(
@@ -59,7 +65,28 @@ namespace Wake.Exploration
                 ["PASSENGER_C"] = B(0),
                 ["PASSENGER_D"] = B(1),
                 ["PASSENGER_E"] = B(2),
-                ["PASSENGER_F"] = B(3)
+                ["PASSENGER_F"] = B(3),
+                ["DOCK_PORTER"] = Specialist(PublicSpecialists, 0),
+                ["VIP_HOST"] = Specialist(PublicSpecialists, 1),
+                ["BALLROOM_MUSICIAN"] = Specialist(PublicSpecialists, 2),
+                ["DINING_SOMMELIER"] = Specialist(PublicSpecialists, 3),
+                ["ATRIUM_GUIDE"] = Specialist(PublicSpecialists, 4),
+                ["SECURITY_OPERATOR"] =
+                    Specialist(OperationsSpecialists, 0),
+                ["RAIL_TECHNICIAN"] =
+                    Specialist(OperationsSpecialists, 1),
+                ["SHIP_MEDIC"] = Specialist(OperationsSpecialists, 2),
+                ["BALLAST_CONTROLLER"] =
+                    Specialist(OperationsSpecialists, 3),
+                ["CHIEF_ENGINEER"] =
+                    Specialist(OperationsSpecialists, 4),
+                ["SUITE_STEWARD"] = Specialist(ServiceSpecialists, 0),
+                ["ARCHIVIST"] = Specialist(ServiceSpecialists, 1),
+                ["LAUNDRY_SUPERVISOR"] =
+                    Specialist(ServiceSpecialists, 2),
+                ["ROBOTICS_TECH"] = Specialist(ServiceSpecialists, 3),
+                ["WORKSHOP_MACHINIST"] =
+                    Specialist(ServiceSpecialists, 4)
             };
 
         private static readonly HashSet<string> RightSideSingleLocations =
@@ -143,6 +170,17 @@ namespace Wake.Exploration
                 AtlasB,
                 new Rect(column * width, 0f, width, 1f),
                 0.5f);
+        }
+
+        private static AmbientWorldCharacterAsset Specialist(
+            string atlas,
+            int column)
+        {
+            const float width = 0.2f;
+            return new AmbientWorldCharacterAsset(
+                atlas,
+                new Rect(column * width, 0f, width, 1f),
+                0.4f);
         }
     }
 }

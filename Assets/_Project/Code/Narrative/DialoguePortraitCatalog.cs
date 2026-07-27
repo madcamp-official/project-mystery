@@ -64,6 +64,12 @@ namespace Wake.Narrative
 
         private static readonly Rect StandardFallback =
             new(0.46f, 0f, 0.54f, 1f);
+        private const string PublicSpecialists =
+            "AmbientCharacters/world_atlas_public_specialists";
+        private const string OperationsSpecialists =
+            "AmbientCharacters/world_atlas_operations_specialists";
+        private const string ServiceSpecialists =
+            "AmbientCharacters/world_atlas_service_specialists";
 
         private static readonly DialoguePortraitDefinition[] Entries =
         {
@@ -97,7 +103,31 @@ namespace Wake.Narrative
             D("CREW_ENGINEER", "기관 승무원", "crew_engineer",
                 "AmbientCharacters/crew_engineer"),
             D("CREW_SECURITY", "보안 승무원", "crew_security",
-                "AmbientCharacters/crew_security")
+                "AmbientCharacters/crew_security"),
+            W("DOCK_PORTER", "항만 운반원", PublicSpecialists, 0),
+            W("VIP_HOST", "VIP 라운지 매니저", PublicSpecialists, 1),
+            W("BALLROOM_MUSICIAN", "무도회장 바이올리니스트",
+                PublicSpecialists, 2),
+            W("DINING_SOMMELIER", "식당 소믈리에",
+                PublicSpecialists, 3),
+            W("ATRIUM_GUIDE", "중앙 홀 안내원", PublicSpecialists, 4),
+            W("SECURITY_OPERATOR", "보안 관제원",
+                OperationsSpecialists, 0),
+            W("RAIL_TECHNICIAN", "서비스 레일 기술자",
+                OperationsSpecialists, 1),
+            W("SHIP_MEDIC", "선내 의무관", OperationsSpecialists, 2),
+            W("BALLAST_CONTROLLER", "밸러스트 제어원",
+                OperationsSpecialists, 3),
+            W("CHIEF_ENGINEER", "수석 기관사",
+                OperationsSpecialists, 4),
+            W("SUITE_STEWARD", "스위트 전담 승무원",
+                ServiceSpecialists, 0),
+            W("ARCHIVIST", "선박 기록 보관관", ServiceSpecialists, 1),
+            W("LAUNDRY_SUPERVISOR", "세탁실 감독관",
+                ServiceSpecialists, 2),
+            W("ROBOTICS_TECH", "로봇 정비사", ServiceSpecialists, 3),
+            W("WORKSHOP_MACHINIST", "공작실 기계공",
+                ServiceSpecialists, 4)
         };
 
         private static readonly IReadOnlyDictionary<string, DialoguePortraitDefinition>
@@ -222,6 +252,25 @@ namespace Wake.Narrative
                 sheet,
                 fallback ?? sheet,
                 crop ?? StandardFallback);
+        }
+
+        private static DialoguePortraitDefinition W(
+            string id,
+            string displayName,
+            string atlas,
+            int column)
+        {
+            const float cellWidth = 0.2f;
+            return D(
+                id,
+                displayName,
+                id.ToLowerInvariant(),
+                atlas,
+                new Rect(
+                    column * cellWidth,
+                    0.38f,
+                    cellWidth,
+                    0.62f));
         }
 
         private static string EmotionSuffix(PortraitEmotion emotion) => emotion switch
