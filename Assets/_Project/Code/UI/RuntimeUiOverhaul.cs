@@ -587,10 +587,12 @@ namespace Wake.UI
             if (pendingContinue)
             {
                 UIManager.Instance?.ContinueGameInSlot(pendingSlot);
+                LobbyUIManager.Instance?.ContinueGameInSlot(pendingSlot);
             }
             else
             {
                 UIManager.Instance?.StartNewGameInSlot(pendingSlot);
+                LobbyUIManager.Instance?.StartNewGameInSlot(pendingSlot);
             }
         }
 
