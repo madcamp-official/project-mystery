@@ -11,6 +11,7 @@ namespace Wake.UI
         private RectTransform titlePanel;
         private RectTransform revealGroup;
         private Transform water;
+        private RectTransform canvasRect;
         private float travelDistance;
         private bool played;
 
@@ -28,6 +29,7 @@ namespace Wake.UI
             this.titlePanel = titlePanel;
             this.revealGroup = revealGroup;
             this.water = water;
+            this.canvasRect = canvasRect;
             travelDistance = canvasRect.sizeDelta.y;
             played = false;
         }
@@ -49,7 +51,7 @@ namespace Wake.UI
             Vector2 revealStart = revealGroup.anchoredPosition;
             Vector2 revealEnd = revealStart + new Vector2(0f, travelDistance);
             float waterWorldTravel = water != null
-                ? travelDistance * titlePanel.root.localScale.y
+                ? ComputeWorldHeight(canvasRect)
                 : 0f;
             Vector3 waterStart = water != null ? water.position : default;
             Vector3 waterEnd = waterStart + new Vector3(0f, waterWorldTravel, 0f);
@@ -57,6 +59,13 @@ namespace Wake.UI
             float elapsed = 0f;
             while (elapsed < Duration)
             {
+                if (titlePanel == null || revealGroup == null ||
+                    !titlePanel.gameObject.activeInHierarchy ||
+                    !revealGroup.gameObject.activeInHierarchy ||
+                    (water != null && !water.gameObject.activeInHierarchy))
+                {
+                    yield break;
+                }
                 elapsed += Time.unscaledDeltaTime;
                 float t = Mathf.SmoothStep(0f, 1f, elapsed / Duration);
                 titlePanel.anchoredPosition =
@@ -70,12 +79,23 @@ namespace Wake.UI
                 }
                 yield return null;
             }
-            titlePanel.anchoredPosition = titleEnd;
-            revealGroup.anchoredPosition = revealEnd;
+            if (titlePanel != null)
+            {
+                titlePanel.anchoredPosition = titleEnd;
+            }
+            if (revealGroup != null)
+            {
+                revealGroup.anchoredPosition = revealEnd;
+            }
             if (water != null)
             {
                 water.position = waterEnd;
             }
+        }
+
+        private void OnDisable()
+        {
+            StopAllCoroutines();
         }
     }
 }
