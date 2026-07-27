@@ -177,28 +177,18 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void DialogueText_IsMaskedScrollableAndCannotPaintOutsidePanel()
+        public void DialogueText_HasNoScrollOrAutoSizeComponents()
         {
             using LayoutRig rig = new(1920f, 1080f);
 
-            ScrollRect scroll = rig.Panel.GetComponent<ScrollRect>();
-            RectMask2D mask = rig.Panel.GetComponent<RectMask2D>();
-            ContentSizeFitter fitter =
-                rig.LineText.GetComponent<ContentSizeFitter>();
-
-            Assert.That(scroll, Is.Not.Null);
-            Assert.That(mask, Is.Not.Null);
-            Assert.That(scroll.viewport, Is.SameAs(rig.Panel));
-            Assert.That(scroll.content, Is.SameAs(rig.LineText.rectTransform));
-            Assert.That(scroll.horizontal, Is.False);
-            Assert.That(scroll.vertical, Is.True);
+            // Dialogue text no longer scrolls - long lines are left to
+            // overflow per whatever overflowMode is authored in the
+            // Inspector. Nothing should add a ScrollRect, RectMask2D, or
+            // ContentSizeFitter to the panel/line text.
+            Assert.That(rig.Panel.GetComponent<ScrollRect>(), Is.Null);
+            Assert.That(rig.Panel.GetComponent<RectMask2D>(), Is.Null);
             Assert.That(
-                scroll.movementType,
-                Is.EqualTo(ScrollRect.MovementType.Clamped));
-            Assert.That(fitter, Is.Not.Null);
-            Assert.That(
-                fitter.verticalFit,
-                Is.EqualTo(ContentSizeFitter.FitMode.PreferredSize));
+                rig.LineText.GetComponent<ContentSizeFitter>(), Is.Null);
         }
 
         [Test]
@@ -235,40 +225,13 @@ namespace Wake.Tests
 
             rig.Layout.ApplyLayout(fullSafeArea, screenSize);
 
-            // Only width is a baseline concern. Y (position and height)
-            // belongs to the dialogue ScrollRect/ContentSizeFitter, since
-            // this RectTransform doubles as the scroll content - baselining
-            // it would fight the scroll-to-top reset on every line change.
-            Assert.That(rig.LineText.rectTransform.anchoredPosition.x,
-                Is.EqualTo(rig.AuthoredLineTextPosition.x).Within(0.01f));
-            Assert.That(rig.LineText.rectTransform.sizeDelta.x,
-                Is.EqualTo(rig.AuthoredLineTextSize.x).Within(0.01f));
-        }
-
-        [Test]
-        public void LineText_YAxisIsNeverTouchedByBaselineReapplication()
-        {
-            using LayoutRig rig = new(1920f, 1080f);
-            Rect fullSafeArea = new(0f, 0f, 1920f, 1080f);
-            Vector2 screenSize = new(1920f, 1080f);
-
-            // Simulate what happens on every new dialogue line: the
-            // ScrollRect (or a test stand-in) moves the content's Y,
-            // then layout gets reapplied - Y must survive untouched.
-            rig.Layout.ApplyLayout(fullSafeArea, screenSize);
-            rig.LineText.rectTransform.anchoredPosition = new Vector2(
-                rig.LineText.rectTransform.anchoredPosition.x, 123.45f);
-            rig.LineText.rectTransform.sizeDelta = new Vector2(
-                rig.LineText.rectTransform.sizeDelta.x, 67.89f);
-
-            rig.Layout.ApplyLayout(fullSafeArea, screenSize);
-
-            Assert.That(
-                rig.LineText.rectTransform.anchoredPosition.y,
-                Is.EqualTo(123.45f).Within(0.01f));
-            Assert.That(
-                rig.LineText.rectTransform.sizeDelta.y,
-                Is.EqualTo(67.89f).Within(0.01f));
+            // No ScrollRect owns Y anymore, so the line text is a full
+            // baseline citizen like everything else: both axes of
+            // position and size follow whatever was authored.
+            Assert.That(rig.LineText.rectTransform.anchoredPosition,
+                Is.EqualTo(rig.AuthoredLineTextPosition).Using(Vector2Comparer));
+            Assert.That(rig.LineText.rectTransform.sizeDelta,
+                Is.EqualTo(rig.AuthoredLineTextSize).Using(Vector2Comparer));
         }
 
         private static readonly Vector2EqualityComparer Vector2Comparer =

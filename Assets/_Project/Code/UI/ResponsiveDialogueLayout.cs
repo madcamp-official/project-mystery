@@ -80,7 +80,6 @@ namespace Wake.UI
         private RectTransform settingsBtn;
         private TMP_Text lineText;
         private TMP_Text speakerText;
-        private ScrollRect dialogueScroll;
         private GridLayoutGroup choiceGrid;
         private IReadOnlyList<Button> choiceButtons;
         private Rect lastSafeArea;
@@ -97,8 +96,6 @@ namespace Wake.UI
         private RectBaseline mapBtnBaseline;
         private RectBaseline settingsBtnBaseline;
         private RectBaseline lineTextBaseline;
-
-        public ScrollRect DialogueScroll => dialogueScroll;
 
         public void Initialize(
             Canvas targetCanvas,
@@ -138,17 +135,16 @@ namespace Wake.UI
 
             ConfigureIngameRoot();
 
-            // Capture the baseline before ConfigureText/ConfigureChoices
-            // run: those add ContentSizeFitter/GridLayoutGroup, and
-            // Unity's layout system can nudge anchoredPosition/sizeDelta
-            // the moment such a component is configured. Capturing
-            // after that would baseline the post-mutation values
-            // instead of what was actually authored in the scene.
+            // Capture the baseline before ConfigureChoices runs: that
+            // adds a GridLayoutGroup, and Unity's layout system can
+            // nudge anchoredPosition/sizeDelta the moment such a
+            // component is configured. Capturing after that would
+            // baseline the post-mutation values instead of what was
+            // actually authored in the scene.
             CaptureBaselines(
                 Screen.safeArea, new Vector2(Screen.width, Screen.height));
             baselineCaptured = true;
 
-            ConfigureText();
             ConfigurePortrait();
             ConfigureChoices();
         }
@@ -213,29 +209,6 @@ namespace Wake.UI
                 baseline.SizeDelta.y * scale.y);
         }
 
-        /// <summary>
-        /// Same as <see cref="ApplyBaseline"/> but only touches the
-        /// horizontal axis. The line text's RectTransform doubles as the
-        /// dialogue ScrollRect's content — its Y position/height is
-        /// owned entirely by the ScrollRect (clamped scroll position)
-        /// and ContentSizeFitter (preferred height from text content).
-        /// Applying the baseline's Y there fights that every time the
-        /// line changes and ResetTextScroll runs, so only width is a
-        /// baseline concern; height/position are left alone.
-        /// </summary>
-        private static void ApplyWidthBaseline(
-            RectTransform rect, RectBaseline baseline, Vector2 scale)
-        {
-            if (rect == null)
-                return;
-            rect.anchoredPosition = new Vector2(
-                baseline.AnchoredPosition.x * scale.x,
-                rect.anchoredPosition.y);
-            rect.sizeDelta = new Vector2(
-                baseline.SizeDelta.x * scale.x,
-                rect.sizeDelta.y);
-        }
-
         public void ApplyLayout(Rect safeArea, Vector2 screenSize)
         {
             if (linePanel == null)
@@ -255,7 +228,7 @@ namespace Wake.UI
             ApplyBaseline(evidenceBtn, evidenceBtnBaseline, scale);
             ApplyBaseline(mapBtn, mapBtnBaseline, scale);
             ApplyBaseline(settingsBtn, settingsBtnBaseline, scale);
-            ApplyWidthBaseline(
+            ApplyBaseline(
                 lineText != null ? lineText.rectTransform : null,
                 lineTextBaseline,
                 scale);
@@ -304,42 +277,12 @@ namespace Wake.UI
             ingameRoot.localScale = Vector3.one;
         }
 
+        // No-op: dialogue text no longer scrolls - there's no ScrollRect
+        // to reset. DialogueController still calls this on every line
+        // change; kept as a harmless no-op instead of touching that
+        // call site.
         public void ResetTextScroll()
         {
-            if (dialogueScroll == null)
-                return;
-            Canvas.ForceUpdateCanvases();
-            dialogueScroll.verticalNormalizedPosition = 1f;
-        }
-
-        private void ConfigureText()
-        {
-            // Font size, wrapping, and overflow mode are left exactly as
-            // authored on the TMP components in the scene (Inspector),
-            // not forced here.
-            if (textPanel == null || lineText == null)
-                return;
-
-            dialogueScroll = textPanel.GetComponent<ScrollRect>();
-            if (dialogueScroll == null)
-                dialogueScroll = textPanel.gameObject.AddComponent<ScrollRect>();
-            if (textPanel.GetComponent<RectMask2D>() == null)
-                textPanel.gameObject.AddComponent<RectMask2D>();
-
-            RectTransform lineRect = lineText.rectTransform;
-            ContentSizeFitter fitter =
-                lineText.GetComponent<ContentSizeFitter>();
-            if (fitter == null)
-                fitter = lineText.gameObject.AddComponent<ContentSizeFitter>();
-            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-
-            dialogueScroll.viewport = textPanel;
-            dialogueScroll.content = lineRect;
-            dialogueScroll.horizontal = false;
-            dialogueScroll.vertical = true;
-            dialogueScroll.movementType = ScrollRect.MovementType.Clamped;
-            dialogueScroll.scrollSensitivity = 36f;
         }
 
         private void ConfigurePortrait()
