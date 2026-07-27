@@ -164,6 +164,9 @@ namespace Wake.UI
         private static readonly Regex EvidenceCode =
             new(@"\bC[-_ ]?(\d{1,2})\b", RegexOptions.IgnoreCase);
 
+        public static readonly Vector2 ReferenceResolution =
+            new(2880f, 1800f);
+
         private void Start()
         {
             ConfigureCanvas();
@@ -181,7 +184,7 @@ namespace Wake.UI
                 return;
             }
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.referenceResolution = ReferenceResolution;
             scaler.screenMatchMode =
                 CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             scaler.matchWidthOrHeight = 0.5f;
