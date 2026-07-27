@@ -149,6 +149,11 @@ namespace Wake.Tests.PlayMode
                 RequireComponent<Button>("Ingame/Line Panel/Panel/Next");
             GameObject choices =
                 RequireObject("Ingame/Line Panel/Select Btn");
+            GameObject investigation =
+                RequireObject("Investigation Dialogue UI");
+            Button investigationAction =
+                RequireComponent<Button>(
+                    "Investigation Dialogue UI/Investigation Frame/Action");
             int steps = 0;
             while (!choices.activeInHierarchy && Dialogue.IsBusy)
             {
@@ -156,7 +161,9 @@ namespace Wake.Tests.PlayMode
                     steps++,
                     Is.LessThan(maximumSteps),
                     "선택지가 나타나기 전에 대사 진행 상한을 초과했습니다.");
-                yield return InvokeAndSettle(next);
+                yield return investigation.activeInHierarchy
+                    ? InvokeAndSettle(investigationAction)
+                    : InvokeAndSettle(next);
             }
 
             Assert.That(
@@ -172,6 +179,11 @@ namespace Wake.Tests.PlayMode
                 RequireComponent<Button>("Ingame/Line Panel/Panel/Next");
             GameObject choices =
                 RequireObject("Ingame/Line Panel/Select Btn");
+            GameObject investigation =
+                RequireObject("Investigation Dialogue UI");
+            Button investigationAction =
+                RequireComponent<Button>(
+                    "Investigation Dialogue UI/Investigation Frame/Action");
             int steps = 0;
             while (Dialogue.IsBusy)
             {
@@ -180,7 +192,11 @@ namespace Wake.Tests.PlayMode
                     Is.LessThan(maximumSteps),
                     "프로덕션 대사가 완료되기 전에 진행 상한을 초과했습니다.");
 
-                if (choices.activeInHierarchy)
+                if (investigation.activeInHierarchy)
+                {
+                    yield return InvokeAndSettle(investigationAction);
+                }
+                else if (choices.activeInHierarchy)
                 {
                     Button choice = choices
                         .GetComponentsInChildren<Button>(false)

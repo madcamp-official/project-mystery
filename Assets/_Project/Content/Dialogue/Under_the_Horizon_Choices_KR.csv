@@ -1,16 +1,16 @@
 ﻿choice_id,scene_id,text_ko,condition,effect,branch_group,implementation_status
 P-01_C1,P-01,그의 경고를 진지하게 듣기,,trust_daniel:+1; flag:daniel_warning_taken,P-01_WARN,READY
 P-01_C2,P-01,농담으로 넘기기,,trust_daniel:-1; flag:daniel_warning_dismissed,P-01_WARN,READY
-P-02_C1,P-02,Evelyn에게 명단 수정자를 묻기,,flag:secretariat_authority,P-02_ASK,READY
+P-02_C1,P-02,에벌린에게 명단 수정자를 묻기,,flag:secretariat_authority,P-02_ASK,READY
 P-03_C1,P-03,보수를 묻기,,trust_richard:-1; flag:contract_fee,P-03_TOPIC,READY
 P-03_C2,P-03,아들에 관해 묻기,,trust_richard:+1; flag:julian_empathy,P-03_TOPIC,READY
-D1-01_CLAIRE,D1-01,Claire와 대화,,keyword:corporate_funds; flag:met_claire,D1-01_FREE,READY
-D1-01_MARCUS,D1-01,Marcus와 대화,,keyword:security_routes; flag:met_marcus,D1-01_FREE,READY
-D1-01_HELENA,D1-01,Helena와 대화,,keyword:medication; flag:met_helena,D1-01_FREE,READY
-D1-01_OWEN,D1-01,Owen과 대화,,keyword:stabilizer; flag:met_owen,D1-01_FREE,READY
+D1-01_CLAIRE,D1-01,클레어와 대화,,keyword:corporate_funds; flag:met_claire,D1-01_FREE,READY
+D1-01_MARCUS,D1-01,마커스와 대화,,keyword:security_routes; flag:met_marcus,D1-01_FREE,READY
+D1-01_HELENA,D1-01,헬레나와 대화,,keyword:medication; flag:met_helena,D1-01_FREE,READY
+D1-01_OWEN,D1-01,오언과 대화,,keyword:stabilizer; flag:met_owen,D1-01_FREE,READY
 D1-02_C1,D1-02,끼어들기,,hostility_claire:+1; flag:intervened_dinner,D1-02_INTERVENE,READY
 D1-02_C2,D1-02,관찰하기,,hostility_claire:-1; flag:observed_dinner,D1-02_INTERVENE,READY
-D1-03_C1,D1-03,Daniel을 추적,,priority:service_route; flag:followed_daniel,D1-03_PATH,READY
+D1-03_C1,D1-03,대니얼을 추적,,priority:service_route; flag:followed_daniel,D1-03_PATH,READY
 D1-03_C2,D1-03,파티 인물을 탐문,,priority:party_alibis; flag:questioned_party,D1-03_PATH,READY
 D1-04_C1,D1-04,경비에게 알리기,,discovery_time:early; flag:security_alerted,D1-04_METHOD,READY
 D1-04_C2,D1-04,몰래 추적,,discovery_time:late; flag:stealth_follow,D1-04_METHOD,READY
@@ -25,7 +25,7 @@ D2-03_C1,D2-03,의사를 압박,,trust_helena:-1; flag:helena_defensive,D2-03_AP
 D2-03_C2,D2-03,협조 요청,,trust_helena:+1; flag:helena_cooperative,D2-03_APPROACH,READY
 D2-04_C1,D2-04,영상만 보기,,timeBlock:-1; flag:camera_only,D2-04_LOG,READY
 D2-04_C2,D2-04,설비 로그 대조,,flag:ceiling_investigation; evidence:C-08,D2-04_LOG,READY
-D2-05_C1,D2-05,Owen을 호출한다,,trust_owen:+1; flag:rail_foreshadow_direct,D2-05_OWEN,READY
+D2-05_C1,D2-05,오언을 호출한다,,trust_owen:+1; flag:rail_foreshadow_direct,D2-05_OWEN,READY
 D2-05_C2,D2-05,직접 패널을 연다,,evidenceIntegrity:-5; flag:rail_foreshadow_indirect,D2-05_OWEN,READY
 D3-01_C1,D3-01,공개 해명 권고,,publicAnxiety:-15; trust_richard:-1; flag:public_briefing,D3-01_RESPONSE,READY
 D3-01_C2,D3-01,침묵 유지,,publicAnxiety:+15; trust_richard:+0; flag:silence_policy,D3-01_RESPONSE,READY
@@ -35,16 +35,16 @@ D3-03_C1,D3-03,선장을 공범으로 지목,,trust_thomas:-2; flag:thomas_accus
 D3-03_C2,D3-03,증인으로 설득,,trust_thomas:+1; flag:thomas_cooperates,D3-03_APPROACH,READY
 D4-01_C1,D4-01,빚 공개 협박,,trust_marcus:-1; flag:marcus_confession_coerced,D4-01_STYLE,READY
 D4-01_C2,D4-01,보호 약속,,trust_marcus:+1; flag:marcus_confession_promised,D4-01_STYLE,READY
-D4-02_C1,D4-02,Evelyn을 즉시 구금,,flag:evelyn_wrongful_detention; trust_evelyn:-1; publicAnxiety:+10,D4-02_DETAIN,READY
+D4-02_C1,D4-02,에벌린을 즉시 구금,,flag:evelyn_wrongful_detention; trust_evelyn:-1; publicAnxiety:+10,D4-02_DETAIN,READY
 D4-02_C2,D4-02,현장을 먼저 보존,,flag:no_premature_detention; evidenceIntegrity:+0,D4-02_DETAIN,READY
-D4-04_Q1,D4-04,Evelyn이 Daniel을 죽였습니까?,,question_used; answer:unknown,D4-04_Q,READY
-D4-04_Q2,D4-04,당신은 Evelyn에게 인증 토큰을 제공했습니까?,,question_used; evidence:C-15,D4-04_Q,READY
-D4-04_Q3,D4-04,Evelyn이 당신에게 돈을 약속했습니까?,,question_used; flag:payment_promised,D4-04_Q,READY
+D4-04_Q1,D4-04,에벌린이 대니얼을 죽였습니까?,,question_used; answer:unknown,D4-04_Q,READY
+D4-04_Q2,D4-04,당신은 에벌린에게 인증 토큰을 제공했습니까?,,question_used; evidence:C-15,D4-04_Q,READY
+D4-04_Q3,D4-04,에벌린이 당신에게 돈을 약속했습니까?,,question_used; flag:payment_promised,D4-04_Q,READY
 D4-04_Q4,D4-04,당신이 금고의 모듈을 덮어썼습니까?,,question_used; answer:no,D4-04_Q,READY
-D4-04_Q5,D4-04,Evelyn이 금고에 들어가는 것을 직접 봤습니까?,,question_used; answer:no,D4-04_Q,READY
+D4-04_Q5,D4-04,에벌린이 금고에 들어가는 것을 직접 봤습니까?,,question_used; answer:no,D4-04_Q,READY
 D4-04_Q6,D4-04,토큰을 준 시각은 21시 이전입니까?,,question_used; flag:token_before_2100,D4-04_Q,READY
-D4-04_Q7,D4-04,추락 전에 Evelyn이 당신을 위협했습니까?,,question_used; flag:threat_message,D4-04_Q,READY
-D4-04_Q8,D4-04,Richard가 토큰 제공을 지시했습니까?,,question_used; answer:no,D4-04_Q,READY
+D4-04_Q7,D4-04,추락 전에 에벌린이 당신을 위협했습니까?,,question_used; flag:threat_message,D4-04_Q,READY
+D4-04_Q8,D4-04,리처드가 토큰 제공을 지시했습니까?,,question_used; answer:no,D4-04_Q,READY
 D5-01_C1,D5-01,현장을 즉시 봉쇄,,evidenceIntegrity:+0; flag:claire_scene_secured,D5-01_SECURE,READY
 D5-02_C1,D5-02,‘침입자가 없다’는 출입 로그 제시,,contradiction:1,D5-02_PROOF,READY
 D5-02_C2,D5-02,‘커튼이 스스로 쓰러졌다’는 모터 로그 제시,,contradiction:2,D5-02_PROOF,READY
@@ -53,21 +53,21 @@ D5-03_C1,D5-03,면책 거래,,trust_claire:+2; flag:claire_cooperates; flag:fund
 D5-03_C2,D5-03,전면 폭로,,trust_claire:-1; publicAnxiety:+10; flag:funds_disclosure_full,D5-03_DEAL,READY
 D7-01_C1,D7-01,주 복도로 추격,,flag:public_chase; publicAnxiety:+5; evidence:module_case,D7-01_CHASE,READY
 D7-01_C2,D7-01,서비스 레일 지름길 차단,,flag:rail_intercept; trust_owen:+1; evidence:module_case,D7-01_CHASE,READY
-D7-02_L1,D7-02,가짜 화재경보가 Evelyn 단말에서 발신됨,,logic:device_link,D7-02_LOGIC,READY
-D7-02_L2,D7-02,보호면 파편이 Daniel 손톱에서 발견됨,,logic:material_link,D7-02_LOGIC,READY
+D7-02_L1,D7-02,가짜 화재경보가 에벌린 단말에서 발신됨,,logic:device_link,D7-02_LOGIC,READY
+D7-02_L2,D7-02,보호면 파편이 대니얼 손톱에서 발견됨,,logic:material_link,D7-02_LOGIC,READY
 D7-02_L3,D7-02,질소 퍼지에는 보호 장비가 필요함,,logic:necessity,D7-02_LOGIC,READY
-D7-02_L4,D7-02,Evelyn의 말투가 익명 제보자와 유사함,,logic:weak_style,D7-02_LOGIC,READY
-D7-02_L5,D7-02,Richard가 Evelyn을 신뢰함,,logic:irrelevant,D7-02_LOGIC,READY
+D7-02_L4,D7-02,에벌린의 말투가 익명 제보자와 유사함,,logic:weak_style,D7-02_LOGIC,READY
+D7-02_L5,D7-02,리처드가 에벌린을 신뢰함,,logic:irrelevant,D7-02_LOGIC,READY
 D7-04_C1,D7-04,거래를 수락하는 척한다,,flag:evelyn_extra_confession; morality:deceptive,D7-04_DEAL,READY
 D7-04_C2,D7-04,거절한다,,flag:evelyn_no_deal; morality:direct,D7-04_DEAL,READY
-D8-01_A1_EVELYN,D8-01,Evelyn Shaw,,accusation1:correct,D8-01_A1,READY
-D8-01_A1_RICHARD,D8-01,Richard Hawthorne,,accusation1:wrong_richard,D8-01_A1,READY
-D8-01_A1_CLAIRE,D8-01,Claire Hawthorne,,accusation1:wrong_claire,D8-01_A1,READY
-D8-01_A1_MARCUS,D8-01,Marcus Bell,,accusation1:wrong_marcus,D8-01_A1,READY
-D8-01_A2_BALLAST,D8-01,Ballast Control Annex,,accusation2:correct,D8-01_A2,READY
-D8-01_A2_HORIZON,D8-01,Horizon Room,,accusation2:wrong,D8-01_A2,READY
+D8-01_A1_EVELYN,D8-01,에벌린 쇼,,accusation1:correct,D8-01_A1,READY
+D8-01_A1_RICHARD,D8-01,리처드 호손,,accusation1:wrong_richard,D8-01_A1,READY
+D8-01_A1_CLAIRE,D8-01,클레어 호손,,accusation1:wrong_claire,D8-01_A1,READY
+D8-01_A1_MARCUS,D8-01,마커스 벨,,accusation1:wrong_marcus,D8-01_A1,READY
+D8-01_A2_BALLAST,D8-01,밸러스트 제어 별실,,accusation2:correct,D8-01_A2,READY
+D8-01_A2_HORIZON,D8-01,호라이즌 룸,,accusation2:wrong,D8-01_A2,READY
 D8-01_A2_VAULT,D8-01,보안 금고,,accusation2:wrong,D8-01_A2,READY
-D8-01_A2_SERVICE,D8-01,SERVICE7 계단,,accusation2:wrong,D8-01_A2,READY
+D8-01_A2_SERVICE,D8-01,7층 서비스 구역 계단,,accusation2:wrong,D8-01_A2,READY
 D8-01_A3_SUFFOCATION,D8-01,질소 노출에 의한 질식,,accusation3:correct,D8-01_A3,READY
 D8-01_A3_STAB,D8-01,옆구리 자상에 의한 과다출혈,,accusation3:wrong,D8-01_A3,READY
 D8-01_A3_DROWNING,D8-01,세면대 물에 의한 익사,,accusation3:wrong,D8-01_A3,READY
@@ -76,16 +76,16 @@ D8-01_A4_RAIL,D8-01,천장 화물 레일과 운반백,,accusation4:correct,D8-01
 D8-01_A4_ROBOT,D8-01,서비스 로봇,,accusation4:wrong,D8-01_A4,READY
 D8-01_A4_ELEVATOR,D8-01,승객용 승강기,,accusation4:wrong,D8-01_A4,READY
 D8-01_A4_MANUAL,D8-01,외벽 발판 수동 운반,,accusation4:wrong,D8-01_A4,READY
-D8-01_A5_MISCONCEPTION,D8-01,Richard가 Orpheus 진범이라는 Daniel의 오해를 익명 제보로 강화,,accusation5:correct,D8-01_A5,READY
-D8-01_A5_FUNDS,D8-01,Claire의 비자금 폭로를 막기 위해 협박,,accusation5:wrong,D8-01_A5,READY
-D8-01_A5_REVENGE,D8-01,Daniel 개인에 대한 복수,,accusation5:wrong,D8-01_A5,READY
+D8-01_A5_MISCONCEPTION,D8-01,리처드가 오르페우스 호 진범이라는 대니얼의 오해를 익명 제보로 강화,,accusation5:correct,D8-01_A5,READY
+D8-01_A5_FUNDS,D8-01,클레어의 비자금 폭로를 막기 위해 협박,,accusation5:wrong,D8-01_A5,READY
+D8-01_A5_REVENGE,D8-01,대니얼 개인에 대한 복수,,accusation5:wrong,D8-01_A5,READY
 D8-01_A5_RANSOM,D8-01,태블릿을 빼앗기 위한 금전 거래,,accusation5:wrong,D8-01_A5,READY
-D8-01_A6_EVELYN,D8-01,Evelyn Shaw,,accusation6:correct,D8-01_A6,READY
-D8-01_A6_RICHARD,D8-01,Richard Hawthorne,,accusation6:wrong,D8-01_A6,READY
-D8-01_A6_JULIAN,D8-01,Julian Hawthorne,,accusation6:wrong,D8-01_A6,READY
-D8-01_A6_THOMAS,D8-01,Thomas Reed,,accusation6:wrong,D8-01_A6,READY
-D8-01_END_A,D8-01,Evelyn의 범행과 Richard의 은폐를 모두 공개,all_accusations_correct,ending:A,D8-01_END,READY
-D8-01_END_B,D8-01,Evelyn의 범행만 공개하고 Richard의 은폐는 비공개,all_accusations_correct,ending:B,D8-01_END,READY
+D8-01_A6_EVELYN,D8-01,에벌린 쇼,,accusation6:correct,D8-01_A6,READY
+D8-01_A6_RICHARD,D8-01,리처드 호손,,accusation6:wrong,D8-01_A6,READY
+D8-01_A6_JULIAN,D8-01,줄리언 호손,,accusation6:wrong,D8-01_A6,READY
+D8-01_A6_THOMAS,D8-01,토머스 리드,,accusation6:wrong,D8-01_A6,READY
+D8-01_END_A,D8-01,에벌린의 범행과 리처드의 은폐를 모두 공개,all_accusations_correct,ending:A,D8-01_END,READY
+D8-01_END_B,D8-01,에벌린의 범행만 공개하고 리처드의 은폐는 비공개,all_accusations_correct,ending:B,D8-01_END,READY
 D8-02_C1,D8-02,“당신은 회사를 살린 게 아니라 죄를 연장했습니다.”,,moral_tone:judgment,D8-02_FINAL,READY
 D8-02_C2,D8-02,“당신이 말한 비용은 늘 다른 사람이 치렀습니다.”,,moral_tone:accountability,D8-02_FINAL,READY
 D8-02_C3,D8-02,“이제 살아남은 사람들이 직접 진실을 선택할 겁니다.”,,moral_tone:hope,D8-02_FINAL,READY

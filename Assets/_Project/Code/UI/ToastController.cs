@@ -44,6 +44,7 @@ namespace Wake.UI
             rect.pivot = new Vector2(0.5f, 0.5f);
             rect.sizeDelta = new Vector2(480, 60);
             rect.anchoredPosition = Vector2.zero;
+            RuntimeUiLayoutRegistry.CopyLayout(rect, "hud.toast");
 
             Image background = toastRoot.GetComponent<Image>();
             background.color = new Color(0f, 0f, 0f, 0.75f);

@@ -574,6 +574,7 @@ namespace Wake.UI
             rect.anchorMin = new Vector2(0.2f, 0.08f);
             rect.anchorMax = new Vector2(0.8f, 0.92f);
             rect.offsetMin = rect.offsetMax = Vector2.zero;
+            RuntimeUiLayoutRegistry.CopyLayout(rect, "modal.final-accusation");
             panel.GetComponent<Image>().color = new Color(0.025f, 0.04f, 0.08f, 0.97f);
 
             var layout = panel.AddComponent<VerticalLayoutGroup>();

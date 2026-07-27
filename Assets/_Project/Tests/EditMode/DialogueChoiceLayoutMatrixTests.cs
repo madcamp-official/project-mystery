@@ -109,7 +109,7 @@ namespace Wake.Tests
             DialogueRecord longest = records.Where(IsChoice)
                 .OrderByDescending(row => row.TextKo.Length).First();
             Assert.That(longest.LineId, Is.EqualTo("D8-01_062"));
-            Assert.That(longest.TextKo, Has.Length.EqualTo(44));
+            Assert.That(longest.TextKo, Has.Length.EqualTo(37));
 
             float available = ResponsiveDialogueLayout.ReferenceResolution.x -
                 ChoiceLeft - ChoiceRight;

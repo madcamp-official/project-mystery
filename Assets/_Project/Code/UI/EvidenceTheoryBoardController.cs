@@ -210,6 +210,9 @@ namespace Wake.UI
             rootRect.anchorMin = new Vector2(0.5f, 0.5f);
             rootRect.anchorMax = new Vector2(0.5f, 0.5f);
             rootRect.sizeDelta = new Vector2(920f, 650f);
+            RuntimeUiLayoutRegistry.CopyLayout(
+                rootRect,
+                "modal.theory-board");
             root.GetComponent<Image>().color = Panel;
 
             TMP_Text titleText = MakeText(

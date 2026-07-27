@@ -246,6 +246,9 @@ namespace Wake.UI
 
             root = Object("Exit Inspection", canvas, typeof(Image));
             Place(root, 0.5f, 0.5f, 0.5f, 0.5f, new Vector2(920f, 680f));
+            RuntimeUiLayoutRegistry.CopyLayout(
+                root.GetComponent<RectTransform>(),
+                "modal.exit-inspection");
             root.GetComponent<Image>().color = Panel;
             Text(root.transform, "흔적 없는 출구 검증", .90f, .98f, 34f);
             Text(root.transform,

@@ -144,7 +144,7 @@ namespace Wake.Tests
             Assert.That(
                 opening.TextKo,
                 Is.EqualTo(
-                    "MV Elysium은 항구의 유리 지붕 너머에서 " +
+                    "엘리시움 호는 항구의 유리 지붕 너머에서 " +
                     "지나치게 새것처럼 빛나고 있었다."));
         }
 

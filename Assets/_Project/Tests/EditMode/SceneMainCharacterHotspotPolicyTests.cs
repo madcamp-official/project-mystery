@@ -189,6 +189,29 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void CompletedConversationLines_AreCharacterSpecificAndEffectFree()
+        {
+            string[] ids =
+                ScenePresenceCatalog.MainCharacterIds
+                    .Where(character => character != "ADRIAN")
+                    .ToArray();
+            string[] lines = ids
+                .Select(character =>
+                    MainCharacterWorldLineCatalog.GetCompleted(
+                        character,
+                        SceneCharacterState.Normal))
+                .ToArray();
+
+            Assert.That(lines, Is.Unique);
+            Assert.That(lines.All(line => line.Length >= 15), Is.True);
+            Assert.That(
+                MainCharacterWorldLineCatalog.GetCompleted(
+                    "MARCUS",
+                    SceneCharacterState.Detained),
+                Does.Contain("이미 진술을 마쳤습니다"));
+        }
+
+        [Test]
         public void ScenePolicyAndStagePolicy_FitThreeActorBudget()
         {
             foreach (ScenePresenceRecord scene in ScenePresenceCatalog.All)

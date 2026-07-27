@@ -144,6 +144,13 @@ namespace Wake.UI
                 return;
             }
 
+            if (RuntimeUiLayoutRegistry.CopyLayout(
+                    root.GetComponent<RectTransform>(),
+                    "hud.location"))
+            {
+                return;
+            }
+
             float viewportWidth = parentRect.rect.width;
             float safeRatio = Screen.width > 0
                 ? Screen.safeArea.width / Screen.width

@@ -271,6 +271,9 @@ namespace Wake.UI
             rect.anchorMin = new Vector2(0.5f, 0.5f);
             rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.sizeDelta = new Vector2(760f, 560f);
+            RuntimeUiLayoutRegistry.CopyLayout(
+                rect,
+                "modal.production-puzzle");
             root.GetComponent<Image>().color = Panel;
 
             titleText = MakeText("Title", 0.82f, 1f, 34f);
