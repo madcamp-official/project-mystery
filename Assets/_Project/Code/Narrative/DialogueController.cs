@@ -351,6 +351,7 @@ namespace Wake.Narrative
                         RenderProduction();
                     });
                 }
+                responsiveLayout?.RefreshChoiceLayout();
                 return;
             }
 
@@ -432,6 +433,7 @@ namespace Wake.Narrative
                 choiceButtons[i].onClick.RemoveAllListeners();
                 choiceButtons[i].onClick.AddListener(() => ResolveOption(option));
             }
+            responsiveLayout?.RefreshChoiceLayout();
         }
 
         private void OnNextClicked()

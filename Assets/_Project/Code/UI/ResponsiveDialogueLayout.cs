@@ -245,7 +245,7 @@ namespace Wake.UI
                 lineTextBaseline,
                 scale);
             ApplyBaseline(speakerPlate, speakerPlateBaseline, scale);
-            UpdateChoiceGrid();
+            RefreshChoiceLayout();
 
             // Portrait is created fresh in code every run
             // (DialogueController.CreatePortrait) — there is no scene
@@ -313,9 +313,16 @@ namespace Wake.UI
                 choiceGrid = choices.gameObject.AddComponent<GridLayoutGroup>();
             choiceGrid.constraint =
                 GridLayoutGroup.Constraint.FixedColumnCount;
-            choiceGrid.constraintCount = 2;
-            choiceGrid.spacing = new Vector2(16f, 16f);
-            choiceGrid.padding = new RectOffset(10, 10, 10, 10);
+            choiceGrid.startAxis = GridLayoutGroup.Axis.Horizontal;
+            choiceGrid.constraintCount =
+                DialogueChoiceLayoutPolicy.MaximumColumns;
+            choiceGrid.spacing = Vector2.one *
+                DialogueChoiceLayoutPolicy.Spacing;
+            choiceGrid.padding = new RectOffset(
+                DialogueChoiceLayoutPolicy.Padding,
+                DialogueChoiceLayoutPolicy.Padding,
+                DialogueChoiceLayoutPolicy.Padding,
+                DialogueChoiceLayoutPolicy.Padding);
             choiceGrid.childAlignment = TextAnchor.MiddleCenter;
             foreach (Button button in choiceButtons)
             {
@@ -324,31 +331,72 @@ namespace Wake.UI
                 LayoutElement element = button.GetComponent<LayoutElement>();
                 if (element == null)
                     element = button.gameObject.AddComponent<LayoutElement>();
-                element.minHeight = 72f;
-                element.preferredHeight = 90f;
+                element.minHeight =
+                    DialogueChoiceLayoutPolicy.MinimumCellHeight;
+                element.preferredHeight =
+                    DialogueChoiceLayoutPolicy.MinimumCellHeight;
                 TMP_Text label = button.GetComponentInChildren<TMP_Text>();
                 ConfigureLabel(
                     label,
                     DialogueTypographyMetrics.ChoiceMinimum,
                     DialogueTypographyMetrics.ChoiceMaximum,
                     DialogueTypographyMetrics.ChoiceLineSpacing,
-                    TextOverflowModes.Ellipsis);
+                    TextOverflowModes.Overflow);
             }
+            RefreshChoiceLayout();
         }
 
-        private void UpdateChoiceGrid()
+        public void RefreshChoiceLayout()
         {
-            if (choiceGrid == null)
+            if (choiceGrid == null || choices == null ||
+                choiceButtons == null)
                 return;
+
+            var activeLabels = new List<TMP_Text>();
+            foreach (Button button in choiceButtons)
+            {
+                if (button == null || !button.gameObject.activeSelf)
+                    continue;
+                TMP_Text label = button.GetComponentInChildren<TMP_Text>(true);
+                if (label != null)
+                    activeLabels.Add(label);
+            }
+
+            int activeChoiceCount = activeLabels.Count;
+            if (activeChoiceCount == 0)
+                return;
+
             float availableWidth = choices.rect.width > 0f
                 ? choices.rect.width
-                : 1400f;
-            float cellWidth =
-                (availableWidth - choiceGrid.padding.horizontal -
-                 choiceGrid.spacing.x) / 2f;
-            choiceGrid.cellSize = new Vector2(
-                Mathf.Max(280f, cellWidth),
-                88f);
+                : choices.sizeDelta.x;
+            DialogueChoiceLayoutSpec widthSpec =
+                DialogueChoiceLayoutPolicy.Calculate(
+                    availableWidth,
+                    activeChoiceCount);
+            float labelWidth =
+                DialogueChoiceLayoutPolicy.GetLabelWidth(widthSpec);
+            float maximumPreferredHeight = 0f;
+            foreach (TMP_Text label in activeLabels)
+            {
+                maximumPreferredHeight = Mathf.Max(
+                    maximumPreferredHeight,
+                    label.GetPreferredValues(
+                        label.text,
+                        labelWidth,
+                        Mathf.Infinity).y);
+            }
+
+            DialogueChoiceLayoutSpec spec =
+                DialogueChoiceLayoutPolicy.Calculate(
+                    availableWidth,
+                    activeChoiceCount,
+                    maximumPreferredHeight);
+            choiceGrid.constraintCount = spec.Columns;
+            choiceGrid.cellSize = spec.CellSize;
+            choices.SetSizeWithCurrentAnchors(
+                RectTransform.Axis.Vertical,
+                spec.RequiredHeight);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(choices);
         }
 
         private static void ConfigureLabel(
