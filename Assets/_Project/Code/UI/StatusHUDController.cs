@@ -1,4 +1,3 @@
-using System.Text;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -22,15 +21,9 @@ namespace Wake.UI
         private const float MarkerSize = 18f;
         private const float PipSize = 22f;
 
-        private const string KoreanGlyphWarmup =
-            "승객 불안 현장 보존도 활성 가설 신뢰 획득 경고 제한구역 폐쇄 " +
-            "새 수사를 시작합니다 핵심 증거가 파괴되었습니다 슬롯이 가득 찼습니다 " +
-            "월화수목금토일 오전오후밤 0123456789+-/·●○!";
-
         private static readonly Color Navy = new(0.035f, 0.075f, 0.12f, 0.96f);
         private static readonly Color Panel = new(0.075f, 0.13f, 0.18f, 0.96f);
         private static readonly Color Paper = new(0.91f, 0.87f, 0.76f, 1f);
-        private static TMP_FontAsset koreanFont;
 
         [Header("Global Meter Art")]
         [SerializeField] private Sprite anxietyIconSprite;
@@ -61,12 +54,13 @@ namespace Wake.UI
         private GameStateManager state;
         private string contextCharacter;
 
-        public static TMP_FontAsset RuntimeKoreanFont => GetKoreanFont();
+        public static TMP_FontAsset RuntimeKoreanFont =>
+            TypographyService.Resolve(TypographyRole.Body);
 
         private void OnEnable()
         {
             BuildWireframe();
-            ApplyKoreanFont();
+            ApplyTypography();
             if (Application.isPlaying)
             {
                 TryBindState();
@@ -81,7 +75,7 @@ namespace Wake.UI
         {
             if (Application.isPlaying)
             {
-                ApplyKoreanFont();
+                ApplyTypography();
                 TryBindState();
             }
         }
@@ -234,7 +228,7 @@ namespace Wake.UI
                 BuildWireframe();
             }
 
-            ApplyKoreanFont();
+            ApplyTypography();
 
             if (state == null)
             {
@@ -428,106 +422,19 @@ namespace Wake.UI
             text.color = Paper;
             text.textWrappingMode = TextWrappingModes.NoWrap;
             text.raycastTarget = false;
-            TMP_FontAsset runtimeFont = GetKoreanFont();
-            if (runtimeFont != null)
-            {
-                text.font = runtimeFont;
-            }
-            else if (text.font == null && TMP_Settings.defaultFontAsset != null)
-            {
-                text.font = TMP_Settings.defaultFontAsset;
-            }
+            TypographyService.Apply(text, TypographyRole.Body);
             return text;
         }
 
-        private static TMP_FontAsset GetKoreanFont()
+        private void ApplyTypography()
         {
-            if (koreanFont != null)
-            {
-                return koreanFont;
-            }
-
-            string[] familyNames =
-            {
-                "Malgun Gothic",
-                "Noto Sans CJK KR",
-                "Apple SD Gothic Neo",
-                "Arial Unicode MS"
-            };
-
-            foreach (string familyName in familyNames)
-            {
-                TMP_FontAsset candidate = TMP_FontAsset.CreateFontAsset(
-                    familyName,
-                    "Regular",
-                    90);
-                if (candidate == null)
-                {
-                    continue;
-                }
-
-                candidate.hideFlags = HideFlags.DontSave;
-                if (candidate.material != null)
-                {
-                    candidate.material.hideFlags = HideFlags.DontSave;
-                }
-                foreach (Texture2D atlasTexture in candidate.atlasTextures)
-                {
-                    if (atlasTexture != null)
-                    {
-                        atlasTexture.hideFlags = HideFlags.DontSave;
-                    }
-                }
-                candidate.atlasPopulationMode = AtlasPopulationMode.Dynamic;
-                candidate.isMultiAtlasTexturesEnabled = true;
-                bool added = candidate.TryAddCharacters(
-                    KoreanGlyphWarmup,
-                    out string missingCharacters);
-                if (added && string.IsNullOrEmpty(missingCharacters))
-                {
-                    koreanFont = candidate;
-                    koreanFont.name = $"Runtime Korean HUD Font ({familyName})";
-                    return koreanFont;
-                }
-
-                if (Application.isPlaying)
-                {
-                    Destroy(candidate);
-                }
-                else
-                {
-                    DestroyImmediate(candidate);
-                }
-            }
-
-            Debug.LogWarning("No Korean-capable OS font was found for the status HUD.");
-            return TMP_Settings.defaultFontAsset;
-        }
-
-        private void ApplyKoreanFont()
-        {
-            TMP_FontAsset runtimeFont = GetKoreanFont();
-            if (runtimeFont == null)
-            {
-                return;
-            }
-
-            TMP_Text[] labels = GetComponentsInChildren<TMP_Text>(true);
-            foreach (TMP_Text label in labels)
-            {
-                label.font = runtimeFont;
-                label.SetAllDirty();
-            }
-
-            if (trustRoot != null)
-            {
-                TMP_Text[] trustLabels = trustRoot.GetComponentsInChildren<TMP_Text>(true);
-                foreach (TMP_Text label in trustLabels)
-                {
-                    label.font = runtimeFont;
-                    label.SetAllDirty();
-                }
-            }
+            StatusHUDTypography.Apply(
+                timeText,
+                anxietyText,
+                integrityText,
+                progressText,
+                trustText,
+                trustRoot != null ? trustRoot.transform : null);
         }
 
         private static Image EnsureMeterBar(Transform parent, string name, float height, Sprite fillSprite)
