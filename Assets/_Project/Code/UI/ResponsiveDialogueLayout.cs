@@ -217,6 +217,29 @@ namespace Wake.UI
                 baseline.SizeDelta.y * scale.y);
         }
 
+        /// <summary>
+        /// Same as <see cref="ApplyBaseline"/> but only touches the
+        /// horizontal axis. The line text's RectTransform doubles as the
+        /// dialogue ScrollRect's content — its Y position/height is
+        /// owned entirely by the ScrollRect (clamped scroll position)
+        /// and ContentSizeFitter (preferred height from text content).
+        /// Applying the baseline's Y there fights that every time the
+        /// line changes and ResetTextScroll runs, so only width is a
+        /// baseline concern; height/position are left alone.
+        /// </summary>
+        private static void ApplyWidthBaseline(
+            RectTransform rect, RectBaseline baseline, Vector2 scale)
+        {
+            if (rect == null)
+                return;
+            rect.anchoredPosition = new Vector2(
+                baseline.AnchoredPosition.x * scale.x,
+                rect.anchoredPosition.y);
+            rect.sizeDelta = new Vector2(
+                baseline.SizeDelta.x * scale.x,
+                rect.sizeDelta.y);
+        }
+
         public void ApplyLayout(Rect safeArea, Vector2 screenSize)
         {
             if (linePanel == null)
@@ -236,7 +259,7 @@ namespace Wake.UI
             ApplyBaseline(evidenceBtn, evidenceBtnBaseline, scale);
             ApplyBaseline(mapBtn, mapBtnBaseline, scale);
             ApplyBaseline(settingsBtn, settingsBtnBaseline, scale);
-            ApplyBaseline(
+            ApplyWidthBaseline(
                 lineText != null ? lineText.rectTransform : null,
                 lineTextBaseline,
                 scale);

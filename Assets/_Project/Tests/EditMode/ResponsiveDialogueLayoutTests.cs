@@ -250,10 +250,40 @@ namespace Wake.Tests
 
             rig.Layout.ApplyLayout(fullSafeArea, screenSize);
 
-            Assert.That(rig.LineText.rectTransform.anchoredPosition,
-                Is.EqualTo(rig.AuthoredLineTextPosition).Using(Vector2Comparer));
-            Assert.That(rig.LineText.rectTransform.sizeDelta,
-                Is.EqualTo(rig.AuthoredLineTextSize).Using(Vector2Comparer));
+            // Only width is a baseline concern. Y (position and height)
+            // belongs to the dialogue ScrollRect/ContentSizeFitter, since
+            // this RectTransform doubles as the scroll content - baselining
+            // it would fight the scroll-to-top reset on every line change.
+            Assert.That(rig.LineText.rectTransform.anchoredPosition.x,
+                Is.EqualTo(rig.AuthoredLineTextPosition.x).Within(0.01f));
+            Assert.That(rig.LineText.rectTransform.sizeDelta.x,
+                Is.EqualTo(rig.AuthoredLineTextSize.x).Within(0.01f));
+        }
+
+        [Test]
+        public void LineText_YAxisIsNeverTouchedByBaselineReapplication()
+        {
+            using LayoutRig rig = new(1920f, 1080f);
+            Rect fullSafeArea = new(0f, 0f, 1920f, 1080f);
+            Vector2 screenSize = new(1920f, 1080f);
+
+            // Simulate what happens on every new dialogue line: the
+            // ScrollRect (or a test stand-in) moves the content's Y,
+            // then layout gets reapplied - Y must survive untouched.
+            rig.Layout.ApplyLayout(fullSafeArea, screenSize);
+            rig.LineText.rectTransform.anchoredPosition = new Vector2(
+                rig.LineText.rectTransform.anchoredPosition.x, 123.45f);
+            rig.LineText.rectTransform.sizeDelta = new Vector2(
+                rig.LineText.rectTransform.sizeDelta.x, 67.89f);
+
+            rig.Layout.ApplyLayout(fullSafeArea, screenSize);
+
+            Assert.That(
+                rig.LineText.rectTransform.anchoredPosition.y,
+                Is.EqualTo(123.45f).Within(0.01f));
+            Assert.That(
+                rig.LineText.rectTransform.sizeDelta.y,
+                Is.EqualTo(67.89f).Within(0.01f));
         }
 
         private static readonly Vector2EqualityComparer Vector2Comparer =
