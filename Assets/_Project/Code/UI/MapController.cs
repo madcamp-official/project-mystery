@@ -182,6 +182,15 @@ namespace Wake.UI
             image.sprite = cruiseMapSprite;
             image.preserveAspect = false;
             image.raycastTarget = false;
+            image.color = cruiseMapSprite != null
+                ? Color.white
+                : new Color(0.015f, 0.025f, 0.045f, 1f);
+            if (cruiseMapSprite == null)
+            {
+                Debug.LogError(
+                    "MapController has no cruise map sprite assigned. " +
+                    "The location selector will use its dark fallback background.");
+            }
         }
 
         private void CreateLocationNode(ProductionMapEntry entry)
