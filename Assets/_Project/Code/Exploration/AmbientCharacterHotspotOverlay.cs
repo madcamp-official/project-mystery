@@ -11,6 +11,7 @@ namespace Wake.Exploration
         private sealed class WorldCharacterView
         {
             public string Speaker;
+            public bool IsMainCharacter;
             public GameObject Target;
             public RectTransform Rect;
             public RawImage Image;
@@ -33,6 +34,7 @@ namespace Wake.Exploration
         private RectTransform contentRect;
         private Vector2 lastContentSize;
         private string currentLocationCode = string.Empty;
+        private string currentSceneId = string.Empty;
 
         public void Initialize(RectTransform backgroundContentRect)
         {
@@ -47,26 +49,67 @@ namespace Wake.Exploration
 
             currentLocationCode =
                 locationCode?.Trim().ToUpperInvariant() ?? string.Empty;
+            currentSceneId = AmbientBarkCatalog.ResolveCurrentSceneId(
+                Wake.Core.GameStateManager.Instance,
+                DialogueController.Instance?.ActiveProductionSceneId);
             IReadOnlyList<AmbientBarkRecord> barks =
                 AmbientBarkCatalog.GetAvailable(
                     currentLocationCode,
                     Wake.Core.GameStateManager.Instance,
-                    DialogueController.Instance?.ActiveProductionSceneId);
+                    currentSceneId,
+                    maximum: 1);
             for (int index = 0; index < barks.Count; index++)
             {
-                CreateWorldCharacter(barks[index], index, barks.Count);
+                CreateAmbientCharacter(barks[index]);
+            }
+
+            if (ScenePresenceCatalog.TryGet(
+                    currentSceneId,
+                    out ScenePresenceRecord scene))
+            {
+                int mainLimit = Mathf.Max(0, 3 - spawned.Count);
+                IReadOnlyList<SceneWorldCharacter> characters =
+                    ScenePresencePresentationPolicy.SelectVisible(
+                        scene,
+                        currentLocationCode,
+                        mainLimit);
+                foreach (SceneWorldCharacter character in characters)
+                    CreateMainCharacter(character);
             }
 
             RefreshLayout();
         }
 
+        private void CreateAmbientCharacter(AmbientBarkRecord bark)
+        {
+            CreateWorldCharacter(
+                bark.Speaker,
+                bark.Id,
+                isMainCharacter: false,
+                onClick: () =>
+                    DialogueController.Instance?.StartAmbientLine(
+                        bark.Speaker,
+                        bark.Text,
+                        bark.Emotion));
+        }
+
+        private void CreateMainCharacter(SceneWorldCharacter character)
+        {
+            CreateWorldCharacter(
+                character.CharacterId,
+                currentSceneId,
+                isMainCharacter: true,
+                onClick: () => StartMainCharacterDialogue(character));
+        }
+
         private void CreateWorldCharacter(
-            AmbientBarkRecord bark,
-            int index,
-            int count)
+            string speaker,
+            string instanceId,
+            bool isMainCharacter,
+            UnityEngine.Events.UnityAction onClick)
         {
             if (!AmbientWorldCharacterCatalog.TryGetAsset(
-                    bark.Speaker,
+                    speaker,
                     out AmbientWorldCharacterAsset asset))
             {
                 return;
@@ -76,9 +119,10 @@ namespace Wake.Exploration
             if (texture == null)
                 return;
 
-            GameObject groundShadow = CreateGroundShadow(bark);
+            GameObject groundShadow =
+                CreateGroundShadow(speaker, instanceId);
             GameObject target = new(
-                $"AmbientCharacter_{bark.Speaker}",
+                $"WorldCharacter_{speaker}",
                 typeof(RectTransform),
                 typeof(CanvasRenderer),
                 typeof(RawImage),
@@ -102,16 +146,13 @@ namespace Wake.Exploration
             Button button = target.GetComponent<Button>();
             button.targetGraphic = image;
             button.transition = Selectable.Transition.ColorTint;
-            button.onClick.AddListener(() =>
-                DialogueController.Instance?.StartAmbientLine(
-                    bark.Speaker,
-                    bark.Text,
-                    bark.Emotion));
+            button.onClick.AddListener(onClick);
 
-            target.name += $"_{index}_{bark.Id}";
+            target.name += $"_{spawned.Count}_{instanceId}";
             var view = new WorldCharacterView
             {
-                Speaker = bark.Speaker,
+                Speaker = speaker,
+                IsMainCharacter = isMainCharacter,
                 Target = target,
                 Rect = target.GetComponent<RectTransform>(),
                 Image = image,
@@ -126,7 +167,28 @@ namespace Wake.Exploration
                 BlendMaterial = blendMaterial
             };
             spawned.Add(view);
-            ApplyStage(view, index, count);
+        }
+
+        private void StartMainCharacterDialogue(
+            SceneWorldCharacter character)
+        {
+            DialogueController dialogue = DialogueController.Instance;
+            if (dialogue == null)
+                return;
+
+            if (character.IsFocusParticipant &&
+                dialogue.CanStartProductionScene(currentSceneId))
+            {
+                dialogue.StartProductionScene(currentSceneId);
+                return;
+            }
+
+            dialogue.StartAmbientLine(
+                character.CharacterId,
+                MainCharacterWorldLineCatalog.Get(
+                    character.CharacterId,
+                    character.State),
+                MainCharacterWorldLineCatalog.GetEmotion(character.State));
         }
 
         private void LateUpdate()
@@ -166,28 +228,21 @@ namespace Wake.Exploration
             int count)
         {
             AmbientWorldStageProfile stage;
-            if (!AmbientWorldStageCatalog.TryGet(
+            if (count == 1 &&
+                AmbientWorldStageCatalog.TryGet(
                     currentLocationCode,
                     view.Speaker,
                     out stage))
             {
-                AmbientWorldPlacement fallback =
-                    AmbientWorldCharacterCatalog.GetPlacement(
-                        currentLocationCode,
-                        index,
-                        count);
-                stage = new AmbientWorldStageProfile(
-                    fallback.Anchor,
-                    fallback.NormalizedHeight,
-                    fallback.Mirror,
-                    Color.white,
-                    new Vector2(0.012f, -0.008f),
-                    0.35f,
-                    0.62f,
-                    0.75f,
-                    0.86f,
-                    0.9f,
-                    0.24f);
+                // Preserve the hand-authored single-actor composition.
+            }
+            else
+            {
+                stage = AmbientWorldStageCatalog.GetLocationProfile(
+                    currentLocationCode,
+                    index,
+                    count,
+                    view.IsMainCharacter);
             }
 
             Vector2 anchor = stage.Anchor;
@@ -291,10 +346,12 @@ namespace Wake.Exploration
                     Mathf.Abs(view.AtlasUvRect.height)));
         }
 
-        private GameObject CreateGroundShadow(AmbientBarkRecord bark)
+        private GameObject CreateGroundShadow(
+            string speaker,
+            string instanceId)
         {
             GameObject shadow = new(
-                $"AmbientGroundShadow_{bark.Speaker}_{bark.Id}",
+                $"WorldGroundShadow_{speaker}_{instanceId}",
                 typeof(RectTransform),
                 typeof(CanvasRenderer),
                 typeof(RawImage));
