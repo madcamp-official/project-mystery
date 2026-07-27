@@ -119,6 +119,12 @@ namespace Wake.UI
             Button returnToTitle =
                 MakeButton("타이틀로 돌아가기", 0.06f, 0.16f);
             returnToTitle.onClick.AddListener(ReturnToTitle);
+            FeatureTypography.ApplyEnding(
+                root.transform,
+                routeText,
+                titleText,
+                epilogueText,
+                reasonText);
             root.SetActive(false);
         }
 
@@ -144,7 +150,7 @@ namespace Wake.UI
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
             TMP_Text text = target.GetComponent<TMP_Text>();
-            text.font = StatusHUDController.RuntimeKoreanFont;
+            TypographyService.Apply(text, TypographyRole.Body);
             text.fontSize = size;
             text.color = Color.white;
             text.alignment = TextAlignmentOptions.Center;
