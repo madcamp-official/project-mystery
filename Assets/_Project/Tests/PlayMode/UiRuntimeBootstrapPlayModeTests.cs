@@ -108,6 +108,44 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator TitleLogo_UsesEntireSourceImage()
+        {
+            yield return null;
+
+            Image logo = RequireComponent<Image>(
+                "StartScene/Title Presentation/Under the Horizon Logo");
+            Assert.That(logo.sprite, Is.Not.Null);
+            Assert.That(logo.preserveAspect, Is.True);
+            Assert.That(logo.sprite.rect.x, Is.Zero);
+            Assert.That(logo.sprite.rect.y, Is.Zero);
+            Assert.That(
+                logo.sprite.rect.width,
+                Is.EqualTo(logo.sprite.texture.width));
+            Assert.That(
+                logo.sprite.rect.height,
+                Is.EqualTo(logo.sprite.texture.height));
+            AssertNoRuntimeErrors("타이틀 로고 전체 영역");
+        }
+
+        [UnityTest]
+        public IEnumerator TitleScreen_HidesDecorativeTaglines()
+        {
+            yield return null;
+
+            TMP_Text[] labels = RequireObject("StartScene/Title Presentation")
+                .GetComponentsInChildren<TMP_Text>(true);
+            Assert.That(
+                labels,
+                Has.None.Matches<TMP_Text>(label =>
+                    label.text.Contains("2D 내러티브 미스터리 어드벤처")));
+            Assert.That(
+                labels,
+                Has.None.Matches<TMP_Text>(label =>
+                    label.text.Contains("PRESS ANY KEY")));
+            AssertNoRuntimeErrors("타이틀 장식 문구 제거");
+        }
+
+        [UnityTest]
         public IEnumerator FinalAccusation_AutoPreparesDeductionsAndAdvances()
         {
             yield return StartNewGameFromVisibleButton();

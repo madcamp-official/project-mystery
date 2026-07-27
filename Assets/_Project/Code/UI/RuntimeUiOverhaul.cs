@@ -352,7 +352,6 @@ namespace Wake.UI
             CreateBorder(root);
             CreateLogo(root);
             CreateMenu(root, originalStart, originalSettings);
-            CreateFooter(root);
             presentation.AddComponent<UiPanelEntranceAnimator>();
         }
 
@@ -418,12 +417,6 @@ namespace Wake.UI
                 Resources.Load<Sprite>("UiOverhaul/logo_transparent");
             logo.preserveAspect = true;
             logo.raycastTarget = false;
-
-            TMP_Text descriptor = SaveSlotSelectionController.MakeText(
-                root, "2D 내러티브 미스터리 어드벤처", 23f,
-                new Vector2(-528f, 110f), new Vector2(540f, 42f));
-            descriptor.color = new Color(Ivory.r, Ivory.g, Ivory.b, 0.82f);
-            descriptor.characterSpacing = 4f;
         }
 
         private static void CreateMenu(
@@ -465,14 +458,6 @@ namespace Wake.UI
             return button;
         }
 
-        private static void CreateFooter(RectTransform root)
-        {
-            TMP_Text prompt = SaveSlotSelectionController.MakeText(
-                root, "—  PRESS ANY KEY  —", 19f,
-                new Vector2(0f, -475f), new Vector2(430f, 38f));
-            prompt.color = new Color(Gold.r, Gold.g, Gold.b, 0.78f);
-            prompt.characterSpacing = 5f;
-        }
     }
 
     [DisallowMultipleComponent]
