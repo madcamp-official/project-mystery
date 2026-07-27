@@ -1,0 +1,148 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Wake.Exploration
+{
+    public readonly struct AmbientWorldCharacterAsset
+    {
+        public AmbientWorldCharacterAsset(
+            string resourcePath,
+            Rect uvRect,
+            float cellAspectRatio)
+        {
+            ResourcePath = resourcePath ?? string.Empty;
+            UvRect = uvRect;
+            CellAspectRatio = Mathf.Max(0.01f, cellAspectRatio);
+        }
+
+        public string ResourcePath { get; }
+        public Rect UvRect { get; }
+        public float CellAspectRatio { get; }
+    }
+
+    public readonly struct AmbientWorldPlacement
+    {
+        public AmbientWorldPlacement(
+            Vector2 anchor,
+            float normalizedHeight,
+            bool mirror)
+        {
+            Anchor = new Vector2(
+                Mathf.Clamp01(anchor.x),
+                Mathf.Clamp01(anchor.y));
+            NormalizedHeight = Mathf.Clamp(normalizedHeight, 0.2f, 0.9f);
+            Mirror = mirror;
+        }
+
+        public Vector2 Anchor { get; }
+        public float NormalizedHeight { get; }
+        public bool Mirror { get; }
+    }
+
+    public static class AmbientWorldCharacterCatalog
+    {
+        private const string AtlasA =
+            "AmbientCharacters/world_atlas_crew_passengers_ab";
+        private const string AtlasB =
+            "AmbientCharacters/world_atlas_passengers_cdef";
+
+        private static readonly IReadOnlyDictionary<string, AmbientWorldCharacterAsset>
+            Assets = new Dictionary<string, AmbientWorldCharacterAsset>(
+                StringComparer.OrdinalIgnoreCase)
+            {
+                ["CREW_ATTENDANT"] = A(0),
+                ["CREW_ENGINEER"] = A(1),
+                ["CREW_SECURITY"] = A(2),
+                ["PASSENGER_A"] = A(3),
+                ["PASSENGER_B"] = A(4),
+                ["PASSENGER_C"] = B(0),
+                ["PASSENGER_D"] = B(1),
+                ["PASSENGER_E"] = B(2),
+                ["PASSENGER_F"] = B(3)
+            };
+
+        private static readonly HashSet<string> RightSideSingleLocations =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                "RICHARD_SUITE", "SECURITY", "SERVICE_RAIL",
+                "BALLAST_CONTROL_ANNEX", "ENGINE_CONTROL", "CREW_STAIRS",
+                "VAULT", "ARCHIVE", "SERVICE_HUB", "STABILIZERS",
+                "BALLAST_TANKS", "GENERATOR", "WORKSHOP"
+            };
+
+        private static readonly HashSet<string> CompactLocations =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                "GANGWAY", "PROMENADE", "CREW_STAIRS", "LAUNDRY",
+                "SERVICE_RAIL", "BALLAST_TANKS"
+            };
+
+        public static bool TryGetAsset(
+            string speaker,
+            out AmbientWorldCharacterAsset asset)
+        {
+            string key = speaker?.Trim() ?? string.Empty;
+            return Assets.TryGetValue(key, out asset);
+        }
+
+        public static AmbientWorldPlacement GetPlacement(
+            string locationCode,
+            int index,
+            int count)
+        {
+            string location = locationCode?.Trim().ToUpperInvariant() ?? "";
+            int safeCount = Mathf.Max(1, count);
+            int safeIndex = Mathf.Clamp(index, 0, safeCount - 1);
+            float height = CompactLocations.Contains(location) ? 0.56f : 0.64f;
+
+            if (safeCount == 1)
+            {
+                bool onRight = RightSideSingleLocations.Contains(location);
+                return new AmbientWorldPlacement(
+                    new Vector2(onRight ? 0.76f : 0.27f, 0.035f),
+                    height,
+                    mirror: onRight);
+            }
+
+            if (safeIndex == 0)
+            {
+                return new AmbientWorldPlacement(
+                    new Vector2(0.23f, 0.035f),
+                    height * 0.94f,
+                    mirror: false);
+            }
+
+            if (safeIndex == safeCount - 1)
+            {
+                return new AmbientWorldPlacement(
+                    new Vector2(0.77f, 0.035f),
+                    height,
+                    mirror: true);
+            }
+
+            return new AmbientWorldPlacement(
+                new Vector2(0.51f, 0.045f),
+                height * 0.88f,
+                mirror: safeIndex % 2 == 0);
+        }
+
+        private static AmbientWorldCharacterAsset A(int column)
+        {
+            const float width = 0.2f;
+            return new AmbientWorldCharacterAsset(
+                AtlasA,
+                new Rect(column * width, 0f, width, 1f),
+                0.4f);
+        }
+
+        private static AmbientWorldCharacterAsset B(int column)
+        {
+            const float width = 0.25f;
+            return new AmbientWorldCharacterAsset(
+                AtlasB,
+                new Rect(column * width, 0f, width, 1f),
+                0.5f);
+        }
+    }
+}

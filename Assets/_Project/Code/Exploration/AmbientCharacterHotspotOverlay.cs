@@ -1,19 +1,20 @@
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Wake.Narrative;
-using Wake.UI;
 
 namespace Wake.Exploration
 {
     [DisallowMultipleComponent]
     public sealed class AmbientCharacterHotspotOverlay : MonoBehaviour
     {
+        private static readonly Dictionary<string, Texture2D> TextureCache =
+            new();
+
         private readonly List<GameObject> spawned = new();
         private RectTransform contentRect;
-        private Vector2 lastViewportSize;
-        private Rect lastSafeArea;
+        private Vector2 lastContentSize;
+        private string currentLocationCode = string.Empty;
 
         public void Initialize(RectTransform backgroundContentRect)
         {
@@ -26,64 +27,79 @@ namespace Wake.Exploration
             if (contentRect == null)
                 return;
 
+            currentLocationCode =
+                locationCode?.Trim().ToUpperInvariant() ?? string.Empty;
             IReadOnlyList<AmbientBarkRecord> barks =
                 AmbientBarkCatalog.GetAvailable(
-                    locationCode,
+                    currentLocationCode,
                     Wake.Core.GameStateManager.Instance);
             for (int index = 0; index < barks.Count; index++)
             {
-                CreateCharacterButton(barks[index]);
+                CreateWorldCharacter(barks[index], index, barks.Count);
             }
+
             RefreshLayout();
         }
 
-        private void CreateCharacterButton(AmbientBarkRecord bark)
+        private void CreateWorldCharacter(
+            AmbientBarkRecord bark,
+            int index,
+            int count)
         {
+            if (!AmbientWorldCharacterCatalog.TryGetAsset(
+                    bark.Speaker,
+                    out AmbientWorldCharacterAsset asset))
+            {
+                return;
+            }
+
+            Texture2D texture = LoadTexture(asset.ResourcePath);
+            if (texture == null)
+                return;
+
             GameObject target = new(
                 $"AmbientCharacter_{bark.Speaker}",
                 typeof(RectTransform),
                 typeof(CanvasRenderer),
-                typeof(Image),
-                typeof(Button),
-                typeof(Outline));
+                typeof(RawImage),
+                typeof(Shadow),
+                typeof(Button));
             target.transform.SetParent(contentRect, false);
-            RectTransform rect = target.GetComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.zero;
-            rect.pivot = new Vector2(.5f, 0f);
+            target.transform.SetAsLastSibling();
 
-            Image image = target.GetComponent<Image>();
+            RawImage image = target.GetComponent<RawImage>();
+            image.texture = texture;
+            image.uvRect = asset.UvRect;
             image.color = Color.white;
-            Outline outline = target.GetComponent<Outline>();
-            outline.effectColor = new Color32(210, 164, 83, 230);
-            outline.effectDistance = new Vector2(2f, -2f);
+            image.raycastTarget = true;
 
-            GameObject labelObject = new(
-                "Label",
-                typeof(RectTransform),
-                typeof(TextMeshProUGUI));
-            labelObject.transform.SetParent(target.transform, false);
-            RectTransform labelRect = labelObject.GetComponent<RectTransform>();
-            labelRect.anchorMin = Vector2.zero;
-            labelRect.anchorMax = Vector2.one;
-            labelRect.offsetMin = new Vector2(8f, 4f);
-            labelRect.offsetMax = new Vector2(-8f, -4f);
-            TMP_Text label = labelObject.GetComponent<TMP_Text>();
-            TypographyService.Apply(label, TypographyRole.Body);
-            label.text = AmbientInteractionPresentation.CharacterLabel(
-                DialoguePortraitCatalog.GetDisplayName(bark.Speaker));
-            label.fontSize = 18f;
-            label.alignment = TextAlignmentOptions.Center;
-            label.color = Color.white;
-            label.raycastTarget = false;
+            Shadow shadow = target.GetComponent<Shadow>();
+            shadow.effectColor = new Color(0f, 0f, 0f, 0.42f);
+            shadow.effectDistance = new Vector2(10f, -8f);
+            shadow.useGraphicAlpha = true;
 
             Button button = target.GetComponent<Button>();
-            button.colors = AmbientInteractionPresentation.CharacterColors();
+            button.targetGraphic = image;
+            button.transition = Selectable.Transition.ColorTint;
+            button.colors =
+                AmbientInteractionPresentation.CharacterSpriteColors();
             button.onClick.AddListener(() =>
                 DialogueController.Instance?.StartAmbientLine(
                     bark.Speaker,
                     bark.Text,
                     bark.Emotion));
+
+            AmbientWorldPlacement placement =
+                AmbientWorldCharacterCatalog.GetPlacement(
+                    currentLocationCode,
+                    index,
+                    count);
+            target.name += $"_{index}_{bark.Id}";
+            ApplyPlacement(
+                target.GetComponent<RectTransform>(),
+                image,
+                placement,
+                asset.CellAspectRatio);
             spawned.Add(target);
         }
 
@@ -91,8 +107,7 @@ namespace Wake.Exploration
         {
             if (contentRect != null &&
                 spawned.Count > 0 &&
-                (contentRect.rect.size != lastViewportSize ||
-                 Screen.safeArea != lastSafeArea))
+                contentRect.rect.size != lastContentSize)
             {
                 RefreshLayout();
             }
@@ -103,20 +118,9 @@ namespace Wake.Exploration
             if (contentRect == null)
                 return;
 
-            Vector2 viewportSize = contentRect.rect.size;
-            if (viewportSize.x <= 0f || viewportSize.y <= 0f)
+            Vector2 contentSize = contentRect.rect.size;
+            if (contentSize.x <= 0f || contentSize.y <= 0f)
                 return;
-
-            float screenWidth = Mathf.Max(1f, Screen.width);
-            float screenHeight = Mathf.Max(1f, Screen.height);
-            float scaleX = viewportSize.x / screenWidth;
-            float scaleY = viewportSize.y / screenHeight;
-            Rect safeArea = Screen.safeArea;
-            float safeAreaX = safeArea.xMin * scaleX;
-            float safeAreaWidth = safeArea.width * scaleX;
-            float bottom =
-                safeArea.yMin * scaleY +
-                AmbientInteractionPresentation.CharacterEdgePadding;
 
             for (int index = 0; index < spawned.Count; index++)
             {
@@ -124,24 +128,63 @@ namespace Wake.Exploration
                 if (target == null)
                     continue;
 
-                AmbientCharacterPlacement placement =
-                    AmbientInteractionPresentation.CharacterPlacement(
+                RawImage image = target.GetComponent<RawImage>();
+                AmbientWorldPlacement placement =
+                    AmbientWorldCharacterCatalog.GetPlacement(
+                        currentLocationCode,
                         index,
-                        spawned.Count,
-                        viewportSize.x,
-                        safeAreaX,
-                        safeAreaWidth);
-                RectTransform rect = target.GetComponent<RectTransform>();
-                rect.anchorMin = Vector2.zero;
-                rect.anchorMax = Vector2.zero;
-                rect.anchoredPosition = new Vector2(
-                    placement.AnchorX * viewportSize.x,
-                    bottom);
-                rect.sizeDelta = placement.Size;
+                        spawned.Count);
+                float cellAspect =
+                    Mathf.Abs(image.uvRect.width) *
+                    image.texture.width /
+                    (image.uvRect.height * image.texture.height);
+                ApplyPlacement(
+                    target.GetComponent<RectTransform>(),
+                    image,
+                    placement,
+                    cellAspect);
             }
 
-            lastViewportSize = viewportSize;
-            lastSafeArea = safeArea;
+            lastContentSize = contentSize;
+        }
+
+        private void ApplyPlacement(
+            RectTransform rect,
+            RawImage image,
+            AmbientWorldPlacement placement,
+            float aspectRatio)
+        {
+            Vector2 anchor = placement.Anchor;
+            rect.anchorMin = anchor;
+            rect.anchorMax = anchor;
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.anchoredPosition = Vector2.zero;
+
+            float height = contentRect.rect.height *
+                           placement.NormalizedHeight;
+            rect.sizeDelta = new Vector2(height * aspectRatio, height);
+
+            Rect uv = image.uvRect;
+            float width = Mathf.Abs(uv.width);
+            float baseX = uv.width < 0f ? uv.x + uv.width : uv.x;
+            image.uvRect = placement.Mirror
+                ? new Rect(baseX + width, uv.y, -width, uv.height)
+                : new Rect(
+                    baseX, uv.y, width, uv.height);
+        }
+
+        private static Texture2D LoadTexture(string resourcePath)
+        {
+            if (TextureCache.TryGetValue(
+                    resourcePath,
+                    out Texture2D cached))
+            {
+                return cached;
+            }
+
+            Texture2D texture = Resources.Load<Texture2D>(resourcePath);
+            TextureCache[resourcePath] = texture;
+            return texture;
         }
 
         private void Clear()
