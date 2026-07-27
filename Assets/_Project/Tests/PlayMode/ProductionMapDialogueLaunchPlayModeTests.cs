@@ -137,6 +137,46 @@ namespace Wake.Tests.PlayMode
             AssertNoRuntimeErrors("진행 중 대화의 이중 시작 방지");
         }
 
+        [UnityTest]
+        public IEnumerator PrologueMap_UnlocksGangwayThenSuiteBeforeFreeTravel()
+        {
+            yield return CompleteOpeningScene();
+            Ui.ShowMap();
+            yield return WaitForMap();
+
+            Assert.That(RequireSceneButton("P-02").interactable, Is.True);
+            Button laundry = RequireLocationButton("LAUNDRY");
+            Assert.That(laundry.interactable, Is.False);
+            Assert.That(
+                laundry.GetComponentInChildren<TMP_Text>().text,
+                Does.Contain("승선 완료 후 이동 가능"));
+
+            State.RecordCompletedScene("P-02");
+            State.UnlockProductionScene("P-03");
+            Ui.ShowMap();
+            yield return WaitForMap();
+
+            Button suite = RequireLocationButton("RICHARD_SUITE");
+            Assert.That(suite.interactable, Is.True);
+            Assert.That(
+                suite.GetComponentInChildren<TMP_Text>().text,
+                Does.Contain("P-03"));
+            Assert.That(
+                RequireLocationButton("LAUNDRY").interactable,
+                Is.False);
+
+            State.RecordCompletedScene("P-03");
+            Ui.ShowMap();
+            yield return WaitForMap();
+
+            laundry = RequireLocationButton("LAUNDRY");
+            Assert.That(laundry.interactable, Is.True);
+            Assert.That(
+                laundry.GetComponentInChildren<TMP_Text>().text,
+                Does.Contain("자유 이동"));
+            AssertNoRuntimeErrors("프롤로그 순차 이동");
+        }
+
         private IEnumerator WaitForMap()
         {
             yield return null;
@@ -175,6 +215,13 @@ namespace Wake.Tests.PlayMode
                 Has.Length.EqualTo(1),
                 $"{sceneId} 맵 버튼은 정확히 하나여야 합니다.");
             return matches[0];
+        }
+
+        private Button RequireLocationButton(string locationCode)
+        {
+            return RequireComponent<Button>(
+                "Map/Rooms/Dynamic Location Viewport/" +
+                $"Dynamic Location Content/Map Node {locationCode}");
         }
     }
 }

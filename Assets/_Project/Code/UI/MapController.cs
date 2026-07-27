@@ -278,8 +278,9 @@ namespace Wake.UI
         private void SelectLocation(LocationDefinition location)
         {
             GameStateManager state = GameStateManager.Instance;
-            LastTravelResult = SceneTravelPolicy.EvaluateLocation(
+            LastTravelResult = SceneTravelPolicy.EvaluateFreeTravel(
                 location,
+                state?.CompletedProductionSceneIds,
                 state != null ? state.PublicAnxiety : 0);
             if (TryLoadAllowedDestination(LastTravelResult))
             {

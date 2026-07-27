@@ -83,6 +83,13 @@ namespace Wake.Core
                     "목표 보기",
                     InvestigationFeedbackSeverity.Warning,
                     result.Detail),
+                SceneAccessDenialReason.BoardingSequenceIncomplete => Create(
+                    "boarding_sequence_incomplete",
+                    "아직 승선 중입니다",
+                    "항구에서 승선 통로와 회장실을 차례로 거친 뒤 선내 자유 이동이 열립니다.",
+                    "프롤로그 계속하기",
+                    InvestigationFeedbackSeverity.Warning,
+                    result.Detail),
                 SceneAccessDenialReason.RestrictedByPublicAnxiety => Create(
                     "restricted_by_anxiety",
                     "제한구역 폐쇄",
