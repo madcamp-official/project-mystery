@@ -7,6 +7,7 @@ using UnityEngine.TestTools;
 using UnityEngine.UI;
 using Wake.Core;
 using Wake.Evidence;
+using Wake.Exploration;
 using Wake.Narrative;
 using Wake.UI;
 
@@ -96,6 +97,7 @@ namespace Wake.Tests.PlayMode
                 Is.False);
 
             yield return ContinueFromVisibleButton();
+            Assert.That(LocationLoader.Instance.IsPresentationVisible, Is.True);
             Assert.That(State.FinalEndingId,
                 Is.EqualTo(FinalAccusationResolver.BadEndingId));
             Assert.That(GameStateManager.HasSaveData, Is.True);
@@ -105,6 +107,7 @@ namespace Wake.Tests.PlayMode
             yield return StartNewGameFromVisibleButton();
 
             Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Ingame));
+            Assert.That(LocationLoader.Instance.IsPresentationVisible, Is.True);
             Assert.That(Flow.HasActiveSession, Is.True);
             Assert.That(Dialogue.IsBusy, Is.True);
             Assert.That(Dialogue.ActiveProductionSceneId, Is.EqualTo("P-01"));
@@ -220,6 +223,8 @@ namespace Wake.Tests.PlayMode
             Assert.That(RequireObject("StartScene").activeSelf, Is.True);
             Assert.That(RequireObject("Ingame").activeSelf, Is.False);
             Assert.That(endingRoot.activeSelf, Is.False);
+            Assert.That(LocationLoader.Instance.IsPresentationVisible, Is.False,
+                "타이틀 화면에서는 마지막 위치 배경과 핫스팟을 숨겨야 합니다.");
             Assert.That(Dialogue.IsBusy, Is.False);
             Assert.That(Dialogue.ActiveProductionSceneId, Is.Empty);
             Assert.That(EvidenceInventory.Instance.Collected, Is.Empty);
