@@ -98,7 +98,8 @@ namespace Wake.UI
         {
             string value = target.name.ToLowerInvariant();
             return value.Contains("background") || value == "image" ||
-                   value.Contains("backdrop");
+                   value.Contains("backdrop") ||
+                   value.Contains("title presentation");
         }
 
         private static bool IsDialogue(Transform target)
@@ -112,8 +113,11 @@ namespace Wake.UI
             Vector2 end = rect.anchoredPosition;
             float direction = index % 2 == 0 ? -1f : 1f;
             Vector2 start = end + new Vector2(direction * 72f, 0f);
-            CanvasGroup group = rect.GetComponent<CanvasGroup>() ??
-                                rect.gameObject.AddComponent<CanvasGroup>();
+            CanvasGroup group = rect.GetComponent<CanvasGroup>();
+            if (group == null)
+            {
+                group = rect.gameObject.AddComponent<CanvasGroup>();
+            }
             group.alpha = 0f;
             rect.anchoredPosition = start;
             float elapsed = 0f;
@@ -143,9 +147,25 @@ namespace Wake.UI
 
         private void Start()
         {
+            ConfigureCanvas();
             ConfigurePanels();
             ScanButtons();
             SanitizeVisibleText();
+        }
+
+        private static void ConfigureCanvas()
+        {
+            CanvasScaler scaler = GameObject.Find("Canvas")
+                ?.GetComponent<CanvasScaler>();
+            if (scaler == null)
+            {
+                return;
+            }
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.screenMatchMode =
+                CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+            scaler.matchWidthOrHeight = 0.5f;
         }
 
         private void Update()
@@ -243,6 +263,200 @@ namespace Wake.UI
     }
 
     [DisallowMultipleComponent]
+    public sealed class TitleScreenPresentationController : MonoBehaviour
+    {
+        private GameObject presentation;
+
+        private static readonly Color Ink = new(0.018f, 0.025f, 0.052f, 0.97f);
+        private static readonly Color Purple = new(0.19f, 0.12f, 0.29f, 0.98f);
+        private static readonly Color Gold = new(0.79f, 0.60f, 0.29f, 1f);
+        private static readonly Color Ivory = new(0.94f, 0.89f, 0.78f, 1f);
+
+        private void Start()
+        {
+            Build();
+        }
+
+        private void OnEnable()
+        {
+            if (presentation != null)
+            {
+                presentation.SetActive(true);
+            }
+        }
+
+        private void Build()
+        {
+            if (presentation != null)
+            {
+                return;
+            }
+
+            Button originalStart = transform.Find("Start Game Btn")
+                ?.GetComponent<Button>();
+            Button originalSettings = transform.Find("Settings Btn")
+                ?.GetComponent<Button>();
+            RectTransform host = transform as RectTransform;
+            if (host != null)
+            {
+                host.anchorMin = Vector2.zero;
+                host.anchorMax = Vector2.one;
+                host.offsetMin = host.offsetMax = Vector2.zero;
+                host.localScale = Vector3.one;
+            }
+            foreach (Transform child in transform)
+            {
+                if (child == originalStart?.transform ||
+                    child == originalSettings?.transform)
+                {
+                    continue;
+                }
+                child.gameObject.SetActive(false);
+            }
+            KeepLegacyButtonContract(originalStart);
+            KeepLegacyButtonContract(originalSettings);
+
+            presentation = new GameObject(
+                "Title Presentation",
+                typeof(RectTransform),
+                typeof(Image));
+            presentation.transform.SetParent(transform, false);
+            RectTransform root = presentation.GetComponent<RectTransform>();
+            SaveSlotSelectionController.Stretch(root);
+            Image background = presentation.GetComponent<Image>();
+            background.sprite =
+                Resources.Load<Sprite>("UiOverhaul/ui_title_background");
+            background.preserveAspect = false;
+            background.color = Color.white;
+
+            CreateShade(root);
+            CreateBorder(root);
+            CreateLogo(root);
+            CreateMenu(root, originalStart, originalSettings);
+            CreateFooter(root);
+            presentation.AddComponent<UiPanelEntranceAnimator>();
+        }
+
+        private static void KeepLegacyButtonContract(Button button)
+        {
+            if (button == null)
+            {
+                return;
+            }
+            button.gameObject.SetActive(true);
+            button.transform.localScale = Vector3.zero;
+            CanvasGroup group = button.GetComponent<CanvasGroup>();
+            if (group == null)
+            {
+                group = button.gameObject.AddComponent<CanvasGroup>();
+            }
+            group.alpha = 0f;
+            group.interactable = false;
+            group.blocksRaycasts = false;
+        }
+
+        private static void CreateShade(RectTransform root)
+        {
+            GameObject shade = SaveSlotSelectionController.Panel(
+                root, "Left Readability Shade", Color.clear);
+            RectTransform rect = shade.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = new Vector2(0.47f, 1f);
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            Image image = shade.GetComponent<Image>();
+            image.color = new Color(0.005f, 0.008f, 0.025f, 0.34f);
+            image.raycastTarget = false;
+        }
+
+        private static void CreateBorder(RectTransform root)
+        {
+            GameObject border = SaveSlotSelectionController.Panel(
+                root, "Nautical Border", Color.clear);
+            RectTransform rect = border.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.012f, 0.022f);
+            rect.anchorMax = new Vector2(0.988f, 0.978f);
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            Image image = border.GetComponent<Image>();
+            image.color = Color.clear;
+            image.raycastTarget = false;
+            Outline outline = border.AddComponent<Outline>();
+            outline.effectColor = new Color(Gold.r, Gold.g, Gold.b, 0.8f);
+            outline.effectDistance = new Vector2(2f, -2f);
+        }
+
+        private static void CreateLogo(RectTransform root)
+        {
+            GameObject logoObject = new(
+                "Under the Horizon Logo",
+                typeof(RectTransform),
+                typeof(Image));
+            logoObject.transform.SetParent(root, false);
+            RectTransform logoRect = logoObject.GetComponent<RectTransform>();
+            logoRect.anchorMin = logoRect.anchorMax = new Vector2(0.225f, 0.75f);
+            logoRect.sizeDelta = new Vector2(560f, 315f);
+            Image logo = logoObject.GetComponent<Image>();
+            logo.sprite =
+                Resources.Load<Sprite>("UiOverhaul/logo_transparent");
+            logo.preserveAspect = true;
+            logo.raycastTarget = false;
+
+            TMP_Text descriptor = SaveSlotSelectionController.MakeText(
+                root, "2D 내러티브 미스터리 어드벤처", 23f,
+                new Vector2(-528f, 110f), new Vector2(540f, 42f));
+            descriptor.color = new Color(Ivory.r, Ivory.g, Ivory.b, 0.82f);
+            descriptor.characterSpacing = 4f;
+        }
+
+        private static void CreateMenu(
+            RectTransform root,
+            Button originalStart,
+            Button originalSettings)
+        {
+            Button start = CreateTitleButton(
+                root, "시작하기", new Vector2(-525f, 25f), true);
+            start.onClick.AddListener(() => originalStart?.onClick.Invoke());
+
+            Button settings = CreateTitleButton(
+                root, "환경 설정", new Vector2(-525f, -65f), false);
+            settings.onClick.AddListener(() => originalSettings?.onClick.Invoke());
+
+            Button quit = CreateTitleButton(
+                root, "게임 종료", new Vector2(-525f, -155f), false);
+            quit.onClick.AddListener(Application.Quit);
+        }
+
+        private static Button CreateTitleButton(
+            RectTransform root,
+            string label,
+            Vector2 position,
+            bool primary)
+        {
+            Button button = SaveSlotSelectionController.MakeButton(
+                root, label, position, new Vector2(410f, 68f));
+            button.image.color = primary ? Purple : new Color(
+                Ivory.r, Ivory.g, Ivory.b, 0.96f);
+            TMP_Text text = SaveSlotSelectionController.MakeText(
+                button.transform as RectTransform,
+                label,
+                29f,
+                Vector2.zero,
+                new Vector2(350f, 54f));
+            text.color = primary ? Ivory : Ink;
+            text.fontStyle = FontStyles.Bold;
+            return button;
+        }
+
+        private static void CreateFooter(RectTransform root)
+        {
+            TMP_Text prompt = SaveSlotSelectionController.MakeText(
+                root, "—  PRESS ANY KEY  —", 19f,
+                new Vector2(0f, -475f), new Vector2(430f, 38f));
+            prompt.color = new Color(Gold.r, Gold.g, Gold.b, 0.78f);
+            prompt.characterSpacing = 5f;
+        }
+    }
+
+    [DisallowMultipleComponent]
     public sealed class SaveSlotSelectionController : MonoBehaviour
     {
         private GameObject overlay;
@@ -265,24 +479,48 @@ namespace Wake.UI
             {
                 return;
             }
-            overlay = Panel(transform, "Save Slot Selection", new Color32(7, 15, 29, 247));
+            overlay = Panel(
+                transform,
+                "Save Slot Selection",
+                new Color32(5, 9, 23, 248));
             RectTransform root = overlay.GetComponent<RectTransform>();
             Stretch(root);
-            MakeText(root, "저장 슬롯 선택", 42, new Vector2(0, 260), new Vector2(700, 70));
+            GameObject frame = Panel(
+                root, "Slot Frame", new Color32(10, 16, 35, 238));
+            RectTransform frameRect = frame.GetComponent<RectTransform>();
+            frameRect.anchorMin = new Vector2(.08f, .12f);
+            frameRect.anchorMax = new Vector2(.92f, .88f);
+            frameRect.offsetMin = frameRect.offsetMax = Vector2.zero;
+            frame.AddComponent<Outline>().effectColor =
+                new Color32(194, 149, 72, 255);
+            MakeText(
+                root,
+                "항해 기록 선택",
+                46,
+                new Vector2(0, 380),
+                new Vector2(700, 70));
+            TMP_Text guide = MakeText(
+                root,
+                "저장된 기록은 이어서, 빈 기록은 처음부터 시작합니다.",
+                21,
+                new Vector2(0, 320),
+                new Vector2(760, 45));
+            guide.color = new Color32(196, 183, 159, 255);
 
             for (int index = 0; index < 3; index++)
             {
                 int slot = index + 1;
                 Button button = MakeButton(
                     root, $"Save Slot {slot}",
-                    new Vector2((index - 1) * 390f, 20f),
-                    new Vector2(330f, 360f));
+                    new Vector2((index - 1) * 410f, 25f),
+                    new Vector2(350f, 390f));
                 slotLabels[index] = MakeText(
                     button.transform as RectTransform, string.Empty, 25,
-                    Vector2.zero, new Vector2(285f, 280f));
+                    Vector2.zero, new Vector2(300f, 310f));
                 button.onClick.AddListener(() => Ask(slot));
             }
-            Button close = MakeButton(root, "닫기", new Vector2(0, -260), new Vector2(210, 58));
+            Button close = MakeButton(
+                root, "닫기", new Vector2(0, -385), new Vector2(230, 62));
             MakeText(close.transform as RectTransform, "돌아가기", 24, Vector2.zero, new Vector2(180, 48));
             close.onClick.AddListener(() => overlay.SetActive(false));
 
@@ -307,9 +545,19 @@ namespace Wake.UI
             for (int index = 0; index < slotLabels.Length; index++)
             {
                 bool occupied = GameStateManager.HasSaveDataInSlot(index + 1);
+                Button button = slotLabels[index]
+                    .GetComponentInParent<Button>();
+                if (button != null)
+                {
+                    button.image.color = occupied
+                        ? new Color32(51, 34, 78, 252)
+                        : new Color32(18, 31, 52, 252);
+                }
                 slotLabels[index].text =
-                    $"SLOT {index + 1}\n\n" +
-                    (occupied ? "저장된 수사\n이어하기" : "빈 슬롯\n새로 시작");
+                    $"—  SLOT {index + 1}  —\n\n" +
+                    (occupied
+                        ? "저장된 수사 기록\n\n이어하기"
+                        : "비어 있는 기록\n\n새로하기");
             }
         }
 
@@ -350,7 +598,7 @@ namespace Wake.UI
         internal static Button MakeButton(
             RectTransform parent, string name, Vector2 position, Vector2 size)
         {
-            GameObject value = Panel(parent, name, new Color32(174, 127, 48, 245));
+            GameObject value = Panel(parent, name, new Color32(35, 24, 55, 248));
             RectTransform rect = value.GetComponent<RectTransform>();
             rect.anchorMin = rect.anchorMax = new Vector2(.5f, .5f);
             rect.anchoredPosition = position;

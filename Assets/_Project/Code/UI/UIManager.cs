@@ -175,6 +175,7 @@ namespace Wake.UI
             EnsureComponent<EvidenceNotebookTabsController>(evidencePanel);
             EnsureComponent<RuntimeUiOverhaulController>(gameObject);
             EnsureComponent<EvidenceAcquisitionNoticeController>(gameObject);
+            EnsureComponent<TitleScreenPresentationController>(startScenePanel);
             saveSlotSelection =
                 EnsureComponent<SaveSlotSelectionController>(startScenePanel);
             if (statusHud != null)
