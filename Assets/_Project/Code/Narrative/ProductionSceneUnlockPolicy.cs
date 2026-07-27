@@ -79,6 +79,17 @@ namespace Wake.Narrative
 
             foreach (string prerequisite in scene.Prerequisites)
             {
+                if (scene.SceneId == ProductionEndingCatalog.EpilogueSceneId &&
+                    prerequisite ==
+                    ProductionEndingCatalog.ConfessionSceneId &&
+                    ProductionEndingCatalog.TryGet(
+                        state.FinalEndingId,
+                        out ProductionEndingDefinition ending) &&
+                    !ending.OpensConfession)
+                {
+                    continue;
+                }
+
                 if (!ProductionSceneCatalog.TryGet(prerequisite, out _))
                 {
                     if (!FinalAccusationResolver.OpensD8Confession(state.FinalEndingId))

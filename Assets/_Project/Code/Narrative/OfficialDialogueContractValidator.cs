@@ -51,6 +51,8 @@ namespace Wake.Narrative
             ValidatePerSceneCounts(dialogue.Records, choices.Records, scenes.Records, errors);
             ValidateChoiceMirrors(dialogue.Records, choices.Records, errors);
             ValidateSceneGraph(scenes.Records, errors);
+            ValidateSceneUnlockEffects(dialogue.Records, scenes.Records, errors);
+            ValidateDeclaredTransitions(dialogue.Records, scenes.Records, errors);
             ValidateEndingContract(dialogue.Records, errors);
             return new OfficialDialogueContractReport(errors);
         }
@@ -233,6 +235,113 @@ namespace Wake.Narrative
                 errors.Add(
                     "Ending markers must be A_complete, B_complete, C_complete, " +
                     "and bad_complete.");
+        }
+
+        private static void ValidateSceneUnlockEffects(
+            IEnumerable<DialogueRecord> dialogue,
+            IEnumerable<SceneIndexRecord> scenes,
+            ICollection<string> errors)
+        {
+            HashSet<string> sceneIds = scenes
+                .Select(scene => scene.SceneId)
+                .ToHashSet(StringComparer.Ordinal);
+            foreach (DialogueRecord record in dialogue.Where(record =>
+                         !string.IsNullOrWhiteSpace(record.NextOrEffect)))
+            {
+                ProductionEffectParseResult parsed =
+                    ProductionEffectParser.Parse(record.NextOrEffect);
+                if (!parsed.Success)
+                {
+                    continue;
+                }
+
+                foreach (string rawSceneId in parsed.Instructions
+                             .Where(instruction =>
+                                 instruction.Kind ==
+                                 ProductionEffectKind.SceneUnlock)
+                             .SelectMany(instruction => instruction.Values))
+                {
+                    string sceneId =
+                        ProductionSceneReference.Normalize(rawSceneId);
+                    if (!sceneIds.Contains(sceneId))
+                    {
+                        errors.Add(
+                            $"Dialogue line '{record.StableLineId}' unlocks " +
+                            $"unknown scene '{rawSceneId}'.");
+                    }
+                }
+            }
+        }
+
+        private static void ValidateDeclaredTransitions(
+            IEnumerable<DialogueRecord> dialogue,
+            IEnumerable<SceneIndexRecord> scenes,
+            ICollection<string> errors)
+        {
+            var unlockedByScene = new Dictionary<string, HashSet<string>>(
+                StringComparer.Ordinal);
+            foreach (DialogueRecord record in dialogue.Where(record =>
+                         !string.IsNullOrWhiteSpace(record.NextOrEffect)))
+            {
+                ProductionEffectParseResult parsed =
+                    ProductionEffectParser.Parse(record.NextOrEffect);
+                if (!parsed.Success)
+                {
+                    continue;
+                }
+
+                foreach (string target in parsed.Instructions
+                             .Where(instruction =>
+                                 instruction.Kind ==
+                                 ProductionEffectKind.SceneUnlock)
+                             .SelectMany(instruction => instruction.Values)
+                             .Select(ProductionSceneReference.Normalize))
+                {
+                    if (!unlockedByScene.TryGetValue(
+                            record.SceneId,
+                            out HashSet<string> targets))
+                    {
+                        targets = new HashSet<string>(StringComparer.Ordinal);
+                        unlockedByScene.Add(record.SceneId, targets);
+                    }
+                    targets.Add(target);
+                }
+            }
+
+            foreach (ProductionSceneCompletionRequirement requirement in
+                     ProductionSceneCompletionCatalog.All)
+            {
+                if (!unlockedByScene.TryGetValue(
+                        requirement.SceneId,
+                        out HashSet<string> targets))
+                {
+                    targets = new HashSet<string>(StringComparer.Ordinal);
+                    unlockedByScene.Add(requirement.SceneId, targets);
+                }
+                targets.Add(ProductionSceneReference.Normalize(
+                    requirement.NextSceneId));
+            }
+
+            foreach (SceneIndexRecord scene in scenes)
+            {
+                string[] declared = ExtractSceneReferences(scene.NextScene)
+                    .Select(ProductionSceneReference.Normalize)
+                    .Distinct(StringComparer.Ordinal)
+                    .ToArray();
+                HashSet<string> actual = unlockedByScene.TryGetValue(
+                    scene.SceneId,
+                    out HashSet<string> found)
+                    ? found
+                    : new HashSet<string>(StringComparer.Ordinal);
+                foreach (string target in declared.Where(target =>
+                             !actual.Contains(target)))
+                {
+                    errors.Add(
+                        $"Scene '{scene.SceneId}' declares transition to " +
+                        $"'{target}' without a matching scene_unlock effect " +
+                        "or interaction completion route.");
+                }
+            }
         }
 
         private static void AddParseErrors(

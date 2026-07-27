@@ -154,10 +154,10 @@ namespace Wake.Tests
                 Is.EqualTo("D8-02"));
             Assert.That(
                 ProductionEndingCatalog.GetNextDialogueScene("C", false, false),
-                Is.Empty);
+                Is.EqualTo("D8-03"));
             Assert.That(
                 ProductionEndingCatalog.GetNextDialogueScene("Bad", false, false),
-                Is.Empty);
+                Is.EqualTo("D8-03"));
         }
 
         private void DestroyManager()

@@ -90,16 +90,16 @@ namespace Wake.Core
             bool epilogueCompleted)
         {
             if (!TryGet(endingId, out ProductionEndingDefinition ending) ||
-                !ending.OpensConfession)
+                epilogueCompleted)
             {
                 return string.Empty;
             }
 
-            if (!confessionCompleted)
+            if (ending.OpensConfession && !confessionCompleted)
             {
                 return ConfessionSceneId;
             }
-            return epilogueCompleted ? string.Empty : EpilogueSceneId;
+            return EpilogueSceneId;
         }
     }
 }

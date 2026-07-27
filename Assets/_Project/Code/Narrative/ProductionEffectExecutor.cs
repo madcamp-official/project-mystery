@@ -105,7 +105,9 @@ namespace Wake.Narrative
                     }
                     break;
                 case ProductionEffectKind.SceneUnlock:
-                    foreach (string sceneId in instruction.Values)
+                    foreach (string sceneId in
+                             ProductionSceneReference.NormalizeDistinct(
+                                 instruction.Values))
                     {
                         state.UnlockProductionScene(sceneId);
                     }
