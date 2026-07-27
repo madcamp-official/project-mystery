@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Wake.Core;
+using Wake.Exploration;
 
 namespace Wake.Narrative
 {
@@ -43,7 +44,7 @@ namespace Wake.Narrative
             "STABILIZERS", "BALLAST_TANKS", "GENERATOR", "WORKSHOP"
         };
 
-        private static readonly AmbientBarkRecord[] Entries =
+        private static readonly AmbientBarkRecord[] BaselineEntries =
         {
             B("PORT_ATTENDANT", "DOCK_PORTER",
                 "승선 명단을 확인했습니다. 수하물은 객실로 먼저 보내 드리겠습니다.",
@@ -202,7 +203,14 @@ namespace Wake.Narrative
                 "professional", "always", "WORKSHOP")
         };
 
-        public static IReadOnlyList<AmbientBarkRecord> All => Entries;
+        private static readonly AmbientBarkRecord[] Entries =
+            BaselineEntries
+                .Concat(SceneContextBarkCatalog.All)
+                .ToArray();
+
+        public static IReadOnlyList<AmbientBarkRecord> All => BaselineEntries;
+        public static IReadOnlyList<AmbientBarkRecord> Contextual =>
+            SceneContextBarkCatalog.All;
         public static IReadOnlyList<string> SupportedLocations => LocationCodes;
 
         public static IReadOnlyList<AmbientBarkRecord> GetAvailable(
@@ -210,11 +218,25 @@ namespace Wake.Narrative
             GameStateManager state,
             int maximum = 3)
         {
+            return GetAvailable(
+                locationCode,
+                state,
+                ResolveCurrentSceneId(state, null),
+                maximum);
+        }
+
+        public static IReadOnlyList<AmbientBarkRecord> GetAvailable(
+            string locationCode,
+            GameStateManager state,
+            string sceneId,
+            int maximum = 3)
+        {
             string location = locationCode?.Trim().ToUpperInvariant() ?? "";
+            string scene = NormalizeSceneId(sceneId);
             AmbientBarkRecord[] available = Entries
                 .Where(entry =>
                     entry.Location == location &&
-                    Matches(entry.Condition, state))
+                    Matches(entry.Condition, state, scene))
                 .OrderByDescending(entry => ConditionPriority(entry.Condition))
                 .ThenBy(entry => StableOrder(entry.Id, location, state?.Day ?? 1))
                 .ToArray();
@@ -231,7 +253,34 @@ namespace Wake.Narrative
             return result;
         }
 
-        private static bool Matches(string condition, GameStateManager state)
+        public static string ResolveCurrentSceneId(
+            GameStateManager state,
+            string activeSceneId)
+        {
+            string active = NormalizeSceneId(activeSceneId);
+            if (ScenePresenceCatalog.TryGet(active, out _))
+                return active;
+
+            string checkpoint =
+                NormalizeSceneId(state?.DialogueCheckpoint?.activeSceneId);
+            if (ScenePresenceCatalog.TryGet(checkpoint, out _))
+                return checkpoint;
+
+            string next = ProductionSceneUnlockPolicy
+                .FindNextAvailableScene(state);
+            if (ScenePresenceCatalog.TryGet(next, out _))
+                return next;
+
+            return ScenePresenceCatalog.All
+                .LastOrDefault(record =>
+                    state?.HasCompletedScene(record.SceneId) == true)
+                ?.SceneId ?? string.Empty;
+        }
+
+        private static bool Matches(
+            string condition,
+            GameStateManager state,
+            string sceneId)
         {
             int anxiety = state?.PublicAnxiety ?? 15;
             int day = state?.Day ?? 1;
@@ -247,9 +296,11 @@ namespace Wake.Narrative
                 return state?.HasFlag(condition.Substring(5)) == true;
             if (condition.StartsWith("scene="))
             {
-                string scene = condition.Substring(6);
-                return state?.HasCompletedScene(scene) == true ||
-                       state?.IsProductionSceneUnlocked(scene) == true;
+                string required = NormalizeSceneId(condition.Substring(6));
+                return !string.IsNullOrEmpty(sceneId)
+                    ? required == sceneId
+                    : state?.HasCompletedScene(required) == true ||
+                      state?.IsProductionSceneUnlocked(required) == true;
             }
             return false;
         }
@@ -268,6 +319,9 @@ namespace Wake.Narrative
                 return 10;
             return 0;
         }
+
+        private static string NormalizeSceneId(string value) =>
+            value?.Trim().ToUpperInvariant() ?? string.Empty;
 
         private static int StableOrder(string id, string location, int day)
         {

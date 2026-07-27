@@ -50,7 +50,8 @@ namespace Wake.Exploration
             IReadOnlyList<AmbientBarkRecord> barks =
                 AmbientBarkCatalog.GetAvailable(
                     currentLocationCode,
-                    Wake.Core.GameStateManager.Instance);
+                    Wake.Core.GameStateManager.Instance,
+                    DialogueController.Instance?.ActiveProductionSceneId);
             for (int index = 0; index < barks.Count; index++)
             {
                 CreateWorldCharacter(barks[index], index, barks.Count);
