@@ -170,7 +170,8 @@ namespace Wake.UI
                 ingamePanel));
             RegisterModal(EnsureComponent<EvidenceTheoryBoardController>(
                 evidencePanel));
-            EnsureComponent<NarrativeLocationHUDController>(ingamePanel);
+            // Disabled: location banner covers the Evidence/Map nav buttons.
+            // EnsureComponent<NarrativeLocationHUDController>(ingamePanel);
             if (statusHud != null)
             {
                 EnsureComponent<ObjectiveMapHUDController>(statusHud);
