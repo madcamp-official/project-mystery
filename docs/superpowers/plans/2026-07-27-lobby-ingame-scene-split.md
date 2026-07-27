@@ -431,10 +431,13 @@ namespace Wake.UI
 }
 ```
 
-Note: the test's canvas root scale (`0.0056`) is read via
-`titlePanel.root.localScale.y` since `title` is parented directly under the
-canvas RectTransform — this matches the real Lobby Scene hierarchy (Task
-13), where the title panel is a direct child of the World Space `Canvas`.
+Note: `titlePanel.root` returns the topmost `Transform` in the hierarchy
+regardless of nesting depth, so `titlePanel.root.localScale.y` correctly
+resolves to the World Space `Canvas`'s own authored `localScale` (`0.0056`)
+whether `titlePanel` is a direct child of `Canvas` or nested deeper (as it
+is in the real Lobby Scene — `Canvas/StartScene/Title Presentation`, Task
+12). The test above parents `title` directly under `canvasRect` purely for
+setup brevity; the code under test does not depend on that depth.
 
 - [ ] **Step 4: Run test to verify it passes**
 
