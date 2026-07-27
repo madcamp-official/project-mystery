@@ -56,12 +56,25 @@ namespace Wake.Tests.PlayMode
             Assert.That(RequireObject("Evidence").activeInHierarchy, Is.True);
             Assert.That(State.CollectedEvidenceIds, Does.Contain("C-01"));
 
+            State.RecordLocation("PORT");
+            Assert.That(
+                State.CurrentLocationCode,
+                Is.EqualTo("PORT"),
+                "회귀 조건: 저장 위치가 진행 중인 D2-01의 HORIZON과 달라야 합니다.");
+
             yield return ReloadScenePreservingSave();
             Assert.That(GameStateManager.HasSaveData, Is.True);
             yield return ContinueFromVisibleButton();
             Assert.That(Dialogue.ActiveProductionSceneId, Is.EqualTo("D2-01"));
             Assert.That(State.DialogueCheckpoint.activeSceneId,
                 Is.EqualTo("D2-01"));
+            Assert.That(State.CurrentLocationCode, Is.EqualTo("HORIZON"));
+            Assert.That(
+                LocationLoader.Instance.CurrentLocation.LocationCode,
+                Is.EqualTo("HORIZON"));
+            Assert.That(
+                LocationLoader.Instance.CurrentLocation.BackgroundSprite,
+                Is.Not.Null);
             Assert.That(EvidenceInventory.Instance.Contains("C-01"), Is.True);
 
             Dialogue.CancelActiveDialogue();

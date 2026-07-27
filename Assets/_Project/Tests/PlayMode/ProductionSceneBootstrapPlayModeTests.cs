@@ -342,6 +342,12 @@ namespace Wake.Tests.PlayMode
             Assert.That(State.DialogueCheckpoint, Is.Not.Null);
             Assert.That(State.DialogueCheckpoint.lineIndex, Is.EqualTo(1));
 
+            State.RecordLocation("LAUNDRY");
+            Assert.That(
+                State.CurrentLocationCode,
+                Is.EqualTo("LAUNDRY"),
+                "회귀 조건: 저장 위치가 진행 중인 P-01의 PORT와 달라야 합니다.");
+
             yield return ReloadScenePreservingSave();
 
             Assert.That(GameStateManager.HasSaveData, Is.True);
@@ -355,6 +361,9 @@ namespace Wake.Tests.PlayMode
                 Dialogue.ActiveProductionSceneId,
                 Is.EqualTo(OpeningSceneId));
             Assert.That(State.CurrentLocationCode, Is.EqualTo("PORT"));
+            Assert.That(
+                LocationLoader.Instance.CurrentLocation.LocationCode,
+                Is.EqualTo("PORT"));
             Assert.That(State.DialogueCheckpoint, Is.Not.Null);
             Assert.That(State.DialogueCheckpoint.lineIndex, Is.EqualTo(1));
 
