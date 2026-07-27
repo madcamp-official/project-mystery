@@ -95,6 +95,9 @@ namespace Wake.Editor
             ValidatePortraits(items);
             ValidateSerializedReferences(items);
             ValidateTextEncoding(items);
+            foreach (ProductionPreflightDiagnostic diagnostic in
+                     AssetMetaIntegrityValidator.Validate())
+                items.Add(diagnostic);
             AddWarnings(dialogue, items);
             return new ProductionPreflightReport(items);
         }

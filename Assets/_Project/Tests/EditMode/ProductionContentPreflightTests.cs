@@ -61,9 +61,25 @@ namespace Wake.Tests
                 "SCENE_DIALOGUE_SOURCE", "DIALOGUE_SHAPE",
                 "STABLE_ID_DUPLICATE", "LOCATION_ASSET_SET",
                 "EVIDENCE_ASSET_SET", "PORTRAIT_ASSET_SET",
-                "SERIALIZED_REFERENCE", "TEXT_ENCODING"
+                "SERIALIZED_REFERENCE", "TEXT_ENCODING",
+                "ASSET_META_MISSING", "ASSET_META_ORPHAN",
+                "ASSET_META_GUID_MISSING", "ASSET_META_GUID_DUPLICATE",
+                "DEVELOPMENT_PLAN_META"
             };
-            Assert.That(codes.Distinct().Count(), Is.EqualTo(8));
+            Assert.That(codes.Distinct().Count(), Is.EqualTo(13));
+        }
+
+        [Test]
+        public void CurrentProject_HasStableAssetMetadata()
+        {
+            Assert.That(
+                AssetMetaIntegrityValidator.Validate(),
+                Is.Empty);
+            Assert.That(
+                AssetDatabase.AssetPathToGUID(
+                    AssetMetaIntegrityValidator.DevelopmentPlanPath),
+                Is.EqualTo(
+                    AssetMetaIntegrityValidator.DevelopmentPlanGuid));
         }
 
         [Test]
