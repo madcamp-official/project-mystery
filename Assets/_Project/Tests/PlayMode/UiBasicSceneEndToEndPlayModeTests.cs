@@ -93,7 +93,7 @@ namespace Wake.Tests.PlayMode
             Assert.That(State.FinalEndingId,
                 Is.EqualTo(FinalAccusationResolver.BadEndingId));
             Assert.That(RequireObject("StartScene/Continue Btn").activeSelf,
-                Is.True);
+                Is.False);
 
             yield return ContinueFromVisibleButton();
             Assert.That(State.FinalEndingId,

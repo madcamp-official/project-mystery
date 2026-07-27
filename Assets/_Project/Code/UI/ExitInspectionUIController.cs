@@ -90,7 +90,7 @@ namespace Wake.UI
             statusText.text = result switch
             {
                 ExitInspectionResult.Recorded =>
-                    $"✓ {definition.Title} 검사 완료 · {definition.EvidenceId}\n{definition.Finding}",
+                    $"✓ {definition.Title} 검사 완료\n{definition.Finding}",
                 ExitInspectionResult.AlreadyInspected => "이미 검사하고 기록한 출구입니다.",
                 ExitInspectionResult.EvidenceUnavailable => "검사 결과를 증거 상태에 기록하지 못했습니다.",
                 ExitInspectionResult.SessionCompleted => "이미 완료된 출구 검증입니다.",
@@ -177,8 +177,8 @@ namespace Wake.UI
                 button.interactable = !done && !session.IsCompleted;
                 button.image.color = done ? Inspected : Available;
                 Label(button).text = done
-                    ? $"✓ [선택됨 · 검사 완료] {definition.Title} · {definition.EvidenceId}"
-                    : $"○ [검사 가능] {definition.Title} · 확보 예정 {definition.EvidenceId}";
+                    ? $"✓ [선택됨 · 검사 완료] {definition.Title}"
+                    : $"○ [검사 가능] {definition.Title} · 단서 확보 가능";
             }
 
             bool ready = session.Step == total;
@@ -222,7 +222,7 @@ namespace Wake.UI
         {
             string inspections = string.Join(", ", result.MissingInspectionIds.Select(id =>
                 ExitInspectionCatalog.TryGet(id, out var item) ? item.Title : id));
-            string evidence = string.Join(", ", result.MissingEvidenceIds);
+            string evidence = $"단서 {result.MissingEvidenceIds.Count}개";
             return "△ 출구 검증을 아직 완료할 수 없습니다." +
                    (inspections.Length > 0 ? $"\n남은 검사: {inspections}" : string.Empty) +
                    (evidence.Length > 0 ? $"\n누락 증거: {evidence}" : string.Empty);
@@ -233,7 +233,7 @@ namespace Wake.UI
             <= 0 => "힌트를 사용하지 않았습니다.",
             1 => "외벽과 내부 통로를 자유 순서로 하나씩 확인하세요.",
             2 => "외벽은 염분막과 센서, 내부 통로는 먼지의 연속성이 핵심입니다.",
-            _ => "C-03, C-04, C-05를 모두 확보하면 사용된 출구가 없음을 확정할 수 있습니다."
+            _ => "관련 단서를 모두 확보하면 사용된 출구가 없음을 확정할 수 있습니다."
         };
 
         private void BuildUi()

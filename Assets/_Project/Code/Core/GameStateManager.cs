@@ -105,6 +105,11 @@ namespace Wake.Core
 
         public static GameStateManager Instance { get; private set; }
         public static bool HasSaveData => GameStateSaveStore.HasRecoverableData();
+        public static int ActiveSaveSlot => GameStateSaveStore.ActiveSlot;
+        public static bool HasSaveDataInSlot(int slot) =>
+            GameStateSaveStore.HasRecoverableData(slot);
+        public static void SetActiveSaveSlot(int slot) =>
+            GameStateSaveStore.SelectSlot(slot);
 
         [SerializeField] private int startingTrust = DefaultTrust;
         [SerializeField] private int startingPublicAnxiety = 15;
@@ -163,6 +168,12 @@ namespace Wake.Core
             {
                 Debug.LogWarning(loaded.Warning);
             }
+        }
+
+        public void SelectSaveSlot(int slot)
+        {
+            GameStateSaveStore.SelectSlot(slot);
+            ReloadSavedState();
         }
 
         public void StartNewGame()

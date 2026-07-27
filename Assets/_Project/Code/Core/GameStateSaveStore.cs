@@ -43,6 +43,12 @@ namespace Wake.Core
         private const string Format = "UNDER_THE_HORIZON_GAME_STATE";
         private const string LegacyFormat = "THE_WAKE_GAME_STATE";
         private const int SchemaVersion = 2;
+        private static int activeSlot = 1;
+        public static int ActiveSlot => activeSlot;
+        private static string ActivePrimaryKey =>
+            activeSlot == 1 ? PrimaryKey : $"{PrimaryKey}_SLOT_{activeSlot}";
+        private static string ActiveBackupKey => ActivePrimaryKey + "_BACKUP";
+        private static string ActivePendingKey => ActivePrimaryKey + "_PENDING";
         private const string InterruptedWarning = "중단된 저장 작업을 복구했습니다.";
         private const string BackupWarning =
             "저장 데이터가 손상되어 백업본으로 복구했습니다.";
@@ -74,6 +80,20 @@ namespace Wake.Core
             public bool Legacy;
             public string Raw;
             public SaveSource Source;
+        }
+
+        public static void SelectSlot(int slot)
+        {
+            activeSlot = Mathf.Clamp(slot, 1, 3);
+        }
+
+        public static bool HasRecoverableData(int slot)
+        {
+            int previous = activeSlot;
+            SelectSlot(slot);
+            bool result = HasRecoverableData();
+            activeSlot = previous;
+            return result;
         }
 
         public static bool HasRecoverableData() =>
@@ -109,44 +129,50 @@ namespace Wake.Core
         {
             long generation = Math.Max(0, currentGeneration) + 1;
             string pending = Serialize(data, generation);
-            Write(PendingKey, pending);
-            Candidate primary = Read(PrimaryKey, SaveSource.Primary);
+            Write(ActivePendingKey, pending);
+            Candidate primary = Read(ActivePrimaryKey, SaveSource.Primary);
             if (primary != null)
             {
-                Write(BackupKey, primary.Raw);
+                Write(ActiveBackupKey, primary.Raw);
             }
-            else if (!PlayerPrefs.HasKey(PrimaryKey) && currentGeneration == 0)
+            else if (!PlayerPrefs.HasKey(ActivePrimaryKey) && currentGeneration == 0)
             {
-                PlayerPrefs.DeleteKey(BackupKey);
+                PlayerPrefs.DeleteKey(ActiveBackupKey);
                 PlayerPrefs.Save();
             }
-            Write(PrimaryKey, pending);
-            PlayerPrefs.DeleteKey(PendingKey);
-            ClearLegacySlots();
+            Write(ActivePrimaryKey, pending);
+            PlayerPrefs.DeleteKey(ActivePendingKey);
+            if (activeSlot == 1)
+            {
+                ClearLegacySlots();
+            }
             PlayerPrefs.Save();
             return generation;
         }
 
         public static void ClearAll()
         {
-            PlayerPrefs.DeleteKey(PrimaryKey);
-            PlayerPrefs.DeleteKey(BackupKey);
-            PlayerPrefs.DeleteKey(PendingKey);
-            ClearLegacySlots();
+            PlayerPrefs.DeleteKey(ActivePrimaryKey);
+            PlayerPrefs.DeleteKey(ActiveBackupKey);
+            PlayerPrefs.DeleteKey(ActivePendingKey);
+            if (activeSlot == 1)
+            {
+                ClearLegacySlots();
+            }
             PlayerPrefs.Save();
         }
         private static Candidate SelectCandidate(
             out bool activeCorruption,
             out bool pendingPresent)
         {
-            bool primaryPresent = PlayerPrefs.HasKey(PrimaryKey);
-            pendingPresent = PlayerPrefs.HasKey(PendingKey);
-            bool backupPresent = PlayerPrefs.HasKey(BackupKey);
-            Candidate primary = Read(PrimaryKey, SaveSource.Primary);
-            Candidate pending = Read(PendingKey, SaveSource.Pending);
+            bool primaryPresent = PlayerPrefs.HasKey(ActivePrimaryKey);
+            pendingPresent = PlayerPrefs.HasKey(ActivePendingKey);
+            bool backupPresent = PlayerPrefs.HasKey(ActiveBackupKey);
+            Candidate primary = Read(ActivePrimaryKey, SaveSource.Primary);
+            Candidate pending = Read(ActivePendingKey, SaveSource.Pending);
             bool backupEligible = primaryPresent || pending != null;
             Candidate backup = backupEligible
-                ? Read(BackupKey, SaveSource.Backup)
+                ? Read(ActiveBackupKey, SaveSource.Backup)
                 : null;
             activeCorruption =
                 (primaryPresent && primary == null) ||
@@ -158,6 +184,10 @@ namespace Wake.Core
                 return current;
             }
 
+            if (activeSlot != 1)
+            {
+                return null;
+            }
             Candidate legacyPrimary =
                 ReadLegacy(LegacyPrimaryKey, SaveSource.LegacyPrimary);
             Candidate legacyPending =

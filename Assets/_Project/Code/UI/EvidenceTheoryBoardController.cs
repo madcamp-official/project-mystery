@@ -76,7 +76,7 @@ namespace Wake.UI
             EvidenceTheoryState.UnreliableEvidence => "증거 훼손으로 사용 불가",
             _ => view.MissingEvidenceIds.Count == 0
                 ? "증거 부족"
-                : $"필요 증거: {string.Join(", ", view.MissingEvidenceIds)}"
+                : $"필요한 단서 {view.MissingEvidenceIds.Count}개를 더 찾아야 합니다."
         };
 
         public static string ButtonLabel(EvidenceTheoryView view) =>

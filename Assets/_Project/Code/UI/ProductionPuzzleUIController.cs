@@ -84,7 +84,7 @@ namespace Wake.UI
             if (hintLevel == 2)
             {
                 return "관련 증거: " +
-                       string.Join(", ", definition.RequiredEvidenceIds);
+                       $"필요한 단서 {definition.RequiredEvidenceIds.Count}개";
             }
 
             return "정답과 관계없는 선택은 비활성화됩니다.";

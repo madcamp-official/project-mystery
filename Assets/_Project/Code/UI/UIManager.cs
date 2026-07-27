@@ -36,6 +36,7 @@ namespace Wake.UI
         private GameObject settingsPopup;
         private GameObject statusHud;
         private GameObject continueButton;
+        private SaveSlotSelectionController saveSlotSelection;
         private readonly List<IRuntimeModalController> runtimeModals = new();
 
         public bool IsInitialized { get; private set; }
@@ -115,7 +116,7 @@ namespace Wake.UI
                 BindButton(
                     canvas,
                     "StartScene/Start Game Btn",
-                    OnNewGameClicked) &
+                    OpenSaveSlots) &
                 BindButton(
                     canvas,
                     "StartScene/Settings Btn",
@@ -138,6 +139,8 @@ namespace Wake.UI
                 canvas.Find("StartScene/Start Game Btn"));
             FeatureTypography.ApplyMenuAction(
                 canvas.Find("StartScene/Continue Btn"));
+            SetStartButtonLabel(canvas.Find("StartScene/Start Game Btn"));
+            continueButton.SetActive(false);
 
             bool firstInitialization = !IsInitialized;
             IsInitialized = true;
@@ -169,6 +172,11 @@ namespace Wake.UI
             RegisterModal(EnsureComponent<EvidenceTheoryBoardController>(
                 evidencePanel));
             EnsureComponent<NarrativeLocationHUDController>(ingamePanel);
+            EnsureComponent<EvidenceNotebookTabsController>(evidencePanel);
+            EnsureComponent<RuntimeUiOverhaulController>(gameObject);
+            EnsureComponent<EvidenceAcquisitionNoticeController>(gameObject);
+            saveSlotSelection =
+                EnsureComponent<SaveSlotSelectionController>(startScenePanel);
             if (statusHud != null)
             {
                 EnsureComponent<ObjectiveMapHUDController>(statusHud);
@@ -226,8 +234,23 @@ namespace Wake.UI
             return true;
         }
 
-        private void OnNewGameClicked()
+        private static void SetStartButtonLabel(Transform button)
         {
+            TMP_Text label = button?.GetComponentInChildren<TMP_Text>(true);
+            if (label != null)
+            {
+                label.text = "시작하기";
+            }
+        }
+
+        private void OpenSaveSlots()
+        {
+            saveSlotSelection?.Open();
+        }
+
+        public void StartNewGameInSlot(int slot)
+        {
+            GameStateManager.Instance?.SelectSaveSlot(slot);
             GameFlow.Instance?.ResetSession();
             GameStateManager.Instance?.StartNewGame();
             EvidenceInventory.Instance?.Clear();
@@ -235,11 +258,15 @@ namespace Wake.UI
             GameFlow.Instance?.BeginGame();
         }
 
-        private void OnContinueClicked()
+        public void ContinueGameInSlot(int slot)
         {
+            GameStateManager.Instance?.SelectSaveSlot(slot);
             ShowIngame();
             GameFlow.Instance?.ResumeGame();
         }
+
+        private void OnNewGameClicked() => StartNewGameInSlot(1);
+        private void OnContinueClicked() => ContinueGameInSlot(1);
 
         public void ShowStartScene()
         {
@@ -251,10 +278,7 @@ namespace Wake.UI
             DialogueController.Instance?.CancelActiveDialogue();
             GameFlow.Instance?.ResetSession();
             EvidenceInventory.Instance?.Clear();
-            if (continueButton != null)
-            {
-                continueButton.SetActive(GameStateManager.HasSaveData);
-            }
+            continueButton?.SetActive(false);
             SetActivePanel(startScenePanel, UiPrimaryPanel.Start);
         }
 

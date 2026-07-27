@@ -1,0 +1,177 @@
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+using Wake.Core;
+using Wake.Narrative;
+
+namespace Wake.UI
+{
+    [DisallowMultipleComponent]
+    public sealed class EvidenceNotebookTabsController : MonoBehaviour
+    {
+        private static readonly string[] EvidenceContentNames =
+        {
+            "Evidences", "Image", "Text (TMP)", "Description",
+            "Next", "Next (1)", "Turn", "Turn (1)", "Turn (2)", "Turn (3)"
+        };
+
+        private GameObject tabs;
+        private GameObject characters;
+        private bool built;
+
+        private void Start()
+        {
+            Build();
+            ShowEvidence();
+        }
+
+        private void OnEnable()
+        {
+            if (built)
+            {
+                ShowEvidence();
+            }
+        }
+
+        private void Build()
+        {
+            if (built)
+            {
+                return;
+            }
+            built = true;
+            RectTransform root = transform as RectTransform;
+            tabs = new GameObject("Notebook Tabs", typeof(RectTransform));
+            tabs.transform.SetParent(root, false);
+            RectTransform tabsRect = tabs.GetComponent<RectTransform>();
+            tabsRect.anchorMin = tabsRect.anchorMax = new Vector2(.5f, 1f);
+            tabsRect.anchoredPosition = new Vector2(0f, -28f);
+            tabsRect.sizeDelta = new Vector2(610f, 62f);
+
+            Button evidence = SaveSlotSelectionController.MakeButton(
+                tabsRect, "Evidence Tab", new Vector2(-155f, 0f), new Vector2(290f, 54f));
+            SaveSlotSelectionController.MakeText(
+                evidence.transform as RectTransform, "증거", 24f,
+                Vector2.zero, new Vector2(250f, 44f));
+            evidence.onClick.AddListener(ShowEvidence);
+            Button people = SaveSlotSelectionController.MakeButton(
+                tabsRect, "Characters Tab", new Vector2(155f, 0f), new Vector2(290f, 54f));
+            SaveSlotSelectionController.MakeText(
+                people.transform as RectTransform, "인물 · 관계", 24f,
+                Vector2.zero, new Vector2(250f, 44f));
+            people.onClick.AddListener(ShowCharacters);
+
+            BuildCharacters(root);
+        }
+
+        private void BuildCharacters(RectTransform root)
+        {
+            characters = SaveSlotSelectionController.Panel(
+                root, "Characters And Relationships", new Color32(5, 15, 29, 235));
+            RectTransform panel = characters.GetComponent<RectTransform>();
+            panel.anchorMin = new Vector2(.08f, .08f);
+            panel.anchorMax = new Vector2(.92f, .86f);
+            panel.offsetMin = panel.offsetMax = Vector2.zero;
+
+            GameObject viewportObject = new(
+                "Viewport", typeof(RectTransform), typeof(Image),
+                typeof(RectMask2D), typeof(ScrollRect));
+            viewportObject.transform.SetParent(panel, false);
+            RectTransform viewport = viewportObject.GetComponent<RectTransform>();
+            SaveSlotSelectionController.Stretch(viewport);
+            viewport.offsetMin = new Vector2(25f, 25f);
+            viewport.offsetMax = new Vector2(-25f, -25f);
+            viewportObject.GetComponent<Image>().color = new Color(0, 0, 0, .08f);
+
+            GameObject contentObject = new("Content", typeof(RectTransform));
+            contentObject.transform.SetParent(viewport, false);
+            RectTransform content = contentObject.GetComponent<RectTransform>();
+            content.anchorMin = new Vector2(0f, 1f);
+            content.anchorMax = new Vector2(1f, 1f);
+            content.pivot = new Vector2(.5f, 1f);
+            content.sizeDelta = new Vector2(0f, 1020f);
+            ScrollRect scroll = viewportObject.GetComponent<ScrollRect>();
+            scroll.viewport = viewport;
+            scroll.content = content;
+            scroll.horizontal = false;
+            scroll.vertical = true;
+
+            IReadOnlyList<DialoguePortraitDefinition> people =
+                DialoguePortraitCatalog.All;
+            int visibleIndex = 0;
+            foreach (DialoguePortraitDefinition person in people)
+            {
+                if (!person.UsesExpressionSprites)
+                {
+                    continue;
+                }
+                CreatePersonCard(content, person, visibleIndex++);
+            }
+        }
+
+        private static void CreatePersonCard(
+            RectTransform content,
+            DialoguePortraitDefinition person,
+            int index)
+        {
+            int column = index % 3;
+            int row = index / 3;
+            GameObject card = SaveSlotSelectionController.Panel(
+                content, person.CharacterId, new Color32(14, 34, 56, 245));
+            RectTransform rect = card.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(.5f, 1f);
+            rect.sizeDelta = new Vector2(300f, 300f);
+            rect.anchoredPosition =
+                new Vector2((column - 1) * 330f, -165f - row * 325f);
+            card.AddComponent<Outline>().effectColor = new Color32(183, 137, 60, 255);
+
+            DialoguePortraitAsset portrait =
+                DialoguePortraitCatalog.Resolve(person.CharacterId, PortraitEmotion.Neutral);
+            if (portrait.Found)
+            {
+                GameObject imageObject = new(
+                    "Portrait", typeof(RectTransform), typeof(RawImage));
+                imageObject.transform.SetParent(rect, false);
+                RectTransform imageRect = imageObject.GetComponent<RectTransform>();
+                imageRect.anchorMin = new Vector2(.15f, .30f);
+                imageRect.anchorMax = new Vector2(.85f, .94f);
+                imageRect.offsetMin = imageRect.offsetMax = Vector2.zero;
+                RawImage image = imageObject.GetComponent<RawImage>();
+                image.texture = portrait.Texture;
+                image.uvRect = portrait.UvRect;
+                image.raycastTarget = false;
+            }
+            int trust = GameStateManager.Instance?.GetTrust(person.CharacterId) ??
+                        GameStateManager.DefaultTrust;
+            SaveSlotSelectionController.MakeText(
+                rect,
+                $"{person.DisplayName}\n관계 · 신뢰 {trust}/{GameStateManager.MaxTrust}",
+                21f, new Vector2(0f, -115f), new Vector2(270f, 65f));
+        }
+
+        private void ShowEvidence()
+        {
+            SetEvidenceContent(true);
+            characters?.SetActive(false);
+        }
+
+        private void ShowCharacters()
+        {
+            SetEvidenceContent(false);
+            characters?.SetActive(true);
+        }
+
+        private void SetEvidenceContent(bool visible)
+        {
+            foreach (string childName in EvidenceContentNames)
+            {
+                Transform child = transform.Find(childName);
+                if (child != null)
+                {
+                    child.gameObject.SetActive(visible);
+                }
+            }
+        }
+    }
+}
