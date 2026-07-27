@@ -53,24 +53,27 @@ namespace Wake.Core
                 EvidenceInventory.Instance?.RestoreFromIds(state.CollectedEvidenceIds);
             }
 
-            LocationDefinition savedLocation = state != null
-                ? locationGraph.FindByCode(state.CurrentLocationCode)
-                : null;
-            LocationDefinition target = savedLocation != null ? savedLocation : locationGraph.StartingLocation;
+            ProductionSceneDirector director = CreateSceneDirector();
+            string storySceneId = GameResumeLocationPolicy.ResolveStorySceneId(
+                state,
+                director?.FindNextAvailableScene());
+            LocationDefinition target = GameResumeLocationPolicy.ResolveLocation(
+                locationGraph,
+                state,
+                storySceneId);
 
             if (target == null || LocationLoader.Instance == null)
             {
                 return;
             }
 
-            if (!LocationLoader.Instance.TryLoadLocation(target, out _) &&
-                target != locationGraph.StartingLocation &&
-                locationGraph.StartingLocation != null)
-            {
-                LocationLoader.Instance.TryLoadLocation(locationGraph.StartingLocation, out _);
-            }
+            TryLoadLocationWithStartingFallback(target);
 
-            bool resumed = CreateSceneDirector()?.ResumeGame() ?? false;
+            bool resumed = director?.ResumeGame() ?? false;
+            if (resumed)
+            {
+                AlignLocationWithActiveStoryScene();
+            }
             if (!resumed && !string.IsNullOrEmpty(state?.FinalEndingId))
             {
                 FindFirstObjectByType<Wake.UI.ProductionEndingUIController>()
@@ -91,6 +94,36 @@ namespace Wake.Core
                     GameStateManager.Instance,
                     DialogueController.Instance)
                 : null;
+        }
+
+        private void AlignLocationWithActiveStoryScene()
+        {
+            string activeSceneId =
+                DialogueController.Instance?.ActiveProductionSceneId;
+            LocationDefinition activeSceneLocation =
+                GameResumeLocationPolicy.ResolveLocation(
+                    locationGraph,
+                    GameStateManager.Instance,
+                    activeSceneId);
+            if (activeSceneLocation != null)
+            {
+                TryLoadLocationWithStartingFallback(activeSceneLocation);
+            }
+        }
+
+        private void TryLoadLocationWithStartingFallback(
+            LocationDefinition target)
+        {
+            if (LocationLoader.Instance.TryLoadLocation(target, out _) ||
+                target == locationGraph.StartingLocation ||
+                locationGraph.StartingLocation == null)
+            {
+                return;
+            }
+
+            LocationLoader.Instance.TryLoadLocation(
+                locationGraph.StartingLocation,
+                out _);
         }
     }
 }
