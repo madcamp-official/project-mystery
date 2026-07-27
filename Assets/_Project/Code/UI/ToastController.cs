@@ -5,6 +5,12 @@ using UnityEngine.UI;
 
 namespace Wake.UI
 {
+    public enum ToastTypographyStyle
+    {
+        Normal,
+        Alert
+    }
+
     public class ToastController : MonoBehaviour
     {
         public static ToastController Instance { get; private set; }
@@ -57,16 +63,39 @@ namespace Wake.UI
 
         public void Show(string message)
         {
+            Show(message, ToastTypographyStyle.Normal);
+        }
+
+        public void ShowAlert(string message)
+        {
+            Show(message, ToastTypographyStyle.Alert);
+        }
+
+        public void Show(
+            string message,
+            ToastTypographyStyle style)
+        {
             if (activeRoutine != null)
             {
                 StopCoroutine(activeRoutine);
             }
-            activeRoutine = StartCoroutine(ShowRoutine(message));
+            activeRoutine = StartCoroutine(ShowRoutine(message, style));
         }
 
-        private IEnumerator ShowRoutine(string message)
+        public static TypographyRole ResolveRole(
+            ToastTypographyStyle style)
+        {
+            return style == ToastTypographyStyle.Alert
+                ? TypographyRole.SpecialAlert
+                : TypographyRole.Body;
+        }
+
+        private IEnumerator ShowRoutine(
+            string message,
+            ToastTypographyStyle style)
         {
             toastText.text = message;
+            TypographyService.Apply(toastText, ResolveRole(style));
             toastRoot.SetActive(true);
             yield return new WaitForSeconds(displaySeconds);
             toastRoot.SetActive(false);

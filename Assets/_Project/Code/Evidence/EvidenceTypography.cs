@@ -46,6 +46,23 @@ namespace Wake.Evidence
                 TypographyRole.TechnicalStrong);
         }
 
+        public static bool ApplyDetail(TMP_Text label, string category)
+        {
+            return TypographyService.Apply(
+                label,
+                ResolveDetailRole(category));
+        }
+
+        public static TypographyRole ResolveDetailRole(string category)
+        {
+            return string.Equals(
+                    category,
+                    "invitation",
+                    System.StringComparison.OrdinalIgnoreCase)
+                ? TypographyRole.Handwritten
+                : TypographyRole.BodyRegular;
+        }
+
         private static void ApplyOverride(
             Transform root,
             TMP_Text label,
