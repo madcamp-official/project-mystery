@@ -8,10 +8,25 @@ namespace Wake.Exploration
     [DisallowMultipleComponent]
     public sealed class AmbientCharacterHotspotOverlay : MonoBehaviour
     {
+        private sealed class WorldCharacterView
+        {
+            public string Speaker;
+            public GameObject Target;
+            public RectTransform Rect;
+            public RawImage Image;
+            public Shadow SilhouetteShadow;
+            public Button Button;
+            public GameObject GroundShadowObject;
+            public RectTransform GroundShadowRect;
+            public RawImage GroundShadowImage;
+            public float CellAspectRatio;
+        }
+
         private static readonly Dictionary<string, Texture2D> TextureCache =
             new();
+        private static Texture2D groundShadowTexture;
 
-        private readonly List<GameObject> spawned = new();
+        private readonly List<WorldCharacterView> spawned = new();
         private RectTransform contentRect;
         private Vector2 lastContentSize;
         private string currentLocationCode = string.Empty;
@@ -57,6 +72,7 @@ namespace Wake.Exploration
             if (texture == null)
                 return;
 
+            GameObject groundShadow = CreateGroundShadow(bark);
             GameObject target = new(
                 $"AmbientCharacter_{bark.Speaker}",
                 typeof(RectTransform),
@@ -74,33 +90,34 @@ namespace Wake.Exploration
             image.raycastTarget = true;
 
             Shadow shadow = target.GetComponent<Shadow>();
-            shadow.effectColor = new Color(0f, 0f, 0f, 0.42f);
-            shadow.effectDistance = new Vector2(10f, -8f);
             shadow.useGraphicAlpha = true;
 
             Button button = target.GetComponent<Button>();
             button.targetGraphic = image;
             button.transition = Selectable.Transition.ColorTint;
-            button.colors =
-                AmbientInteractionPresentation.CharacterSpriteColors();
             button.onClick.AddListener(() =>
                 DialogueController.Instance?.StartAmbientLine(
                     bark.Speaker,
                     bark.Text,
                     bark.Emotion));
 
-            AmbientWorldPlacement placement =
-                AmbientWorldCharacterCatalog.GetPlacement(
-                    currentLocationCode,
-                    index,
-                    count);
             target.name += $"_{index}_{bark.Id}";
-            ApplyPlacement(
-                target.GetComponent<RectTransform>(),
-                image,
-                placement,
-                asset.CellAspectRatio);
-            spawned.Add(target);
+            var view = new WorldCharacterView
+            {
+                Speaker = bark.Speaker,
+                Target = target,
+                Rect = target.GetComponent<RectTransform>(),
+                Image = image,
+                SilhouetteShadow = shadow,
+                Button = button,
+                GroundShadowObject = groundShadow,
+                GroundShadowRect =
+                    groundShadow.GetComponent<RectTransform>(),
+                GroundShadowImage = groundShadow.GetComponent<RawImage>(),
+                CellAspectRatio = asset.CellAspectRatio
+            };
+            spawned.Add(view);
+            ApplyStage(view, index, count);
         }
 
         private void LateUpdate()
@@ -124,53 +141,96 @@ namespace Wake.Exploration
 
             for (int index = 0; index < spawned.Count; index++)
             {
-                GameObject target = spawned[index];
-                if (target == null)
+                WorldCharacterView view = spawned[index];
+                if (view?.Target == null)
                     continue;
 
-                RawImage image = target.GetComponent<RawImage>();
-                AmbientWorldPlacement placement =
-                    AmbientWorldCharacterCatalog.GetPlacement(
-                        currentLocationCode,
-                        index,
-                        spawned.Count);
-                float cellAspect =
-                    Mathf.Abs(image.uvRect.width) *
-                    image.texture.width /
-                    (image.uvRect.height * image.texture.height);
-                ApplyPlacement(
-                    target.GetComponent<RectTransform>(),
-                    image,
-                    placement,
-                    cellAspect);
+                ApplyStage(view, index, spawned.Count);
             }
 
             lastContentSize = contentSize;
         }
 
-        private void ApplyPlacement(
-            RectTransform rect,
-            RawImage image,
-            AmbientWorldPlacement placement,
-            float aspectRatio)
+        private void ApplyStage(
+            WorldCharacterView view,
+            int index,
+            int count)
         {
-            Vector2 anchor = placement.Anchor;
-            rect.anchorMin = anchor;
-            rect.anchorMax = anchor;
-            rect.pivot = new Vector2(0.5f, 0f);
-            rect.anchoredPosition = Vector2.zero;
+            AmbientWorldStageProfile stage;
+            if (!AmbientWorldStageCatalog.TryGet(
+                    currentLocationCode,
+                    view.Speaker,
+                    out stage))
+            {
+                AmbientWorldPlacement fallback =
+                    AmbientWorldCharacterCatalog.GetPlacement(
+                        currentLocationCode,
+                        index,
+                        count);
+                stage = new AmbientWorldStageProfile(
+                    fallback.Anchor,
+                    fallback.NormalizedHeight,
+                    fallback.Mirror,
+                    Color.white,
+                    new Vector2(0.012f, -0.008f),
+                    0.35f,
+                    0.62f);
+            }
 
-            float height = contentRect.rect.height *
-                           placement.NormalizedHeight;
-            rect.sizeDelta = new Vector2(height * aspectRatio, height);
+            Vector2 anchor = stage.Anchor;
+            view.Rect.anchorMin = anchor;
+            view.Rect.anchorMax = anchor;
+            view.Rect.pivot = new Vector2(0.5f, 0f);
+            view.Rect.anchoredPosition = Vector2.zero;
 
-            Rect uv = image.uvRect;
+            float height =
+                contentRect.rect.height * stage.NormalizedHeight;
+            view.Rect.sizeDelta =
+                new Vector2(height * view.CellAspectRatio, height);
+
+            Rect uv = view.Image.uvRect;
             float width = Mathf.Abs(uv.width);
             float baseX = uv.width < 0f ? uv.x + uv.width : uv.x;
-            image.uvRect = placement.Mirror
+            view.Image.uvRect = stage.Mirror
                 ? new Rect(baseX + width, uv.y, -width, uv.height)
-                : new Rect(
-                    baseX, uv.y, width, uv.height);
+                : new Rect(baseX, uv.y, width, uv.height);
+            view.Image.color = stage.LightTint;
+            view.Button.colors =
+                AmbientInteractionPresentation.CharacterSpriteColors(
+                    stage.LightTint);
+
+            Vector2 contentSize = contentRect.rect.size;
+            view.SilhouetteShadow.effectColor =
+                new Color(0f, 0f, 0f, stage.ShadowOpacity);
+            view.SilhouetteShadow.effectDistance = new Vector2(
+                stage.ShadowDirection.x * contentSize.x,
+                stage.ShadowDirection.y * contentSize.y);
+
+            view.GroundShadowRect.anchorMin = anchor;
+            view.GroundShadowRect.anchorMax = anchor;
+            view.GroundShadowRect.pivot = new Vector2(0.5f, 0.5f);
+            view.GroundShadowRect.anchoredPosition = new Vector2(
+                stage.ShadowDirection.x * contentSize.x * 0.3f,
+                height * 0.008f);
+            view.GroundShadowRect.sizeDelta = new Vector2(
+                height * view.CellAspectRatio * stage.GroundShadowScale,
+                Mathf.Max(8f, height * 0.045f));
+            view.GroundShadowImage.color =
+                new Color(0f, 0f, 0f, stage.ShadowOpacity * 0.72f);
+        }
+
+        private GameObject CreateGroundShadow(AmbientBarkRecord bark)
+        {
+            GameObject shadow = new(
+                $"AmbientGroundShadow_{bark.Speaker}_{bark.Id}",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(RawImage));
+            shadow.transform.SetParent(contentRect, false);
+            RawImage image = shadow.GetComponent<RawImage>();
+            image.texture = GetGroundShadowTexture();
+            image.raycastTarget = false;
+            return shadow;
         }
 
         private static Texture2D LoadTexture(string resourcePath)
@@ -187,12 +247,54 @@ namespace Wake.Exploration
             return texture;
         }
 
+        private static Texture2D GetGroundShadowTexture()
+        {
+            if (groundShadowTexture != null)
+                return groundShadowTexture;
+
+            const int width = 96;
+            const int height = 32;
+            var texture = new Texture2D(
+                width,
+                height,
+                TextureFormat.RGBA32,
+                false)
+            {
+                name = "Ambient Ground Shadow",
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Bilinear,
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            var pixels = new Color32[width * height];
+            for (int y = 0; y < height; y++)
+            {
+                float ny = (y + 0.5f) / height * 2f - 1f;
+                for (int x = 0; x < width; x++)
+                {
+                    float nx = (x + 0.5f) / width * 2f - 1f;
+                    float distance = nx * nx + ny * ny;
+                    byte alpha = (byte)Mathf.RoundToInt(
+                        Mathf.Clamp01(1f - distance) *
+                        Mathf.Clamp01(1f - distance) *
+                        255f);
+                    pixels[y * width + x] =
+                        new Color32(255, 255, 255, alpha);
+                }
+            }
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            groundShadowTexture = texture;
+            return groundShadowTexture;
+        }
+
         private void Clear()
         {
-            foreach (GameObject target in spawned)
+            foreach (WorldCharacterView view in spawned)
             {
-                if (target != null)
-                    Destroy(target);
+                if (view?.Target != null)
+                    Destroy(view.Target);
+                if (view?.GroundShadowObject != null)
+                    Destroy(view.GroundShadowObject);
             }
             spawned.Clear();
         }

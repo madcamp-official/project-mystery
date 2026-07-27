@@ -273,7 +273,7 @@ namespace Wake.Exploration
             target.GetComponent<Image>().color = Color.white;
 
             Button button = target.GetComponent<Button>();
-            button.colors = AmbientInteractionPresentation.CharacterColors();
+            button.colors = AmbientInteractionPresentation.PanelButtonColors();
             button.onClick.AddListener(Close);
 
             GameObject labelObject = new(
