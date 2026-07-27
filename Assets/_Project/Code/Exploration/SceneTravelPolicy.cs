@@ -14,6 +14,7 @@ namespace Wake.Exploration
         LocationVisualMissing,
         SceneNotUnlocked,
         PrerequisiteSceneIncomplete,
+        BoardingSequenceIncomplete,
         RestrictedByPublicAnxiety,
         DialogueUnavailable,
         LocationLoadFailed
@@ -56,6 +57,8 @@ namespace Wake.Exploration
 
     public static class SceneTravelPolicy
     {
+        public const string BoardingCompleteSceneId = "P-03";
+
         // Structure Map crew/service/technical spaces. Passenger spaces are intentionally absent.
         private static readonly HashSet<string> RestrictedLocationCodes =
             new(StringComparer.Ordinal)
@@ -152,6 +155,54 @@ namespace Wake.Exploration
             }
 
             return SceneTravelResult.Allowed(scene, location);
+        }
+
+        public static SceneTravelResult EvaluateFreeTravel(
+            LocationDefinition location,
+            IEnumerable<string> completedSceneIds,
+            int publicAnxiety)
+        {
+            SceneTravelResult locationResult =
+                EvaluateLocation(location, publicAnxiety);
+            if (!locationResult.IsAllowed)
+            {
+                return locationResult;
+            }
+
+            var completed = new HashSet<string>(
+                (completedSceneIds ?? Array.Empty<string>())
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Select(value => value.Trim().ToUpperInvariant()),
+                StringComparer.Ordinal);
+            if (CanReachDuringBoarding(location.LocationCode, completed))
+            {
+                return locationResult;
+            }
+
+            return SceneTravelResult.Denied(
+                SceneAccessDenialReason.BoardingSequenceIncomplete,
+                "Complete P-01, P-02, and P-03 before using free travel.",
+                location: location);
+        }
+
+        private static bool CanReachDuringBoarding(
+            string locationCode,
+            HashSet<string> completed)
+        {
+            if (completed.Contains(BoardingCompleteSceneId))
+            {
+                return true;
+            }
+
+            return locationCode switch
+            {
+                "PORT" => true,
+                "GANGWAY" => completed.Contains("P-01"),
+                "RICHARD_SUITE" =>
+                    completed.Contains("P-01") &&
+                    completed.Contains("P-02"),
+                _ => false
+            };
         }
     }
 }

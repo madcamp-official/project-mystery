@@ -77,6 +77,60 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void Prologue_UnlocksGangwayThenSuiteBeforeFreeTravel()
+        {
+            ProductionMapViewModel afterPort = ProductionMapViewModel.Create(
+                graph,
+                new[] { "P-01" },
+                15,
+                "",
+                new[] { "P-02" });
+            Assert.That(
+                afterPort.Entries.Single(
+                    entry => entry.Spec.Code == "GANGWAY").Status,
+                Is.EqualTo(ProductionMapEntryStatus.Available));
+            ProductionMapEntry laundryBeforeBoarding =
+                afterPort.Entries.Single(
+                    entry => entry.Spec.Code == "LAUNDRY");
+            Assert.That(
+                laundryBeforeBoarding.Status,
+                Is.EqualTo(ProductionMapEntryStatus.Locked));
+            Assert.That(
+                laundryBeforeBoarding.DenialReason,
+                Is.EqualTo(
+                    SceneAccessDenialReason.BoardingSequenceIncomplete));
+            Assert.That(
+                laundryBeforeBoarding.StatusLabel,
+                Is.EqualTo("승선 완료 후 이동 가능"));
+
+            ProductionMapViewModel afterGangway =
+                ProductionMapViewModel.Create(
+                    graph,
+                    new[] { "P-01", "P-02" },
+                    15,
+                    "",
+                    new[] { "P-03" });
+            Assert.That(
+                afterGangway.Entries.Single(
+                    entry => entry.Spec.Code == "RICHARD_SUITE").Status,
+                Is.EqualTo(ProductionMapEntryStatus.Available));
+            Assert.That(
+                afterGangway.Entries.Single(
+                    entry => entry.Spec.Code == "LAUNDRY").Status,
+                Is.EqualTo(ProductionMapEntryStatus.Locked));
+
+            ProductionMapViewModel afterBoarding =
+                ProductionMapViewModel.Create(
+                    graph,
+                    new[] { "P-01", "P-02", "P-03" },
+                    15);
+            Assert.That(
+                afterBoarding.Entries.Single(
+                    entry => entry.Spec.Code == "LAUNDRY").Status,
+                Is.EqualTo(ProductionMapEntryStatus.LocationOnly));
+        }
+
+        [Test]
         public void RestrictedTechnicalLocation_ShowsAnxietyClosure()
         {
             string[] completed = ProductionSceneCatalog.All

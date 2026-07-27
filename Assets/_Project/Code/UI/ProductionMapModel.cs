@@ -63,6 +63,8 @@ namespace Wake.UI
                     $"{SceneId} · 선행 장면 필요",
                 SceneAccessDenialReason.SceneNotUnlocked =>
                     $"{SceneId} · 선행 장면 필요",
+                SceneAccessDenialReason.BoardingSequenceIncomplete =>
+                    "승선 완료 후 이동 가능",
                 SceneAccessDenialReason.RestrictedByPublicAnxiety =>
                     $"{SceneId} · 승객 불안으로 폐쇄",
                 SceneAccessDenialReason.LocationVisualMissing =>
@@ -175,7 +177,10 @@ namespace Wake.UI
                 if (target == null)
                 {
                     SceneTravelResult locationResult =
-                        SceneTravelPolicy.EvaluateLocation(location, publicAnxiety);
+                        SceneTravelPolicy.EvaluateFreeTravel(
+                            location,
+                            completed,
+                            publicAnxiety);
                     entries.Add(new ProductionMapEntry(
                         spec,
                         location,
