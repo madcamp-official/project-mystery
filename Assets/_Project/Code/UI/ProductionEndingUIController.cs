@@ -141,6 +141,7 @@ namespace Wake.UI
         {
             Close();
             UIManager.Instance?.ShowStartScene();
+            IngameUIManager.Instance?.ReturnToLobby();
         }
 
         private TMP_Text MakeText(
