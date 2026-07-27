@@ -134,12 +134,10 @@ namespace Wake.UI
                 return false;
             }
 
-            TMP_FontAsset koreanFont = StatusHUDController.RuntimeKoreanFont;
-            if (koreanFont != null)
-            {
-                ApplyFont(canvas.Find("StartScene/Start Game Btn"), koreanFont);
-                ApplyFont(canvas.Find("StartScene/Continue Btn"), koreanFont);
-            }
+            FeatureTypography.ApplyMenuAction(
+                canvas.Find("StartScene/Start Game Btn"));
+            FeatureTypography.ApplyMenuAction(
+                canvas.Find("StartScene/Continue Btn"));
 
             bool firstInitialization = !IsInitialized;
             IsInitialized = true;
@@ -227,16 +225,6 @@ namespace Wake.UI
             button.onClick.RemoveListener(action);
             button.onClick.AddListener(action);
             return true;
-        }
-
-        private static void ApplyFont(Transform target, TMP_FontAsset font)
-        {
-            TMP_Text label = target?.GetComponentInChildren<TMP_Text>();
-            if (label != null)
-            {
-                label.font = font;
-                label.SetAllDirty();
-            }
         }
 
         private void OnNewGameClicked()

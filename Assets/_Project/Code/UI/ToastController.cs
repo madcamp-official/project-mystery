@@ -56,7 +56,7 @@ namespace Wake.UI
             toastText.alignment = TextAlignmentOptions.Center;
             toastText.color = Color.white;
             toastText.fontSize = 22;
-            toastText.font = StatusHUDController.RuntimeKoreanFont;
+            TypographyService.Apply(toastText, TypographyRole.Body);
 
             toastRoot.SetActive(false);
         }

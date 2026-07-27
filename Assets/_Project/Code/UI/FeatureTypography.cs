@@ -37,6 +37,27 @@ namespace Wake.UI
             return count;
         }
 
+        public static int ApplyTheoryBoard(
+            Transform root,
+            TMP_Text title,
+            TMP_Text progress,
+            TMP_Text status)
+        {
+            int count = TypographyService.ApplyRecursively(
+                root,
+                TypographyRole.Choice);
+            Override(root, title, TypographyRole.HeadingStrong, ref count);
+            Override(root, progress, TypographyRole.Technical, ref count);
+            Override(root, status, TypographyRole.BodyRegular, ref count);
+            return count;
+        }
+
+        public static bool ApplyMenuAction(Transform target)
+        {
+            TMP_Text label = target?.GetComponentInChildren<TMP_Text>(true);
+            return TypographyService.Apply(label, TypographyRole.Heading);
+        }
+
         private static void Override(
             Transform root,
             TMP_Text label,
