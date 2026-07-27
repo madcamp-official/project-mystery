@@ -7,44 +7,56 @@ namespace Wake.Core
 {
     public enum AccusedPerson
     {
-        Unknown,
-        Evelyn,
-        Richard
+        Unknown = 0,
+        Evelyn = 1,
+        Richard = 2,
+        Claire = 3,
+        Marcus = 4
     }
 
     public enum MurderLocation
     {
-        Unknown,
-        HorizonRoom,
-        BallastControlAnnex
+        Unknown = 0,
+        HorizonRoom = 1,
+        BallastControlAnnex = 2,
+        Vault = 3,
+        ServiceArea = 4
     }
 
     public enum MurderMethod
     {
-        Unknown,
-        BluntForce,
-        NitrogenSuffocation
+        Unknown = 0,
+        Stabbing = 1,
+        NitrogenSuffocation = 2,
+        Drowning = 3,
+        Drug = 4
     }
 
     public enum BodyTransport
     {
-        Unknown,
-        Exterior,
-        CeilingServiceRail
+        Unknown = 0,
+        Manual = 1,
+        CeilingServiceRail = 2,
+        Robot = 3,
+        Elevator = 4
     }
 
     public enum DanielTargetBelief
     {
-        Unknown,
-        Evelyn,
-        Richard
+        Unknown = 0,
+        CorporateFunds = 1,
+        Misconception = 2,
+        Revenge = 3,
+        Ransom = 4
     }
 
     public enum OrpheusEventDesign
     {
-        Unknown,
-        Accident,
-        InsuranceFraud
+        Unknown = 0,
+        Richard = 1,
+        Evelyn = 2,
+        Julian = 3,
+        Thomas = 4
     }
 
     public enum FinalEnding
@@ -184,8 +196,8 @@ namespace Wake.Core
                 accusation.Location == MurderLocation.BallastControlAnnex &&
                 accusation.Method == MurderMethod.NitrogenSuffocation &&
                 accusation.Transport == BodyTransport.CeilingServiceRail &&
-                accusation.DanielBelievedTarget == DanielTargetBelief.Richard &&
-                accusation.OrpheusDesign == OrpheusEventDesign.InsuranceFraud;
+                accusation.DanielBelievedTarget == DanielTargetBelief.Misconception &&
+                accusation.OrpheusDesign == OrpheusEventDesign.Evelyn;
             bool crimeCaseIsComplete = CrimeDeductions.All(state.HasUnlockedDeduction);
 
             if (!answersAreCorrect || !crimeCaseIsComplete)

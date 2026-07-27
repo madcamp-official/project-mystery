@@ -223,23 +223,31 @@ namespace Wake.UI
         private sealed class ChoiceControl
         {
             private readonly string[] options;
+            private readonly int[] values;
             private readonly TMP_Text text;
+            private int index;
 
-            public ChoiceControl(string[] options, TMP_Text text)
+            public ChoiceControl(string[] options, int[] values, TMP_Text text)
             {
                 this.options = options;
+                this.values = values;
                 this.text = text;
                 Set(0);
             }
 
-            public int Value { get; private set; }
+            public int Value => values[index];
 
-            public void Advance() => Set((Value + 1) % options.Length);
+            public void Advance()
+            {
+                index = (index + 1) % options.Length;
+                text.text = options[index];
+            }
 
             public void Set(int value)
             {
-                Value = Mathf.Clamp(value, 0, options.Length - 1);
-                text.text = options[Value];
+                int matchingIndex = Array.IndexOf(values, value);
+                index = matchingIndex >= 0 ? matchingIndex : 0;
+                text.text = options[index];
             }
         }
 
@@ -262,7 +270,7 @@ namespace Wake.UI
             Build();
             session = new FinalAccusationSession(state);
             ApplySavedValues();
-            feedback.text = "여섯 항목을 선택한 뒤 최종 논증을 제출하세요.";
+            feedback.text = "여섯 항목을 선택하고 최종 논증을 제출하세요.";
             panel.SetActive(true);
         }
 
@@ -289,17 +297,11 @@ namespace Wake.UI
             var layout = panel.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(32, 32, 24, 24);
             layout.spacing = 10;
-            CreateText("최종 논증", 30);
+            CreateText("최종 지목", 30);
 
-            choices = new[]
-            {
-                CreateChoice("범인", "선택", "Evelyn", "Richard"),
-                CreateChoice("살해 장소", "선택", "Horizon Room", "Ballast Control Annex"),
-                CreateChoice("살해 방법", "선택", "둔기", "질소 질식"),
-                CreateChoice("시신 운반", "선택", "외부", "천장 서비스 레일"),
-                CreateChoice("Daniel의 표적", "선택", "Evelyn", "Richard"),
-                CreateChoice("Orpheus 설계", "선택", "사고", "보험 사기")
-            };
+            choices = FinalAccusationStageCatalog.All
+                .Select(CreateStageChoice)
+                .ToArray();
             coverupToggle = CreateToggle("Richard의 과거 은폐도 공개");
             feedback = CreateText(string.Empty, 18);
             CreateButton("최종 논증 제출", Submit);
@@ -350,16 +352,27 @@ namespace Wake.UI
             return text;
         }
 
-        private ChoiceControl CreateChoice(string label, params string[] options)
+        private ChoiceControl CreateStageChoice(
+            FinalAccusationStageDefinition stage)
         {
-            CreateText(label, 18);
+            string[] options = new[] { "선택" }
+                .Concat(stage.Options.Select(option => option.Label))
+                .ToArray();
+            int[] values = new[] { 0 }
+                .Concat(stage.Options.Select(option => option.EnumValue))
+                .ToArray();
+
+            CreateText(stage.Prompt, 18);
             var node = new GameObject(
-                label, typeof(RectTransform), typeof(Image), typeof(Button));
+                stage.Stage.ToString(),
+                typeof(RectTransform),
+                typeof(Image),
+                typeof(Button));
             node.transform.SetParent(panel.transform, false);
             node.GetComponent<Image>().color = new Color(0.12f, 0.16f, 0.25f);
             TMP_Text text = CreateText(string.Empty, 18);
             text.transform.SetParent(node.transform, false);
-            var control = new ChoiceControl(options, text);
+            var control = new ChoiceControl(options, values, text);
             node.GetComponent<Button>().onClick.AddListener(control.Advance);
             return control;
         }

@@ -357,8 +357,8 @@ namespace Wake.Tests.PlayMode
                 MurderLocation.BallastControlAnnex,
                 MurderMethod.NitrogenSuffocation,
                 BodyTransport.CeilingServiceRail,
-                DanielTargetBelief.Richard,
-                OrpheusEventDesign.InsuranceFraud,
+                DanielTargetBelief.Misconception,
+                OrpheusEventDesign.Evelyn,
                 discloseCoverup);
             return session;
         }

@@ -205,8 +205,8 @@ namespace Wake.Tests
                 MurderLocation.BallastControlAnnex,
                 MurderMethod.NitrogenSuffocation,
                 BodyTransport.CeilingServiceRail,
-                DanielTargetBelief.Richard,
-                OrpheusEventDesign.InsuranceFraud,
+                DanielTargetBelief.Misconception,
+                OrpheusEventDesign.Evelyn,
                 true);
             FinalAccusationSubmission submission = final.Submit();
 
