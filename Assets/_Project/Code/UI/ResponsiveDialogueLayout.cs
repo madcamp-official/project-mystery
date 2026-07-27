@@ -39,7 +39,7 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class ResponsiveDialogueLayout : MonoBehaviour
     {
-        public static readonly Vector2 ReferenceResolution = new(1920f, 1080f);
+        public static readonly Vector2 ReferenceResolution = new(2880f, 1800f);
         public const float DialogueHeight = 360f;
         public const float EdgePadding = 24f;
         public const float NavigationTop = 184f;

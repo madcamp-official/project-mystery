@@ -3281,7 +3281,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 2880, y: 1800}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -6933,7 +6933,19 @@ MonoBehaviour:
     trust: []
     flags: []
     collectedEvidenceIds: []
+    completedProductionSceneIds: []
+    completedObjectiveIds: []
+    puzzleSessions: []
+    unlockedDeductionIds: []
+    unlockedProductionSceneIds: []
+    runtimeCounters: []
+    finalEndingId: 
     currentLocationCode: 
+    dialogueCheckpoint:
+      activeSceneId: 
+      lineIndex: 0
+      awaitingChoice: 0
+      pendingInteractionId: 
 --- !u!114 &999000006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7313,8 +7325,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 0, y: 180}
+  m_SizeDelta: {x: 320, y: 90}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1048828379
 MonoBehaviour:
@@ -7366,12 +7378,12 @@ MonoBehaviour:
   m_fontSize: 36
   m_fontSizeBase: 36
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 24
+  m_fontSizeMax: 36
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -8666,9 +8678,6 @@ MonoBehaviour:
   integrityCriticalOverlaySprite: {fileID: 21300000, guid: 0848f2b0013115a4a8d41dbe279a9066, type: 3}
   trustPipEmptySprite: {fileID: 21300000, guid: 8d58bd6abb607c5488be3abb6de19b14, type: 3}
   trustPipFilledSprite: {fileID: 21300000, guid: 9ca9c5f3315b1d34e80aeade6c5b0d38, type: 3}
-  theorySlotEmptySprite: {fileID: 21300000, guid: d9db6b12c5ae7da41a5f27ea848afb11, type: 3}
-  theoryCardActiveSprite: {fileID: 21300000, guid: 389ea24eb96146c48ad79fb543a3c740, type: 3}
-  theoryFullOverlaySprite: {fileID: 21300000, guid: 9a5aef51a85d1a84a8e291e482067a02, type: 3}
 --- !u!1 &1239735454
 GameObject:
   m_ObjectHideFlags: 0
