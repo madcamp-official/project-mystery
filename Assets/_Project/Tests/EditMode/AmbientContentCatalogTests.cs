@@ -104,6 +104,29 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void EveryAmbientSpeaker_HasWorldCharacterArtwork()
+        {
+            string[] speakers = AmbientBarkCatalog.All
+                .Select(item => item.Speaker)
+                .Distinct()
+                .ToArray();
+
+            foreach (string speaker in speakers)
+            {
+                Assert.That(
+                    AmbientWorldCharacterCatalog.TryGetAsset(
+                        speaker,
+                        out AmbientWorldCharacterAsset asset),
+                    Is.True,
+                    speaker);
+                Assert.That(asset.ResourcePath, Is.Not.Empty, speaker);
+                Assert.That(asset.UvRect.width, Is.GreaterThan(0f), speaker);
+                Assert.That(asset.UvRect.xMin, Is.GreaterThanOrEqualTo(0f));
+                Assert.That(asset.UvRect.xMax, Is.LessThanOrEqualTo(1f));
+            }
+        }
+
+        [Test]
         public void EveryAmbientSpeaker_HasUsablePortrait()
         {
             string[] speakers = AmbientBarkCatalog.All

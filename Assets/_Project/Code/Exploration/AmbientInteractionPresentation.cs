@@ -27,11 +27,16 @@ namespace Wake.Exploration
         public const float CharacterEdgePadding = 16f;
         public const float CharacterSpacing = 16f;
 
-        private static readonly Color CharacterNormal =
+        private static readonly Color CharacterSpriteNormal = Color.white;
+        private static readonly Color CharacterSpriteHover =
+            new Color32(255, 235, 187, 255);
+        private static readonly Color CharacterSpritePressed =
+            new Color32(210, 224, 221, 255);
+        private static readonly Color PanelButtonNormal =
             new Color32(24, 31, 46, 238);
-        private static readonly Color CharacterHover =
+        private static readonly Color PanelButtonHover =
             new Color32(42, 70, 83, 248);
-        private static readonly Color CharacterPressed =
+        private static readonly Color PanelButtonPressed =
             new Color32(31, 93, 103, 255);
         private static readonly Color HotspotNormal =
             new Color(0.23f, 0.60f, 0.68f, 0.08f);
@@ -130,17 +135,35 @@ namespace Wake.Exploration
                 : $"조사 · {title.Trim()}";
         }
 
-        public static ColorBlock CharacterColors()
+        public static ColorBlock CharacterSpriteColors()
         {
             ColorBlock colors = ColorBlock.defaultColorBlock;
-            colors.normalColor = CharacterNormal;
-            colors.highlightedColor = CharacterHover;
-            colors.selectedColor = CharacterHover;
-            colors.pressedColor = CharacterPressed;
+            colors.normalColor = CharacterSpriteNormal;
+            colors.highlightedColor = CharacterSpriteHover;
+            colors.selectedColor = CharacterSpriteHover;
+            colors.pressedColor = CharacterSpritePressed;
+            colors.disabledColor = new Color32(255, 255, 255, 120);
+            colors.colorMultiplier = 1f;
+            colors.fadeDuration = 0.08f;
+            return colors;
+        }
+
+        public static ColorBlock PanelButtonColors()
+        {
+            ColorBlock colors = ColorBlock.defaultColorBlock;
+            colors.normalColor = PanelButtonNormal;
+            colors.highlightedColor = PanelButtonHover;
+            colors.selectedColor = PanelButtonHover;
+            colors.pressedColor = PanelButtonPressed;
             colors.disabledColor = new Color32(24, 31, 46, 120);
             colors.colorMultiplier = 1f;
             colors.fadeDuration = 0.08f;
             return colors;
+        }
+
+        public static ColorBlock CharacterColors()
+        {
+            return PanelButtonColors();
         }
 
         public static ColorBlock HotspotColors()
