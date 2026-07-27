@@ -17,4 +17,5 @@ MonoBehaviour:
   description: 피해자의 오판을 사후에 바로잡는다.
   category: resolution
   isDirect: 0
-  views: []
+  views:
+  - {fileID: 21300000, guid: f7e1ad9a1c7e462d91feaff133f11a95, type: 3}

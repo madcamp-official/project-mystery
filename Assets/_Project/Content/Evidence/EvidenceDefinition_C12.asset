@@ -17,4 +17,5 @@ MonoBehaviour:
   description: Daniel의 실제 직접 사인을 입증한다.
   category: medical
   isDirect: 0
-  views: []
+  views:
+  - {fileID: 21300000, guid: db172e1b057446459dfff12ccfd15f5b, type: 3}
