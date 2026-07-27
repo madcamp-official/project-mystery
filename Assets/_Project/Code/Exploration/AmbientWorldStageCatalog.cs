@@ -193,6 +193,64 @@ namespace Wake.Exploration
                 out profile);
         }
 
+        public static AmbientWorldStageProfile GetLocationProfile(
+            string location,
+            int index,
+            int count,
+            bool mainCharacter)
+        {
+            AmbientWorldPlacement placement =
+                AmbientWorldCharacterCatalog.GetPlacement(
+                    location,
+                    index,
+                    count);
+            AmbientWorldStageProfile reference =
+                FindLocationReference(location);
+            float scale = mainCharacter ? 1.08f : 1f;
+
+            return new AmbientWorldStageProfile(
+                placement.Anchor,
+                placement.NormalizedHeight * scale,
+                placement.Mirror,
+                reference.LightTint,
+                reference.ShadowDirection,
+                reference.ShadowOpacity,
+                reference.GroundShadowScale,
+                reference.Saturation,
+                reference.Exposure,
+                reference.Contrast,
+                reference.Softness);
+        }
+
+        private static AmbientWorldStageProfile FindLocationReference(
+            string location)
+        {
+            string normalized = location?.Trim() ?? string.Empty;
+            foreach (AmbientWorldStageRecord entry in Entries)
+            {
+                if (string.Equals(
+                        entry.Location,
+                        normalized,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return entry.Profile;
+                }
+            }
+
+            return new AmbientWorldStageProfile(
+                new Vector2(.5f, .035f),
+                .60f,
+                false,
+                NeutralInterior,
+                new Vector2(.012f, -.008f),
+                .35f,
+                .62f,
+                .70f,
+                .80f,
+                .86f,
+                .30f);
+        }
+
         private static IReadOnlyDictionary<string, AmbientWorldStageProfile>
             BuildLookup()
         {
