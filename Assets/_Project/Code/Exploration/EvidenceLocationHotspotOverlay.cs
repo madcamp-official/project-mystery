@@ -192,7 +192,7 @@ namespace Wake.Exploration
             if (inventory.Contains(spec.EvidenceId))
             {
                 ToastController.Instance?.Show($"이미 확보한 단서: {displayName}");
-                UIManager.Instance?.ShowEvidence(spec.EvidenceId);
+                IngameUi.Current?.ShowEvidence(spec.EvidenceId);
                 return;
             }
 
@@ -203,7 +203,7 @@ namespace Wake.Exploration
             }
 
             ToastController.Instance?.Show($"단서 확보: {displayName}");
-            UIManager.Instance?.ShowEvidence(spec.EvidenceId);
+            IngameUi.Current?.ShowEvidence(spec.EvidenceId);
         }
 
         private void Clear()

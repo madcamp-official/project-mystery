@@ -284,7 +284,7 @@ namespace Wake.UI
                 state != null ? state.PublicAnxiety : 0);
             if (TryLoadAllowedDestination(LastTravelResult))
             {
-                UIManager.Instance?.ShowIngame();
+                IngameUi.Current?.ShowIngame();
             }
             else
             {
@@ -300,7 +300,7 @@ namespace Wake.UI
                 ShowTravelFeedback();
                 return LastTravelResult;
             }
-            UIManager.Instance?.ShowIngame();
+            IngameUi.Current?.ShowIngame();
             return LastTravelResult;
         }
 
@@ -312,7 +312,7 @@ namespace Wake.UI
                 ShowTravelFeedback();
                 return LastTravelResult;
             }
-            UIManager.Instance?.ShowIngame();
+            IngameUi.Current?.ShowIngame();
             return LastTravelResult;
         }
 

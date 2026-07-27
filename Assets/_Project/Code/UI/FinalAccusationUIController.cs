@@ -612,12 +612,12 @@ namespace Wake.UI
         private void OpenTheoryBoard()
         {
             panel.SetActive(false);
-            UIManager.Instance?.ShowEvidence();
+            IngameUi.Current?.ShowEvidence();
             EvidenceTheoryBoardController board =
                 FindFirstObjectByType<EvidenceTheoryBoardController>();
             if (board == null)
             {
-                UIManager.Instance?.ShowIngame();
+                IngameUi.Current?.ShowIngame();
                 panel.SetActive(true);
                 feedback.text = "증거 보드를 열 수 없습니다.";
                 return;
@@ -628,7 +628,7 @@ namespace Wake.UI
             if (!board.Open())
             {
                 board.Closed -= ReturnFromTheoryBoard;
-                UIManager.Instance?.ShowIngame();
+                IngameUi.Current?.ShowIngame();
                 panel.SetActive(true);
                 feedback.text = "증거 보드를 열 수 없습니다.";
             }
@@ -642,7 +642,7 @@ namespace Wake.UI
             {
                 board.Closed -= ReturnFromTheoryBoard;
             }
-            UIManager.Instance?.ShowIngame();
+            IngameUi.Current?.ShowIngame();
             Open();
         }
 

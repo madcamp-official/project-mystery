@@ -22,7 +22,7 @@ namespace Wake.UI
             closeButton = settingsRoot.Find("Close").GetComponent<Button>();
             exitButton = settingsRoot.Find("Exit Btn").GetComponent<Button>();
 
-            closeButton.onClick.AddListener(() => UIManager.Instance.CloseSettings());
+            closeButton.onClick.AddListener(() => IngameUi.Current?.CloseSettings());
             exitButton.onClick.AddListener(OnExitClicked);
             creditButton.onClick.AddListener(OnCreditClicked);
 

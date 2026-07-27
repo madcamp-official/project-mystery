@@ -104,7 +104,7 @@ namespace Wake.Evidence
 
             nextButton.onClick.AddListener(() => Advance(1));
             prevButton.onClick.AddListener(() => Advance(-1));
-            backButton.onClick.AddListener(() => UIManager.Instance.ShowIngame());
+            backButton.onClick.AddListener(() => IngameUi.Current?.ShowIngame());
             turnLeftButton.onClick.AddListener(() => Rotate(-1));
             turnRightButton.onClick.AddListener(() => Rotate(1));
             theoryBoardButton.onClick.AddListener(OpenTheoryBoard);

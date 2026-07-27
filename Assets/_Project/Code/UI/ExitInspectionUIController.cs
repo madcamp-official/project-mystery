@@ -196,13 +196,13 @@ namespace Wake.UI
                 return;
             }
 
-            UIManager ui = UIManager.Instance;
+            IIngameUiHost ui = IngameUi.Current;
             GameStateManager state = GameStateManager.Instance;
             ProductionDialogueCheckpoint checkpoint = state?.DialogueCheckpoint;
             bool pending = checkpoint != null &&
                            checkpoint.pendingInteractionId == ExitInspectionCatalog.SessionId &&
                            !state.HasCompletedScene(ExitInspectionCatalog.SceneId);
-            bool visible = pending && ui?.ActivePanel == UiPrimaryPanel.Ingame &&
+            bool visible = pending && ui != null && ui.IsShowingIngamePanel &&
                            !ui.IsSettingsOpen && ui.OpenRuntimeModalCount == 0 &&
                            DialogueController.Instance?.IsBusy != true;
             reopenButton.gameObject.SetActive(visible);
