@@ -80,8 +80,10 @@ namespace Wake.Tests.PlayMode
 
         protected IEnumerator StartNewGameFromVisibleButton()
         {
-            Button startButton =
-                RequireComponent<Button>("StartScene/Start Game Btn");
+            Button startButton = RequireObject(
+                    "StartScene/Title Presentation")
+                .GetComponentsInChildren<Button>(true)
+                .First(button => button.name == "시작하기");
             Assert.That(
                 startButton.gameObject.activeInHierarchy,
                 Is.True,
@@ -92,7 +94,8 @@ namespace Wake.Tests.PlayMode
                 .GetComponentsInChildren<Button>(true)
                 .First(button =>
                     button.name.StartsWith("Save Slot") &&
-                    button.GetComponentInChildren<TMP_Text>(true).text.Contains("빈 슬롯"));
+                    button.GetComponentInChildren<TMP_Text>(true).text.Contains(
+                        "비어 있는 기록"));
             yield return InvokeAndSettle(slot);
             Button confirm = RequireObject(
                     "StartScene/Save Slot Selection/Start Confirmation/Confirm")
@@ -102,8 +105,10 @@ namespace Wake.Tests.PlayMode
 
         protected IEnumerator ContinueFromVisibleButton()
         {
-            Button startButton =
-                RequireComponent<Button>("StartScene/Start Game Btn");
+            Button startButton = RequireObject(
+                    "StartScene/Title Presentation")
+                .GetComponentsInChildren<Button>(true)
+                .First(button => button.name == "시작하기");
             yield return InvokeAndSettle(startButton);
             Button slot = RequireObject("StartScene/Save Slot Selection")
                 .GetComponentsInChildren<Button>(true)

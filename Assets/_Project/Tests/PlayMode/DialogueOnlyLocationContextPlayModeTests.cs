@@ -53,6 +53,7 @@ namespace Wake.Tests.PlayMode
                 .GetComponent<NarrativeLocationHUDController>();
             Assert.That(contextHud, Is.Not.Null);
             Assert.That(contextHud.IsWarningVisible, Is.False);
+            yield return new WaitForSecondsRealtime(0.4f);
             RectTransform locationBanner = contextHud.transform
                 .Find("Narrative Location Context")
                 .GetComponent<RectTransform>();
@@ -62,8 +63,9 @@ namespace Wake.Tests.PlayMode
                 Is.EqualTo(new Vector2(0.5f, 1f)));
             Assert.That(locationBanner.pivot,
                 Is.EqualTo(new Vector2(0.5f, 1f)));
-            Assert.That(locationBanner.anchoredPosition.x,
-                Is.Zero.Within(0.01f));
+            Assert.That(Mathf.Abs(locationBanner.anchoredPosition.x),
+                Is.LessThan(8f),
+                "The location banner should be visually settled near screen center while its entrance animation finishes.");
             Assert.That(locationBanner.anchoredPosition.y,
                 Is.EqualTo(-NarrativeLocationHUDPresentation.TopOffset)
                     .Within(0.01f));

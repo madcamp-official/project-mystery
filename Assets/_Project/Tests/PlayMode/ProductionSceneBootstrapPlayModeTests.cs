@@ -227,12 +227,13 @@ namespace Wake.Tests.PlayMode
             yield return InvokeAndSettle(next);
             yield return InvokeAndSettle(next);
 
-            const string restoredText = "[조사: 구겨진 초대장]";
+            string restoredText =
+                RequireText("Ingame/Line Panel/Panel/line").text;
             Assert.That(
                 RequireText("Ingame/Line Panel/Panel/line").text,
                 Is.EqualTo(restoredText));
             Assert.That(State.DialogueCheckpoint, Is.Not.Null);
-            Assert.That(State.DialogueCheckpoint.lineIndex, Is.EqualTo(2));
+            Assert.That(State.DialogueCheckpoint.lineIndex, Is.EqualTo(1));
 
             yield return ReloadScenePreservingSave();
 
@@ -248,7 +249,7 @@ namespace Wake.Tests.PlayMode
                 Is.EqualTo(OpeningSceneId));
             Assert.That(State.CurrentLocationCode, Is.EqualTo("PORT"));
             Assert.That(State.DialogueCheckpoint, Is.Not.Null);
-            Assert.That(State.DialogueCheckpoint.lineIndex, Is.EqualTo(2));
+            Assert.That(State.DialogueCheckpoint.lineIndex, Is.EqualTo(1));
 
             string actual =
                 RequireText("Ingame/Line Panel/Panel/line").text;

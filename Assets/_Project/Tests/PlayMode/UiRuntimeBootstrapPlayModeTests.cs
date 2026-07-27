@@ -102,16 +102,20 @@ namespace Wake.Tests.PlayMode
                         TypographyRole.BodyRegular)));
             TMP_Text title =
                 RequireComponent<TMP_Text>("Evidence/Text (TMP)");
-            Assert.That(title.text, Does.Contain("C-01"));
+            Assert.That(title.text, Does.Not.Contain("C-"));
             Assert.That(
                 title.font,
                 Is.SameAs(
                     TypographyService.Resolve(
                         TypographyRole.Heading)));
-            yield return InvokeAndSettle(RequireComponent<Button>("Evidence/Next"));
-            Assert.That(title.text, Does.Contain("C-02"));
-            yield return InvokeAndSettle(RequireComponent<Button>("Evidence/Next (1)"));
-            Assert.That(title.text, Does.Contain("C-01"));
+            Assert.That(
+                RequireComponent<Button>("Evidence/Next").interactable,
+                Is.False,
+                "Undiscovered evidence must not expose navigable slots.");
+            Assert.That(
+                RequireComponent<Button>("Evidence/Next (1)").interactable,
+                Is.False,
+                "Undiscovered evidence must not expose navigable slots.");
             yield return InvokeAndSettle(
                 RequireComponent<Button>("Evidence/Turn (2)"));
             Assert.That(Ui.OpenRuntimeModalCount, Is.EqualTo(1));

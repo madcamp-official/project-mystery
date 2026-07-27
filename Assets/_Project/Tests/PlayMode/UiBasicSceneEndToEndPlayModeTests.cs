@@ -84,7 +84,7 @@ namespace Wake.Tests.PlayMode
             }
 
             Button titleButton = endingRoot.GetComponentsInChildren<Button>(true)
-                .Single(button => button.name == "타이틀로 돌아가기");
+                .Single(button => button.name == "타이틀로");
             yield return InvokeAndSettle(titleButton);
 
             AssertTitleSessionIsClean(endingRoot);

@@ -38,8 +38,9 @@ namespace Wake.Tests.PlayMode
             Assert.That(inspections, Has.Length.EqualTo(3));
             Assert.That(inspections.Select(Label),
                 Has.All.Contains("○ [검사 가능]"));
-            Assert.That(inspections.Select(Label),
-                Has.Some.Contains("C-03"));
+            Assert.That(
+                inspections.Select(Label).All(value => !value.Contains("C-")),
+                Is.True);
             TMP_FontAsset[] expectedFonts =
             {
                 TypographyService.Resolve(TypographyRole.Body),
