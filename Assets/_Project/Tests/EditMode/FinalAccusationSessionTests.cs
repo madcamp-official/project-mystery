@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using Wake.Core;
@@ -41,7 +43,65 @@ namespace Wake.Tests
                 result.Messages,
                 Has.Some.Contains("Daniel Mercer를 살해한 범인은 누구인가?"));
             Assert.That(result.Messages, Has.Some.StartsWith("핵심 논증이 부족"));
+            Assert.That(result.Messages, Has.Some.Contains("천장 시신 반입"));
+            Assert.That(result.Messages, Has.None.Contains("body_insertion"));
             Assert.That(state.FinalEndingId, Is.Empty);
+        }
+
+        [Test]
+        public void Preparation_AutoUnlocksFinalDeductionsFromCollectedEvidence()
+        {
+            var evidence = new HashSet<string>
+            {
+                "C-01", "C-03", "C-04", "C-05", "C-06", "C-07",
+                "C-08", "C-09", "C-10", "C-12", "C-14", "C-16"
+            };
+            var preparation = new FinalAccusationPreparationService(
+                state,
+                evidence.Contains);
+
+            FinalAccusationPreparationResult result = preparation.Prepare();
+
+            Assert.That(result.IsReady, Is.True);
+            Assert.That(
+                FinalAccusationSession.RequiredDeductionIds.All(
+                    state.HasUnlockedDeduction),
+                Is.True);
+
+            var session = CreateCorrectSession();
+            FinalAccusationSubmission submission = session.Submit();
+            Assert.That(submission.Submitted, Is.False);
+            Assert.That(session.CompletedStageCount, Is.EqualTo(1));
+            Assert.That(
+                session.CurrentStage,
+                Is.EqualTo(FinalAccusationStage.MurderLocation));
+        }
+
+        [Test]
+        public void Preparation_MigratesLegacyTheoryIdsForExistingSaves()
+        {
+            state.UnlockDeduction("horizon_no_live_third_party");
+            state.UnlockDeduction("body_inserted_from_above");
+            var preparation = new FinalAccusationPreparationService(
+                state,
+                _ => false);
+
+            FinalAccusationPreparationResult result = preparation.Prepare();
+
+            Assert.That(result.IsReady, Is.False);
+            Assert.That(
+                state.HasUnlockedDeduction(
+                    CanonicalDeductionCatalog.SceneDenial),
+                Is.True);
+            Assert.That(
+                state.HasUnlockedDeduction(
+                    CanonicalDeductionCatalog.BodyInsertion),
+                Is.True);
+            Assert.That(
+                result.MissingRequirements,
+                Has.None.Matches<DeductionEvaluation>(evaluation =>
+                    evaluation.Definition.Id ==
+                    CanonicalDeductionCatalog.BodyInsertion));
         }
 
         [Test]

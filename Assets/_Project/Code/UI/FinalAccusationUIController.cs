@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Wake.Core;
+using Wake.Evidence;
 using Wake.Narrative;
 using Wake.Puzzles;
 
@@ -27,6 +28,117 @@ namespace Wake.UI
         public IReadOnlyList<string> Messages { get; }
     }
 
+    public sealed class FinalAccusationPreparationResult
+    {
+        public FinalAccusationPreparationResult(
+            IReadOnlyList<string> unlockedDeductionIds,
+            IReadOnlyList<DeductionEvaluation> missingRequirements)
+        {
+            UnlockedDeductionIds =
+                unlockedDeductionIds ?? Array.Empty<string>();
+            MissingRequirements =
+                missingRequirements ?? Array.Empty<DeductionEvaluation>();
+        }
+
+        public IReadOnlyList<string> UnlockedDeductionIds { get; }
+        public IReadOnlyList<DeductionEvaluation> MissingRequirements { get; }
+        public bool IsReady => MissingRequirements.Count == 0;
+
+        public string GetPlayerMessage()
+        {
+            if (IsReady)
+            {
+                string unlockedNames = string.Join(
+                    ", ",
+                    UnlockedDeductionIds.Select(
+                        FinalAccusationSession.GetDeductionDisplayName));
+                return UnlockedDeductionIds.Count == 0
+                    ? "핵심 논증 준비가 완료되었습니다."
+                    : $"핵심 논증 자동 구성 완료: {unlockedNames}";
+            }
+
+            var lines = new List<string>
+            {
+                "최종 심문에 필요한 핵심 논증이 아직 준비되지 않았습니다."
+            };
+            foreach (DeductionEvaluation evaluation in MissingRequirements)
+            {
+                string evidence = evaluation.UnusableEvidenceIds.Count > 0
+                    ? $"사용 불가 단서: {FormatEvidence(evaluation.UnusableEvidenceIds)}"
+                    : evaluation.MissingEvidenceIds.Count > 0
+                        ? $"필요한 단서: {FormatEvidence(evaluation.MissingEvidenceIds)}"
+                        : "증거 보드에서 논증을 확인하세요.";
+                lines.Add($"- {evaluation.Definition.DisplayName}: {evidence}");
+            }
+            return string.Join("\n", lines);
+        }
+
+        private static string FormatEvidence(IEnumerable<string> evidenceIds)
+        {
+            return string.Join(
+                ", ",
+                evidenceIds.Select(id =>
+                    Wake.Evidence.CanonicalEvidenceCatalog.TryGet(
+                        id,
+                        out CanonicalEvidenceEntry entry)
+                        ? entry.DisplayName
+                        : id));
+        }
+    }
+
+    public sealed class FinalAccusationPreparationService
+    {
+        private static readonly IReadOnlyDictionary<string, string>
+            LegacyDeductionMappings = new Dictionary<string, string>(
+                StringComparer.Ordinal)
+            {
+                ["horizon_no_live_third_party"] =
+                    CanonicalDeductionCatalog.SceneDenial,
+                ["body_inserted_from_above"] =
+                    CanonicalDeductionCatalog.BodyInsertion
+            };
+
+        private readonly GameStateManager state;
+        private readonly CanonicalDeductionService deductions;
+
+        public FinalAccusationPreparationService(
+            GameStateManager state,
+            Func<string, bool> hasEvidence)
+        {
+            this.state = state ?? throw new ArgumentNullException(nameof(state));
+            deductions = new CanonicalDeductionService(state, hasEvidence);
+        }
+
+        public FinalAccusationPreparationResult Prepare()
+        {
+            var unlocked = new HashSet<string>(StringComparer.Ordinal);
+            using (state.BeginStateBatch())
+            {
+                foreach ((string legacyId, string canonicalId) in
+                         LegacyDeductionMappings)
+                {
+                    if (state.HasUnlockedDeduction(legacyId) &&
+                        state.UnlockDeduction(canonicalId))
+                    {
+                        unlocked.Add(canonicalId);
+                    }
+                }
+
+                unlocked.UnionWith(deductions.EvaluateAndUnlockAll());
+            }
+
+            DeductionEvaluation[] missing =
+                FinalAccusationSession.RequiredDeductionIds
+                    .Where(id => !state.HasUnlockedDeduction(id))
+                    .Select(deductions.Evaluate)
+                    .Where(evaluation => evaluation != null)
+                    .ToArray();
+            return new FinalAccusationPreparationResult(
+                unlocked.ToArray(),
+                missing);
+        }
+    }
+
     public sealed class FinalAccusationSession
     {
         public const string SessionId =
@@ -40,6 +152,8 @@ namespace Wake.UI
             CanonicalDeductionCatalog.ActualMurder,
             CanonicalDeductionCatalog.CulpritLink
         };
+        public static IReadOnlyList<string> RequiredDeductionIds =>
+            CrimeDeductions;
 
         private readonly GameStateManager state;
         private readonly FinalAccusationResolver resolver;
@@ -100,7 +214,9 @@ namespace Wake.UI
                 .ToArray();
             if (missing.Length > 0)
             {
-                messages.Add($"핵심 논증이 부족합니다: {string.Join(", ", missing)}");
+                messages.Add(
+                    $"핵심 논증이 부족합니다: " +
+                    $"{string.Join(", ", missing.Select(GetDeductionDisplayName))}");
             }
 
             if (!CurrentStage.HasValue &&
@@ -115,6 +231,15 @@ namespace Wake.UI
             if (state.EvidenceIntegrity <= 0)
                 messages.Add("현장 보존도 0: 직접 증거를 사용할 수 없습니다.");
             return messages;
+        }
+
+        public static string GetDeductionDisplayName(string deductionId)
+        {
+            return CanonicalDeductionCatalog.TryGet(
+                deductionId,
+                out CanonicalDeductionDefinition definition)
+                ? definition.DisplayName
+                : deductionId;
         }
 
         public FinalAccusationSubmission Submit()
@@ -402,6 +527,8 @@ namespace Wake.UI
         private ChoiceControl[] choices;
         private Toggle coverupToggle;
         private TMP_Text feedback;
+        private Button submitButton;
+        private Button theoryBoardButton;
         private FinalAccusationSession session;
 
         public bool IsOpen => panel != null && panel.activeSelf;
@@ -415,10 +542,17 @@ namespace Wake.UI
                     FinalAccusationSession.SessionId))
                 return;
             Build();
+            FinalAccusationPreparationResult preparation =
+                CreatePreparationService(state).Prepare();
             session = new FinalAccusationSession(state);
             ApplySavedValues();
             RefreshStageVisibility();
-            feedback.text = "여섯 항목을 선택하고 최종 논증을 제출하세요.";
+            submitButton.interactable = preparation.IsReady;
+            theoryBoardButton.gameObject.SetActive(!preparation.IsReady);
+            feedback.text = preparation.IsReady
+                ? preparation.GetPlayerMessage() +
+                  "\n현재 질문의 답을 선택하고 최종 논증을 제출하세요."
+                : preparation.GetPlayerMessage();
             panel.SetActive(true);
         }
 
@@ -452,9 +586,64 @@ namespace Wake.UI
                 .ToArray();
             coverupToggle = CreateToggle("Richard의 과거 은폐도 공개");
             feedback = CreateText(string.Empty, 18);
-            CreateButton("최종 논증 제출", Submit);
+            submitButton = CreateButton("최종 논증 제출", Submit);
+            theoryBoardButton =
+                CreateButton("증거 보드 열기", OpenTheoryBoard);
             CreateButton("닫기", () => panel.SetActive(false));
             panel.SetActive(false);
+        }
+
+        private static FinalAccusationPreparationService
+            CreatePreparationService(GameStateManager state)
+        {
+            EvidenceInventory inventory = EvidenceInventory.Instance;
+            return new FinalAccusationPreparationService(
+                state,
+                evidenceId =>
+                    (inventory != null && inventory.Contains(evidenceId)) ||
+                    state.CollectedEvidenceIds.Any(id =>
+                        string.Equals(
+                            Wake.Evidence.CanonicalEvidenceCatalog.NormalizeId(id),
+                            Wake.Evidence.CanonicalEvidenceCatalog.NormalizeId(
+                                evidenceId),
+                            StringComparison.Ordinal)));
+        }
+
+        private void OpenTheoryBoard()
+        {
+            panel.SetActive(false);
+            UIManager.Instance?.ShowEvidence();
+            EvidenceTheoryBoardController board =
+                FindFirstObjectByType<EvidenceTheoryBoardController>();
+            if (board == null)
+            {
+                UIManager.Instance?.ShowIngame();
+                panel.SetActive(true);
+                feedback.text = "증거 보드를 열 수 없습니다.";
+                return;
+            }
+
+            board.Closed -= ReturnFromTheoryBoard;
+            board.Closed += ReturnFromTheoryBoard;
+            if (!board.Open())
+            {
+                board.Closed -= ReturnFromTheoryBoard;
+                UIManager.Instance?.ShowIngame();
+                panel.SetActive(true);
+                feedback.text = "증거 보드를 열 수 없습니다.";
+            }
+        }
+
+        private void ReturnFromTheoryBoard()
+        {
+            EvidenceTheoryBoardController board =
+                FindFirstObjectByType<EvidenceTheoryBoardController>();
+            if (board != null)
+            {
+                board.Closed -= ReturnFromTheoryBoard;
+            }
+            UIManager.Instance?.ShowIngame();
+            Open();
         }
 
         private void ApplySavedValues()
@@ -553,13 +742,17 @@ namespace Wake.UI
             return node.GetComponent<Toggle>();
         }
 
-        private void CreateButton(string label, UnityEngine.Events.UnityAction action)
+        private Button CreateButton(
+            string label,
+            UnityEngine.Events.UnityAction action)
         {
             var node = new GameObject(label, typeof(RectTransform), typeof(Image), typeof(Button));
             node.transform.SetParent(panel.transform, false);
             node.GetComponent<Image>().color = new Color(0.25f, 0.17f, 0.4f);
-            node.GetComponent<Button>().onClick.AddListener(action);
+            Button button = node.GetComponent<Button>();
+            button.onClick.AddListener(action);
             CreateText(label, 20).transform.SetParent(node.transform, false);
+            return button;
         }
     }
 }
