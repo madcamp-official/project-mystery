@@ -32,6 +32,14 @@ namespace Wake.Narrative
         private Button[] choiceButtons;
         private TMP_Text[] choiceLabels;
         private ResponsiveDialogueLayout responsiveLayout;
+        private DialogueTypewriter typewriter;
+
+        [SerializeField]
+        [Range(
+            DialogueTypewriter.MinimumCharactersPerSecond,
+            DialogueTypewriter.MaximumCharactersPerSecond)]
+        private float dialogueCharactersPerSecond =
+            DialogueTypewriter.DefaultCharactersPerSecond;
 
         private DialogueSet currentSet;
         private DialogueNode currentNode;
@@ -78,6 +86,15 @@ namespace Wake.Narrative
                 lineText,
                 speakerText,
                 choiceLabels);
+            typewriter = lineText.GetComponent<DialogueTypewriter>();
+            if (typewriter == null)
+            {
+                typewriter =
+                    lineText.gameObject.AddComponent<DialogueTypewriter>();
+            }
+            typewriter.Initialize(
+                lineText,
+                dialogueCharactersPerSecond);
 
             nextButton.onClick.AddListener(OnNextClicked);
             responsiveLayout = canvas.gameObject
@@ -188,8 +205,7 @@ namespace Wake.Narrative
             choicesContainer.SetActive(false);
             nextButton.gameObject.SetActive(true);
             speakerText.text = DialoguePortraitCatalog.GetDisplayName(speaker);
-            lineText.text = text;
-            responsiveLayout?.ResetTextScroll();
+            RevealLine(text);
             ShowPortrait(
                 speaker,
                 DialoguePresentationMap.GetEmotion(emotion));
@@ -260,6 +276,7 @@ namespace Wake.Narrative
             currentNode = null;
             productionFlow = null;
             ambientLineActive = false;
+            typewriter?.CancelAndShowAll();
             linePanel?.SetActive(false);
             choicesContainer?.SetActive(false);
             speakerPortrait?.gameObject.SetActive(false);
@@ -330,6 +347,7 @@ namespace Wake.Narrative
             nextButton.gameObject.SetActive(!hasChoices);
             if (hasChoices)
             {
+                typewriter?.CancelAndShowAll();
                 for (int i = 0; i < choiceButtons.Length; i++)
                 {
                     bool active = i < productionFlow.Choices.Count;
@@ -358,8 +376,7 @@ namespace Wake.Narrative
             DialogueSpeakerIdentity speaker = DialoguePresentationMap.GetSpeaker(record.Speaker);
             speakerText.text =
                 DialoguePresentationMap.GetSpeakerLabel(record.Speaker, speaker);
-            lineText.text = record.TextKo;
-            responsiveLayout?.ResetTextScroll();
+            RevealLine(record.TextKo);
             ShowPortrait(
                 speaker.PortraitId,
                 DialoguePresentationMap.GetEmotion(record.Emotion));
@@ -384,8 +401,7 @@ namespace Wake.Narrative
             if (db != null && db.TryGetLine(currentNode.LineId, out DialogueLine line))
             {
                 speakerText.text = line.Speaker;
-                lineText.text = line.Text;
-                responsiveLayout?.ResetTextScroll();
+                RevealLine(line.Text);
                 ShowPortrait(line.Speaker);
                 StatusHUDController hud = FindFirstObjectByType<StatusHUDController>();
                 hud?.SetContextCharacter(line.Speaker);
@@ -393,8 +409,7 @@ namespace Wake.Narrative
             else
             {
                 speakerText.text = string.Empty;
-                lineText.text = $"[MISSING LINE: {currentNode.LineId}]";
-                responsiveLayout?.ResetTextScroll();
+                RevealLine($"[MISSING LINE: {currentNode.LineId}]");
                 ShowPortrait(string.Empty);
                 StatusHUDController hud = FindFirstObjectByType<StatusHUDController>();
                 hud?.ClearContextCharacter();
@@ -409,6 +424,7 @@ namespace Wake.Narrative
                 return;
             }
 
+            typewriter?.CancelAndShowAll();
             for (int i = 0; i < choiceButtons.Length; i++)
             {
                 bool active = i < currentNode.Options.Count;
@@ -436,6 +452,12 @@ namespace Wake.Narrative
 
         private void OnNextClicked()
         {
+            if (typewriter != null &&
+                typewriter.CompleteImmediately())
+            {
+                return;
+            }
+
             if (ambientLineActive)
             {
                 EndDialogue();
@@ -488,6 +510,7 @@ namespace Wake.Narrative
             currentNode = null;
             productionFlow = null;
             ambientLineActive = false;
+            typewriter?.CancelAndShowAll();
             if (linePanel != null)
             {
                 linePanel.SetActive(false);
@@ -565,6 +588,19 @@ namespace Wake.Narrative
                 productionFlow.CurrentIndex,
                 productionFlow.IsAwaitingChoice,
                 productionFlow.PendingInteractionId);
+        }
+
+        private void RevealLine(string text)
+        {
+            if (typewriter != null)
+            {
+                typewriter.Play(text);
+            }
+            else if (lineText != null)
+            {
+                lineText.text = text ?? string.Empty;
+            }
+            responsiveLayout?.ResetTextScroll();
         }
     }
 }

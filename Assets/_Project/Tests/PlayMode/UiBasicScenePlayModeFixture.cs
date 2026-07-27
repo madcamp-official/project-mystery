@@ -105,6 +105,10 @@ namespace Wake.Tests.PlayMode
         protected IEnumerator InvokeAndSettle(Button button)
         {
             Assert.That(button, Is.Not.Null);
+            DialogueTypewriter reveal = button.name == "Next"
+                ? Object.FindFirstObjectByType<DialogueTypewriter>()
+                : null;
+            bool needsAdvance = reveal?.IsRevealing == true;
             Assert.That(
                 button.gameObject.activeInHierarchy,
                 Is.True,
@@ -117,6 +121,8 @@ namespace Wake.Tests.PlayMode
             button.onClick.Invoke();
             yield return null;
             yield return null;
+            if (needsAdvance)
+                button.onClick.Invoke();
         }
 
         protected IEnumerator AdvanceToVisibleChoices(int maximumSteps = 200)
