@@ -96,6 +96,10 @@ namespace Wake.Narrative
                 "AmbientCharacters/crew_security")
         };
 
+        // Several ambient passengers share the same display name ("승객")
+        // by design - they're interchangeable crowd NPCs. Group instead of
+        // ToDictionary so a shared display name resolves to its first
+        // (canonical) entry instead of throwing on the duplicate key.
         private static readonly IReadOnlyDictionary<string, DialoguePortraitDefinition>
             ById = Entries
                 .SelectMany(entry => new[]
@@ -107,7 +111,10 @@ namespace Wake.Narrative
                         entry.DisplayName,
                         entry)
                 })
-                .ToDictionary(pair => pair.Key, pair => pair.Value,
+                .GroupBy(pair => pair.Key, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.First().Value,
                     StringComparer.OrdinalIgnoreCase);
 
         public static IReadOnlyList<DialoguePortraitDefinition> All => Entries;
