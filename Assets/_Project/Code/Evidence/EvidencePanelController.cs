@@ -104,7 +104,11 @@ namespace Wake.Evidence
             turnLeftButton.onClick.AddListener(() => Rotate(-1));
             turnRightButton.onClick.AddListener(() => Rotate(1));
             theoryBoardButton.onClick.AddListener(OpenTheoryBoard);
-            ApplyRuntimeFont(evidenceRoot);
+            EvidenceTypography.ApplySurface(
+                evidenceRoot,
+                titleText,
+                detailText,
+                theoryBoardButton.GetComponentInChildren<TMP_Text>(true));
         }
 
         private void LayoutRects()
@@ -141,21 +145,6 @@ namespace Wake.Evidence
             {
                 label.text = "가설 보드";
                 label.alignment = TextAlignmentOptions.Center;
-            }
-        }
-
-        private static void ApplyRuntimeFont(Transform root)
-        {
-            TMP_FontAsset koreanFont = StatusHUDController.RuntimeKoreanFont;
-            if (root == null || koreanFont == null)
-            {
-                return;
-            }
-
-            foreach (TMP_Text label in root.GetComponentsInChildren<TMP_Text>(true))
-            {
-                label.font = koreanFont;
-                label.SetAllDirty();
             }
         }
 
@@ -228,11 +217,7 @@ namespace Wake.Evidence
                 if (label != null)
                 {
                     label.text = viewModel.Items[i].CarouselLabel;
-                    TMP_FontAsset koreanFont = StatusHUDController.RuntimeKoreanFont;
-                    if (koreanFont != null)
-                    {
-                        label.font = koreanFont;
-                    }
+                    EvidenceTypography.ApplyCarouselLabel(label);
                 }
 
                 Image background = instance.GetComponent<Image>();
