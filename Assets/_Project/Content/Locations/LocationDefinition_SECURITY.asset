@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Security
   deck: 8
   roomCode: D8-3
-  backgroundSprite: {fileID: 21300000, guid: 029dbf9cf0f02304483c8fe564f11d77, type: 3}
+  backgroundSprite: {fileID: 21300000, guid: fedc476c37e04b2086b7a1771210ea2c, type: 3}
   narrativeAliases:
   - INTERVIEW
   contentPrefab: {fileID: 0}

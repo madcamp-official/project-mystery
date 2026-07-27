@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Ballast Control Annex
   deck: 7
   roomCode: D7-2
-  backgroundSprite: {fileID: 21300000, guid: 7c816c5326e9f6e4cae50a3deccade3e, type: 3}
+  backgroundSprite: {fileID: 21300000, guid: 7041110e723e440e86adc77aed7364e0, type: 3}
   narrativeAliases:
   - BALLAST
   contentPrefab: {fileID: 0}

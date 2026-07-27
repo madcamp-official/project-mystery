@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Port
   deck: 0
   roomCode:
-  backgroundSprite: {fileID: 21300000, guid: d0ed3ac38a4dca646a3d0831c7f0cf6d, type: 3}
+  backgroundSprite: {fileID: 21300000, guid: fd85cdd6e6e64585af8ae2d616ecab6e, type: 3}
   narrativeAliases: []
   contentPrefab: {fileID: 0}
   connectedLocations: []

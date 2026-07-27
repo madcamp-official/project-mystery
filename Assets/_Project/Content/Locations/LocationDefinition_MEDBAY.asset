@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Medbay
   deck: 7
   roomCode: D7-1
-  backgroundSprite: {fileID: 21300000, guid: a68c428fb980c734081271ea1c6c6655, type: 3}
+  backgroundSprite: {fileID: 21300000, guid: b556c7c28b094d4b8d664e0539bd22bb, type: 3}
   narrativeAliases:
   - FORENSIC
   contentPrefab: {fileID: 0}

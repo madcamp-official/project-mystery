@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Horizon Room
   deck: 9
   roomCode: D9-4
-  backgroundSprite: {fileID: 21300000, guid: d64be424f7c6f284487434b0435b4c2f, type: 3}
+  backgroundSprite: {fileID: 21300000, guid: 18ad6fb49feb40daac3eebab664bb05f, type: 3}
   narrativeAliases: []
   contentPrefab: {fileID: 0}
   connectedLocations: []
