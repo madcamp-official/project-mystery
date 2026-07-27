@@ -55,6 +55,7 @@ namespace Wake.Core
             "trust", "flags",
             "collectedEvidenceIds", "completedProductionSceneIds",
             "completedObjectiveIds", "puzzleSessions", "unlockedDeductionIds",
+            "unlockedProductionSceneIds", "runtimeCounters",
             "finalEndingId", "currentLocationCode", "dialogueCheckpoint"
         };
         private enum SaveSource
