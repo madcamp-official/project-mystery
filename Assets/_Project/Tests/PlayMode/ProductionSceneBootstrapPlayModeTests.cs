@@ -296,6 +296,22 @@ namespace Wake.Tests.PlayMode
                     Is.EqualTo(0f).Within(0.5f),
                     $"{button.name} visible feet must coincide with the " +
                     "location stage anchor.");
+                Assert.That(
+                    AmbientWorldStageCatalog.TryGet(
+                        "PORT",
+                        bark.Speaker,
+                        out AmbientWorldStageProfile stage),
+                    Is.True);
+                float visibleBodyHeight =
+                    rect.rect.height * asset.VisibleVerticalSpan;
+                float expectedBodyHeight =
+                    rect.parent.GetComponent<RectTransform>().rect.height *
+                    stage.NormalizedHeight;
+                Assert.That(
+                    visibleBodyHeight,
+                    Is.EqualTo(expectedBodyHeight).Within(0.5f),
+                    $"{button.name} must size the visible body, not the " +
+                    "transparent atlas cell, to the perspective profile.");
             }
             foreach (RawImage groundShadow in groundShadows)
             {

@@ -122,10 +122,31 @@ namespace Wake.Tests
                 Is.True);
             Assert.That(laundry.Anchor.x, Is.EqualTo(.38f).Within(.001f));
             Assert.That(laundry.Anchor.y, Is.EqualTo(.055f).Within(.001f));
-            Assert.That(laundry.NormalizedHeight, Is.EqualTo(.50f));
+            Assert.That(laundry.NormalizedHeight, Is.EqualTo(.60f));
+            Assert.That(
+                laundry.Anchor.y + laundry.NormalizedHeight,
+                Is.LessThan(.70f));
             Assert.That(laundry.Exposure, Is.LessThan(.85f));
             Assert.That(laundry.Saturation, Is.LessThan(.75f));
             Assert.That(laundry.Softness, Is.GreaterThan(.25f));
+        }
+
+        [Test]
+        public void StageProfiles_UseHumanScaleWithoutLeavingTheBackground()
+        {
+            foreach (AmbientWorldStageRecord stage in
+                     AmbientWorldStageCatalog.All)
+            {
+                Assert.That(
+                    stage.Profile.NormalizedHeight,
+                    Is.InRange(.50f, .65f),
+                    $"{stage.Location}|{stage.Speaker}");
+                Assert.That(
+                    stage.Profile.Anchor.y +
+                    stage.Profile.NormalizedHeight,
+                    Is.LessThan(.75f),
+                    $"{stage.Location}|{stage.Speaker}");
+            }
         }
     }
 }

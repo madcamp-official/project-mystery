@@ -10,7 +10,8 @@ namespace Wake.Exploration
             string resourcePath,
             Rect uvRect,
             float cellAspectRatio,
-            float visibleBottomMargin)
+            float visibleBottomMargin,
+            float visibleTopMargin)
         {
             ResourcePath = resourcePath ?? string.Empty;
             UvRect = uvRect;
@@ -19,12 +20,21 @@ namespace Wake.Exploration
                 visibleBottomMargin,
                 0f,
                 0.25f);
+            VisibleTopMargin = Mathf.Clamp(
+                visibleTopMargin,
+                0f,
+                0.25f);
         }
 
         public string ResourcePath { get; }
         public Rect UvRect { get; }
         public float CellAspectRatio { get; }
         public float VisibleBottomMargin { get; }
+        public float VisibleTopMargin { get; }
+        public float VisibleVerticalSpan =>
+            Mathf.Max(
+                0.5f,
+                1f - VisibleBottomMargin - VisibleTopMargin);
     }
 
     public readonly struct AmbientWorldPlacement
@@ -165,11 +175,14 @@ namespace Wake.Exploration
             const float width = 0.2f;
             float[] bottomMargins =
                 { 0.1229f, 0.1387f, 0.1048f, 0.1251f, 0.0800f };
+            float[] topMargins =
+                { 0.0586f, 0.0857f, 0.0496f, 0.0958f, 0.0609f };
             return new AmbientWorldCharacterAsset(
                 AtlasA,
                 new Rect(column * width, 0f, width, 1f),
                 0.4f,
-                bottomMargins[column]);
+                bottomMargins[column],
+                topMargins[column]);
         }
 
         private static AmbientWorldCharacterAsset B(int column)
@@ -177,11 +190,14 @@ namespace Wake.Exploration
             const float width = 0.25f;
             float[] bottomMargins =
                 { 0.0000f, 0.0688f, 0.0575f, 0.0609f };
+            float[] topMargins =
+                { 0.0304f, 0.0361f, 0.0406f, 0.0428f };
             return new AmbientWorldCharacterAsset(
                 AtlasB,
                 new Rect(column * width, 0f, width, 1f),
                 0.5f,
-                bottomMargins[column]);
+                bottomMargins[column],
+                topMargins[column]);
         }
 
         private static AmbientWorldCharacterAsset Specialist(
@@ -189,22 +205,28 @@ namespace Wake.Exploration
             int column)
         {
             const float width = 0.2f;
-            float visibleBottomMargin = BottomMargin(atlas, column);
+            Vector2 visibleMargins = VisibleMargins(atlas, column);
             return new AmbientWorldCharacterAsset(
                 atlas,
                 new Rect(column * width, 0f, width, 1f),
                 0.4f,
-                visibleBottomMargin);
+                visibleMargins.x,
+                visibleMargins.y);
         }
 
-        private static float BottomMargin(string atlas, int column)
+        private static Vector2 VisibleMargins(string atlas, int column)
         {
-            float[] values = atlas == PublicSpecialists
+            float[] bottom = atlas == PublicSpecialists
                 ? new[] { .1094f, .1105f, .1026f, .1060f, .1127f }
                 : atlas == OperationsSpecialists
                     ? new[] { .1330f, .1319f, .1206f, .1229f, .1184f }
                     : new[] { .0992f, .1094f, .1094f, .1003f, .0936f };
-            return values[column];
+            float[] top = atlas == PublicSpecialists
+                ? new[] { .0902f, .0992f, .0710f, .0913f, .1037f }
+                : atlas == OperationsSpecialists
+                    ? new[] { .0902f, .0924f, .1184f, .0879f, .0800f }
+                    : new[] { .0710f, .0958f, .0643f, .0496f, .0586f };
+            return new Vector2(bottom[column], top[column]);
         }
     }
 }

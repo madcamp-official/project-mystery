@@ -19,8 +19,7 @@ namespace Wake.Exploration
             public GameObject GroundShadowObject;
             public RectTransform GroundShadowRect;
             public RawImage GroundShadowImage;
-            public float CellAspectRatio;
-            public float VisibleBottomMargin;
+            public AmbientWorldCharacterAsset Asset;
             public Rect AtlasUvRect;
             public Material BlendMaterial;
         }
@@ -121,8 +120,7 @@ namespace Wake.Exploration
                 GroundShadowRect =
                     groundShadow.GetComponent<RectTransform>(),
                 GroundShadowImage = groundShadow.GetComponent<RawImage>(),
-                CellAspectRatio = asset.CellAspectRatio,
-                VisibleBottomMargin = asset.VisibleBottomMargin,
+                Asset = asset,
                 AtlasUvRect = asset.UvRect,
                 BlendMaterial = blendMaterial
             };
@@ -196,13 +194,16 @@ namespace Wake.Exploration
             view.Rect.anchorMax = anchor;
             view.Rect.pivot = new Vector2(0.5f, 0f);
 
-            float height =
-                contentRect.rect.height * stage.NormalizedHeight;
+            Vector2 contentSize = contentRect.rect.size;
+            AmbientWorldLayoutMetrics geometry =
+                AmbientWorldGeometry.Calculate(
+                    contentSize,
+                    stage,
+                    view.Asset);
             view.Rect.anchoredPosition = new Vector2(
                 0f,
-                -height * view.VisibleBottomMargin);
-            view.Rect.sizeDelta =
-                new Vector2(height * view.CellAspectRatio, height);
+                geometry.AnchoredOffsetY);
+            view.Rect.sizeDelta = geometry.RectSize;
 
             Rect uv = view.Image.uvRect;
             float width = Mathf.Abs(uv.width);
@@ -216,7 +217,6 @@ namespace Wake.Exploration
                     stage.LightTint);
             ApplyBlendMaterial(view, stage);
 
-            Vector2 contentSize = contentRect.rect.size;
             view.SilhouetteShadow.effectColor =
                 new Color(0f, 0f, 0f, stage.ShadowOpacity);
             view.SilhouetteShadow.effectDistance = new Vector2(
@@ -229,9 +229,8 @@ namespace Wake.Exploration
             view.GroundShadowRect.anchoredPosition = new Vector2(
                 stage.ShadowDirection.x * contentSize.x * 0.3f,
                 0f);
-            view.GroundShadowRect.sizeDelta = new Vector2(
-                height * view.CellAspectRatio * stage.GroundShadowScale,
-                Mathf.Max(8f, height * 0.045f));
+            view.GroundShadowRect.sizeDelta =
+                geometry.GroundShadowSize;
             view.GroundShadowImage.color =
                 new Color(0f, 0f, 0f, stage.ShadowOpacity * 0.72f);
         }
