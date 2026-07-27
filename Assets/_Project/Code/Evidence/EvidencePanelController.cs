@@ -315,6 +315,9 @@ namespace Wake.Evidence
                 EvidencePanelItem item = selected.Value;
                 titleText.text = item.Title;
                 detailText.text = item.Detail;
+                EvidenceTypography.ApplyDetail(
+                    detailText,
+                    item.Entry.Category);
                 detailImage.gameObject.SetActive(item.HasImage);
                 if (item.HasImage)
                 {

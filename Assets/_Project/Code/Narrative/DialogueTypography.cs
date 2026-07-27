@@ -62,5 +62,20 @@ namespace Wake.Narrative
 
             return applied;
         }
+
+        public static bool ApplyChoice(TMP_Text label, string content)
+        {
+            return TypographyService.Apply(
+                label,
+                ResolveChoiceRole(content));
+        }
+
+        public static TypographyRole ResolveChoiceRole(string content)
+        {
+            return !string.IsNullOrEmpty(content) &&
+                content.Contains("농담", System.StringComparison.Ordinal)
+                    ? TypographyRole.SpecialComic
+                    : TypographyRole.Choice;
+        }
     }
 }

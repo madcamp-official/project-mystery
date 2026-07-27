@@ -304,6 +304,9 @@ namespace Wake.Narrative
 
                     int selectedIndex = i;
                     choiceLabels[i].text = productionFlow.Choices[i].TextKo;
+                    DialogueTypography.ApplyChoice(
+                        choiceLabels[i],
+                        productionFlow.Choices[i].TextKo);
                     choiceButtons[i].onClick.RemoveAllListeners();
                     choiceButtons[i].onClick.AddListener(() =>
                     {
@@ -386,6 +389,9 @@ namespace Wake.Narrative
                 }
 
                 choiceLabels[i].text = label;
+                DialogueTypography.ApplyChoice(
+                    choiceLabels[i],
+                    label);
                 choiceButtons[i].onClick.RemoveAllListeners();
                 choiceButtons[i].onClick.AddListener(() => ResolveOption(option));
             }
