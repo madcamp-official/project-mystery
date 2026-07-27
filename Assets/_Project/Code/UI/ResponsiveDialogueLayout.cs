@@ -63,10 +63,14 @@ namespace Wake.UI
         public const float NavigationButtonWidth = 260f;
         public const float NavigationButtonHeight = 76f;
 
-        [Header("Portrait (code-created, no scene baseline to respect)")]
+        [Header("Portrait (code-created every run, no scene baseline to " +
+            "respect - the speaker plate/text next to it ARE scene " +
+            "objects and follow their own Inspector placement instead)")]
         [SerializeField] private float edgePadding = EdgePadding;
-        [SerializeField] private Vector2 portraitSize = new(260f, 300f);
-        [SerializeField] private Vector2 speakerPlateSize = new(460f, 68f);
+        [SerializeField] private Vector2 portraitSize = new(320f, 400f);
+        [Tooltip("Gap between the portrait's bottom edge and the dialogue " +
+            "panel's top edge. Portrait sits above the panel, not inside it.")]
+        [SerializeField] private float portraitTopGap = 20f;
 
         private RectTransform ingameRoot;
         private RectTransform linePanel;
@@ -96,6 +100,7 @@ namespace Wake.UI
         private RectBaseline mapBtnBaseline;
         private RectBaseline settingsBtnBaseline;
         private RectBaseline lineTextBaseline;
+        private RectBaseline speakerPlateBaseline;
 
         public void Initialize(
             Canvas targetCanvas,
@@ -175,6 +180,8 @@ namespace Wake.UI
                 settingsBtnBaseline = new RectBaseline(settingsBtn);
             if (lineText != null)
                 lineTextBaseline = new RectBaseline(lineText.rectTransform);
+            if (speakerPlate != null)
+                speakerPlateBaseline = new RectBaseline(speakerPlate);
         }
 
         /// <summary>
@@ -232,30 +239,23 @@ namespace Wake.UI
                 lineText != null ? lineText.rectTransform : null,
                 lineTextBaseline,
                 scale);
+            ApplyBaseline(speakerPlate, speakerPlateBaseline, scale);
             UpdateChoiceGrid();
 
-            // Portrait/speaker plate are created fresh in code every run
+            // Portrait is created fresh in code every run
             // (DialogueController.CreatePortrait) — there is no scene
-            // placement to respect, so these stay formula-driven.
+            // placement to respect, so it stays formula-driven. It's
+            // parented to Line Panel but sits ABOVE it (positive Y,
+            // since pivot/anchor are both 1 = the panel's top edge) so
+            // it doesn't overlap the dialogue text inside the panel.
             if (portrait != null)
             {
                 portrait.anchorMin = new Vector2(0f, 1f);
                 portrait.anchorMax = new Vector2(0f, 1f);
                 portrait.pivot = new Vector2(0f, 1f);
-                portrait.anchoredPosition =
-                    new Vector2(edgePadding, -edgePadding);
+                portrait.anchoredPosition = new Vector2(
+                    edgePadding, portraitSize.y + portraitTopGap);
                 portrait.sizeDelta = portraitSize;
-            }
-
-            if (speakerPlate != null)
-            {
-                speakerPlate.anchorMin = new Vector2(0f, 1f);
-                speakerPlate.anchorMax = new Vector2(0f, 1f);
-                speakerPlate.pivot = new Vector2(0f, 1f);
-                speakerPlate.anchoredPosition = new Vector2(
-                    edgePadding * 2f + portraitSize.x,
-                    -edgePadding);
-                speakerPlate.sizeDelta = speakerPlateSize;
             }
 
             lastSafeArea = safeArea;

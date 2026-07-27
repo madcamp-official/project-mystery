@@ -15,8 +15,6 @@ namespace Wake.UI
         private const float TimeFontSize = 46f;
         private const float IndicatorFontSize = 34f;
         private const float ProgressFontSize = 28f;
-        private const float TrustHeight = 88f;
-        private const float TrustWidth = 520f;
         private const float TrustFontSize = 30f;
         private const float IconSize = 44f;
         private const float MarkerSize = 18f;
@@ -45,6 +43,15 @@ namespace Wake.UI
         [Header("Trust Art")]
         [SerializeField] private Sprite trustPipEmptySprite;
         [SerializeField] private Sprite trustPipFilledSprite;
+
+        [Header("Trust Panel Layout")]
+        [Tooltip("Trust panel is anchored to the bottom-center of the " +
+            "speaker plate (Ingame/Line Panel/Image) and hangs below it " +
+            "by this offset. Keep it below the speaker plate/portrait " +
+            "row and above where the dialogue text starts.")]
+        [SerializeField] private Vector2 trustSize = new(520f, 88f);
+        [SerializeField] private Vector2 trustOffsetFromSpeakerPlate =
+            new(0f, -10f);
 
         private TMP_Text timeText;
         private TMP_Text anxietyText;
@@ -89,6 +96,15 @@ namespace Wake.UI
         private void OnDisable()
         {
             UnbindState();
+        }
+
+        private void OnValidate()
+        {
+            if (!isActiveAndEnabled)
+            {
+                return;
+            }
+            BuildWireframe();
         }
 
         public void BuildWireframe()
@@ -159,17 +175,25 @@ namespace Wake.UI
             Transform portraitFrame = transform.parent?.Find("Ingame/Line Panel/Image");
             if (portraitFrame != null)
             {
+                bool trustRootIsNew = portraitFrame.Find("Context Trust") == null;
                 trustRoot = EnsureChild(
                     portraitFrame,
                     "Context Trust",
                     typeof(CanvasRenderer),
                     typeof(Image));
                 RectTransform trustRect = trustRoot.GetComponent<RectTransform>();
-                trustRect.anchorMin = new Vector2(0.5f, 0f);
-                trustRect.anchorMax = new Vector2(0.5f, 0f);
-                trustRect.pivot = new Vector2(0.5f, 1f);
-                trustRect.anchoredPosition = new Vector2(0f, -10f);
-                trustRect.sizeDelta = new Vector2(TrustWidth, TrustHeight);
+                // Only lay it out the first time it's created. Once it
+                // exists in the scene, its RectTransform is an Inspector
+                // concern - re-running BuildWireframe (OnValidate,
+                // OnEnable, domain reload) must not stomp manual edits.
+                if (trustRootIsNew)
+                {
+                    trustRect.anchorMin = new Vector2(0.5f, 0f);
+                    trustRect.anchorMax = new Vector2(0.5f, 0f);
+                    trustRect.pivot = new Vector2(0.5f, 1f);
+                    trustRect.anchoredPosition = trustOffsetFromSpeakerPlate;
+                    trustRect.sizeDelta = trustSize;
+                }
                 trustRoot.GetComponent<Image>().color = Navy;
                 trustText = EnsureText(
                     trustRect,

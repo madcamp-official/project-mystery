@@ -123,6 +123,11 @@ namespace Wake.Tests
                 Is.EqualTo(rig.AuthoredSettingsButtonAnchor));
             Assert.That(rig.SettingsButton.anchoredPosition,
                 Is.EqualTo(rig.AuthoredSettingsButtonPosition).Using(Vector2Comparer));
+
+            Assert.That(rig.SpeakerPlate.anchoredPosition,
+                Is.EqualTo(rig.AuthoredSpeakerPlatePosition).Using(Vector2Comparer));
+            Assert.That(rig.SpeakerPlate.sizeDelta,
+                Is.EqualTo(rig.AuthoredSpeakerPlateSize).Using(Vector2Comparer));
         }
 
         [Test]
@@ -154,7 +159,7 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void Portrait_UsesFixedTopLeftAnchorAndHeightControlledAspect()
+        public void Portrait_SitsAbovePanelTopEdgeNotInsideIt()
         {
             using LayoutRig rig = new(1920f, 1080f);
 
@@ -167,9 +172,14 @@ namespace Wake.Tests
             Assert.That(rig.Portrait.pivot, Is.EqualTo(new Vector2(0f, 1f)));
             Assert.That(rig.Portrait.anchoredPosition.x,
                 Is.EqualTo(ResponsiveDialogueLayout.EdgePadding));
-            Assert.That(rig.Portrait.anchoredPosition.y,
-                Is.EqualTo(-ResponsiveDialogueLayout.EdgePadding));
-            Assert.That(rig.Portrait.sizeDelta.y, Is.EqualTo(300f));
+            // Positive Y (not negative) is the point: with a top anchor/
+            // pivot, positive Y means the portrait's bottom edge sits at
+            // or above the panel's top edge instead of inside the panel.
+            Assert.That(rig.Portrait.anchoredPosition.y, Is.GreaterThan(0f));
+            Assert.That(
+                rig.Portrait.anchoredPosition.y -
+                    rig.Portrait.sizeDelta.y,
+                Is.GreaterThanOrEqualTo(-0.01f));
             Assert.That(
                 rig.Portrait.GetComponent<AspectRatioFitter>().aspectMode,
                 Is.EqualTo(
@@ -313,6 +323,13 @@ namespace Wake.Tests
 
                 Panel = CreateRect("Panel", LinePanel);
                 SpeakerPlate = CreateRect("Image", LinePanel);
+                AuthoredSpeakerPlatePosition = new Vector2(348f, 420f);
+                AuthoredSpeakerPlateSize = new Vector2(460f, 68f);
+                SpeakerPlate.anchorMin = new Vector2(0f, 1f);
+                SpeakerPlate.anchorMax = new Vector2(0f, 1f);
+                SpeakerPlate.pivot = new Vector2(0f, 1f);
+                SpeakerPlate.anchoredPosition = AuthoredSpeakerPlatePosition;
+                SpeakerPlate.sizeDelta = AuthoredSpeakerPlateSize;
                 Choices = CreateRect("Select Btn", LinePanel);
 
                 LineText = CreateText("line", Panel);
@@ -371,6 +388,8 @@ namespace Wake.Tests
             public RectTransform LinePanel { get; }
             public RectTransform Panel { get; }
             public RectTransform SpeakerPlate { get; }
+            public Vector2 AuthoredSpeakerPlatePosition { get; private set; }
+            public Vector2 AuthoredSpeakerPlateSize { get; private set; }
             public RectTransform Portrait { get; }
             public RectTransform Choices { get; }
             public RectTransform NextButton { get; }
