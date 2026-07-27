@@ -78,6 +78,7 @@ namespace Wake.UI
         [SerializeField] private float portraitTopGap = 20f;
 
         private RectTransform ingameRoot;
+        private Canvas canvas;
         private RectTransform linePanel;
         private RectTransform textPanel;
         private RectTransform portrait;
@@ -117,6 +118,7 @@ namespace Wake.UI
             RectTransform targetChoices,
             IReadOnlyList<Button> targetChoiceButtons)
         {
+            canvas = targetCanvas;
             linePanel = targetLinePanel;
             ingameRoot = linePanel != null
                 ? linePanel.parent as RectTransform
@@ -237,6 +239,7 @@ namespace Wake.UI
             ApplyBaseline(textPanel, textPanelBaseline, scale);
             ApplyBaseline(nextButton, nextButtonBaseline, scale);
             ApplyBaseline(choices, choicesBaseline, scale);
+            ApplyChoiceHorizontalSafeArea(safeArea, screenSize);
             ApplyBaseline(evidenceBtn, evidenceBtnBaseline, scale);
             ApplyBaseline(mapBtn, mapBtnBaseline, scale);
             ApplyBaseline(settingsBtn, settingsBtnBaseline, scale);
@@ -267,6 +270,39 @@ namespace Wake.UI
             lastScreen = new Vector2Int(
                 Mathf.RoundToInt(screenSize.x),
                 Mathf.RoundToInt(screenSize.y));
+        }
+
+        private void ApplyChoiceHorizontalSafeArea(
+            Rect safeArea,
+            Vector2 screenSize)
+        {
+            if (choices == null)
+                return;
+
+            float canvasScale = canvas != null
+                ? Mathf.Max(0.0001f, canvas.scaleFactor)
+                : 1f;
+            float leftInset =
+                Mathf.Max(0f, safeArea.xMin) / canvasScale;
+            float rightInset = Mathf.Max(
+                    0f,
+                    screenSize.x - safeArea.xMax) /
+                canvasScale;
+            float authoredLeft =
+                choicesBaseline.AnchoredPosition.x -
+                choicesBaseline.SizeDelta.x * 0.5f;
+            float authoredRight =
+                -choicesBaseline.AnchoredPosition.x -
+                choicesBaseline.SizeDelta.x * 0.5f;
+            float left = authoredLeft + leftInset;
+            float right = authoredRight + rightInset;
+
+            choices.anchoredPosition = new Vector2(
+                (left - right) * 0.5f,
+                choices.anchoredPosition.y);
+            choices.sizeDelta = new Vector2(
+                -(left + right),
+                choices.sizeDelta.y);
         }
 
         private void ConfigureIngameRoot()

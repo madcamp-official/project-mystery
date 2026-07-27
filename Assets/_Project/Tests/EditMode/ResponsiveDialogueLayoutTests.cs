@@ -159,6 +159,30 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void HorizontalSafeAreaInsets_AreAddedToAuthoredChoiceMargins()
+        {
+            using LayoutRig rig = new(2000f, 1000f);
+            Vector2 screenSize = new(2000f, 1000f);
+
+            rig.Layout.ApplyLayout(
+                new Rect(0f, 0f, 2000f, 1000f),
+                screenSize);
+            rig.Layout.ApplyLayout(
+                new Rect(100f, 0f, 1800f, 1000f),
+                screenSize);
+
+            float leftMargin =
+                rig.Choices.anchoredPosition.x -
+                rig.Choices.sizeDelta.x * 0.5f;
+            float rightMargin =
+                -rig.Choices.anchoredPosition.x -
+                rig.Choices.sizeDelta.x * 0.5f;
+
+            Assert.That(leftMargin, Is.EqualTo(520f).Within(0.01f));
+            Assert.That(rightMargin, Is.EqualTo(140f).Within(0.01f));
+        }
+
+        [Test]
         public void Portrait_SitsAbovePanelTopEdgeNotInsideIt()
         {
             using LayoutRig rig = new(1920f, 1080f);
@@ -352,6 +376,11 @@ namespace Wake.Tests
                 SpeakerPlate.anchoredPosition = AuthoredSpeakerPlatePosition;
                 SpeakerPlate.sizeDelta = AuthoredSpeakerPlateSize;
                 Choices = CreateRect("Select Btn", LinePanel);
+                Choices.anchorMin = new Vector2(0f, 1f);
+                Choices.anchorMax = new Vector2(1f, 1f);
+                Choices.pivot = new Vector2(0.5f, 0f);
+                Choices.anchoredPosition = new Vector2(190f, 20f);
+                Choices.sizeDelta = new Vector2(-460f, 132f);
 
                 LineText = CreateText("line", Panel);
                 AuthoredLineTextOverflow = TextOverflowModes.Linked;
