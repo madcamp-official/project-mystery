@@ -117,7 +117,10 @@ namespace Wake.Exploration
             evidenceHotspots.Initialize(backgroundPresenter.ContentRect);
             ambientCharacters =
                 presenterObject.AddComponent<AmbientCharacterHotspotOverlay>();
-            ambientCharacters.Initialize(backgroundPresenter.ContentRect);
+            // Character buttons are navigation UI, not image-space hotspots.
+            // Parenting them to the cover image makes its crop/focus offset
+            // move the buttons beyond the visible screen edge.
+            ambientCharacters.Initialize(backgroundPresenter.ViewportRect);
             ambientInspectables =
                 presenterObject.AddComponent<AmbientInspectableOverlay>();
             ambientInspectables.Initialize(backgroundPresenter.ContentRect);

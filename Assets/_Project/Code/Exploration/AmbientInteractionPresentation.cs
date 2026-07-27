@@ -24,6 +24,8 @@ namespace Wake.Exploration
         public const float MaximumAnchorX = 0.88f;
         public const float CharacterButtonWidth = 184f;
         public const float CharacterButtonHeight = 72f;
+        public const float CharacterEdgePadding = 16f;
+        public const float CharacterSpacing = 16f;
 
         private static readonly Color CharacterNormal =
             new Color32(24, 31, 46, 238);
@@ -63,6 +65,50 @@ namespace Wake.Exploration
                 new Vector2(
                     CharacterButtonWidth,
                     CharacterButtonHeight));
+        }
+
+        public static AmbientCharacterPlacement CharacterPlacement(
+            int index,
+            int count,
+            float viewportWidth,
+            float safeAreaX,
+            float safeAreaWidth)
+        {
+            if (viewportWidth <= 0f || safeAreaWidth <= 0f)
+                return CharacterPlacement(index, count);
+
+            int safeCount = Mathf.Max(1, count);
+            int safeIndex = Mathf.Clamp(index, 0, safeCount - 1);
+            float clampedSafeX = Mathf.Clamp(
+                safeAreaX,
+                0f,
+                viewportWidth);
+            float clampedSafeWidth = Mathf.Clamp(
+                safeAreaWidth,
+                0f,
+                viewportWidth - clampedSafeX);
+            float totalSpacing = CharacterSpacing * (safeCount - 1);
+            float availableForButtons = Mathf.Max(
+                safeCount,
+                clampedSafeWidth -
+                CharacterEdgePadding * 2f -
+                totalSpacing);
+            float buttonWidth = Mathf.Min(
+                CharacterButtonWidth,
+                availableForButtons / safeCount);
+            float groupWidth =
+                buttonWidth * safeCount + totalSpacing;
+            float firstCenter =
+                clampedSafeX +
+                (clampedSafeWidth - groupWidth) * 0.5f +
+                buttonWidth * 0.5f;
+            float center =
+                firstCenter +
+                safeIndex * (buttonWidth + CharacterSpacing);
+
+            return new AmbientCharacterPlacement(
+                center / viewportWidth,
+                new Vector2(buttonWidth, CharacterButtonHeight));
         }
 
         public static string CharacterLabel(
