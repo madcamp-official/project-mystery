@@ -9,16 +9,22 @@ namespace Wake.Exploration
         public AmbientWorldCharacterAsset(
             string resourcePath,
             Rect uvRect,
-            float cellAspectRatio)
+            float cellAspectRatio,
+            float visibleBottomMargin)
         {
             ResourcePath = resourcePath ?? string.Empty;
             UvRect = uvRect;
             CellAspectRatio = Mathf.Max(0.01f, cellAspectRatio);
+            VisibleBottomMargin = Mathf.Clamp(
+                visibleBottomMargin,
+                0f,
+                0.25f);
         }
 
         public string ResourcePath { get; }
         public Rect UvRect { get; }
         public float CellAspectRatio { get; }
+        public float VisibleBottomMargin { get; }
     }
 
     public readonly struct AmbientWorldPlacement
@@ -157,19 +163,25 @@ namespace Wake.Exploration
         private static AmbientWorldCharacterAsset A(int column)
         {
             const float width = 0.2f;
+            float[] bottomMargins =
+                { 0.1229f, 0.1387f, 0.1048f, 0.1251f, 0.0800f };
             return new AmbientWorldCharacterAsset(
                 AtlasA,
                 new Rect(column * width, 0f, width, 1f),
-                0.4f);
+                0.4f,
+                bottomMargins[column]);
         }
 
         private static AmbientWorldCharacterAsset B(int column)
         {
             const float width = 0.25f;
+            float[] bottomMargins =
+                { 0.0000f, 0.0688f, 0.0575f, 0.0609f };
             return new AmbientWorldCharacterAsset(
                 AtlasB,
                 new Rect(column * width, 0f, width, 1f),
-                0.5f);
+                0.5f,
+                bottomMargins[column]);
         }
 
         private static AmbientWorldCharacterAsset Specialist(
@@ -177,10 +189,22 @@ namespace Wake.Exploration
             int column)
         {
             const float width = 0.2f;
+            float visibleBottomMargin = BottomMargin(atlas, column);
             return new AmbientWorldCharacterAsset(
                 atlas,
                 new Rect(column * width, 0f, width, 1f),
-                0.4f);
+                0.4f,
+                visibleBottomMargin);
+        }
+
+        private static float BottomMargin(string atlas, int column)
+        {
+            float[] values = atlas == PublicSpecialists
+                ? new[] { .1094f, .1105f, .1026f, .1060f, .1127f }
+                : atlas == OperationsSpecialists
+                    ? new[] { .1330f, .1319f, .1206f, .1229f, .1184f }
+                    : new[] { .0992f, .1094f, .1094f, .1003f, .0936f };
+            return values[column];
         }
     }
 }

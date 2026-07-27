@@ -266,10 +266,36 @@ namespace Wake.Tests.PlayMode
                     Is.EqualTo(character.color),
                     $"{button.name} must preserve tint between UI states.");
                 Assert.That(
+                    rect.anchoredPosition.y,
+                    Is.LessThan(0f),
+                    $"{button.name} must remove transparent atlas padding " +
+                    "so its visible feet reach the stage anchor.");
+                Assert.That(
+                    character.material.shader.name,
+                    Is.EqualTo("Wake/UI/Ambient Character Blend"),
+                    $"{button.name} must use the background blend shader.");
+                Assert.That(
                     button.GetComponentInChildren<TMP_Text>(),
                     Is.Null,
                     $"{button.name} must not use a separate dialogue box.");
-                AssertInsideSafeArea(rect, button.name);
+                AmbientBarkRecord bark = AmbientBarkCatalog
+                    .GetAvailable("PORT", State)
+                    .First(item =>
+                        button.name.StartsWith(
+                            $"AmbientCharacter_{item.Speaker}_"));
+                Assert.That(
+                    AmbientWorldCharacterCatalog.TryGetAsset(
+                        bark.Speaker,
+                        out AmbientWorldCharacterAsset asset),
+                    Is.True);
+                float visibleFootOffset =
+                    rect.anchoredPosition.y +
+                    rect.rect.height * asset.VisibleBottomMargin;
+                Assert.That(
+                    visibleFootOffset,
+                    Is.EqualTo(0f).Within(0.5f),
+                    $"{button.name} visible feet must coincide with the " +
+                    "location stage anchor.");
             }
             foreach (RawImage groundShadow in groundShadows)
             {

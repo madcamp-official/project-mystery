@@ -13,7 +13,11 @@ namespace Wake.Exploration
             Color lightTint,
             Vector2 shadowDirection,
             float shadowOpacity,
-            float groundShadowScale)
+            float groundShadowScale,
+            float saturation,
+            float exposure,
+            float contrast,
+            float softness)
         {
             Anchor = new Vector2(
                 Mathf.Clamp01(anchor.x),
@@ -30,6 +34,10 @@ namespace Wake.Exploration
                 groundShadowScale,
                 0.25f,
                 1.2f);
+            Saturation = Mathf.Clamp(saturation, 0.35f, 1.1f);
+            Exposure = Mathf.Clamp(exposure, 0.45f, 1.2f);
+            Contrast = Mathf.Clamp(contrast, 0.55f, 1.2f);
+            Softness = Mathf.Clamp01(softness);
         }
 
         public Vector2 Anchor { get; }
@@ -39,6 +47,10 @@ namespace Wake.Exploration
         public Vector2 ShadowDirection { get; }
         public float ShadowOpacity { get; }
         public float GroundShadowScale { get; }
+        public float Saturation { get; }
+        public float Exposure { get; }
+        public float Contrast { get; }
+        public float Softness { get; }
     }
 
     public readonly struct AmbientWorldStageRecord
@@ -151,8 +163,9 @@ namespace Wake.Exploration
                 NeutralInterior, -.014f, -.010f, .45f, .62f),
             S("ARCHIVE", "ARCHIVIST", .68f, .035f, .56f, true,
                 WarmInterior, -.018f, -.010f, .40f, .62f),
-            S("LAUNDRY", "LAUNDRY_SUPERVISOR", .25f, .035f, .52f, false,
-                NeutralInterior, .016f, -.010f, .38f, .58f),
+            S("LAUNDRY", "LAUNDRY_SUPERVISOR", .38f, .055f, .50f, false,
+                new Color32(188, 169, 165, 255),
+                .014f, -.010f, .44f, .62f),
             S("SERVICE_HUB", "ROBOTICS_TECH", .72f, .035f, .55f, true,
                 CoolMachinery, -.018f, -.010f, .44f, .61f),
             S("STABILIZERS", "CREW_ENGINEER", .77f, .035f, .55f, true,
@@ -208,6 +221,39 @@ namespace Wake.Exploration
             float shadowOpacity,
             float groundShadowScale)
         {
+            float saturation = .70f;
+            float exposure = .80f;
+            float contrast = .86f;
+            float softness = .30f;
+            if (lightTint == Daylight)
+            {
+                saturation = .80f;
+                exposure = .94f;
+                contrast = .92f;
+                softness = .18f;
+            }
+            else if (lightTint == CoolMachinery)
+            {
+                saturation = .60f;
+                exposure = .72f;
+                contrast = .82f;
+                softness = .38f;
+            }
+            else if (lightTint == AmberMachinery)
+            {
+                saturation = .64f;
+                exposure = .75f;
+                contrast = .84f;
+                softness = .36f;
+            }
+            else if (lightTint == NeutralInterior)
+            {
+                saturation = .66f;
+                exposure = .78f;
+                contrast = .85f;
+                softness = .32f;
+            }
+
             return new AmbientWorldStageRecord(
                 location,
                 speaker,
@@ -218,7 +264,11 @@ namespace Wake.Exploration
                     lightTint,
                     new Vector2(shadowX, shadowY),
                     shadowOpacity,
-                    groundShadowScale));
+                    groundShadowScale,
+                    saturation,
+                    exposure,
+                    contrast,
+                    softness));
         }
     }
 }

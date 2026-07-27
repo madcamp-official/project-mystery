@@ -123,6 +123,10 @@ namespace Wake.Tests
                 Assert.That(asset.UvRect.width, Is.GreaterThan(0f), speaker);
                 Assert.That(asset.UvRect.xMin, Is.GreaterThanOrEqualTo(0f));
                 Assert.That(asset.UvRect.xMax, Is.LessThanOrEqualTo(1f));
+                Assert.That(
+                    asset.VisibleBottomMargin,
+                    Is.InRange(0f, 0.15f),
+                    speaker);
             }
         }
 
