@@ -15,6 +15,8 @@ namespace Wake.Exploration
         public static LocationLoader Instance { get; private set; }
 
         public LocationDefinition CurrentLocation { get; private set; }
+        public bool IsPresentationVisible =>
+            container != null && container.gameObject.activeSelf;
 
         private GameObject currentInstance;
         private Transform container;
@@ -42,6 +44,14 @@ namespace Wake.Exploration
         public void LoadLocation(LocationDefinition location)
         {
             TryLoadLocation(location, out _);
+        }
+
+        public void SetPresentationVisible(bool visible)
+        {
+            if (container != null)
+            {
+                container.gameObject.SetActive(visible);
+            }
         }
 
         public bool TryLoadLocation(LocationDefinition location, out LoadFailure failure)
