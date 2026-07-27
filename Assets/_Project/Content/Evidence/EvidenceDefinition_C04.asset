@@ -18,5 +18,4 @@ MonoBehaviour:
   category: exit
   isDirect: 1
   views:
-  - {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 21300000, guid: 4f9a26d452ad4352a9b3ac4d809e0371, type: 3}

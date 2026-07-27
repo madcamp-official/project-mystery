@@ -17,4 +17,5 @@ MonoBehaviour:
   description: 어깨와 허리에 압박 흔적이 남아 있다.
   category: transport
   isDirect: 1
-  views: []
+  views:
+  - {fileID: 21300000, guid: 353d7b8793a14e26b8fb7f9f51da03ec, type: 3}
