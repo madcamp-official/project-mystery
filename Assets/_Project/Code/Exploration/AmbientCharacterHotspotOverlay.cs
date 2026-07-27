@@ -20,11 +20,15 @@ namespace Wake.Exploration
             public RectTransform GroundShadowRect;
             public RawImage GroundShadowImage;
             public float CellAspectRatio;
+            public float VisibleBottomMargin;
+            public Rect AtlasUvRect;
+            public Material BlendMaterial;
         }
 
         private static readonly Dictionary<string, Texture2D> TextureCache =
             new();
         private static Texture2D groundShadowTexture;
+        private static Shader ambientBlendShader;
 
         private readonly List<WorldCharacterView> spawned = new();
         private RectTransform contentRect;
@@ -88,6 +92,9 @@ namespace Wake.Exploration
             image.uvRect = asset.UvRect;
             image.color = Color.white;
             image.raycastTarget = true;
+            Material blendMaterial = CreateBlendMaterial(asset.UvRect);
+            if (blendMaterial != null)
+                image.material = blendMaterial;
 
             Shadow shadow = target.GetComponent<Shadow>();
             shadow.useGraphicAlpha = true;
@@ -114,7 +121,10 @@ namespace Wake.Exploration
                 GroundShadowRect =
                     groundShadow.GetComponent<RectTransform>(),
                 GroundShadowImage = groundShadow.GetComponent<RawImage>(),
-                CellAspectRatio = asset.CellAspectRatio
+                CellAspectRatio = asset.CellAspectRatio,
+                VisibleBottomMargin = asset.VisibleBottomMargin,
+                AtlasUvRect = asset.UvRect,
+                BlendMaterial = blendMaterial
             };
             spawned.Add(view);
             ApplyStage(view, index, count);
@@ -174,17 +184,23 @@ namespace Wake.Exploration
                     Color.white,
                     new Vector2(0.012f, -0.008f),
                     0.35f,
-                    0.62f);
+                    0.62f,
+                    0.75f,
+                    0.86f,
+                    0.9f,
+                    0.24f);
             }
 
             Vector2 anchor = stage.Anchor;
             view.Rect.anchorMin = anchor;
             view.Rect.anchorMax = anchor;
             view.Rect.pivot = new Vector2(0.5f, 0f);
-            view.Rect.anchoredPosition = Vector2.zero;
 
             float height =
                 contentRect.rect.height * stage.NormalizedHeight;
+            view.Rect.anchoredPosition = new Vector2(
+                0f,
+                -height * view.VisibleBottomMargin);
             view.Rect.sizeDelta =
                 new Vector2(height * view.CellAspectRatio, height);
 
@@ -198,6 +214,7 @@ namespace Wake.Exploration
             view.Button.colors =
                 AmbientInteractionPresentation.CharacterSpriteColors(
                     stage.LightTint);
+            ApplyBlendMaterial(view, stage);
 
             Vector2 contentSize = contentRect.rect.size;
             view.SilhouetteShadow.effectColor =
@@ -211,12 +228,67 @@ namespace Wake.Exploration
             view.GroundShadowRect.pivot = new Vector2(0.5f, 0.5f);
             view.GroundShadowRect.anchoredPosition = new Vector2(
                 stage.ShadowDirection.x * contentSize.x * 0.3f,
-                height * 0.008f);
+                0f);
             view.GroundShadowRect.sizeDelta = new Vector2(
                 height * view.CellAspectRatio * stage.GroundShadowScale,
                 Mathf.Max(8f, height * 0.045f));
             view.GroundShadowImage.color =
                 new Color(0f, 0f, 0f, stage.ShadowOpacity * 0.72f);
+        }
+
+        private static Material CreateBlendMaterial(Rect uvRect)
+        {
+            ambientBlendShader ??=
+                Resources.Load<Shader>(
+                    "Shaders/AmbientCharacterBlend");
+            if (ambientBlendShader == null)
+                return null;
+
+            var material = new Material(ambientBlendShader)
+            {
+                name = "Ambient Character Blend (Runtime)",
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            material.SetVector(
+                "_UvRect",
+                new Vector4(
+                    uvRect.x,
+                    uvRect.y,
+                    Mathf.Abs(uvRect.width),
+                    Mathf.Abs(uvRect.height)));
+            return material;
+        }
+
+        private static void ApplyBlendMaterial(
+            WorldCharacterView view,
+            AmbientWorldStageProfile stage)
+        {
+            Material material = view.BlendMaterial;
+            if (material == null)
+                return;
+
+            material.SetFloat("_Saturation", stage.Saturation);
+            material.SetFloat("_Exposure", stage.Exposure);
+            material.SetFloat("_Contrast", stage.Contrast);
+            material.SetFloat("_Softness", stage.Softness);
+            Vector2 lightDirection =
+                -stage.ShadowDirection.normalized;
+            if (stage.Mirror)
+                lightDirection.x *= -1f;
+            material.SetVector(
+                "_LightDirection",
+                new Vector4(
+                    lightDirection.x,
+                    lightDirection.y,
+                    0f,
+                    0f));
+            material.SetVector(
+                "_UvRect",
+                new Vector4(
+                    view.AtlasUvRect.x,
+                    view.AtlasUvRect.y,
+                    Mathf.Abs(view.AtlasUvRect.width),
+                    Mathf.Abs(view.AtlasUvRect.height)));
         }
 
         private GameObject CreateGroundShadow(AmbientBarkRecord bark)
@@ -295,6 +367,8 @@ namespace Wake.Exploration
                     Destroy(view.Target);
                 if (view?.GroundShadowObject != null)
                     Destroy(view.GroundShadowObject);
+                if (view?.BlendMaterial != null)
+                    Destroy(view.BlendMaterial);
             }
             spawned.Clear();
         }

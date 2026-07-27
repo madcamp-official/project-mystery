@@ -110,5 +110,22 @@ namespace Wake.Tests
             Assert.That(workshop.ShadowOpacity, Is.GreaterThan(.4f));
             Assert.That(ballast.ShadowDirection.x, Is.LessThan(0f));
         }
+
+        [Test]
+        public void LaundryStage_GroundsCharacterAndUsesMutedRoomGrade()
+        {
+            Assert.That(
+                AmbientWorldStageCatalog.TryGet(
+                    "LAUNDRY",
+                    "LAUNDRY_SUPERVISOR",
+                    out AmbientWorldStageProfile laundry),
+                Is.True);
+            Assert.That(laundry.Anchor.x, Is.EqualTo(.38f).Within(.001f));
+            Assert.That(laundry.Anchor.y, Is.EqualTo(.055f).Within(.001f));
+            Assert.That(laundry.NormalizedHeight, Is.EqualTo(.50f));
+            Assert.That(laundry.Exposure, Is.LessThan(.85f));
+            Assert.That(laundry.Saturation, Is.LessThan(.75f));
+            Assert.That(laundry.Softness, Is.GreaterThan(.25f));
+        }
     }
 }
