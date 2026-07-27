@@ -206,7 +206,7 @@ namespace Wake.UI
             rootRect.sizeDelta = new Vector2(920f, 650f);
             root.GetComponent<Image>().color = Panel;
 
-            MakeText(
+            TMP_Text titleText = MakeText(
                 root.transform,
                 "증거 보드 · 핵심 논증",
                 0.89f,
@@ -263,6 +263,11 @@ namespace Wake.UI
                 0.93f,
                 20f);
             close.onClick.AddListener(Close);
+            FeatureTypography.ApplyTheoryBoard(
+                root.transform,
+                titleText,
+                progressText,
+                statusText);
             root.SetActive(false);
         }
 
@@ -304,7 +309,6 @@ namespace Wake.UI
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
             TMP_Text text = target.GetComponent<TMP_Text>();
-            text.font = StatusHUDController.RuntimeKoreanFont;
             text.fontSize = size;
             text.alignment = TextAlignmentOptions.Center;
             text.color = Color.white;

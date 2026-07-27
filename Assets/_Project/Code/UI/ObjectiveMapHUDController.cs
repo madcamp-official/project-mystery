@@ -330,17 +330,11 @@ namespace Wake.UI
 
         private void ApplyKoreanFont()
         {
-            TMP_FontAsset font = StatusHUDController.RuntimeKoreanFont;
-            if (font == null || root == null)
-            {
-                return;
-            }
-
-            foreach (TMP_Text text in root.GetComponentsInChildren<TMP_Text>(true))
-            {
-                text.font = font;
-                text.SetAllDirty();
-            }
+            MapTypography.ApplyObjective(
+                root != null ? root.transform : null,
+                titleText,
+                progressText,
+                accessibilityText);
         }
 
         private void RenderEmpty()

@@ -118,13 +118,21 @@ namespace Wake.UI
             LocationGraph graph,
             IEnumerable<string> completedSceneIds,
             int publicAnxiety,
-            string finalEndingId = "")
+            string finalEndingId = "",
+            IEnumerable<string> unlockedSceneIds = null)
         {
             var completed = new HashSet<string>(
                 (completedSceneIds ?? Array.Empty<string>())
                 .Where(value => !string.IsNullOrWhiteSpace(value))
                 .Select(value => value.Trim().ToUpperInvariant()),
                 StringComparer.Ordinal);
+            HashSet<string> unlocked = unlockedSceneIds == null
+                ? null
+                : new HashSet<string>(
+                    unlockedSceneIds
+                        .Where(value => !string.IsNullOrWhiteSpace(value))
+                        .Select(value => value.Trim().ToUpperInvariant()),
+                    StringComparer.Ordinal);
             var unresolved = ProductionSceneCatalog.All
                 .Where(scene =>
                     CanonicalLocationCatalog.UnresolvedCodes.Contains(
@@ -182,16 +190,23 @@ namespace Wake.UI
                     graph,
                     completed,
                     publicAnxiety);
+                bool isUnlocked =
+                    target.SceneId == ProductionSceneDirector.OpeningSceneId ||
+                    completed.Contains(target.SceneId) ||
+                    unlocked == null ||
+                    unlocked.Contains(target.SceneId);
                 entries.Add(new ProductionMapEntry(
                     spec,
                     location,
                     target.SceneId,
                     completed.Contains(target.SceneId)
                         ? ProductionMapEntryStatus.Completed
-                        : result.IsAllowed
+                        : isUnlocked && result.IsAllowed
                             ? ProductionMapEntryStatus.Available
                             : ProductionMapEntryStatus.Locked,
-                    result.DenialReason));
+                    !isUnlocked
+                        ? SceneAccessDenialReason.SceneNotUnlocked
+                        : result.DenialReason));
             }
 
             return new ProductionMapViewModel(

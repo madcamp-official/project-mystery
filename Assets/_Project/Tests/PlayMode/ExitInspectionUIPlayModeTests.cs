@@ -40,10 +40,20 @@ namespace Wake.Tests.PlayMode
                 Has.All.Contains("○ [검사 가능]"));
             Assert.That(inspections.Select(Label),
                 Has.Some.Contains("C-03"));
-            TMP_FontAsset koreanFont = StatusHUDController.RuntimeKoreanFont;
-            Assert.That(koreanFont, Is.Not.Null);
-            Assert.That(panel.GetComponentsInChildren<TMP_Text>(true)
-                .All(text => text.font == koreanFont), Is.True);
+            TMP_FontAsset[] expectedFonts =
+            {
+                TypographyService.Resolve(TypographyRole.Body),
+                TypographyService.Resolve(TypographyRole.BodyRegular),
+                TypographyService.Resolve(TypographyRole.Heading),
+                TypographyService.Resolve(TypographyRole.TechnicalStrong)
+            };
+            TMP_FontAsset[] appliedFonts = panel
+                .GetComponentsInChildren<TMP_Text>(true)
+                .Select(text => text.font)
+                .Distinct()
+                .ToArray();
+            Assert.That(expectedFonts, Has.All.Not.Null);
+            Assert.That(appliedFonts, Is.EquivalentTo(expectedFonts));
 
             ExitInspectionCompletion blocked = controller.Submit();
             Assert.That(blocked.Completed, Is.False);

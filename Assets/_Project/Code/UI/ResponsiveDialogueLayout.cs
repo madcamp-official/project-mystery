@@ -63,6 +63,11 @@ namespace Wake.UI
         public const float NavigationButtonWidth = 260f;
         public const float NavigationButtonHeight = 76f;
 
+        // Design-time canvas resolution used only as the denominator for
+        // DialogueTypographyMetrics' per-screen font scaling math. Not
+        // wired to CanvasScaler at runtime - that's handled upstream.
+        public static readonly Vector2 ReferenceResolution = new(2880f, 1800f);
+
         [Header("Portrait (code-created every run, no scene baseline to " +
             "respect - the speaker plate/text next to it ARE scene " +
             "objects and follow their own Inspector placement instead)")]
@@ -324,8 +329,9 @@ namespace Wake.UI
                 TMP_Text label = button.GetComponentInChildren<TMP_Text>();
                 ConfigureLabel(
                     label,
-                    24f,
-                    34f,
+                    DialogueTypographyMetrics.ChoiceMinimum,
+                    DialogueTypographyMetrics.ChoiceMaximum,
+                    DialogueTypographyMetrics.ChoiceLineSpacing,
                     TextOverflowModes.Ellipsis);
             }
         }
@@ -349,6 +355,7 @@ namespace Wake.UI
             TMP_Text label,
             float minimumSize,
             float maximumSize,
+            float lineSpacing,
             TextOverflowModes overflowMode)
         {
             if (label == null)
@@ -356,6 +363,7 @@ namespace Wake.UI
             label.enableAutoSizing = true;
             label.fontSizeMin = minimumSize;
             label.fontSizeMax = maximumSize;
+            label.lineSpacing = lineSpacing;
             label.textWrappingMode = TextWrappingModes.Normal;
             label.overflowMode = overflowMode;
         }

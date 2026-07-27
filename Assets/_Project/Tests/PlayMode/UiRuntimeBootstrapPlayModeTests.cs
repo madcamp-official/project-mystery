@@ -87,10 +87,19 @@ namespace Wake.Tests.PlayMode
                 RequireComponent<TMP_Text>("Evidence/Description");
             Assert.That(placeholder.gameObject.activeSelf, Is.True);
             Assert.That(placeholder.text, Does.Contain("확보한 증거가 없습니다"));
-            Assert.That(placeholder.font, Is.SameAs(StatusHUDController.RuntimeKoreanFont));
+            Assert.That(
+                placeholder.font,
+                Is.SameAs(
+                    TypographyService.Resolve(
+                        TypographyRole.BodyRegular)));
             TMP_Text title =
                 RequireComponent<TMP_Text>("Evidence/Text (TMP)");
             Assert.That(title.text, Does.Contain("C-01"));
+            Assert.That(
+                title.font,
+                Is.SameAs(
+                    TypographyService.Resolve(
+                        TypographyRole.Heading)));
             yield return InvokeAndSettle(RequireComponent<Button>("Evidence/Next"));
             Assert.That(title.text, Does.Contain("C-02"));
             yield return InvokeAndSettle(RequireComponent<Button>("Evidence/Next (1)"));

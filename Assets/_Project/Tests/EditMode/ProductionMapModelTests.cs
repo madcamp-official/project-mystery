@@ -55,6 +55,25 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void RuntimeUnlockSet_KeepsFutureLocationLocked()
+        {
+            ProductionMapViewModel model = ProductionMapViewModel.Create(
+                graph,
+                new[] { "P-01" },
+                15,
+                "",
+                System.Array.Empty<string>());
+            ProductionMapEntry gangway =
+                model.Entries.Single(entry => entry.Spec.Code == "GANGWAY");
+
+            Assert.That(gangway.SceneId, Is.EqualTo("P-02"));
+            Assert.That(gangway.Status, Is.EqualTo(ProductionMapEntryStatus.Locked));
+            Assert.That(
+                gangway.DenialReason,
+                Is.EqualTo(SceneAccessDenialReason.SceneNotUnlocked));
+        }
+
+        [Test]
         public void RestrictedTechnicalLocation_ShowsAnxietyClosure()
         {
             string[] completed = ProductionSceneCatalog.All

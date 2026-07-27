@@ -275,6 +275,11 @@ namespace Wake.UI
             reopenButton = Button(canvas, "Exit Inspection Resume",
                 .035f, .095f, .38f, .62f);
             reopenButton.onClick.AddListener(() => Open());
+            InteractionTypography.Apply(
+                root.transform,
+                progressText,
+                hintText,
+                statusText);
             root.SetActive(false);
             reopenButton.gameObject.SetActive(false);
         }
@@ -306,7 +311,7 @@ namespace Wake.UI
             GameObject target = Object("Label", parent, typeof(TextMeshProUGUI));
             Place(target, .07f, minY, .93f, maxY);
             TMP_Text text = target.GetComponent<TMP_Text>();
-            text.font = StatusHUDController.RuntimeKoreanFont;
+            TypographyService.Apply(text, TypographyRole.Body);
             text.fontSize = size;
             text.enableAutoSizing = true;
             text.fontSizeMin = Mathf.Max(14f, size * .72f);

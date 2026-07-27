@@ -36,6 +36,7 @@ namespace Wake.Narrative
         private DialogueSet currentSet;
         private DialogueNode currentNode;
         private ProductionDialogueFlow productionFlow;
+        private bool ambientLineActive;
 
         public bool IsBusy { get; private set; }
         public string ActiveProductionSceneId =>
@@ -61,9 +62,6 @@ namespace Wake.Narrative
             lineText = linePanelTransform.Find("Panel/line").GetComponent<TMP_Text>();
             nextButton = linePanelTransform.Find("Panel/Next").GetComponent<Button>();
             speakerText = linePanelTransform.Find("Image/Text (TMP)").GetComponent<TMP_Text>();
-            TMP_FontAsset koreanFont = StatusHUDController.RuntimeKoreanFont;
-            lineText.font = koreanFont;
-            speakerText.font = koreanFont;
             CreatePortrait(linePanelTransform);
 
             Transform selectBtn = linePanelTransform.Find("Select Btn");
@@ -76,10 +74,10 @@ namespace Wake.Narrative
                     ProductionDialogueFlow.ChoiceCapacity);
             choiceButtons = choiceSet.Buttons;
             choiceLabels = choiceSet.Labels;
-            for (int i = 0; i < choiceButtons.Length; i++)
-            {
-                choiceLabels[i].font = koreanFont;
-            }
+            DialogueTypography.ApplySurface(
+                lineText,
+                speakerText,
+                choiceLabels);
 
             nextButton.onClick.AddListener(OnNextClicked);
             responsiveLayout = canvas.gameObject
@@ -165,6 +163,35 @@ namespace Wake.Narrative
             GoToNode(dialogueSet.StartNodeId);
         }
 
+        public bool StartAmbientLine(
+            string speaker,
+            string text,
+            string emotion = "neutral")
+        {
+            if (IsBusy || string.IsNullOrWhiteSpace(text))
+            {
+                return false;
+            }
+
+            currentSet = null;
+            currentNode = null;
+            productionFlow = null;
+            ambientLineActive = true;
+            IsBusy = true;
+            linePanel.SetActive(true);
+            choicesContainer.SetActive(false);
+            nextButton.gameObject.SetActive(true);
+            speakerText.text = DialoguePortraitCatalog.GetDisplayName(speaker);
+            lineText.text = text;
+            responsiveLayout?.ResetTextScroll();
+            ShowPortrait(
+                speaker,
+                DialoguePresentationMap.GetEmotion(emotion));
+            FindFirstObjectByType<StatusHUDController>()
+                ?.SetContextCharacter(speaker);
+            return true;
+        }
+
         public bool StartProductionScene(string sceneId)
         {
             if (productionFlow != null &&
@@ -226,6 +253,7 @@ namespace Wake.Narrative
             currentSet = null;
             currentNode = null;
             productionFlow = null;
+            ambientLineActive = false;
             linePanel?.SetActive(false);
             choicesContainer?.SetActive(false);
             speakerPortrait?.gameObject.SetActive(false);
@@ -307,6 +335,9 @@ namespace Wake.Narrative
 
                     int selectedIndex = i;
                     choiceLabels[i].text = productionFlow.Choices[i].TextKo;
+                    DialogueTypography.ApplyChoice(
+                        choiceLabels[i],
+                        productionFlow.Choices[i].TextKo);
                     choiceButtons[i].onClick.RemoveAllListeners();
                     choiceButtons[i].onClick.AddListener(() =>
                     {
@@ -389,6 +420,9 @@ namespace Wake.Narrative
                 }
 
                 choiceLabels[i].text = label;
+                DialogueTypography.ApplyChoice(
+                    choiceLabels[i],
+                    label);
                 choiceButtons[i].onClick.RemoveAllListeners();
                 choiceButtons[i].onClick.AddListener(() => ResolveOption(option));
             }
@@ -396,6 +430,12 @@ namespace Wake.Narrative
 
         private void OnNextClicked()
         {
+            if (ambientLineActive)
+            {
+                EndDialogue();
+                return;
+            }
+
             if (productionFlow != null)
             {
                 productionFlow.Advance();
@@ -441,6 +481,7 @@ namespace Wake.Narrative
             currentSet = null;
             currentNode = null;
             productionFlow = null;
+            ambientLineActive = false;
             if (linePanel != null)
             {
                 linePanel.SetActive(false);
