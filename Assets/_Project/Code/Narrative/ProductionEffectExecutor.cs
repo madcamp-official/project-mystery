@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Wake.Core;
+using Wake.Exploration;
+using Wake.UI;
 
 namespace Wake.Narrative
 {
@@ -109,7 +111,10 @@ namespace Wake.Narrative
                              ProductionSceneReference.NormalizeDistinct(
                                  instruction.Values))
                     {
-                        state.UnlockProductionScene(sceneId);
+                        if (state.UnlockProductionScene(sceneId))
+                        {
+                            NotifyLocationUnlocked(sceneId);
+                        }
                     }
                     break;
                 case ProductionEffectKind.Theory:
@@ -134,6 +139,26 @@ namespace Wake.Narrative
             }
 
             result.AppliedInstructionCount++;
+        }
+
+        private static void NotifyLocationUnlocked(string sceneId)
+        {
+            if (!ProductionSceneCatalog.TryGet(sceneId, out ProductionSceneDefinition scene))
+            {
+                return;
+            }
+
+            CanonicalLocationSpec spec =
+                CanonicalLocationCatalog.FindSpec(scene.NarrativeLocationCode);
+            string displayName = spec != null
+                ? spec.DisplayName
+                : scene.NarrativeLocationCode;
+            if (string.IsNullOrWhiteSpace(displayName))
+            {
+                return;
+            }
+
+            ToastController.Instance?.Show($"장소 해금: {displayName}");
         }
 
         private void ApplyTrust(ProductionEffectInstruction instruction)
