@@ -97,13 +97,15 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void MinimumCellHeight_RemainsReadableAtObservedScale()
+        public void MinimumCellHeight_RemainsClickableAtMinimumResolution()
         {
-            const float observedCanvasScale = 0.49336806f;
+            float minimumCanvasScale =
+                DialogueTypographyMetrics.CalculateCanvasScale(
+                    new Vector2(1280f, 720f));
 
             float physicalHeight =
                 DialogueChoiceLayoutPolicy.MinimumCellHeight *
-                observedCanvasScale;
+                minimumCanvasScale;
 
             Assert.That(physicalHeight, Is.GreaterThanOrEqualTo(44f));
         }

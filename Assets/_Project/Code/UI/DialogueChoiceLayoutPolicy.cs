@@ -26,7 +26,7 @@ namespace Wake.UI
     {
         public const int MaximumColumns = 2;
         public const float MinimumTwoColumnCellWidth = 560f;
-        public const float MinimumCellHeight = 96f;
+        public const float MinimumCellHeight = 108f;
         public const float MaximumCellHeight = 168f;
         public const float LabelHorizontalPadding = 48f;
         public const float LabelVerticalPadding = 32f;
