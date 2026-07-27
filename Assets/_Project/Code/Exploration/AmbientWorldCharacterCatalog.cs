@@ -102,7 +102,25 @@ namespace Wake.Exploration
                     Specialist(ServiceSpecialists, 2),
                 ["ROBOTICS_TECH"] = Specialist(ServiceSpecialists, 3),
                 ["WORKSHOP_MACHINIST"] =
-                    Specialist(ServiceSpecialists, 4)
+                    Specialist(ServiceSpecialists, 4),
+                ["ADRIAN"] = Main(
+                    "adrian_vale", .706f, .098f, .025f),
+                ["CLAIRE"] = Main(
+                    "claire_hawthorne", .632f, .073f, .027f),
+                ["DANIEL"] = Main(
+                    "daniel_mercer", .839f, .047f, .024f),
+                ["EVELYN"] = Main(
+                    "evelyn_shaw", .666f, .053f, .031f),
+                ["HELENA"] = Main(
+                    "helena_ward", .666f, .036f, .033f),
+                ["MARCUS"] = Main(
+                    "marcus_bell", .663f, .052f, .046f),
+                ["OWEN"] = Main(
+                    "owen_price", .598f, .128f, .029f),
+                ["RICHARD"] = Main(
+                    "richard_hawthorne", .593f, .075f, .021f),
+                ["THOMAS"] = Main(
+                    "thomas_reed", .604f, .093f, .015f)
             };
 
         private static readonly HashSet<string> RightSideSingleLocations =
@@ -212,6 +230,20 @@ namespace Wake.Exploration
                 0.4f,
                 visibleMargins.x,
                 visibleMargins.y);
+        }
+
+        private static AmbientWorldCharacterAsset Main(
+            string resourceName,
+            float aspectRatio,
+            float bottomMargin,
+            float topMargin)
+        {
+            return new AmbientWorldCharacterAsset(
+                $"WorldMainCharacters/{resourceName}",
+                new Rect(0f, 0f, 1f, 1f),
+                aspectRatio,
+                bottomMargin,
+                topMargin);
         }
 
         private static Vector2 VisibleMargins(string atlas, int column)
