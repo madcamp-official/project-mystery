@@ -46,6 +46,17 @@ namespace Wake.UI
         public const float NavigationButtonWidth = 220f;
         public const float NavigationButtonHeight = 64f;
 
+        [Header("Layout (Inspector-editable, used instead of the constants above)")]
+        [SerializeField] private float dialogueHeight = DialogueHeight;
+        [SerializeField] private float edgePadding = EdgePadding;
+        [SerializeField] private float navigationTop = NavigationTop;
+        [SerializeField] private float navigationButtonWidth = NavigationButtonWidth;
+        [SerializeField] private float navigationButtonHeight = NavigationButtonHeight;
+        [SerializeField] private Vector2 portraitSize = new(320f, 430f);
+        [SerializeField] private Vector2 speakerPlateSize = new(420f, 56f);
+        [SerializeField] private float speakerPlateOffsetX = 384f;
+        [SerializeField] private Vector2 nextButtonSize = new(176f, 60f);
+
         private Canvas canvas;
         private RectTransform ingameRoot;
         private RectTransform linePanel;
@@ -115,15 +126,15 @@ namespace Wake.UI
                 anchors.Maximum.x,
                 anchors.Minimum.y);
             linePanel.pivot = new Vector2(0.5f, 0f);
-            linePanel.anchoredPosition = new Vector2(0f, EdgePadding);
-            linePanel.sizeDelta = new Vector2(0f, DialogueHeight);
+            linePanel.anchoredPosition = new Vector2(0f, edgePadding);
+            linePanel.sizeDelta = new Vector2(0f, dialogueHeight);
 
             if (textPanel != null)
             {
                 textPanel.anchorMin = new Vector2(0.19f, 0f);
                 textPanel.anchorMax = Vector2.one;
-                textPanel.offsetMin = new Vector2(EdgePadding, 12f);
-                textPanel.offsetMax = new Vector2(-EdgePadding, -12f);
+                textPanel.offsetMin = new Vector2(edgePadding, 12f);
+                textPanel.offsetMax = new Vector2(-edgePadding, -12f);
             }
 
             if (portrait != null)
@@ -131,8 +142,8 @@ namespace Wake.UI
                 portrait.anchorMin = Vector2.zero;
                 portrait.anchorMax = Vector2.zero;
                 portrait.pivot = Vector2.zero;
-                portrait.anchoredPosition = new Vector2(EdgePadding, 18f);
-                portrait.sizeDelta = new Vector2(320f, 430f);
+                portrait.anchoredPosition = new Vector2(edgePadding, 18f);
+                portrait.sizeDelta = portraitSize;
             }
 
             if (speakerPlate != null)
@@ -141,8 +152,8 @@ namespace Wake.UI
                 speakerPlate.anchorMax = new Vector2(0f, 1f);
                 speakerPlate.pivot = new Vector2(0f, 1f);
                 speakerPlate.anchoredPosition =
-                    new Vector2(384f, -EdgePadding);
-                speakerPlate.sizeDelta = new Vector2(420f, 56f);
+                    new Vector2(speakerPlateOffsetX, -edgePadding);
+                speakerPlate.sizeDelta = speakerPlateSize;
             }
 
             if (nextButton != null)
@@ -151,8 +162,8 @@ namespace Wake.UI
                 nextButton.anchorMax = new Vector2(1f, 0f);
                 nextButton.pivot = new Vector2(1f, 0f);
                 nextButton.anchoredPosition =
-                    new Vector2(-EdgePadding, EdgePadding);
-                nextButton.sizeDelta = new Vector2(176f, 60f);
+                    new Vector2(-edgePadding, edgePadding);
+                nextButton.sizeDelta = nextButtonSize;
             }
 
             if (choices != null)
@@ -190,18 +201,18 @@ namespace Wake.UI
             PlaceNavigationButton(
                 ingameRoot.Find("Evidence Btn") as RectTransform,
                 false,
-                EdgePadding);
+                edgePadding);
             PlaceNavigationButton(
                 ingameRoot.Find("Map Btn") as RectTransform,
                 false,
-                EdgePadding * 2f + NavigationButtonWidth);
+                edgePadding * 2f + navigationButtonWidth);
             PlaceNavigationButton(
                 ingameRoot.Find("Settings Btn") as RectTransform,
                 true,
-                EdgePadding);
+                edgePadding);
         }
 
-        private static void PlaceNavigationButton(
+        private void PlaceNavigationButton(
             RectTransform button,
             bool alignRight,
             float horizontalInset)
@@ -215,10 +226,10 @@ namespace Wake.UI
             button.pivot = new Vector2(anchorX, 1f);
             button.anchoredPosition = new Vector2(
                 alignRight ? -horizontalInset : horizontalInset,
-                -NavigationTop);
+                -navigationTop);
             button.sizeDelta = new Vector2(
-                NavigationButtonWidth,
-                NavigationButtonHeight);
+                navigationButtonWidth,
+                navigationButtonHeight);
             button.localScale = Vector3.one;
         }
 
