@@ -181,6 +181,16 @@ namespace Wake.Tests.PlayMode
             Assert.That(joke.gameObject.activeSelf, Is.True);
             Assert.That(unusedThird.gameObject.activeSelf, Is.False);
             Assert.That(unusedFourth.gameObject.activeSelf, Is.False);
+            UnityEngine.Canvas.ForceUpdateCanvases();
+            AssertInsideSafeArea(
+                choices.GetComponent<RectTransform>(),
+                "P-01 choice container");
+            AssertInsideSafeArea(
+                serious.GetComponent<RectTransform>(),
+                "P-01_C1");
+            AssertInsideSafeArea(
+                joke.GetComponent<RectTransform>(),
+                "P-01_C2");
             Assert.That(
                 serious.GetComponentInChildren<TMP_Text>().text,
                 Is.EqualTo("그의 경고를 진지하게 듣기"));

@@ -95,8 +95,6 @@ namespace Wake.UI
         private Vector2Int lastScreen;
 
         private bool baselineCaptured;
-        private Rect baselineSafeArea;
-        private Vector2 baselineScreen;
         private RectBaseline linePanelBaseline;
         private RectBaseline textPanelBaseline;
         private RectBaseline nextButtonBaseline;
@@ -151,8 +149,7 @@ namespace Wake.UI
             // component is configured. Capturing after that would
             // baseline the post-mutation values instead of what was
             // actually authored in the scene.
-            CaptureBaselines(
-                Screen.safeArea, new Vector2(Screen.width, Screen.height));
+            CaptureBaselines();
             baselineCaptured = true;
 
             ConfigurePortrait();
@@ -165,10 +162,8 @@ namespace Wake.UI
         /// layout ApplyLayout reproduces; it is not overwritten with
         /// hardcoded positions.
         /// </summary>
-        private void CaptureBaselines(Rect safeArea, Vector2 screenSize)
+        private void CaptureBaselines()
         {
-            baselineSafeArea = safeArea;
-            baselineScreen = screenSize;
             if (linePanel != null)
                 linePanelBaseline = new RectBaseline(linePanel);
             if (textPanel != null)
@@ -190,24 +185,10 @@ namespace Wake.UI
         }
 
         /// <summary>
-        /// How much the safe-area inset (as a fraction of the screen)
-        /// has changed since the baseline was captured. (1,1) whenever
-        /// there is no notch/inset change, which is always true on
-        /// desktop — baseline values then apply completely untouched.
+        /// Reapplies the captured Inspector-authored position and size.
+        /// Safe Area placement is handled by the gameplay root, so child
+        /// baselines remain unchanged for every supported screen shape.
         /// </summary>
-        private Vector2 ComputeInsetScale(Rect safeArea, Vector2 screenSize)
-        {
-            Vector2 baselineFraction = new(
-                baselineScreen.x > 0f ? baselineSafeArea.width / baselineScreen.x : 1f,
-                baselineScreen.y > 0f ? baselineSafeArea.height / baselineScreen.y : 1f);
-            Vector2 currentFraction = new(
-                screenSize.x > 0f ? safeArea.width / screenSize.x : 1f,
-                screenSize.y > 0f ? safeArea.height / screenSize.y : 1f);
-            return new Vector2(
-                baselineFraction.x > 0.0001f ? currentFraction.x / baselineFraction.x : 1f,
-                baselineFraction.y > 0.0001f ? currentFraction.y / baselineFraction.y : 1f);
-        }
-
         private static void ApplyBaseline(
             RectTransform rect, RectBaseline baseline, Vector2 scale)
         {
@@ -228,11 +209,12 @@ namespace Wake.UI
 
             if (!baselineCaptured)
             {
-                CaptureBaselines(safeArea, screenSize);
+                CaptureBaselines();
                 baselineCaptured = true;
             }
 
-            Vector2 scale = ComputeInsetScale(safeArea, screenSize);
+            ApplySafeAreaRoot(safeArea, screenSize);
+            Vector2 scale = Vector2.one;
             ApplyBaseline(linePanel, linePanelBaseline, scale);
             ApplyBaseline(textPanel, textPanelBaseline, scale);
             ApplyBaseline(nextButton, nextButtonBaseline, scale);
@@ -245,7 +227,7 @@ namespace Wake.UI
                 lineTextBaseline,
                 scale);
             ApplyBaseline(speakerPlate, speakerPlateBaseline, scale);
-            UpdateChoiceGrid();
+            RefreshChoiceLayout();
 
             // Portrait is created fresh in code every run
             // (DialogueController.CreatePortrait) — there is no scene
@@ -267,6 +249,21 @@ namespace Wake.UI
             lastScreen = new Vector2Int(
                 Mathf.RoundToInt(screenSize.x),
                 Mathf.RoundToInt(screenSize.y));
+        }
+
+        private void ApplySafeAreaRoot(
+            Rect safeArea,
+            Vector2 screenSize)
+        {
+            if (ingameRoot == null)
+                return;
+
+            SafeAreaAnchors anchors =
+                SafeAreaUtility.ToAnchors(safeArea, screenSize);
+            ingameRoot.anchorMin = anchors.Minimum;
+            ingameRoot.anchorMax = anchors.Maximum;
+            ingameRoot.anchoredPosition = Vector2.zero;
+            ingameRoot.sizeDelta = Vector2.zero;
         }
 
         private void ConfigureIngameRoot()
@@ -313,9 +310,16 @@ namespace Wake.UI
                 choiceGrid = choices.gameObject.AddComponent<GridLayoutGroup>();
             choiceGrid.constraint =
                 GridLayoutGroup.Constraint.FixedColumnCount;
-            choiceGrid.constraintCount = 2;
-            choiceGrid.spacing = new Vector2(16f, 16f);
-            choiceGrid.padding = new RectOffset(10, 10, 10, 10);
+            choiceGrid.startAxis = GridLayoutGroup.Axis.Horizontal;
+            choiceGrid.constraintCount =
+                DialogueChoiceLayoutPolicy.MaximumColumns;
+            choiceGrid.spacing = Vector2.one *
+                DialogueChoiceLayoutPolicy.Spacing;
+            choiceGrid.padding = new RectOffset(
+                DialogueChoiceLayoutPolicy.Padding,
+                DialogueChoiceLayoutPolicy.Padding,
+                DialogueChoiceLayoutPolicy.Padding,
+                DialogueChoiceLayoutPolicy.Padding);
             choiceGrid.childAlignment = TextAnchor.MiddleCenter;
             foreach (Button button in choiceButtons)
             {
@@ -324,31 +328,72 @@ namespace Wake.UI
                 LayoutElement element = button.GetComponent<LayoutElement>();
                 if (element == null)
                     element = button.gameObject.AddComponent<LayoutElement>();
-                element.minHeight = 72f;
-                element.preferredHeight = 90f;
+                element.minHeight =
+                    DialogueChoiceLayoutPolicy.MinimumCellHeight;
+                element.preferredHeight =
+                    DialogueChoiceLayoutPolicy.MinimumCellHeight;
                 TMP_Text label = button.GetComponentInChildren<TMP_Text>();
                 ConfigureLabel(
                     label,
                     DialogueTypographyMetrics.ChoiceMinimum,
                     DialogueTypographyMetrics.ChoiceMaximum,
                     DialogueTypographyMetrics.ChoiceLineSpacing,
-                    TextOverflowModes.Ellipsis);
+                    TextOverflowModes.Overflow);
             }
+            RefreshChoiceLayout();
         }
 
-        private void UpdateChoiceGrid()
+        public void RefreshChoiceLayout()
         {
-            if (choiceGrid == null)
+            if (choiceGrid == null || choices == null ||
+                choiceButtons == null)
                 return;
+
+            var activeLabels = new List<TMP_Text>();
+            foreach (Button button in choiceButtons)
+            {
+                if (button == null || !button.gameObject.activeSelf)
+                    continue;
+                TMP_Text label = button.GetComponentInChildren<TMP_Text>(true);
+                if (label != null)
+                    activeLabels.Add(label);
+            }
+
+            int activeChoiceCount = activeLabels.Count;
+            if (activeChoiceCount == 0)
+                return;
+
             float availableWidth = choices.rect.width > 0f
                 ? choices.rect.width
-                : 1400f;
-            float cellWidth =
-                (availableWidth - choiceGrid.padding.horizontal -
-                 choiceGrid.spacing.x) / 2f;
-            choiceGrid.cellSize = new Vector2(
-                Mathf.Max(280f, cellWidth),
-                88f);
+                : choices.sizeDelta.x;
+            DialogueChoiceLayoutSpec widthSpec =
+                DialogueChoiceLayoutPolicy.Calculate(
+                    availableWidth,
+                    activeChoiceCount);
+            float labelWidth =
+                DialogueChoiceLayoutPolicy.GetLabelWidth(widthSpec);
+            float maximumPreferredHeight = 0f;
+            foreach (TMP_Text label in activeLabels)
+            {
+                maximumPreferredHeight = Mathf.Max(
+                    maximumPreferredHeight,
+                    label.GetPreferredValues(
+                        label.text,
+                        labelWidth,
+                        Mathf.Infinity).y);
+            }
+
+            DialogueChoiceLayoutSpec spec =
+                DialogueChoiceLayoutPolicy.Calculate(
+                    availableWidth,
+                    activeChoiceCount,
+                    maximumPreferredHeight);
+            choiceGrid.constraintCount = spec.Columns;
+            choiceGrid.cellSize = spec.CellSize;
+            choices.SetSizeWithCurrentAnchors(
+                RectTransform.Axis.Vertical,
+                spec.RequiredHeight);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(choices);
         }
 
         private static void ConfigureLabel(

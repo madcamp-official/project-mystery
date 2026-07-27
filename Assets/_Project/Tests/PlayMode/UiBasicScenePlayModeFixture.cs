@@ -237,6 +237,26 @@ namespace Wake.Tests.PlayMode
                 $"대사에 깨진 한글 패턴이 있습니다: {text}");
         }
 
+        protected static void AssertInsideSafeArea(
+            RectTransform rect,
+            string context)
+        {
+            var corners = new Vector3[4];
+            rect.GetWorldCorners(corners);
+            Rect safeArea = Screen.safeArea;
+            foreach (Vector3 corner in corners)
+            {
+                Assert.That(
+                    corner.x,
+                    Is.InRange(safeArea.xMin, safeArea.xMax),
+                    $"{context} x={corner.x} is outside {safeArea}.");
+                Assert.That(
+                    corner.y,
+                    Is.InRange(safeArea.yMin, safeArea.yMax),
+                    $"{context} y={corner.y} is outside {safeArea}.");
+            }
+        }
+
         private IEnumerator LoadScene()
         {
             AsyncOperation load = SceneManager.LoadSceneAsync(
