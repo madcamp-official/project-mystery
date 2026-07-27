@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
@@ -12,6 +13,8 @@ namespace Wake.Tests
     public class CanonicalLocationCatalogTests
     {
         private const string LocationFolder = "Assets/_Project/Content/Locations";
+        private const string BackgroundFolder =
+            "Assets/_Project/Art/Backgrounds/Locations";
 
         [Test]
         public void Catalog_DefinesAllTwentyFiveStructureMapLocations()
@@ -45,27 +48,13 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void NarrativeSchedule_ReportsExactlyEightUnresolvedBackgroundCodes()
+        public void NarrativeSchedule_ResolvesEveryBackgroundCode()
         {
             IReadOnlyList<LocationCatalogDiagnostic> diagnostics =
                 CanonicalLocationCatalog.Validate(LoadLocations(), ProductionSceneCatalog.All);
-            string[] warningCodes = diagnostics
-                .Where(item => item.Severity == LocationCatalogDiagnosticSeverity.Warning)
-                .Select(item => item.Code)
-                .OrderBy(item => item, StringComparer.Ordinal)
-                .ToArray();
 
-            Assert.That(warningCodes, Is.EqualTo(new[]
-            {
-                "BRIDGE",
-                "CABIN_CLAIRE",
-                "CABIN_DANIEL",
-                "EVIDENCE_BOARD",
-                "FORENSIC",
-                "INTERVIEW",
-                "SERVICE7",
-                "STERN"
-            }));
+            Assert.That(diagnostics, Is.Empty);
+            Assert.That(CanonicalLocationCatalog.UnresolvedCodes, Is.Empty);
         }
 
         [TestCase("DECK10_SUITE", "RICHARD_SUITE")]
@@ -73,7 +62,15 @@ namespace Wake.Tests
         [TestCase("ENGINE_CTRL", "ENGINE_CONTROL")]
         [TestCase("STAIR_B", "CREW_STAIRS")]
         [TestCase("BALLAST", "BALLAST_CONTROL_ANNEX")]
-        public void NarrativeAliases_ResolveOnlyDocumentedPhysicalLocations(
+        [TestCase("SERVICE7", "CREW_STAIRS")]
+        [TestCase("CABIN_DANIEL", "NEWS_LOUNGE")]
+        [TestCase("BRIDGE", "ENGINE_CONTROL")]
+        [TestCase("CABIN_CLAIRE", "VIP_LOUNGE")]
+        [TestCase("INTERVIEW", "SECURITY")]
+        [TestCase("FORENSIC", "MEDBAY")]
+        [TestCase("EVIDENCE_BOARD", "NEWS_LOUNGE")]
+        [TestCase("STERN", "OPEN_DECK")]
+        public void NarrativeAliases_ResolveToDocumentedPhysicalLocations(
             string narrativeCode,
             string expectedPhysicalCode)
         {
@@ -94,7 +91,79 @@ namespace Wake.Tests
             Assert.That(graph.StartingLocation.LocationCode, Is.EqualTo("PORT"));
             Assert.That(graph.FindByCode(" PORT "), Is.SameAs(graph.StartingLocation));
             Assert.That(graph.FindByCode("DECK10_SUITE").LocationCode, Is.EqualTo("RICHARD_SUITE"));
-            Assert.That(graph.FindByCode("SERVICE7"), Is.Null);
+            Assert.That(graph.FindByCode("SERVICE7").LocationCode, Is.EqualTo("CREW_STAIRS"));
+            Assert.That(graph.FindByCode("CABIN_DANIEL").LocationCode, Is.EqualTo("NEWS_LOUNGE"));
+            Assert.That(graph.FindByCode("BRIDGE").LocationCode, Is.EqualTo("ENGINE_CONTROL"));
+            Assert.That(graph.FindByCode("CABIN_CLAIRE").LocationCode, Is.EqualTo("VIP_LOUNGE"));
+            Assert.That(graph.FindByCode("INTERVIEW").LocationCode, Is.EqualTo("SECURITY"));
+            Assert.That(graph.FindByCode("FORENSIC").LocationCode, Is.EqualTo("MEDBAY"));
+            Assert.That(graph.FindByCode("EVIDENCE_BOARD").LocationCode, Is.EqualTo("NEWS_LOUNGE"));
+            Assert.That(graph.FindByCode("STERN").LocationCode, Is.EqualTo("OPEN_DECK"));
+        }
+
+        [Test]
+        public void EveryLocation_ReferencesItsCanonicalBackgroundFile()
+        {
+            foreach (LocationDefinition location in LoadLocations())
+            {
+                CanonicalLocationSpec spec =
+                    CanonicalLocationCatalog.FindSpec(location.LocationCode);
+                string spritePath =
+                    AssetDatabase.GetAssetPath(location.BackgroundSprite);
+
+                Assert.That(spec, Is.Not.Null, location.LocationCode);
+                Assert.That(
+                    Path.GetFileName(spritePath),
+                    Is.EqualTo(spec.SpriteFileName),
+                    location.LocationCode);
+                Assert.That(
+                    spritePath,
+                    Does.StartWith(BackgroundFolder),
+                    location.LocationCode);
+            }
+        }
+
+        [Test]
+        public void AllTwentyFiveBackgroundSprites_AreRegisteredExactlyOnce()
+        {
+            LocationDefinition[] locations = LoadLocations();
+            string[] registeredPaths = locations
+                .Select(location =>
+                    AssetDatabase.GetAssetPath(location.BackgroundSprite))
+                .OrderBy(path => path, StringComparer.Ordinal)
+                .ToArray();
+            string[] backgroundPaths = AssetDatabase
+                .FindAssets("t:Sprite", new[] { BackgroundFolder })
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .OrderBy(path => path, StringComparer.Ordinal)
+                .ToArray();
+
+            Assert.That(registeredPaths, Has.Length.EqualTo(25));
+            Assert.That(registeredPaths, Is.Unique);
+            Assert.That(backgroundPaths, Has.Length.EqualTo(25));
+            Assert.That(registeredPaths, Is.EqualTo(backgroundPaths));
+        }
+
+        [Test]
+        public void EveryScheduledScene_ResolvesToASpriteBackedLocation()
+        {
+            LocationDefinition[] locations = LoadLocations();
+            foreach (ProductionSceneDefinition scene in
+                     ProductionSceneCatalog.All)
+            {
+                CanonicalLocationSpec spec =
+                    CanonicalLocationCatalog.FindSpec(
+                        scene.NarrativeLocationCode);
+                LocationDefinition location = locations.SingleOrDefault(item =>
+                    item.LocationCode == spec?.Code);
+
+                Assert.That(spec, Is.Not.Null, scene.SceneId);
+                Assert.That(location, Is.Not.Null, scene.SceneId);
+                Assert.That(
+                    location.BackgroundSprite,
+                    Is.Not.Null,
+                    scene.SceneId);
+            }
         }
 
         [Test]

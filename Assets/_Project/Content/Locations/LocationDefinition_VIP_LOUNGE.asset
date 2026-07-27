@@ -17,6 +17,7 @@ MonoBehaviour:
   deck: 10
   roomCode: D10-2
   backgroundSprite: {fileID: 21300000, guid: 06c92c0e9b92c344bb6706aa3eb3dcd2, type: 3}
-  narrativeAliases: []
+  narrativeAliases:
+  - CABIN_CLAIRE
   contentPrefab: {fileID: 0}
   connectedLocations: []

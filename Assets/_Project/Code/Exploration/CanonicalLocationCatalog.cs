@@ -63,20 +63,20 @@ namespace Wake.Exploration
             L("PORT", "Port", 0, "", "bg_location_port.png"),
             L("GANGWAY", "Gangway", 0, "", "bg_location_gangway.png"),
             L("RICHARD_SUITE", "Richard Suite", 10, "D10-1", "bg_location_d10_1_richard_suite.png", "DECK10_SUITE"),
-            L("VIP_LOUNGE", "VIP Lounge", 10, "D10-2", "bg_location_d10_2_vip_lounge.png"),
-            L("OPEN_DECK", "Open Deck", 10, "D10-3", "bg_location_d10_3_open_deck.png"),
+            L("VIP_LOUNGE", "VIP Lounge", 10, "D10-2", "bg_location_d10_2_vip_lounge.png", "CABIN_CLAIRE"),
+            L("OPEN_DECK", "Open Deck", 10, "D10-3", "bg_location_d10_3_open_deck.png", "STERN"),
             L("BALLROOM", "Ballroom", 9, "D9-1", "bg_location_d9_1_ballroom.png", "DECK9_BALLROOM"),
             L("DINING", "Dining", 9, "D9-2", "bg_location_d9_2_dining.png", "DECK9_DINING"),
             L("PROMENADE", "Promenade", 9, "D9-3", "bg_location_d9_3_promenade.png"),
             L("HORIZON", "Horizon Room", 9, "D9-4", "bg_location_d9_4_horizon_room.png"),
             L("ATRIUM", "Atrium", 8, "D8-1", "bg_location_d8_1_atrium.png", "DECK8_ATRIUM"),
-            L("NEWS_LOUNGE", "News Lounge", 8, "D8-2", "bg_location_d8_2_news_lounge.png"),
-            L("SECURITY", "Security", 8, "D8-3", "bg_location_d8_3_security.png"),
+            L("NEWS_LOUNGE", "News Lounge", 8, "D8-2", "bg_location_d8_2_news_lounge.png", "CABIN_DANIEL", "EVIDENCE_BOARD"),
+            L("SECURITY", "Security", 8, "D8-3", "bg_location_d8_3_security.png", "INTERVIEW"),
             L("SERVICE_RAIL", "Service Rail", 8, "D8-4", "bg_location_d8_4_service_rail.png"),
-            L("MEDBAY", "Medbay", 7, "D7-1", "bg_location_d7_1_medbay.png"),
+            L("MEDBAY", "Medbay", 7, "D7-1", "bg_location_d7_1_medbay.png", "FORENSIC"),
             L("BALLAST_CONTROL_ANNEX", "Ballast Control Annex", 7, "D7-2", "bg_location_d7_2_ballast_control_annex.png", "BALLAST"),
-            L("ENGINE_CONTROL", "Engine Control", 7, "D7-3", "bg_location_d7_3_engine_control.png", "ENGINE_CTRL"),
-            L("CREW_STAIRS", "Crew Stairs", 7, "D7-4", "bg_location_d7_4_crew_stairs.png", "STAIR_B"),
+            L("ENGINE_CONTROL", "Engine Control", 7, "D7-3", "bg_location_d7_3_engine_control.png", "ENGINE_CTRL", "BRIDGE"),
+            L("CREW_STAIRS", "Crew Stairs", 7, "D7-4", "bg_location_d7_4_crew_stairs.png", "STAIR_B", "SERVICE7"),
             L("VAULT", "Vault", 6, "D6-1", "bg_location_d6_1_vault.png"),
             L("ARCHIVE", "Archive", 6, "D6-2", "bg_location_d6_2_archive.png"),
             L("LAUNDRY", "Laundry", 6, "D6-3", "bg_location_d6_3_laundry.png"),
@@ -87,21 +87,9 @@ namespace Wake.Exploration
             L("WORKSHOP", "Workshop", 5, "D5-4", "bg_location_d5_4_workshop.png")
         };
 
-        private static readonly HashSet<string> UnresolvedNarrativeCodes =
-            new(StringComparer.Ordinal)
-            {
-                "SERVICE7",
-                "CABIN_DANIEL",
-                "BRIDGE",
-                "CABIN_CLAIRE",
-                "INTERVIEW",
-                "FORENSIC",
-                "EVIDENCE_BOARD",
-                "STERN"
-            };
-
         public static IReadOnlyList<CanonicalLocationSpec> All => Definitions;
-        public static IReadOnlyCollection<string> UnresolvedCodes => UnresolvedNarrativeCodes;
+        public static IReadOnlyCollection<string> UnresolvedCodes =>
+            Array.Empty<string>();
 
         public static CanonicalLocationSpec FindSpec(string code)
         {
@@ -151,16 +139,10 @@ namespace Wake.Exploration
                     continue;
                 }
 
-                LocationCatalogDiagnosticSeverity severity =
-                    UnresolvedNarrativeCodes.Contains(narrativeCode)
-                        ? LocationCatalogDiagnosticSeverity.Warning
-                        : LocationCatalogDiagnosticSeverity.Error;
                 diagnostics.Add(new LocationCatalogDiagnostic(
-                    severity,
+                    LocationCatalogDiagnosticSeverity.Error,
                     narrativeCode,
-                    severity == LocationCatalogDiagnosticSeverity.Warning
-                        ? $"Narrative location '{narrativeCode}' has no confirmed physical background."
-                        : $"Narrative location '{narrativeCode}' is not documented."));
+                    $"Narrative location '{narrativeCode}' is not documented."));
             }
 
             return diagnostics

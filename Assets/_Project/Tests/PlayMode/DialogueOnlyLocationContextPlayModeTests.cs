@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Linq;
 using NUnit.Framework;
-using TMPro;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
@@ -15,7 +14,7 @@ namespace Wake.Tests.PlayMode
         UiBasicScenePlayModeFixture
     {
         [UnityTest]
-        public IEnumerator UnresolvedScene_PreservesBackgroundAndShowsWarning()
+        public IEnumerator NarrativeAlias_LoadsMappedBackgroundWithoutWarning()
         {
             yield return CompleteOpeningScene();
             State.RecordCompletedScene("D1-03");
@@ -27,52 +26,46 @@ namespace Wake.Tests.PlayMode
             MapController map = Object.FindObjectsByType<MapController>(
                 FindObjectsInactive.Include,
                 FindObjectsSortMode.None).Single();
-            Assert.That(map.CurrentViewModel.DialogueOnlyEntries.Count,
-                Is.EqualTo(10));
-            Assert.That(map.CurrentViewModel.DialogueOnlyEntries
-                .Select(entry => entry.Scene.NarrativeLocationCode).Distinct().Count(),
-                Is.EqualTo(8));
+            Assert.That(map.CurrentViewModel.DialogueOnlyEntries, Is.Empty);
+            Assert.That(map.CurrentViewModel.UnresolvedScenes, Is.Empty);
+            ProductionMapEntry crewStairs = map.CurrentViewModel.Entries
+                .Single(entry => entry.Spec.Code == "CREW_STAIRS");
+            Assert.That(crewStairs.SceneId, Is.EqualTo("D1-04"));
+            Assert.That(crewStairs.Status,
+                Is.EqualTo(ProductionMapEntryStatus.Available));
+            Assert.That(crewStairs.Location.BackgroundSprite, Is.Not.Null);
 
-            GameObject content = RequireObject(
-                "Map/Rooms/Dynamic Location Viewport/" +
-                "Dynamic Location Content");
-            Button entryButton = content
-                .GetComponentsInChildren<Button>(true)
-                .Single(button =>
-                    button.GetComponentInChildren<TMP_Text>()?.text
-                        .Contains("D1-04") == true);
-            Assert.That(entryButton.interactable, Is.True);
-            Assert.That(
-                entryButton.GetComponentInChildren<TMP_Text>().text,
-                Does.Contain("배경 유지"));
-            Assert.That(RequireText(
-                    "Map/Rooms/Unresolved Scene Notice").text,
-                Does.Contain("D1-04(SERVICE7)"));
+            SceneTravelResult travel = map.TryTravelToScene("D1-04");
+            yield return null;
+            yield return null;
 
-            yield return InvokeAndSettle(entryButton);
-
-            Assert.That(State.CurrentLocationCode, Is.EqualTo("PORT"));
+            Assert.That(travel.IsAllowed, Is.True);
+            Assert.That(State.CurrentLocationCode, Is.EqualTo("CREW_STAIRS"));
             Assert.That(LocationLoader.Instance.CurrentLocation.LocationCode,
-                Is.EqualTo("PORT"));
+                Is.EqualTo("CREW_STAIRS"));
+            Assert.That(LocationLoader.Instance.CurrentLocation.BackgroundSprite,
+                Is.Not.Null);
             Assert.That(Dialogue.ActiveProductionSceneId, Is.EqualTo("D1-04"));
             Assert.That(State.DialogueCheckpoint, Is.Not.Null);
             Assert.That(State.DialogueCheckpoint.activeSceneId, Is.EqualTo("D1-04"));
             NarrativeLocationHUDController contextHud = RequireObject("Ingame")
                 .GetComponent<NarrativeLocationHUDController>();
             Assert.That(contextHud, Is.Not.Null);
-            Assert.That(contextHud.IsWarningVisible, Is.True);
+            Assert.That(contextHud.IsWarningVisible, Is.False);
             Assert.That(contextHud.CurrentContext.NarrativeCode, Is.EqualTo("SERVICE7"));
-            string contextLabel = RequireText("Ingame/Narrative Location Context/Label").text;
-            Assert.That(contextLabel, Does.Contain("배경 미확정"));
-            Assert.That(contextLabel, Does.Contain("현재 배경 유지"));
+            Assert.That(contextHud.CurrentContext.PhysicalLocationCode,
+                Is.EqualTo("CREW_STAIRS"));
+            Assert.That(contextHud.CurrentContext.Kind,
+                Is.EqualTo(NarrativeLocationKind.Physical));
+            Assert.That(contextHud.CurrentContext.WarningMessage, Is.Empty);
             Assert.That(NarrativeLocationContextResolver.Resolve("UNKNOWN").Kind,
                 Is.EqualTo(NarrativeLocationKind.Undocumented));
             Assert.That(DialogueOnlySceneAccess.Evaluate(
                     "D8-02",
                     new[] { "D8-01" },
                     FinalAccusationResolver.CompleteEndingId).IsAllowed,
-                Is.True);
-            AssertNoRuntimeErrors("대화 전용 장소 컨텍스트");
+                Is.False);
+            AssertNoRuntimeErrors("공식 장면 배경 위치 매핑");
         }
 
         private IEnumerator CompleteOpeningScene()

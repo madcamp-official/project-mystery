@@ -280,35 +280,14 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void LocationDiagnostics_KeepEightUnresolvedCodesAsWarnings()
+        public void LocationDiagnostics_ResolveEveryOfficialSceneCode()
         {
             LocationDefinition[] locations = LoadLocations();
             IReadOnlyList<LocationCatalogDiagnostic> diagnostics =
                 CanonicalLocationCatalog.Validate(
                     locations,
                     ProductionSceneCatalog.All);
-            string[] warnings = diagnostics
-                .Where(item =>
-                    item.Severity == LocationCatalogDiagnosticSeverity.Warning)
-                .Select(item => item.Code)
-                .OrderBy(value => value, StringComparer.Ordinal)
-                .ToArray();
-
-            Assert.That(warnings, Is.EqualTo(new[]
-            {
-                "BRIDGE",
-                "CABIN_CLAIRE",
-                "CABIN_DANIEL",
-                "EVIDENCE_BOARD",
-                "FORENSIC",
-                "INTERVIEW",
-                "SERVICE7",
-                "STERN"
-            }));
-            Assert.That(
-                diagnostics.Where(item =>
-                    item.Severity == LocationCatalogDiagnosticSeverity.Error),
-                Is.Empty);
+            Assert.That(diagnostics, Is.Empty);
         }
 
         [Test]

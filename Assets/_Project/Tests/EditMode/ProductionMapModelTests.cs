@@ -77,23 +77,53 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void UnresolvedNarrativeScenes_AreListedWithoutPhysicalMapping()
+        public void EveryOfficialNarrativeScene_IsBackedByPhysicalMapping()
         {
             ProductionMapViewModel model =
                 ProductionMapViewModel.Create(graph, null, 15);
 
-            Assert.That(model.UnresolvedScenes.Count, Is.GreaterThan(0));
+            Assert.That(model.UnresolvedScenes, Is.Empty);
+            Assert.That(model.DialogueOnlyEntries, Is.Empty);
             Assert.That(
-                model.UnresolvedScenes
-                    .Select(scene => scene.NarrativeLocationCode)
-                    .Distinct()
-                    .OrderBy(value => value),
-                Is.EqualTo(CanonicalLocationCatalog.UnresolvedCodes.OrderBy(value => value)));
-            Assert.That(
-                model.Entries.All(entry =>
-                    !CanonicalLocationCatalog.UnresolvedCodes.Contains(
-                        entry.Spec.Code)),
+                ProductionSceneCatalog.All.All(scene =>
+                    CanonicalLocationCatalog.FindSpec(
+                        scene.NarrativeLocationCode) != null),
                 Is.True);
+        }
+
+        [TestCase("CABIN_CLAIRE", "VIP_LOUNGE")]
+        [TestCase("STERN", "OPEN_DECK")]
+        [TestCase("CABIN_DANIEL", "NEWS_LOUNGE")]
+        [TestCase("EVIDENCE_BOARD", "NEWS_LOUNGE")]
+        [TestCase("INTERVIEW", "SECURITY")]
+        [TestCase("FORENSIC", "MEDBAY")]
+        [TestCase("BRIDGE", "ENGINE_CONTROL")]
+        [TestCase("SERVICE7", "CREW_STAIRS")]
+        public void NarrativeAlias_AppearsUnderMappedPhysicalLocation(
+            string narrativeCode,
+            string expectedPhysicalCode)
+        {
+            ProductionSceneDefinition scene = ProductionSceneCatalog.All
+                .First(item => item.NarrativeLocationCode == narrativeCode);
+            ProductionMapViewModel model =
+                ProductionMapViewModel.Create(graph, null, 15);
+            CanonicalLocationSpec spec =
+                CanonicalLocationCatalog.FindSpec(narrativeCode);
+            ProductionMapEntry entry = model.Entries
+                .Single(item => item.Spec.Code == expectedPhysicalCode);
+
+            Assert.That(spec, Is.Not.Null);
+            Assert.That(spec.Code, Is.EqualTo(expectedPhysicalCode));
+            Assert.That(entry.Location, Is.Not.Null);
+            Assert.That(entry.Location.BackgroundSprite, Is.Not.Null);
+            Assert.That(
+                ProductionSceneCatalog.All
+                    .Where(item =>
+                        CanonicalLocationCatalog.FindSpec(
+                            item.NarrativeLocationCode)?.Code ==
+                        expectedPhysicalCode)
+                    .Select(item => item.SceneId),
+                Does.Contain(scene.SceneId));
         }
 
         [TestCase(500f, 1)]

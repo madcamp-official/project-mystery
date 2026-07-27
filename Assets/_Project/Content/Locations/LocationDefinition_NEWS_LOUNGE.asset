@@ -17,6 +17,8 @@ MonoBehaviour:
   deck: 8
   roomCode: D8-2
   backgroundSprite: {fileID: 21300000, guid: 6ce3e680ddd17994db4ba98049cba8ea, type: 3}
-  narrativeAliases: []
+  narrativeAliases:
+  - CABIN_DANIEL
+  - EVIDENCE_BOARD
   contentPrefab: {fileID: 0}
   connectedLocations: []

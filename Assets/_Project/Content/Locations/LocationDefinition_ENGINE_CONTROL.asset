@@ -19,5 +19,6 @@ MonoBehaviour:
   backgroundSprite: {fileID: 21300000, guid: 87e77d5a4900de245be2ff138acbf53f, type: 3}
   narrativeAliases:
   - ENGINE_CTRL
+  - BRIDGE
   contentPrefab: {fileID: 0}
   connectedLocations: []
