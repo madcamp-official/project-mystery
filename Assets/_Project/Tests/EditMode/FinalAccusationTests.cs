@@ -110,7 +110,7 @@ namespace Wake.Tests
             FinalAccusationResult result =
                 resolver.Resolve(CreateCorrectAccusation(true));
 
-            Assert.That(result.Ending, Is.EqualTo(FinalEnding.BadPanic));
+            Assert.That(result.Ending, Is.EqualTo(FinalEnding.Bad));
             Assert.That(result.EndingId, Is.EqualTo("ending_bad_panic"));
         }
 
@@ -123,7 +123,7 @@ namespace Wake.Tests
             FinalAccusationResult result =
                 resolver.Resolve(CreateCorrectAccusation(true));
 
-            Assert.That(result.Ending, Is.EqualTo(FinalEnding.BadIntegrity));
+            Assert.That(result.Ending, Is.EqualTo(FinalEnding.Bad));
             Assert.That(result.EndingId, Is.EqualTo("ending_bad_integrity"));
         }
 

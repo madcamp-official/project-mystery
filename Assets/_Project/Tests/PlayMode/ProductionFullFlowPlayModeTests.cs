@@ -324,10 +324,10 @@ namespace Wake.Tests.PlayMode
                 CreateCorrectAccusation(discloseCoverup: false).Submit();
 
             Assert.That(panic.Submitted, Is.True);
-            Assert.That(panic.Result.Ending, Is.EqualTo(FinalEnding.BadPanic));
+            Assert.That(panic.Result.Ending, Is.EqualTo(FinalEnding.Bad));
             Assert.That(
                 state.FinalEndingId,
-                Is.EqualTo(FinalAccusationResolver.PanicEndingId));
+                Is.EqualTo(FinalAccusationResolver.BadEndingId));
             yield return RecreateRuntime("IntegrityThreshold");
 
             PlayerPrefs.DeleteKey(SaveKey);
@@ -342,10 +342,10 @@ namespace Wake.Tests.PlayMode
             Assert.That(integrity.Submitted, Is.True);
             Assert.That(
                 integrity.Result.Ending,
-                Is.EqualTo(FinalEnding.BadIntegrity));
+                Is.EqualTo(FinalEnding.Bad));
             Assert.That(
                 state.FinalEndingId,
-                Is.EqualTo(FinalAccusationResolver.IntegrityEndingId));
+                Is.EqualTo(FinalAccusationResolver.BadEndingId));
         }
 
         private FinalAccusationSession CreateCorrectAccusation(

@@ -458,7 +458,7 @@ namespace Wake.Core
 
         public bool TryRecordFinalEnding(string endingId)
         {
-            string normalized = NormalizeId(endingId);
+            string normalized = FinalAccusationResolver.NormalizeEndingId(endingId);
             if (string.IsNullOrEmpty(normalized) ||
                 !string.IsNullOrEmpty(data.finalEndingId))
             {
@@ -854,7 +854,8 @@ namespace Wake.Core
                     value = group.Sum(item => item.value)
                 })
                 .ToList();
-            data.finalEndingId = NormalizeId(data.finalEndingId);
+            data.finalEndingId =
+                FinalAccusationResolver.NormalizeEndingId(data.finalEndingId);
             data.currentLocationCode ??= string.Empty;
             if (data.dialogueCheckpoint != null)
             {

@@ -35,36 +35,31 @@ namespace Wake.Core
         {
             new(
                 FinalAccusationResolver.CompleteEndingId,
-                "A 엔딩",
-                "흔적 없는 항적",
-                "Evelyn의 현재 살인과 Richard의 Orpheus 은폐가 모두 공개됐다. " +
-                "Julian의 명예가 회복되고 Daniel의 기사는 사실에 맞게 수정됐다.",
+                "엔딩 A",
+                "Complete Wake",
+                "Evelyn의 현재 살인과 Richard의 Orpheus 은폐가 모두 공개됩니다. " +
+                "Julian의 명예가 회복되고 Daniel의 기사는 사실에 맞게 수정됩니다.",
                 true),
             new(
                 FinalAccusationResolver.ConvenientEndingId,
-                "B 엔딩",
-                "편리한 범인",
-                "현재 살인은 해결됐지만 Orpheus 은폐는 남았다. " +
-                "Daniel의 기사는 일부만 수정되고 Richard의 책임은 다시 봉인됐다.",
+                "엔딩 B",
+                "Convenient Culprit",
+                "현재 살인은 해결되지만 Orpheus 은폐는 남습니다. " +
+                "Daniel의 기사는 일부만 수정되고 Richard의 책임은 다시 봉인됩니다.",
                 true),
             new(
                 FinalAccusationResolver.WrongPersonEndingId,
-                "C 엔딩",
-                "잘못된 지목",
-                "핵심 논증이 끊긴 채 잘못된 결론이 발표됐다. " +
-                "진범과 시신 이동 경로는 공식 기록에서 사라졌다.",
+                "엔딩 C",
+                "The Wrong Man",
+                "논증에 실패한 채 Richard를 범인으로 기록합니다. " +
+                "Evelyn은 빠져나가고 진범과 시신 이동 경로는 공식 기록에서 사라집니다.",
                 false),
             new(
-                FinalAccusationResolver.PanicEndingId,
+                FinalAccusationResolver.BadEndingId,
                 "배드 엔딩",
-                "통제 불능",
-                "승객 불안이 한계에 도달해 최종 지목 전에 수사가 중단됐다.",
-                false),
-            new(
-                FinalAccusationResolver.IntegrityEndingId,
-                "배드 엔딩",
-                "훼손된 진실",
-                "현장 보존도가 소진돼 직접 증거를 최종 논증에 사용할 수 없었다.",
+                "Panic at Sea",
+                "승객 불안이 폭발하거나 증거가 훼손되어 수사가 중단되고 " +
+                "MV Elysium은 비상 입항합니다.",
                 false)
         };
 
@@ -75,8 +70,7 @@ namespace Wake.Core
                 [Entries[0].EndingId] = Entries[0],
                 [Entries[1].EndingId] = Entries[1],
                 [Entries[2].EndingId] = Entries[2],
-                [Entries[3].EndingId] = Entries[3],
-                [Entries[4].EndingId] = Entries[4]
+                [Entries[3].EndingId] = Entries[3]
             };
 
         public static IReadOnlyList<ProductionEndingDefinition> All => Entries;
@@ -85,7 +79,9 @@ namespace Wake.Core
             string endingId,
             out ProductionEndingDefinition definition)
         {
-            return ById.TryGetValue(endingId ?? string.Empty, out definition);
+            return ById.TryGetValue(
+                FinalAccusationResolver.NormalizeEndingId(endingId),
+                out definition);
         }
 
         public static string GetNextDialogueScene(
@@ -103,7 +99,6 @@ namespace Wake.Core
             {
                 return ConfessionSceneId;
             }
-
             return epilogueCompleted ? string.Empty : EpilogueSceneId;
         }
     }
