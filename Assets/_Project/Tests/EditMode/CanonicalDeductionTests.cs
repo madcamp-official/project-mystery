@@ -206,15 +206,13 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void Presentation_DistinguishesMissingUnlockedAndActiveStates()
+        public void Presentation_DistinguishesMissingAndCompletedStates()
         {
             DeductionEvaluation missing = service.Evaluate("scene_denial");
             EvidenceTheoryView missingView =
-                EvidenceTheoryPresentation.Create(missing, false, false);
+                EvidenceTheoryPresentation.Create(missing, false);
             EvidenceTheoryView unlockedView =
-                EvidenceTheoryPresentation.Create(missing, true, false);
-            EvidenceTheoryView activeView =
-                EvidenceTheoryPresentation.Create(missing, true, true);
+                EvidenceTheoryPresentation.Create(missing, true);
 
             Assert.That(
                 missingView.State,
@@ -225,7 +223,9 @@ namespace Wake.Tests
             Assert.That(
                 unlockedView.State,
                 Is.EqualTo(EvidenceTheoryState.Unlocked));
-            Assert.That(activeView.State, Is.EqualTo(EvidenceTheoryState.Active));
+            Assert.That(
+                EvidenceTheoryPresentation.StateLabel(unlockedView),
+                Is.EqualTo("추론 완료"));
         }
 
         [Test]
@@ -236,7 +236,6 @@ namespace Wake.Tests
 
             EvidenceTheoryView view = EvidenceTheoryPresentation.Create(
                 service.Evaluate("scene_denial"),
-                false,
                 false);
 
             Assert.That(

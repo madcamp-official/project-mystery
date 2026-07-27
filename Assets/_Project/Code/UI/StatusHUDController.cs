@@ -1,8 +1,10 @@
 using System.Text;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Wake.Core;
+using Wake.Narrative;
 
 namespace Wake.UI
 {
@@ -12,13 +14,12 @@ namespace Wake.UI
         private const float HudHeight = 168f;
         private const float TimeFontSize = 46f;
         private const float IndicatorFontSize = 34f;
-        private const float TheoryFontSize = 30f;
+        private const float ProgressFontSize = 28f;
         private const float TrustHeight = 88f;
         private const float TrustWidth = 520f;
         private const float TrustFontSize = 30f;
         private const float IconSize = 44f;
         private const float MarkerSize = 18f;
-        private const float TheorySlotHeight = 76f;
         private const float PipSize = 22f;
 
         private const string KoreanGlyphWarmup =
@@ -45,23 +46,16 @@ namespace Wake.UI
         [SerializeField] private Sprite trustPipEmptySprite;
         [SerializeField] private Sprite trustPipFilledSprite;
 
-        [Header("Theory Art")]
-        [SerializeField] private Sprite theorySlotEmptySprite;
-        [SerializeField] private Sprite theoryCardActiveSprite;
-        [SerializeField] private Sprite theoryFullOverlaySprite;
-
         private TMP_Text timeText;
         private TMP_Text anxietyText;
         private TMP_Text integrityText;
-        private TMP_Text theoryText;
+        private TMP_Text progressText;
         private TMP_Text trustText;
         private Image anxietyFill;
         private Image integrityFill;
         private GameObject anxietyPanicOverlay;
         private GameObject integrityDamageOverlay;
         private GameObject integrityCriticalOverlay;
-        private Image[] theorySlotImages;
-        private GameObject theoryFullOverlay;
         private Image[] trustPips;
         private GameObject trustRoot;
         private GameStateManager state;
@@ -114,6 +108,11 @@ namespace Wake.UI
             Image background = GetOrAdd<Image>(gameObject);
             background.color = Navy;
             background.raycastTarget = false;
+            Transform legacyTheoryPanel = root.Find("Theory Slots");
+            if (legacyTheoryPanel != null)
+            {
+                legacyTheoryPanel.gameObject.SetActive(false);
+            }
 
             Transform timePanel = EnsurePanel(root, "Time Badge", 0.01f, 0.17f);
             timeText = EnsureText(
@@ -146,14 +145,16 @@ namespace Wake.UI
             integrityDamageOverlay = EnsureOverlay(integrityPanel, "DamageOverlay", integrityDamageOverlaySprite);
             integrityCriticalOverlay = EnsureOverlay(integrityPanel, "CriticalOverlay", integrityCriticalOverlaySprite);
 
-            Transform theoryPanel = EnsurePanel(root, "Theory Slots", 0.68f, 0.99f);
-            theoryText = EnsureText(
-                theoryPanel,
+            Transform progressPanel = EnsurePanel(
+                root,
+                "Investigation Progress",
+                0.68f,
+                0.99f);
+            progressText = EnsureText(
+                progressPanel,
                 "Label",
-                TextAlignmentOptions.Top,
-                TheoryFontSize);
-            theorySlotImages = EnsureTheorySlots(theoryPanel);
-            theoryFullOverlay = EnsureOverlay(theoryPanel, "FullOverlay", theoryFullOverlaySprite);
+                TextAlignmentOptions.Center,
+                ProgressFontSize);
 
             Transform portraitFrame = transform.parent?.Find("Ingame/Line Panel/Image");
             if (portraitFrame != null)
@@ -261,8 +262,9 @@ namespace Wake.UI
             SetActiveSafe(integrityDamageOverlay, state.EvidenceIntegrity > 0 && state.EvidenceIntegrity <= 50);
             SetActiveSafe(integrityCriticalOverlay, state.EvidenceIntegrity <= 25);
 
-            theoryText.text = $"활성 가설  {state.ActiveTheoryCount}/{state.TheorySlots}";
-            RefreshTheorySlots(state.ActiveTheoryCount, state.TheorySlots);
+            progressText.text = InvestigationProgressPresentation.Create(
+                state.CompletedProductionSceneIds,
+                ProductionSceneCatalog.All.Select(scene => scene.SceneId)).Label;
 
             if (trustRoot != null)
             {
@@ -284,13 +286,12 @@ namespace Wake.UI
                 timeText.text = "DAY 1  ·  AM";
                 anxietyText.text = "승객 불안  15/100";
                 integrityText.text = "현장 보존도  100/100";
-                theoryText.text = "활성 가설  0/3";
+                progressText.text = "수사 진행  0/41";
                 SetFill(anxietyFill, 15);
                 SetFill(integrityFill, 100);
                 SetActiveSafe(anxietyPanicOverlay, false);
                 SetActiveSafe(integrityDamageOverlay, false);
                 SetActiveSafe(integrityCriticalOverlay, false);
-                RefreshTheorySlots(0, 3);
             }
 
             if (trustRoot != null)
@@ -315,32 +316,6 @@ namespace Wake.UI
             {
                 go.SetActive(active);
             }
-        }
-
-        private void RefreshTheorySlots(int filled, int total)
-        {
-            if (theorySlotImages == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < theorySlotImages.Length; i++)
-            {
-                if (theorySlotImages[i] == null)
-                {
-                    continue;
-                }
-
-                bool active = i < filled;
-                Sprite sprite = active ? theoryCardActiveSprite : theorySlotEmptySprite;
-                if (sprite != null)
-                {
-                    theorySlotImages[i].sprite = sprite;
-                    theorySlotImages[i].preserveAspect = true;
-                }
-            }
-
-            SetActiveSafe(theoryFullOverlay, total > 0 && filled >= total);
         }
 
         private void RefreshTrustPips(int trust)
@@ -648,44 +623,6 @@ namespace Wake.UI
             overlayObject.transform.SetAsLastSibling();
             overlayObject.SetActive(false);
             return overlayObject;
-        }
-
-        private Image[] EnsureTheorySlots(Transform parent)
-        {
-            GameObject container = EnsureChild(parent, "Slots", typeof(RectTransform));
-            RectTransform containerRect = container.GetComponent<RectTransform>();
-            containerRect.anchorMin = new Vector2(0f, 0f);
-            containerRect.anchorMax = new Vector2(1f, 0.72f);
-            containerRect.offsetMin = new Vector2(12f, 6f);
-            containerRect.offsetMax = new Vector2(-12f, 0f);
-
-            Image[] slots = new Image[3];
-            for (int i = 0; i < slots.Length; i++)
-            {
-                GameObject slotObject = EnsureChild(
-                    container.transform,
-                    "Slot " + i,
-                    typeof(CanvasRenderer),
-                    typeof(Image));
-                RectTransform rect = slotObject.GetComponent<RectTransform>();
-                float widthFraction = 1f / slots.Length;
-                rect.anchorMin = new Vector2(widthFraction * i, 0f);
-                rect.anchorMax = new Vector2(widthFraction * (i + 1), 1f);
-                rect.offsetMin = new Vector2(6f, 0f);
-                rect.offsetMax = new Vector2(-6f, 0f);
-
-                Image image = slotObject.GetComponent<Image>();
-                image.type = Image.Type.Simple;
-                image.preserveAspect = true;
-                image.raycastTarget = false;
-                if (theorySlotEmptySprite != null)
-                {
-                    image.sprite = theorySlotEmptySprite;
-                }
-                slots[i] = image;
-            }
-
-            return slots;
         }
 
         private Image[] EnsureTrustPips(Transform parent)

@@ -15,8 +15,7 @@ namespace Wake.UI
         MissingEvidence,
         UnreliableEvidence,
         ReadyToUnlock,
-        Unlocked,
-        Active
+        Unlocked
     }
 
     public readonly struct EvidenceTheoryView
@@ -49,20 +48,17 @@ namespace Wake.UI
     {
         public static EvidenceTheoryView Create(
             DeductionEvaluation evaluation,
-            bool unlocked,
-            bool active)
+            bool unlocked)
         {
-            EvidenceTheoryState state = active
-                ? EvidenceTheoryState.Active
-                : unlocked
-                    ? EvidenceTheoryState.Unlocked
-                    : evaluation == null
-                        ? EvidenceTheoryState.MissingEvidence
-                        : evaluation.UnusableEvidenceIds.Count > 0
-                            ? EvidenceTheoryState.UnreliableEvidence
-                            : evaluation.MissingEvidenceIds.Count == 0
-                                ? EvidenceTheoryState.ReadyToUnlock
-                                : EvidenceTheoryState.MissingEvidence;
+            EvidenceTheoryState state = unlocked
+                ? EvidenceTheoryState.Unlocked
+                : evaluation == null
+                    ? EvidenceTheoryState.MissingEvidence
+                    : evaluation.UnusableEvidenceIds.Count > 0
+                        ? EvidenceTheoryState.UnreliableEvidence
+                        : evaluation.MissingEvidenceIds.Count == 0
+                            ? EvidenceTheoryState.ReadyToUnlock
+                            : EvidenceTheoryState.MissingEvidence;
             CanonicalDeductionDefinition definition = evaluation?.Definition;
             return new EvidenceTheoryView(
                 definition?.Id,
@@ -75,8 +71,7 @@ namespace Wake.UI
 
         public static string StateLabel(EvidenceTheoryView view) => view.State switch
         {
-            EvidenceTheoryState.Active => "활성 가설",
-            EvidenceTheoryState.Unlocked => "해금됨 · 클릭하여 활성화",
+            EvidenceTheoryState.Unlocked => "추론 완료",
             EvidenceTheoryState.ReadyToUnlock => "논증 가능",
             EvidenceTheoryState.UnreliableEvidence => "증거 훼손으로 사용 불가",
             _ => view.MissingEvidenceIds.Count == 0
@@ -97,12 +92,11 @@ namespace Wake.UI
         private static readonly Color Locked = new(0.14f, 0.15f, 0.18f, 1f);
         private static readonly Color Ready = new(0.38f, 0.30f, 0.14f, 1f);
         private static readonly Color Unlocked = new(0.16f, 0.30f, 0.40f, 1f);
-        private static readonly Color Active = new(0.12f, 0.42f, 0.30f, 1f);
         private static readonly Color Unreliable = new(0.42f, 0.16f, 0.16f, 1f);
 
         private readonly List<Button> theoryButtons = new();
         private GameObject root;
-        private TMP_Text slotText;
+        private TMP_Text progressText;
         private TMP_Text statusText;
         private CanonicalDeductionService service;
 
@@ -139,7 +133,7 @@ namespace Wake.UI
             root?.SetActive(false);
         }
 
-        public bool ToggleTheory(string deductionId)
+        public bool ResolveDeduction(string deductionId)
         {
             GameStateManager state = GameStateManager.Instance;
             if (service == null || state == null)
@@ -149,19 +143,10 @@ namespace Wake.UI
 
             string normalized = CanonicalDeductionCatalog.NormalizeId(deductionId);
             bool changed;
-            if (state.IsTheoryActive(normalized))
+            if (state.HasUnlockedDeduction(normalized))
             {
-                changed = state.RemoveTheory(normalized);
-                statusText.text = changed
-                    ? "활성 가설 슬롯에서 제거했습니다."
-                    : "가설을 제거하지 못했습니다.";
-            }
-            else if (state.HasUnlockedDeduction(normalized))
-            {
-                changed = service.TryActivate(normalized);
-                statusText.text = changed
-                    ? "가설을 활성화했습니다."
-                    : "활성 가설 슬롯이 가득 찼습니다.";
+                changed = false;
+                statusText.text = "이미 완료한 추론입니다.";
             }
             else
             {
@@ -183,8 +168,10 @@ namespace Wake.UI
             }
 
             GameStateManager state = GameStateManager.Instance;
-            slotText.text =
-                $"활성 가설 슬롯 {state.ActiveTheoryCount}/{state.TheorySlots}";
+            int unlockedCount = CanonicalDeductionCatalog.All.Count(
+                definition => state.HasUnlockedDeduction(definition.Id));
+            progressText.text =
+                $"완료한 추론 {unlockedCount}/{CanonicalDeductionCatalog.All.Count}";
             for (int index = 0; index < theoryButtons.Count; index++)
             {
                 CanonicalDeductionDefinition definition =
@@ -192,8 +179,7 @@ namespace Wake.UI
                 DeductionEvaluation evaluation = service.Evaluate(definition.Id);
                 EvidenceTheoryView view = EvidenceTheoryPresentation.Create(
                     evaluation,
-                    state.HasUnlockedDeduction(definition.Id),
-                    state.IsTheoryActive(definition.Id));
+                    state.HasUnlockedDeduction(definition.Id));
                 Button button = theoryButtons[index];
                 button.image.color = ColorFor(view.State);
                 button.interactable =
@@ -228,7 +214,7 @@ namespace Wake.UI
                 34f,
                 0.07f,
                 0.93f);
-            slotText = MakeText(
+            progressText = MakeText(
                 root.transform,
                 string.Empty,
                 0.82f,
@@ -255,7 +241,7 @@ namespace Wake.UI
                     maxX,
                     18f);
                 button.onClick.AddListener(() =>
-                    ToggleTheory(CanonicalDeductionCatalog.All[captured].Id));
+                    ResolveDeduction(CanonicalDeductionCatalog.All[captured].Id));
                 theoryButtons.Add(button);
             }
 
@@ -282,7 +268,6 @@ namespace Wake.UI
 
         private static Color ColorFor(EvidenceTheoryState state) => state switch
         {
-            EvidenceTheoryState.Active => Active,
             EvidenceTheoryState.Unlocked => Unlocked,
             EvidenceTheoryState.ReadyToUnlock => Ready,
             EvidenceTheoryState.UnreliableEvidence => Unreliable,
