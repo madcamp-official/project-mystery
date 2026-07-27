@@ -64,7 +64,7 @@ namespace Wake.Narrative
                 "uneasy", "always", "GANGWAY"),
 
             B("RICHARD_SUITE_SECURITY", "SUITE_STEWARD",
-                "Hawthorne 씨의 객실은 조사 중입니다. 허가된 인원만 들어갈 수 있습니다.",
+                "호손 씨의 객실은 조사 중입니다. 허가된 인원만 들어갈 수 있습니다.",
                 "firm", "always", "RICHARD_SUITE"),
             B("RICHARD_SUITE_RUMOR", "SUITE_STEWARD",
                 "문 앞에 모이지 마십시오. 객실 내부 상황은 공식 발표 전까지 비공개입니다.",
@@ -115,7 +115,7 @@ namespace Wake.Narrative
                 "창가 테이블은 예약석입니다. 중앙 좌석은 자유롭게 이용하셔도 됩니다.",
                 "professional", "always", "HORIZON"),
             B("HORIZON_CLOSED", "CREW_ATTENDANT",
-                "Horizon Room은 예약이 중단되었습니다. 다른 라운지를 이용해 주세요.",
+                "호라이즌 룸은 예약이 중단되었습니다. 다른 라운지를 이용해 주세요.",
                 "professional", "chapter>=Day2", "HORIZON"),
             B("HORIZON_FINALE", "PASSENGER_E",
                 "탐정이 모두를 이 방에 불렀대요. 드디어 끝나는 건가요?",
@@ -138,7 +138,7 @@ namespace Wake.Narrative
                 "벽면 송고 단말기에 수정 기록이 남아 있어요. 기사가 몇 번이나 바뀐 모양입니다.",
                 "curious", "always", "NEWS_LOUNGE"),
             B("NEWS_ARTICLE", "PASSENGER_B",
-                "Daniel Mercer의 기사를 읽었어요. 삭제되기 전에 저장해 뒀습니다.",
+                "대니얼 머서의 기사를 읽었어요. 삭제되기 전에 저장해 뒀습니다.",
                 "uneasy", "flag:scheduled_article", "NEWS_LOUNGE"),
 
             B("SECURITY_OFFICER", "SECURITY_OPERATOR",

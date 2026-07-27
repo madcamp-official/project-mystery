@@ -157,8 +157,15 @@ namespace Wake.Exploration
             target.transform.SetParent(contentRect, false);
 
             RectTransform rect = target.GetComponent<RectTransform>();
-            rect.anchorMin = spec.NormalizedRect.min;
-            rect.anchorMax = spec.NormalizedRect.max;
+            Rect hotspot = spec.NormalizedRect;
+            if (RuntimeUiLayoutRegistry.TryGetNormalizedRect(
+                    $"location.{spec.LocationCode}.evidence.{spec.EvidenceId}",
+                    out Rect placeholder))
+            {
+                hotspot = placeholder;
+            }
+            rect.anchorMin = hotspot.min;
+            rect.anchorMax = hotspot.max;
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
 

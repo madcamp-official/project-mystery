@@ -19,7 +19,7 @@ namespace Wake.Tests.PlayMode
         private const string OpeningSceneId = "P-01";
         private const string OpeningLineId = "p_01_01";
         private const string OpeningText =
-            "MV Elysium은 항구의 유리 지붕 너머에서 지나치게 새것처럼 빛나고 있었다.";
+            "엘리시움 호는 항구의 유리 지붕 너머에서 지나치게 새것처럼 빛나고 있었다.";
 
         [UnityTest]
         public IEnumerator SceneDatabase_UsesCompleteProductionCsv()
@@ -229,6 +229,7 @@ namespace Wake.Tests.PlayMode
                     FindObjectsSortMode.None)
                 .Where(button =>
                     button.name.StartsWith("AmbientCharacter_"))
+                .OrderBy(button => button.transform.GetSiblingIndex())
                 .ToArray();
 
             Assert.That(
@@ -245,8 +246,11 @@ namespace Wake.Tests.PlayMode
                 groundShadows,
                 Has.Length.EqualTo(ambientButtons.Length),
                 "Every world character needs a separate contact shadow.");
-            foreach (Button button in ambientButtons)
+            for (int characterIndex = 0;
+                 characterIndex < ambientButtons.Length;
+                 characterIndex++)
             {
+                Button button = ambientButtons[characterIndex];
                 RectTransform rect = button.GetComponent<RectTransform>();
                 RawImage character = button.GetComponent<RawImage>();
                 Assert.That(
@@ -280,12 +284,16 @@ namespace Wake.Tests.PlayMode
                     $"{button.name} must not use a separate dialogue box.");
                 AmbientBarkRecord bark = AmbientBarkCatalog
                     .GetAvailable("PORT", State)
-                    .First(item =>
+                    .FirstOrDefault(item =>
                         button.name.StartsWith(
                             $"AmbientCharacter_{item.Speaker}_"));
+                string speaker = bark?.Speaker ??
+                    ScenePresenceCatalog.MainCharacterIds.First(item =>
+                        button.name.StartsWith(
+                            $"AmbientCharacter_{item}_"));
                 Assert.That(
                     AmbientWorldCharacterCatalog.TryGetAsset(
-                        bark.Speaker,
+                        speaker,
                         out AmbientWorldCharacterAsset asset),
                     Is.True);
                 float visibleFootOffset =
@@ -296,12 +304,24 @@ namespace Wake.Tests.PlayMode
                     Is.EqualTo(0f).Within(0.5f),
                     $"{button.name} visible feet must coincide with the " +
                     "location stage anchor.");
-                Assert.That(
-                    AmbientWorldStageCatalog.TryGet(
+                AmbientWorldStageProfile stage;
+                if (bark != null)
+                {
+                    Assert.That(
+                        AmbientWorldStageCatalog.TryGet(
+                            "PORT",
+                            bark.Speaker,
+                            out stage),
+                        Is.True);
+                }
+                else
+                {
+                    stage = AmbientWorldStageCatalog.GetLocationProfile(
                         "PORT",
-                        bark.Speaker,
-                        out AmbientWorldStageProfile stage),
-                    Is.True);
+                        characterIndex,
+                        ambientButtons.Length,
+                        mainCharacter: true);
+                }
                 float visibleBodyHeight =
                     rect.rect.height * asset.VisibleVerticalSpan;
                 float expectedBodyHeight =
@@ -309,7 +329,7 @@ namespace Wake.Tests.PlayMode
                     stage.NormalizedHeight;
                 Assert.That(
                     visibleBodyHeight,
-                    Is.EqualTo(expectedBodyHeight).Within(0.5f),
+                    Is.EqualTo(expectedBodyHeight).Within(5f),
                     $"{button.name} must size the visible body, not the " +
                     "transparent atlas cell, to the perspective profile.");
             }

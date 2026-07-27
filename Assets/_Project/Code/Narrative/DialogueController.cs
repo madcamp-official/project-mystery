@@ -25,6 +25,7 @@ namespace Wake.Narrative
         };
 
         private const string TypewriterSfxResourcePath = "SoundEffect/Type_Writer";
+        private const int MaximumAutoRoutedRecords = 64;
 
         [SerializeField] private float typewriterCharacterInterval = 0.02f;
 
@@ -38,11 +39,13 @@ namespace Wake.Narrative
         private Button[] choiceButtons;
         private TMP_Text[] choiceLabels;
         private ResponsiveDialogueLayout responsiveLayout;
+        private InvestigationDialogueUIController investigationUi;
 
         private DialogueSet currentSet;
         private DialogueNode currentNode;
         private ProductionDialogueFlow productionFlow;
         private bool ambientLineActive;
+        private string pendingInvestigationTitle = string.Empty;
 
         private AudioSource typewriterAudioSource;
         private AudioClip typewriterClip;
@@ -117,6 +120,15 @@ namespace Wake.Narrative
                 nextButton.GetComponent<RectTransform>(),
                 selectBtn.GetComponent<RectTransform>(),
                 choiceButtons);
+            investigationUi =
+                canvas.GetComponent<InvestigationDialogueUIController>();
+            if (investigationUi == null)
+            {
+                investigationUi =
+                    canvas.gameObject.AddComponent<
+                        InvestigationDialogueUIController>();
+            }
+            investigationUi.Initialize(canvas);
             linePanel.SetActive(false);
         }
 
@@ -237,6 +249,9 @@ namespace Wake.Narrative
             rect.pivot = new Vector2(0.5f, 0f);
             rect.anchoredPosition = new Vector2(-660f, 20f);
             rect.sizeDelta = new Vector2(360f, 430f);
+            Wake.UI.RuntimeUiLayoutRegistry.CopyLayout(
+                rect,
+                "dialogue.speaker-portrait");
 
             speakerPortrait = portraitObject.GetComponent<RawImage>();
             speakerPortrait.raycastTarget = false;
@@ -382,7 +397,9 @@ namespace Wake.Narrative
             currentNode = null;
             productionFlow = null;
             ambientLineActive = false;
+            pendingInvestigationTitle = string.Empty;
             linePanel?.SetActive(false);
+            investigationUi?.Hide();
             choicesContainer?.SetActive(false);
             speakerPortrait?.gameObject.SetActive(false);
             FindFirstObjectByType<StatusHUDController>()
@@ -440,12 +457,57 @@ namespace Wake.Narrative
 
         private void RenderProduction()
         {
+            int routedRecords = 0;
+            while (productionFlow != null &&
+                   !productionFlow.IsComplete &&
+                   !productionFlow.IsAwaitingChoice &&
+                   productionFlow.Current != null &&
+                   routedRecords < MaximumAutoRoutedRecords)
+            {
+                DialogueRecord current = productionFlow.Current;
+                if (ProductionPresentationRouting.IsSystemEvent(current))
+                {
+                    productionFlow.Advance();
+                    DispatchSystemEvent(current);
+                    routedRecords++;
+                    continue;
+                }
+
+                if (InvestigationPresentationPolicy.IsMarker(current))
+                {
+                    SaveProductionCheckpoint();
+                    PresentInvestigationTarget(current);
+                    return;
+                }
+
+                if (InvestigationPresentationPolicy.IsInvestigationResult(
+                        current))
+                {
+                    SaveProductionCheckpoint();
+                    PresentInvestigationResult(current);
+                    return;
+                }
+
+                break;
+            }
+
+            if (routedRecords >= MaximumAutoRoutedRecords)
+            {
+                Debug.LogError(
+                    $"Scene '{productionFlow?.ActiveSceneId}' exceeded " +
+                    "the non-dialogue auto-routing guard.");
+                EndDialogue();
+                return;
+            }
+
             if (productionFlow == null || productionFlow.IsComplete)
             {
                 EndDialogue();
                 return;
             }
 
+            investigationUi?.Hide();
+            linePanel.SetActive(true);
             SaveProductionCheckpoint();
             bool hasChoices = productionFlow.IsAwaitingChoice;
             choicesContainer.SetActive(hasChoices);
@@ -478,18 +540,98 @@ namespace Wake.Narrative
             }
 
             DialogueRecord record = productionFlow.Current;
-            DialogueSpeakerIdentity speaker = DialoguePresentationMap.GetSpeaker(record.Speaker);
+            DialogueSpeakerIdentity speaker =
+                DialoguePresentationMap.GetSpeaker(
+                    record.Speaker,
+                    record.LineType);
             speakerText.text =
                 DialoguePresentationMap.GetSpeakerLabel(record.Speaker, speaker);
             bool isNarrationOrSystem =
-                speaker.Kind == DialogueSpeakerKind.Narration ||
-                speaker.Kind == DialogueSpeakerKind.System;
+                speaker.Kind == DialogueSpeakerKind.Narration;
             SetLineText(record.TextKo, isNarrationOrSystem);
             responsiveLayout?.ResetTextScroll();
             ShowPortrait(
                 speaker.PortraitId,
                 DialoguePresentationMap.GetEmotion(record.Emotion));
             FindFirstObjectByType<StatusHUDController>()?.SetContextCharacter(speaker.PortraitId);
+        }
+
+        private void DispatchSystemEvent(DialogueRecord record)
+        {
+            ProductionUiEventPresentation presentation =
+                ProductionPresentationRouting.ClassifySystemEvent(record);
+            if (presentation.Channel ==
+                ProductionUiEventChannel.Evidence)
+            {
+                EvidencePanelController.Instance?.Refresh();
+            }
+
+            if (!presentation.ShowToast)
+                return;
+
+            if (presentation.Channel is
+                ProductionUiEventChannel.Theory or
+                ProductionUiEventChannel.Interaction)
+            {
+                ToastController.Instance?.ShowAlert(
+                    presentation.Message);
+                return;
+            }
+
+            ToastController.Instance?.Show(presentation.Message);
+        }
+
+        private void PresentInvestigationTarget(DialogueRecord marker)
+        {
+            StopTypewriter();
+            linePanel.SetActive(false);
+            pendingInvestigationTitle =
+                InvestigationPresentationPolicy.MarkerTitle(marker);
+            if (investigationUi == null)
+            {
+                productionFlow?.Advance();
+                RenderProduction();
+                return;
+            }
+            investigationUi.ShowTarget(
+                pendingInvestigationTitle,
+                () =>
+                {
+                    investigationUi.Hide();
+                    productionFlow?.Advance();
+                    RenderProduction();
+                });
+        }
+
+        private void PresentInvestigationResult(DialogueRecord record)
+        {
+            StopTypewriter();
+            linePanel.SetActive(false);
+            string title = string.IsNullOrWhiteSpace(
+                pendingInvestigationTitle)
+                ? InvestigationPresentationPolicy.ResultTitle(record)
+                : pendingInvestigationTitle;
+            string section =
+                InvestigationPresentationPolicy.IsObservation(record)
+                    ? "현장 관찰"
+                    : "현장 조사";
+            if (investigationUi == null)
+            {
+                productionFlow?.Advance();
+                RenderProduction();
+                return;
+            }
+            investigationUi.ShowObservation(
+                section,
+                title,
+                record.TextKo,
+                () =>
+                {
+                    investigationUi.Hide();
+                    pendingInvestigationTitle = string.Empty;
+                    productionFlow?.Advance();
+                    RenderProduction();
+                });
         }
 
         private void GoToNode(string nodeId)
@@ -642,6 +784,8 @@ namespace Wake.Narrative
             currentNode = null;
             productionFlow = null;
             ambientLineActive = false;
+            pendingInvestigationTitle = string.Empty;
+            investigationUi?.Hide();
             if (linePanel != null)
             {
                 linePanel.SetActive(false);

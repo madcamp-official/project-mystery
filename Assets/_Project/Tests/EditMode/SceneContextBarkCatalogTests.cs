@@ -61,7 +61,7 @@ namespace Wake.Tests
             "D1-02",
             "DINING",
             "SCENE_D102_DINING",
-            "Evelyn 씨는 자리를 뜨지 않고")]
+            "에벌린 씨는 자리를 뜨지 않고")]
         [TestCase(
             "D4-02",
             "CREW_STAIRS",

@@ -188,6 +188,24 @@ namespace Wake.Narrative
             };
         }
 
+        public static DialogueSpeakerIdentity GetSpeaker(
+            string speaker,
+            string lineType)
+        {
+            DialogueSpeakerIdentity identity = GetSpeaker(speaker);
+            if (string.Equals(
+                    lineType,
+                    "monologue",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return new DialogueSpeakerIdentity(
+                    identity.PortraitId,
+                    DialogueSpeakerKind.Monologue);
+            }
+
+            return identity;
+        }
+
         public static string GetSpeakerLabel(
             string sourceSpeaker,
             DialogueSpeakerIdentity identity)
@@ -273,6 +291,7 @@ namespace Wake.Narrative
             presentedChoiceBlockEnd = -1;
             ClearRepeatableChoiceContext();
             if (!scenes.TryGetValue(sceneId, out activeScene) ||
+                IsSceneCompleted(sceneId) ||
                 !PrerequisitesAreMet(activeScene))
             {
                 return false;
@@ -360,6 +379,7 @@ namespace Wake.Narrative
         {
             sceneId = NormalizeSceneId(sceneId);
             return scenes.ContainsKey(sceneId) &&
+                   !IsSceneCompleted(sceneId) &&
                    GetMissingPrerequisites(sceneId).Count == 0;
         }
 
@@ -717,34 +737,56 @@ namespace Wake.Narrative
 
         private void ApplyEffect(DialogueRecord record)
         {
-            foreach (string evidenceId in
-                     CanonicalEvidenceCatalog.GetGrantedEvidenceIds(record.StableLineId))
-            {
-                tryGrantEvidence?.Invoke(evidenceId);
-            }
-
-            if (string.IsNullOrWhiteSpace(record.NextOrEffect))
+            string[] evidenceIds =
+                CanonicalEvidenceCatalog.GetGrantedEvidenceIds(
+                        record.StableLineId)
+                    .ToArray();
+            bool hasTextEffect =
+                !string.IsNullOrWhiteSpace(record.NextOrEffect);
+            if (evidenceIds.Length == 0 && !hasTextEffect)
             {
                 return;
             }
-            ProductionEffectParseResult parsed =
-                ProductionEffectParser.Parse(record.NextOrEffect);
-            if (parsed.Success && parsed.Instructions.Count > 0)
+
+            if (state != null &&
+                state.HasAppliedDialogueEffect(record.StableLineId))
             {
-                var executor = new ProductionEffectExecutor(state, tryGrantEvidence);
-                ProductionEffectExecutionResult result =
-                    executor.Execute(record.NextOrEffect);
-                foreach (string warning in result.Warnings)
-                {
-                    warnings.Add(
-                        $"{record.StableLineId} (CSV row {record.SourceRow}): {warning}");
-                }
+                return;
             }
-            else
+
+            ProductionEffectParseResult parsed = hasTextEffect
+                ? ProductionEffectParser.Parse(record.NextOrEffect)
+                : null;
+            if (hasTextEffect &&
+                (parsed == null ||
+                 !parsed.Success ||
+                 parsed.Instructions.Count == 0))
             {
                 warnings.Add(
                     $"{record.StableLineId} (CSV row {record.SourceRow}): " +
                     $"invalid official effect '{record.NextOrEffect}' was not executed.");
+                return;
+            }
+
+            using (state?.BeginStateBatch())
+            {
+                foreach (string evidenceId in evidenceIds)
+                    tryGrantEvidence?.Invoke(evidenceId);
+
+                if (hasTextEffect)
+                {
+                    var executor =
+                        new ProductionEffectExecutor(state, tryGrantEvidence);
+                    ProductionEffectExecutionResult result =
+                        executor.Execute(record.NextOrEffect);
+                    foreach (string warning in result.Warnings)
+                    {
+                        warnings.Add(
+                            $"{record.StableLineId} (CSV row {record.SourceRow}): {warning}");
+                    }
+                }
+
+                state?.RecordAppliedDialogueEffect(record.StableLineId);
             }
         }
     }

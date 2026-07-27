@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using Wake.Exploration;
 using Wake.Narrative;
@@ -20,6 +21,38 @@ namespace Wake.Tests
                     !string.IsNullOrWhiteSpace(item.Text) &&
                     !string.IsNullOrWhiteSpace(item.Condition)),
                 Is.True);
+        }
+
+        [Test]
+        public void PlayerFacingAmbientText_UsesKoreanExceptApprovedTokens()
+        {
+            var latin = new Regex("[A-Za-z]");
+            var allowed = new Regex(
+                @"(?<![A-Za-z])(?:DNA|COO|VIP|kg|cm)(?![A-Za-z])",
+                RegexOptions.IgnoreCase);
+            string[] violations = AmbientBarkCatalog.All
+                .Concat(AmbientBarkCatalog.Contextual)
+                .Select(item => new
+                {
+                    item.Id,
+                    Text = allowed.Replace(item.Text, string.Empty)
+                })
+                .Where(item => latin.IsMatch(item.Text))
+                .Select(item => $"{item.Id}: {item.Text}")
+                .Concat(
+                    AmbientInspectableCatalog.All
+                        .Select(item => new
+                        {
+                            item.Id,
+                            Text = allowed.Replace(
+                                $"{item.Title} {item.Description}",
+                                string.Empty)
+                        })
+                        .Where(item => latin.IsMatch(item.Text))
+                        .Select(item => $"{item.Id}: {item.Text}"))
+                .ToArray();
+
+            Assert.That(violations, Is.Empty);
         }
 
         [Test]

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Wake.Narrative;
+using Wake.UI;
 
 namespace Wake.Exploration
 {
@@ -11,7 +12,9 @@ namespace Wake.Exploration
         private sealed class WorldCharacterView
         {
             public string Speaker;
+            public string InteractionId;
             public bool IsMainCharacter;
+            public bool IsFocusParticipant;
             public GameObject Target;
             public RectTransform Rect;
             public RawImage Image;
@@ -23,6 +26,7 @@ namespace Wake.Exploration
             public AmbientWorldCharacterAsset Asset;
             public Rect AtlasUvRect;
             public Material BlendMaterial;
+            public Color BaseTint;
         }
 
         private static readonly Dictionary<string, Texture2D> TextureCache =
@@ -82,30 +86,44 @@ namespace Wake.Exploration
 
         private void CreateAmbientCharacter(AmbientBarkRecord bark)
         {
+            string interactionId = CreateInteractionId(
+                "bark",
+                currentSceneId,
+                currentLocationCode,
+                bark.Id);
             CreateWorldCharacter(
                 bark.Speaker,
                 bark.Id,
+                interactionId,
                 isMainCharacter: false,
-                onClick: () =>
-                    DialogueController.Instance?.StartAmbientLine(
-                        bark.Speaker,
-                        bark.Text,
-                        bark.Emotion));
+                isFocusParticipant: false,
+                onClick: () => StartAmbientCharacterDialogue(
+                    bark,
+                    interactionId));
         }
 
         private void CreateMainCharacter(SceneWorldCharacter character)
         {
+            string interactionId = CreateInteractionId(
+                "world",
+                currentSceneId,
+                currentLocationCode,
+                character.CharacterId);
             CreateWorldCharacter(
                 character.CharacterId,
                 currentSceneId,
+                interactionId,
                 isMainCharacter: true,
+                isFocusParticipant: character.IsFocusParticipant,
                 onClick: () => StartMainCharacterDialogue(character));
         }
 
         private void CreateWorldCharacter(
             string speaker,
             string instanceId,
+            string interactionId,
             bool isMainCharacter,
+            bool isFocusParticipant,
             UnityEngine.Events.UnityAction onClick)
         {
             if (!AmbientWorldCharacterCatalog.TryGetAsset(
@@ -122,7 +140,7 @@ namespace Wake.Exploration
             GameObject groundShadow =
                 CreateGroundShadow(speaker, instanceId);
             GameObject target = new(
-                $"WorldCharacter_{speaker}",
+                $"AmbientCharacter_{speaker}",
                 typeof(RectTransform),
                 typeof(CanvasRenderer),
                 typeof(RawImage),
@@ -152,7 +170,9 @@ namespace Wake.Exploration
             var view = new WorldCharacterView
             {
                 Speaker = speaker,
+                InteractionId = interactionId,
                 IsMainCharacter = isMainCharacter,
+                IsFocusParticipant = isFocusParticipant,
                 Target = target,
                 Rect = target.GetComponent<RectTransform>(),
                 Image = image,
@@ -164,7 +184,8 @@ namespace Wake.Exploration
                 GroundShadowImage = groundShadow.GetComponent<RawImage>(),
                 Asset = asset,
                 AtlasUvRect = asset.UvRect,
-                BlendMaterial = blendMaterial
+                BlendMaterial = blendMaterial,
+                BaseTint = Color.white
             };
             spawned.Add(view);
         }
@@ -176,19 +197,93 @@ namespace Wake.Exploration
             if (dialogue == null)
                 return;
 
-            if (character.IsFocusParticipant &&
-                dialogue.CanStartProductionScene(currentSceneId))
+            Wake.Core.GameStateManager state =
+                Wake.Core.GameStateManager.Instance;
+            if (character.IsFocusParticipant)
             {
-                dialogue.StartProductionScene(currentSceneId);
+                if (state?.HasCompletedScene(currentSceneId) == true)
+                {
+                    dialogue.StartAmbientLine(
+                        character.CharacterId,
+                        MainCharacterWorldLineCatalog.GetCompleted(
+                            character.CharacterId,
+                            character.State),
+                        MainCharacterWorldLineCatalog.GetEmotion(
+                            character.State));
+                    return;
+                }
+
+                Wake.Core.ProductionDialogueCheckpoint checkpoint =
+                    state?.DialogueCheckpoint;
+                if (checkpoint != null &&
+                    string.Equals(
+                        checkpoint.activeSceneId,
+                        currentSceneId,
+                        System.StringComparison.OrdinalIgnoreCase))
+                {
+                    dialogue.RestoreProductionScene(checkpoint);
+                    return;
+                }
+
+                if (dialogue.CanStartProductionScene(currentSceneId))
+                {
+                    dialogue.StartProductionScene(currentSceneId);
+                    return;
+                }
+            }
+
+            string interactionId = CreateInteractionId(
+                "world",
+                currentSceneId,
+                currentLocationCode,
+                character.CharacterId);
+            if (state?.HasCompletedNpcInteraction(interactionId) == true)
+            {
+                dialogue.StartAmbientLine(
+                    character.CharacterId,
+                    MainCharacterWorldLineCatalog.GetCompleted(
+                        character.CharacterId,
+                        character.State),
+                    MainCharacterWorldLineCatalog.GetEmotion(character.State));
                 return;
             }
 
-            dialogue.StartAmbientLine(
-                character.CharacterId,
-                MainCharacterWorldLineCatalog.Get(
+            if (dialogue.StartAmbientLine(
                     character.CharacterId,
-                    character.State),
-                MainCharacterWorldLineCatalog.GetEmotion(character.State));
+                    MainCharacterWorldLineCatalog.Get(
+                        character.CharacterId,
+                        character.State),
+                    MainCharacterWorldLineCatalog.GetEmotion(character.State)))
+            {
+                state?.RecordCompletedNpcInteraction(interactionId);
+                RefreshCompletionPresentation();
+            }
+        }
+
+        private void StartAmbientCharacterDialogue(
+            AmbientBarkRecord bark,
+            string interactionId)
+        {
+            DialogueController dialogue = DialogueController.Instance;
+            if (dialogue == null)
+                return;
+
+            Wake.Core.GameStateManager state =
+                Wake.Core.GameStateManager.Instance;
+            bool completed =
+                state?.HasCompletedNpcInteraction(interactionId) == true;
+            string text = completed
+                ? "앞서 말씀드린 내용이 전부입니다."
+                : bark.Text;
+            if (dialogue.StartAmbientLine(
+                    bark.Speaker,
+                    text,
+                    completed ? "neutral" : bark.Emotion) &&
+                !completed)
+            {
+                state?.RecordCompletedNpcInteraction(interactionId);
+                RefreshCompletionPresentation();
+            }
         }
 
         private void LateUpdate()
@@ -199,6 +294,7 @@ namespace Wake.Exploration
             {
                 RefreshLayout();
             }
+            RefreshCompletionPresentation();
         }
 
         private void RefreshLayout()
@@ -245,6 +341,24 @@ namespace Wake.Exploration
                     view.IsMainCharacter);
             }
 
+            if (RuntimeUiLayoutRegistry.TryGetNormalizedRect(
+                    $"location.{currentLocationCode}.character.{view.Speaker}",
+                    out Rect placeholder))
+            {
+                stage = new AmbientWorldStageProfile(
+                    placeholder.center,
+                    placeholder.height,
+                    stage.Mirror,
+                    stage.LightTint,
+                    stage.ShadowDirection,
+                    stage.ShadowOpacity,
+                    stage.GroundShadowScale,
+                    stage.Saturation,
+                    stage.Exposure,
+                    stage.Contrast,
+                    stage.Softness);
+            }
+
             Vector2 anchor = stage.Anchor;
             view.Rect.anchorMin = anchor;
             view.Rect.anchorMax = anchor;
@@ -268,6 +382,7 @@ namespace Wake.Exploration
                 ? new Rect(baseX + width, uv.y, -width, uv.height)
                 : new Rect(baseX, uv.y, width, uv.height);
             view.Image.color = stage.LightTint;
+            view.BaseTint = stage.LightTint;
             view.Button.colors =
                 AmbientInteractionPresentation.CharacterSpriteColors(
                     stage.LightTint);
@@ -289,6 +404,53 @@ namespace Wake.Exploration
                 geometry.GroundShadowSize;
             view.GroundShadowImage.color =
                 new Color(0f, 0f, 0f, stage.ShadowOpacity * 0.72f);
+        }
+
+        private void RefreshCompletionPresentation()
+        {
+            Wake.Core.GameStateManager state =
+                Wake.Core.GameStateManager.Instance;
+            if (state == null)
+                return;
+
+            foreach (WorldCharacterView view in spawned)
+            {
+                if (view?.Image == null || view.Button == null)
+                    continue;
+
+                bool completed =
+                    (view.IsFocusParticipant &&
+                     state.HasCompletedScene(currentSceneId)) ||
+                    state.HasCompletedNpcInteraction(view.InteractionId);
+                Color tint = completed
+                    ? Color.Lerp(
+                        view.BaseTint,
+                        new Color(
+                            0.58f,
+                            0.58f,
+                            0.58f,
+                            view.BaseTint.a),
+                        0.32f)
+                    : view.BaseTint;
+                view.Image.color = tint;
+                view.Button.colors =
+                    AmbientInteractionPresentation.CharacterSpriteColors(tint);
+            }
+        }
+
+        private static string CreateInteractionId(
+            string kind,
+            string sceneId,
+            string locationCode,
+            string sourceId)
+        {
+            return string.Join(
+                ":",
+                "npc",
+                kind ?? string.Empty,
+                sceneId ?? string.Empty,
+                locationCode ?? string.Empty,
+                sourceId ?? string.Empty);
         }
 
         private static Material CreateBlendMaterial(Rect uvRect)
@@ -351,7 +513,7 @@ namespace Wake.Exploration
             string instanceId)
         {
             GameObject shadow = new(
-                $"WorldGroundShadow_{speaker}_{instanceId}",
+                $"AmbientGroundShadow_{speaker}_{instanceId}",
                 typeof(RectTransform),
                 typeof(CanvasRenderer),
                 typeof(RawImage));

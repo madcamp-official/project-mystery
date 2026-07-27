@@ -55,5 +55,34 @@ namespace Wake.Exploration
                 _ => "neutral"
             };
         }
+
+        public static string GetCompleted(
+            string characterId,
+            SceneCharacterState state)
+        {
+            if (state == SceneCharacterState.Injured)
+            {
+                return "지금은 더 이야기하기 어렵습니다. 앞서 말씀드린 내용을 확인해 주세요.";
+            }
+
+            if (state == SceneCharacterState.Detained)
+            {
+                return "이미 진술을 마쳤습니다. 추가 내용은 정식 심문에서 말씀드리겠습니다.";
+            }
+
+            string key = characterId?.Trim().ToUpperInvariant() ?? string.Empty;
+            return key switch
+            {
+                "DANIEL" => "이미 말씀드릴 수 있는 건 전부 말씀드렸습니다.",
+                "RICHARD" => "같은 질문에는 같은 답밖에 해 줄 수 없네.",
+                "EVELYN" => "제 진술은 끝났습니다. 기록을 확인해 주세요.",
+                "CLAIRE" => "조금 전 말씀드린 내용이 전부예요.",
+                "THOMAS" => "정비 기록 외에 덧붙일 내용은 없습니다.",
+                "MARCUS" => "진술은 기록됐습니다. 추가 사항이 생기면 보고하겠습니다.",
+                "HELENA" => "검시 소견은 이미 전달했습니다. 기록을 확인해 주세요.",
+                "OWEN" => "기관 기록과 제 진술은 이미 제출했습니다.",
+                _ => "앞서 말씀드린 내용이 전부입니다."
+            };
+        }
     }
 }

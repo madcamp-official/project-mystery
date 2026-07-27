@@ -109,6 +109,7 @@ namespace Wake.UI
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
             rect.offsetMin = rect.offsetMax = Vector2.zero;
+            RuntimeUiLayoutRegistry.CopyLayout(rect, "modal.ending");
             Image background = root.GetComponent<Image>();
             background.sprite =
                 Resources.Load<Sprite>("UiOverhaul/ui_ending_background");

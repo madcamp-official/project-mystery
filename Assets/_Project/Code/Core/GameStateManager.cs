@@ -91,6 +91,8 @@ namespace Wake.Core
         public List<string> unlockedDeductionIds = new();
         public List<string> unlockedProductionSceneIds = new();
         public List<RuntimeCounterState> runtimeCounters = new();
+        public List<string> appliedDialogueEffectIds = new();
+        public List<string> completedNpcInteractionIds = new();
         public string finalEndingId = string.Empty;
         public string currentLocationCode = string.Empty;
         public ProductionDialogueCheckpoint dialogueCheckpoint;
@@ -131,6 +133,10 @@ namespace Wake.Core
         public IReadOnlyList<string> UnlockedDeductionIds => data.unlockedDeductionIds;
         public IReadOnlyList<string> UnlockedProductionSceneIds =>
             data.unlockedProductionSceneIds;
+        public IReadOnlyList<string> AppliedDialogueEffectIds =>
+            data.appliedDialogueEffectIds;
+        public IReadOnlyList<string> CompletedNpcInteractionIds =>
+            data.completedNpcInteractionIds;
         public int WrongStrikeCount => GetRuntimeCounter("wrong_strike");
         public string FinalEndingId => data.finalEndingId;
         public string CurrentLocationCode => data.currentLocationCode;
@@ -244,6 +250,32 @@ namespace Wake.Core
             string normalized = NormalizeSceneId(sceneId);
             return !string.IsNullOrEmpty(normalized) &&
                    data.completedProductionSceneIds.Contains(normalized);
+        }
+
+        public bool HasAppliedDialogueEffect(string effectId)
+        {
+            string normalized = NormalizeObjectiveId(effectId);
+            return !string.IsNullOrEmpty(normalized) &&
+                   data.appliedDialogueEffectIds.Contains(normalized);
+        }
+
+        public bool RecordAppliedDialogueEffect(string effectId)
+        {
+            return RecordOneShotId(data.appliedDialogueEffectIds, effectId);
+        }
+
+        public bool HasCompletedNpcInteraction(string interactionId)
+        {
+            string normalized = NormalizeObjectiveId(interactionId);
+            return !string.IsNullOrEmpty(normalized) &&
+                   data.completedNpcInteractionIds.Contains(normalized);
+        }
+
+        public bool RecordCompletedNpcInteraction(string interactionId)
+        {
+            return RecordOneShotId(
+                data.completedNpcInteractionIds,
+                interactionId);
         }
 
         public bool RecordCompletedScene(string sceneId)
@@ -879,6 +911,10 @@ namespace Wake.Core
                     value = group.Sum(item => item.value)
                 })
                 .ToList();
+            data.appliedDialogueEffectIds =
+                NormalizeOneShotIds(data.appliedDialogueEffectIds);
+            data.completedNpcInteractionIds =
+                NormalizeOneShotIds(data.completedNpcInteractionIds);
             data.finalEndingId =
                 FinalAccusationResolver.NormalizeEndingId(data.finalEndingId);
             data.currentLocationCode ??= string.Empty;
@@ -917,6 +953,19 @@ namespace Wake.Core
             }
 
             PersistAndNotify();
+        }
+
+        private bool RecordOneShotId(List<string> target, string value)
+        {
+            string normalized = NormalizeObjectiveId(value);
+            if (string.IsNullOrEmpty(normalized) || target.Contains(normalized))
+            {
+                return false;
+            }
+
+            target.Add(normalized);
+            SaveAndNotify();
+            return true;
         }
 
         private void PersistAndNotify()
@@ -968,6 +1017,16 @@ namespace Wake.Core
             }
 
             return normalized;
+        }
+
+        private static List<string> NormalizeOneShotIds(
+            IEnumerable<string> values)
+        {
+            return (values ?? Array.Empty<string>())
+                .Select(NormalizeObjectiveId)
+                .Where(value => !string.IsNullOrEmpty(value))
+                .Distinct()
+                .ToList();
         }
 
     }
