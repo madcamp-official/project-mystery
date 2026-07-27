@@ -101,6 +101,192 @@ Unity UI에서 인물 외곽만 자연스럽게 표시되도록 반투명 경계
 ## 런타임 연결
 
 이 폴더는 `Resources/CharacterExpressions`에서 로드되는 표정별 Sprite 라이브러리입니다.
-`DialogueController`는 프로덕션 CSV의 29개 감정 토큰을 4개 표정 상태로 정규화하고,
+`DialogueController`는 프로덕션 CSV의 109개 감정 토큰을 4개 표정 상태로 정규화하고,
 캐릭터 ID와 표정에 맞는 Sprite를 대화창 `RawImage`에 표시합니다.
 표정 시트나 Sprite를 찾지 못한 경우에만 기존 `Resources/Characters` 초상화를 사용합니다.
+
+## 공식 대사집 감정 계약
+
+공식 XLSX 개정판에는 서로 다른 `emotion` 값이 109개 있습니다.
+
+런타임은 이 값을 Neutral, Concerned, Angry, Positive 네 표정으로 정규화합니다.
+
+표에 없는 값은 안전하게 Neutral로 표시하지만 콘텐츠 검증에서는 누락으로 취급합니다.
+
+장소 코드처럼 보이는 여섯 값도 현재 공식 원본의 emotion 열에 있으므로 명시적으로 처리합니다.
+
+### Neutral
+
+| 공식 emotion | 표현 의도 |
+| --- | --- |
+| ARCHIVE | 장소 메타가 들어간 내레이션 |
+| CABIN_DANIEL | 장소 메타가 들어간 내레이션 |
+| PORT | 장소 메타가 들어간 내레이션 |
+| PROMENADE | 장소 메타가 들어간 내레이션 |
+| STERN | 장소 메타가 들어간 내레이션 |
+| VAULT | 장소 메타가 들어간 내레이션 |
+| alert | 경계하지만 표정 과장 없음 |
+| businesslike | 업무적인 태도 |
+| calm | 차분함 |
+| choice | 선택지 시스템 |
+| clinical | 임상적 설명 |
+| cold | 냉정함 |
+| controlled | 감정 통제 |
+| cool | 침착함 |
+| dry | 건조한 말투 |
+| ending:B_complete | B 엔딩 제목 |
+| formal | 공식적인 말투 |
+| hint1 | 1단계 힌트 |
+| hint2 | 2단계 힌트 |
+| hint3 | 3단계 힌트 |
+| internal | 내적 독백 |
+| matter_of_fact | 사실 전달 |
+| measured | 절제된 말투 |
+| neutral | 기본 표정 |
+| observe | 관찰 |
+| polite | 예의 바름 |
+| professional | 전문적 태도 |
+| recorded | 레거시 녹음 음성 별칭 |
+| system | 시스템 안내 |
+| tutorial | 튜토리얼 안내 |
+
+### Concerned
+
+| 공식 emotion | 표현 의도 |
+| --- | --- |
+| afraid | 두려움 |
+| alarmed | 놀람과 경계 |
+| breathless | 숨 가쁜 상태 |
+| broken | 무너진 상태 |
+| cautious | 조심스러움 |
+| concerned | 걱정 |
+| conflicted | 내적 갈등 |
+| defeated | 패배감 |
+| desperate | 절박함 |
+| disappointed | 실망 |
+| emotional | 감정적 동요 |
+| ending:C_complete | C 엔딩 제목 |
+| ending:bad_complete | Bad 엔딩 제목 |
+| fading | 기력이 약해짐 |
+| fearful | 공포 |
+| frightened | 겁먹음 |
+| guilty | 죄책감 |
+| horrified | 충격과 공포 |
+| hurt | 상처받음 |
+| low | 낮고 불안한 상태 |
+| nervous | 긴장 |
+| pained | 고통 |
+| panicked | 공황 |
+| pleading | 애원 |
+| reluctant | 망설임 |
+| sad | 슬픔 |
+| shaken | 동요 |
+| startled | 깜짝 놀람 |
+| subdued | 위축 |
+| surprised | 놀람 |
+| uncertain | 불확실함 |
+| uneasy | 불편함 |
+| urgent | 다급함 |
+| weary | 지침 |
+
+### Angry
+
+| 공식 emotion | 표현 의도 |
+| --- | --- |
+| angry | 분노 |
+| authoritative | 권위적 압박 |
+| bitter | 쓰라린 적대감 |
+| challenging | 도발 |
+| commanding | 명령 |
+| corrective | 강한 정정 |
+| defensive | 방어적 태도 |
+| defiant | 반항 |
+| deflect | 질문 회피 |
+| drunk_irritated | 취중 짜증 |
+| firm | 단호함 |
+| focused | 날카로운 집중 |
+| furious | 격분 |
+| grave | 엄중함 |
+| grim | 냉혹함 |
+| gruff | 거친 태도 |
+| guarded | 경계 |
+| hard | 강경함 |
+| insistent | 강한 주장 |
+| intense | 강렬함 |
+| irritated | 짜증 |
+| lying | 거짓말 긴장 |
+| offended | 불쾌함 |
+| press | 심문 압박 |
+| provoking | 도발 |
+| resentful | 원망 |
+| serious | 심각함 |
+| severe | 준엄함 |
+| sharp | 날카로움 |
+| skeptical | 의심 |
+| suspicious | 수상하게 여김 |
+| warning | 경고 |
+
+### Positive
+
+| 공식 emotion | 표현 의도 |
+| --- | --- |
+| confident | 자신감 |
+| curious | 호기심 |
+| decisive | 결단 |
+| direct | 명료한 확신 |
+| ending:A_complete | A 엔딩 제목 |
+| gentle | 온화함 |
+| helpful | 협조 |
+| light | 가벼운 분위기 |
+| realization | 추리 성공 |
+| relieved | 안도 |
+| resolved | 결심 |
+| smile | 미소 |
+| warm | 따뜻함 |
+| wry | 씁쓸한 유머 |
+
+## 호환 별칭
+
+초기 프로토타입과 저장된 대사 자산을 안전하게 읽기 위해 다음 별칭을 유지합니다.
+
+| 별칭 | 표정 |
+| --- | --- |
+| confused | Concerned |
+| ashamed | Concerned |
+| fear | Concerned |
+| fake_fear | Concerned |
+| tense | Concerned |
+| accuse | Angry |
+| anger | Angry |
+| deduction | Positive |
+| final | Positive |
+
+호환 별칭은 새 XLSX에 다시 쓰지 않습니다.
+
+새 대사는 가능한 한 공식 109개 값 중 하나를 사용합니다.
+
+## 매핑 변경 규칙
+
+1. XLSX를 갱신한 뒤 `emotion` 고유값을 다시 계산합니다.
+2. 새 토큰이 있으면 표정 의도를 기획 문맥에서 확인합니다.
+3. 네 표정 중 가장 가까운 상태를 선택합니다.
+4. 런타임 사전과 이 문서를 같은 PR에서 수정합니다.
+5. 공식 CSV 전체가 `IsKnownEmotion`을 통과하는지 검사합니다.
+6. 표정 시트 36개가 그대로 로드되는지 검사합니다.
+7. 화자 전환 때 이전 초상이 남지 않는지 PlayMode에서 확인합니다.
+8. 내레이션과 시스템 행은 초상을 숨기는 규칙을 우선합니다.
+9. 엔딩 제목 토큰은 표정 전환보다 엔딩 UI 상태가 우선합니다.
+10. 장소 코드 토큰은 원본 정정 전까지 Neutral 호환으로 유지합니다.
+
+## 시각 QA 체크리스트
+
+- Neutral이 과도한 감정 연기를 만들지 않는가?
+- Concerned가 걱정, 공포, 슬픔 문맥을 자연스럽게 포괄하는가?
+- Angry가 심문 압박과 실제 분노를 구분 가능한 연출과 함께 쓰이는가?
+- Positive가 추리 성공과 안도 장면에 사용되는가?
+- 감정 토큰이 바뀔 때 Sprite가 같은 프레임에 갱신되는가?
+- 녹음 음성에서 현재 화자의 초상 규칙이 유지되는가?
+- NPC와 시스템 대사에 잘못된 주연 초상이 표시되지 않는가?
+- 16:9와 16:10에서 초상 비율이 유지되는가?
+- 초상이 긴 대사나 선택지 버튼을 가리지 않는가?
+- Sprite 누락 시 fallback 초상이 대사를 막지 않는가?
