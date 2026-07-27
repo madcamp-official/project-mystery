@@ -223,6 +223,88 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void D101_FreeConversationsRemainAvailableUntilAllFourAreComplete()
+        {
+            host = new GameObject("D101FreeConversationFlow");
+            GameStateManager state = host.AddComponent<GameStateManager>();
+            var completed = new HashSet<string> { "P-03" };
+            var flow = new ProductionDialogueFlow(records, completed, state);
+
+            Assert.That(flow.StartScene("D1-01"), Is.True);
+            AdvanceUntilChoice(flow);
+            AssertChoiceIds(
+                flow,
+                "D1-01_CLAIRE",
+                "D1-01_MARCUS",
+                "D1-01_HELENA",
+                "D1-01_OWEN");
+
+            SelectChoice(flow, "D1-01_HELENA");
+            Assert.That(flow.Current.Order, Is.EqualTo(17));
+            AdvanceUntilChoice(flow);
+            AssertChoiceIds(
+                flow,
+                "D1-01_CLAIRE",
+                "D1-01_MARCUS",
+                "D1-01_OWEN");
+
+            SelectChoice(flow, "D1-01_CLAIRE");
+            AdvanceUntilChoice(flow);
+            AssertChoiceIds(flow, "D1-01_MARCUS", "D1-01_OWEN");
+
+            SelectChoice(flow, "D1-01_OWEN");
+            AdvanceUntilChoice(flow);
+            AssertChoiceIds(flow, "D1-01_MARCUS");
+
+            SelectChoice(flow, "D1-01_MARCUS");
+            Assert.That(flow.Current.Order, Is.EqualTo(12));
+            while (flow.Current != null && flow.Current.Order < 27)
+            {
+                flow.Advance();
+            }
+
+            Assert.That(flow.IsAwaitingChoice, Is.False);
+            Assert.That(flow.Current.Order, Is.EqualTo(27));
+            Assert.That(
+                new[] { "met_claire", "met_marcus", "met_helena", "met_owen" }
+                    .All(state.HasFlag),
+                Is.True);
+
+            flow.Advance();
+            flow.Advance();
+            Assert.That(flow.IsComplete, Is.True);
+            Assert.That(state.IsProductionSceneUnlocked("D1-02"), Is.True);
+        }
+
+        [Test]
+        public void D101_RestoredChoiceCheckpointHidesCompletedConversation()
+        {
+            host = new GameObject("D101FreeConversationRestore");
+            GameStateManager state = host.AddComponent<GameStateManager>();
+            var completed = new HashSet<string> { "P-03" };
+            var flow = new ProductionDialogueFlow(records, completed, state);
+
+            Assert.That(flow.StartScene("D1-01"), Is.True);
+            AdvanceUntilChoice(flow);
+            SelectChoice(flow, "D1-01_CLAIRE");
+            AdvanceUntilChoice(flow);
+            var checkpoint = new ProductionDialogueCheckpoint
+            {
+                activeSceneId = flow.ActiveSceneId,
+                lineIndex = flow.CurrentIndex,
+                awaitingChoice = true
+            };
+
+            var restored = new ProductionDialogueFlow(records, completed, state);
+            Assert.That(restored.RestoreScene(checkpoint), Is.True);
+            AssertChoiceIds(
+                restored,
+                "D1-01_MARCUS",
+                "D1-01_HELENA",
+                "D1-01_OWEN");
+        }
+
+        [Test]
         public void CompletingWithExplicitSet_UpdatesSetAndSave()
         {
             host = new GameObject("MirroredProductionProgress");
@@ -310,6 +392,37 @@ namespace Wake.Tests
             Assert.That(
                 flow.Warnings,
                 Has.Some.Contains("D8-01 correct"));
+        }
+
+        private static void AdvanceUntilChoice(ProductionDialogueFlow flow)
+        {
+            int guard = 0;
+            while (!flow.IsAwaitingChoice && !flow.IsComplete && guard++ < 100)
+            {
+                Assert.That(flow.Current, Is.Not.Null);
+                flow.Advance();
+            }
+
+            Assert.That(guard, Is.LessThan(100));
+            Assert.That(flow.IsAwaitingChoice, Is.True);
+        }
+
+        private static void SelectChoice(
+            ProductionDialogueFlow flow,
+            string choiceId)
+        {
+            int choiceIndex = Enumerable.Range(0, flow.Choices.Count)
+                .First(index => flow.Choices[index].ChoiceId == choiceId);
+            Assert.That(flow.SelectChoice(choiceIndex), Is.True);
+        }
+
+        private static void AssertChoiceIds(
+            ProductionDialogueFlow flow,
+            params string[] expected)
+        {
+            Assert.That(
+                flow.Choices.Select(choice => choice.ChoiceId),
+                Is.EqualTo(expected));
         }
 
         private static void CompleteScene(ProductionDialogueFlow flow, string sceneId)
