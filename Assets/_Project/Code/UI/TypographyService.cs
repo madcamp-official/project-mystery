@@ -32,9 +32,11 @@ namespace Wake.UI
         public static TMP_FontAsset Resolve(TypographyRole role)
         {
             TypographyCatalog catalog = Catalog;
-            return catalog != null
+            TMP_FontAsset font = catalog != null
                 ? catalog.Resolve(role)
                 : TMP_Settings.defaultFontAsset;
+            TypographyWhitespacePolicy.Ensure(font);
+            return font;
         }
 
         public static bool Apply(TMP_Text text, TypographyRole role)

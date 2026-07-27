@@ -113,8 +113,7 @@ namespace Wake.Tests
             int loaded = 0;
             foreach (DialoguePortraitDefinition definition in
                      DialoguePortraitCatalog.All.Where(definition =>
-                         !definition.FallbackTexture.StartsWith(
-                             "AmbientCharacters/")))
+                         definition.UsesExpressionSprites))
             {
                 Sprite[] sprites = Resources.LoadAll<Sprite>(
                     $"{DialoguePortraitCatalog.ResourceFolder}/" +

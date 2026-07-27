@@ -250,6 +250,24 @@ namespace Wake.Editor
             foreach (DialoguePortraitDefinition portrait in
                      DialoguePortraitCatalog.All)
             {
+                if (!portrait.UsesExpressionSprites)
+                {
+                    string fallbackPath =
+                        $"Assets/_Project/Resources/" +
+                        $"{portrait.FallbackTexture}.png";
+                    if (AssetDatabase.LoadAssetAtPath<Texture2D>(
+                            fallbackPath) == null)
+                    {
+                        Error(
+                            items,
+                            "PORTRAIT_ASSET_SET",
+                            fallbackPath,
+                            $"동적 인물 폴백 텍스처 누락: " +
+                            $"{portrait.CharacterId}");
+                    }
+                    continue;
+                }
+
                 string path = $"{PortraitFolder}/portrait_" +
                               $"{portrait.ExpressionSheet}_expressions.png";
                 HashSet<string> sprites = AssetDatabase.LoadAllAssetsAtPath(path)

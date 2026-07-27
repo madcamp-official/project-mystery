@@ -26,6 +26,10 @@ namespace Wake.Narrative
         public string ExpressionSheet { get; }
         public string FallbackTexture { get; }
         public Rect FallbackCrop { get; }
+        public bool UsesExpressionSprites =>
+            !FallbackTexture.StartsWith(
+                "AmbientCharacters/",
+                StringComparison.OrdinalIgnoreCase);
     }
 
     public readonly struct DialoguePortraitAsset

@@ -184,7 +184,7 @@ namespace Wake.Tests
             Assert.That(timelineResult.MissingCardCount, Is.EqualTo(12));
             Assert.That(
                 timelineResult.Diagnostics,
-                Has.Some.Contains("정확히 12장"));
+                Has.Some.Contains("배치하지 않은 카드가 12장"));
             Assert.That(
                 audioDiagnostics.Count(message => message.Contains("AudioClip 없음")),
                 Is.EqualTo(4));
