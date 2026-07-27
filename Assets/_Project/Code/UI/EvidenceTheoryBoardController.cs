@@ -101,6 +101,7 @@ namespace Wake.UI
         private CanonicalDeductionService service;
 
         public bool IsOpen => root != null && root.activeSelf;
+        public event Action Closed;
 
         private void Awake()
         {
@@ -130,7 +131,12 @@ namespace Wake.UI
 
         public void Close()
         {
+            bool wasOpen = IsOpen;
             root?.SetActive(false);
+            if (wasOpen)
+            {
+                Closed?.Invoke();
+            }
         }
 
         public bool ResolveDeduction(string deductionId)

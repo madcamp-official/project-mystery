@@ -20,6 +20,8 @@ namespace Wake.Tests.PlayMode
         protected const string SaveKey = "UNDER_THE_HORIZON_GAME_STATE_V2";
 
         private readonly List<string> runtimeErrors = new();
+        private readonly Dictionary<string, string> savedPlayerPrefs = new();
+        private int savedActiveSlot;
         private Scene loadedScene;
 
         protected Transform Canvas { get; private set; }
@@ -34,6 +36,7 @@ namespace Wake.Tests.PlayMode
         {
             runtimeErrors.Clear();
             Application.logMessageReceived += CaptureRuntimeError;
+            PreserveSavedGame();
             ClearSavedGame();
 
             yield return LoadScene();
@@ -67,6 +70,7 @@ namespace Wake.Tests.PlayMode
 
             yield return null;
             ClearSavedGame();
+            RestoreSavedGame();
             AssertNoRuntimeErrors("씬 정리");
             Application.logMessageReceived -= CaptureRuntimeError;
         }
@@ -342,17 +346,48 @@ namespace Wake.Tests.PlayMode
         private static void ClearSavedGame()
         {
             GameStateManager.SetActiveSaveSlot(1);
-            PlayerPrefs.DeleteKey(SaveKey);
-            PlayerPrefs.DeleteKey(SaveKey + "_BACKUP");
-            PlayerPrefs.DeleteKey(SaveKey + "_PENDING");
-            for (int slot = 2; slot <= 3; slot++)
+            foreach (string key in EnumerateSaveKeys())
             {
-                string slotKey = $"{SaveKey}_SLOT_{slot}";
-                PlayerPrefs.DeleteKey(slotKey);
-                PlayerPrefs.DeleteKey(slotKey + "_BACKUP");
-                PlayerPrefs.DeleteKey(slotKey + "_PENDING");
+                PlayerPrefs.DeleteKey(key);
             }
+
             PlayerPrefs.Save();
+        }
+
+        private void PreserveSavedGame()
+        {
+            savedActiveSlot = GameStateManager.ActiveSaveSlot;
+            savedPlayerPrefs.Clear();
+            foreach (string key in EnumerateSaveKeys())
+            {
+                if (PlayerPrefs.HasKey(key))
+                {
+                    savedPlayerPrefs[key] = PlayerPrefs.GetString(key);
+                }
+            }
+        }
+
+        private void RestoreSavedGame()
+        {
+            foreach (KeyValuePair<string, string> pair in savedPlayerPrefs)
+            {
+                PlayerPrefs.SetString(pair.Key, pair.Value);
+            }
+
+            PlayerPrefs.Save();
+            GameStateManager.SetActiveSaveSlot(savedActiveSlot);
+        }
+
+        private static IEnumerable<string> EnumerateSaveKeys()
+        {
+            for (int slot = 1; slot <= 3; slot++)
+            {
+                string slotKey =
+                    slot == 1 ? SaveKey : $"{SaveKey}_SLOT_{slot}";
+                yield return slotKey;
+                yield return slotKey + "_BACKUP";
+                yield return slotKey + "_PENDING";
+            }
         }
     }
 }
