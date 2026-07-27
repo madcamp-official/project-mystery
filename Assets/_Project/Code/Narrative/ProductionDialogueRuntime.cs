@@ -430,6 +430,8 @@ namespace Wake.Narrative
                 return false;
             }
             DialogueRecord selectedChoice = Choices[choiceIndex];
+            state?.AddFlag(
+                ProductionConditionEvaluator.ChoiceFlag(selectedChoice.ChoiceId));
             ApplyEffect(selectedChoice);
             InvestigationEventHub.Publish(
                 InvestigationEventKind.ChoiceResolved,
@@ -443,6 +445,13 @@ namespace Wake.Narrative
 
         private void PresentCurrent()
         {
+            var conditions = new ProductionConditionEvaluator(state);
+            while (index < activeScene.Count &&
+                   !conditions.Evaluate(activeScene[index].Condition).IsMet)
+            {
+                index++;
+            }
+
             if (index >= activeScene.Count)
             {
                 Current = null;
@@ -546,7 +555,10 @@ namespace Wake.Narrative
 
         private static bool IsPrerequisite(string value)
         {
-            return !string.IsNullOrWhiteSpace(value) && value != "\uC5C6\uC74C";
+            return !string.IsNullOrWhiteSpace(value) &&
+                   System.Text.RegularExpressions.Regex.IsMatch(
+                       value.Trim(),
+                       @"^(P|D\d+)-\d+$");
         }
 
         private static string NormalizeSceneId(string value)
