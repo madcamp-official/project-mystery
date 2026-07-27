@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Wake.Evidence
@@ -14,8 +15,22 @@ namespace Wake.Evidence
         [SerializeField] private Sprite[] views;
 
         public string EvidenceId => evidenceId;
-        public string DisplayName => displayName;
-        public string Description => description;
+        public string DisplayName =>
+            TryGetMaster(out EvidenceMasterRecord master)
+                ? master.DisplayName
+                : displayName;
+        public string Description =>
+            TryGetMaster(out EvidenceMasterRecord master)
+                ? master.Interpretation
+                : description;
+        public IReadOnlyList<string> SourceScenes =>
+            TryGetMaster(out EvidenceMasterRecord master)
+                ? master.SourceScenes
+                : System.Array.Empty<string>();
+        public string ArgumentRole =>
+            TryGetMaster(out EvidenceMasterRecord master)
+                ? master.ArgumentRole
+                : string.Empty;
         public string Category => category;
         public bool IsDirect => isDirect;
         public Sprite[] Views => views;
@@ -29,5 +44,8 @@ namespace Wake.Evidence
             isDirect = entry.IsDirect;
             views = System.Array.Empty<Sprite>();
         }
+
+        private bool TryGetMaster(out EvidenceMasterRecord master) =>
+            EvidenceMasterCatalog.TryGet(evidenceId, out master);
     }
 }

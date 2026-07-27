@@ -385,19 +385,19 @@ namespace Wake.Tests
         [TestCase(
             "Assets/_Project/Content/Evidence/EvidenceDefinition_C02.asset",
             "\uC5F4\uB9B0 \uCD9C\uC785\uBB38",
-            "\uC7A0\uAE08 \uD2B8\uB9AD\uC774 \uC544\uB2C8\uB77C \uCD9C\uC785 \uD754\uC801 \uBD80\uC7AC\uAC00 \uBB38\uC81C\uB2E4.")]
+            "잠금 트릭이 아니라 흔적 부재가 문제")]
         [TestCase(
             "Assets/_Project/Content/Evidence/EvidenceDefinition_C03.asset",
             "\uC678\uBCBD \uBC1C\uD310",
-            "\uC5FC\uBD84\uB9C9\uACFC \uC13C\uC11C \uAE30\uB85D\uC774 \uC628\uC804\uD558\uB2E4.")]
+            "염분막과 센서 기록이 온전")]
         [TestCase(
             "Assets/_Project/Content/Evidence/EvidenceDefinition_C04.asset",
             "\uB355\uD2B8 \uBA3C\uC9C0",
-            "\uD1B5\uACFC \uD754\uC801\uC774 \uC5C6\uB2E4.")]
+            "통과 흔적 없음")]
         [TestCase(
             "Assets/_Project/Content/Evidence/EvidenceDefinition_C05.asset",
             "\uC810\uAC80\uAD6C \uBA3C\uC9C0",
-            "\uBA3C\uC9C0\uAC00 \uADE0\uC77C\uD558\uAC8C \uC720\uC9C0\uB418\uC5B4 \uC788\uB2E4.")]
+            "봉인과 먼지가 균일")]
         public void EvidenceDefinitions_UseSourceAccurateKorean(
             string assetPath,
             string expectedName,
