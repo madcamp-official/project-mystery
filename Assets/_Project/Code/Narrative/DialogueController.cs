@@ -69,13 +69,15 @@ namespace Wake.Narrative
             Transform selectBtn = linePanelTransform.Find("Select Btn");
             choicesContainer = selectBtn.gameObject;
 
-            choiceButtons = new Button[ChoiceObjectNames.Length];
-            choiceLabels = new TMP_Text[ChoiceObjectNames.Length];
-            for (int i = 0; i < ChoiceObjectNames.Length; i++)
+            DialogueChoiceButtonSet choiceSet =
+                DialogueChoiceButtonPool.EnsureCapacity(
+                    selectBtn,
+                    ChoiceObjectNames,
+                    ProductionDialogueFlow.ChoiceCapacity);
+            choiceButtons = choiceSet.Buttons;
+            choiceLabels = choiceSet.Labels;
+            for (int i = 0; i < choiceButtons.Length; i++)
             {
-                Transform choiceTransform = selectBtn.Find(ChoiceObjectNames[i]);
-                choiceButtons[i] = choiceTransform.GetComponent<Button>();
-                choiceLabels[i] = choiceTransform.GetComponentInChildren<TMP_Text>();
                 choiceLabels[i].font = koreanFont;
             }
 

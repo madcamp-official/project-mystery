@@ -51,6 +51,7 @@ namespace Wake.UI
         private TMP_Text lineText;
         private TMP_Text speakerText;
         private ScrollRect dialogueScroll;
+        private GridLayoutGroup choiceGrid;
         private IReadOnlyList<Button> choiceButtons;
         private Rect lastSafeArea;
         private Vector2Int lastScreen;
@@ -123,6 +124,7 @@ namespace Wake.UI
                 choices.anchorMax = new Vector2(0.98f, 0.96f);
                 choices.offsetMin = Vector2.zero;
                 choices.offsetMax = Vector2.zero;
+                UpdateChoiceGrid();
             }
             lastSafeArea = safeArea;
             lastScreen = new Vector2Int(
@@ -188,8 +190,17 @@ namespace Wake.UI
 
         private void ConfigureChoices()
         {
-            if (choiceButtons == null)
+            if (choices == null || choiceButtons == null)
                 return;
+            choiceGrid = choices.GetComponent<GridLayoutGroup>();
+            if (choiceGrid == null)
+                choiceGrid = choices.gameObject.AddComponent<GridLayoutGroup>();
+            choiceGrid.constraint =
+                GridLayoutGroup.Constraint.FixedColumnCount;
+            choiceGrid.constraintCount = 2;
+            choiceGrid.spacing = new Vector2(12f, 12f);
+            choiceGrid.padding = new RectOffset(8, 8, 8, 8);
+            choiceGrid.childAlignment = TextAnchor.MiddleCenter;
             foreach (Button button in choiceButtons)
             {
                 if (button == null)
@@ -202,6 +213,21 @@ namespace Wake.UI
                 TMP_Text label = button.GetComponentInChildren<TMP_Text>();
                 ConfigureLabel(label, 18f, 28f);
             }
+        }
+
+        private void UpdateChoiceGrid()
+        {
+            if (choiceGrid == null)
+                return;
+            float availableWidth = choices.rect.width > 0f
+                ? choices.rect.width
+                : 1400f;
+            float cellWidth =
+                (availableWidth - choiceGrid.padding.horizontal -
+                 choiceGrid.spacing.x) / 2f;
+            choiceGrid.cellSize = new Vector2(
+                Mathf.Max(280f, cellWidth),
+                68f);
         }
 
         private static void ConfigureLabel(

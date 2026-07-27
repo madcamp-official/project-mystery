@@ -269,7 +269,7 @@ namespace Wake.Narrative
     }
     public sealed class ProductionDialogueFlow
     {
-        public const int ChoiceCapacity = 4;
+        public const int ChoiceCapacity = 8;
         private readonly Dictionary<string, List<DialogueRecord>> scenes;
         private readonly HashSet<string> completedScenes;
         private readonly GameStateManager state;
@@ -464,11 +464,17 @@ namespace Wake.Narrative
             }
             if (activeScene[index].Speaker == "PLAYER_CHOICE")
             {
-                Choices = activeScene
+                List<DialogueRecord> available = activeScene
                     .Skip(index)
                     .TakeWhile(record => record.Speaker == "PLAYER_CHOICE")
-                    .Take(ChoiceCapacity)
                     .ToList();
+                if (available.Count > ChoiceCapacity)
+                {
+                    warnings.Add(
+                        $"Scene '{ActiveSceneId}' has {available.Count} contiguous " +
+                        $"choices; only {ChoiceCapacity} can be presented.");
+                }
+                Choices = available.Take(ChoiceCapacity).ToList();
                 Current = null;
                 return;
             }
