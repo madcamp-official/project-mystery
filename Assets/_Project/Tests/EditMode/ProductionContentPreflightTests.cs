@@ -32,15 +32,12 @@ namespace Wake.Tests
                 .Select(item => item.Code).OrderBy(code => code).ToArray();
             Assert.That(codes, Is.EqualTo(new[]
             {
-                "KOREAN_FONT_MISSING", "TIMELINE_SOURCE_MISSING",
-                "VOICE_CLIP_MISSING"
+                "TIMELINE_SOURCE_MISSING", "VOICE_CLIP_MISSING"
             }));
             Assert.That(Find("TIMELINE_SOURCE_MISSING").Message,
                 Does.Contain("5개"));
             Assert.That(Find("VOICE_CLIP_MISSING").Message,
                 Does.Contain("668개"));
-            Assert.That(Find("KOREAN_FONT_MISSING").Message,
-                Does.Contain("한국어 글꼴"));
         }
 
         [Test]

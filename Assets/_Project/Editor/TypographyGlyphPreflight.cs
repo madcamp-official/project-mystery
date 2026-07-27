@@ -46,7 +46,10 @@ namespace Wake.Editor
                 TypographyRole.Heading,
                 TypographyRole.HeadingStrong,
                 TypographyRole.Technical,
-                TypographyRole.TechnicalStrong
+                TypographyRole.TechnicalStrong,
+                TypographyRole.Handwritten,
+                TypographyRole.SpecialAlert,
+                TypographyRole.SpecialComic
             };
 
         [MenuItem("Wake/Typography/Collect Project Glyphs")]

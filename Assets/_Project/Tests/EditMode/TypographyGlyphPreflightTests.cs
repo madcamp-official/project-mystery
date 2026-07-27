@@ -84,22 +84,22 @@ namespace Wake.Tests
                     TypographyRole.Heading,
                     TypographyRole.HeadingStrong,
                     TypographyRole.Technical,
-                    TypographyRole.TechnicalStrong
+                    TypographyRole.TechnicalStrong,
+                    TypographyRole.Handwritten,
+                    TypographyRole.SpecialAlert,
+                    TypographyRole.SpecialComic
                 }));
         }
 
         [Test]
-        public void RequiredRoles_ExcludeOptionalSpecialEffects()
+        public void RequiredRoles_ContainElevenDistinctRoles()
         {
             Assert.That(
-                TypographyGlyphPreflight.RequiredRoles,
-                Has.No.Member(TypographyRole.Handwritten));
+                TypographyGlyphPreflight.RequiredRoles.Count,
+                Is.EqualTo(11));
             Assert.That(
                 TypographyGlyphPreflight.RequiredRoles,
-                Has.No.Member(TypographyRole.SpecialAlert));
-            Assert.That(
-                TypographyGlyphPreflight.RequiredRoles,
-                Has.No.Member(TypographyRole.SpecialComic));
+                Is.Unique);
         }
 
         [Test]

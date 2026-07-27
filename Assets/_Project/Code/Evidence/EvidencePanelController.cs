@@ -317,7 +317,9 @@ namespace Wake.Evidence
                 detailText.text = item.Detail;
                 EvidenceTypography.ApplyDetail(
                     detailText,
-                    item.Entry.Category);
+                    item.State == EvidencePanelItemState.Missing
+                        ? null
+                        : item.Entry.Category);
                 detailImage.gameObject.SetActive(item.HasImage);
                 if (item.HasImage)
                 {
