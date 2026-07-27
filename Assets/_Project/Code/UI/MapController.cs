@@ -1,4 +1,3 @@
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,7 +17,6 @@ namespace Wake.UI
         public ProductionMapViewModel CurrentViewModel { get; private set; }
 
         private Transform roomsContainer;
-        private Button buttonTemplate;
         private RectTransform dynamicContent;
         private bool initialized;
 
@@ -74,8 +72,8 @@ namespace Wake.UI
                 return false;
             }
 
+            ConfigureFullscreenPanel();
             Button[] buttons = roomsContainer.GetComponentsInChildren<Button>(true);
-            buttonTemplate = buttons.FirstOrDefault();
             foreach (Button button in buttons)
             {
                 button.gameObject.SetActive(false);
@@ -84,6 +82,60 @@ namespace Wake.UI
             CreateMapSurface();
             initialized = true;
             return true;
+        }
+
+        private void ConfigureFullscreenPanel()
+        {
+            RectTransform mapPanel = roomsContainer.parent as RectTransform;
+            mapPanel.anchorMin = Vector2.zero;
+            mapPanel.anchorMax = Vector2.one;
+            mapPanel.offsetMin = Vector2.zero;
+            mapPanel.offsetMax = Vector2.zero;
+            mapPanel.localScale = Vector3.one;
+
+            RectTransform rooms = (RectTransform)roomsContainer;
+            rooms.anchorMin = Vector2.zero;
+            rooms.anchorMax = Vector2.one;
+            rooms.offsetMin = new Vector2(24f, 24f);
+            rooms.offsetMax = new Vector2(-24f, -88f);
+            rooms.localScale = Vector3.one;
+
+            Transform backTransform = mapPanel.Find("Back Btn");
+            if (backTransform is RectTransform back)
+            {
+                back.anchorMin = new Vector2(0f, 1f);
+                back.anchorMax = new Vector2(0f, 1f);
+                back.pivot = new Vector2(0f, 1f);
+                back.anchoredPosition = new Vector2(24f, -18f);
+                back.sizeDelta = new Vector2(164f, 54f);
+                back.localScale = Vector3.one;
+            }
+
+            Transform legacyDecoration = mapPanel.Find("Image");
+            if (legacyDecoration != null)
+            {
+                legacyDecoration.gameObject.SetActive(false);
+            }
+
+            GameObject titleObject = new(
+                "Map Screen Title",
+                typeof(RectTransform),
+                typeof(TextMeshProUGUI));
+            titleObject.transform.SetParent(mapPanel, false);
+            RectTransform titleRect = titleObject.GetComponent<RectTransform>();
+            titleRect.anchorMin = new Vector2(0f, 1f);
+            titleRect.anchorMax = new Vector2(1f, 1f);
+            titleRect.pivot = new Vector2(0.5f, 1f);
+            titleRect.offsetMin = new Vector2(210f, -76f);
+            titleRect.offsetMax = new Vector2(-210f, -14f);
+            TMP_Text title = titleObject.GetComponent<TMP_Text>();
+            title.font = StatusHUDController.RuntimeKoreanFont;
+            title.text = "MV ELYSIUM  ·  장소 선택";
+            title.fontSize = 34f;
+            title.fontStyle = FontStyles.Bold;
+            title.alignment = TextAlignmentOptions.Center;
+            title.color = new Color32(244, 214, 150, 255);
+            title.raycastTarget = false;
         }
 
         private void CreateMapSurface()
@@ -97,8 +149,8 @@ namespace Wake.UI
             RectTransform viewport = viewportObject.GetComponent<RectTransform>();
             viewport.anchorMin = Vector2.zero;
             viewport.anchorMax = Vector2.one;
-            viewport.offsetMin = new Vector2(1.5f, 2f);
-            viewport.offsetMax = new Vector2(-1.5f, -2f);
+            viewport.offsetMin = Vector2.zero;
+            viewport.offsetMax = Vector2.zero;
             Image viewportImage = viewportObject.GetComponent<Image>();
             viewportImage.color = new Color(0.015f, 0.025f, 0.045f, 1f);
 
@@ -147,7 +199,7 @@ namespace Wake.UI
             rect.anchorMin = position;
             rect.anchorMax = position;
             rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = new Vector2(19f, 8f);
+            rect.sizeDelta = new Vector2(154f, 58f);
 
             bool locked = entry.Status == ProductionMapEntryStatus.Locked;
             Image image = nodeObject.GetComponent<Image>();
@@ -178,15 +230,15 @@ namespace Wake.UI
             RectTransform labelRect = labelObject.GetComponent<RectTransform>();
             labelRect.anchorMin = Vector2.zero;
             labelRect.anchorMax = Vector2.one;
-            labelRect.offsetMin = new Vector2(0.6f, 0.3f);
-            labelRect.offsetMax = new Vector2(-0.6f, -0.3f);
+            labelRect.offsetMin = new Vector2(8f, 4f);
+            labelRect.offsetMax = new Vector2(-8f, -4f);
             TMP_Text label = labelObject.GetComponent<TMP_Text>();
             label.font = StatusHUDController.RuntimeKoreanFont;
             label.text = $"{entry.Spec.DisplayName}\n{entry.StatusLabel}";
             label.alignment = TextAlignmentOptions.Center;
             label.enableAutoSizing = true;
-            label.fontSizeMin = 2.4f;
-            label.fontSizeMax = 4.4f;
+            label.fontSizeMin = 12f;
+            label.fontSizeMax = 21f;
             label.color = locked
                 ? new Color32(175, 180, 188, 255)
                 : Color.white;
