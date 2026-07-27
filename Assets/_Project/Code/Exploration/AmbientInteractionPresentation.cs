@@ -137,12 +137,23 @@ namespace Wake.Exploration
 
         public static ColorBlock CharacterSpriteColors()
         {
+            return CharacterSpriteColors(CharacterSpriteNormal);
+        }
+
+        public static ColorBlock CharacterSpriteColors(Color normalColor)
+        {
             ColorBlock colors = ColorBlock.defaultColorBlock;
-            colors.normalColor = CharacterSpriteNormal;
-            colors.highlightedColor = CharacterSpriteHover;
-            colors.selectedColor = CharacterSpriteHover;
-            colors.pressedColor = CharacterSpritePressed;
-            colors.disabledColor = new Color32(255, 255, 255, 120);
+            colors.normalColor = normalColor;
+            colors.highlightedColor =
+                Color.Lerp(normalColor, CharacterSpriteHover, 0.42f);
+            colors.selectedColor = colors.highlightedColor;
+            colors.pressedColor =
+                Color.Lerp(normalColor, CharacterSpritePressed, 0.52f);
+            colors.disabledColor = new Color(
+                normalColor.r,
+                normalColor.g,
+                normalColor.b,
+                normalColor.a * 0.48f);
             colors.colorMultiplier = 1f;
             colors.fadeDuration = 0.08f;
             return colors;

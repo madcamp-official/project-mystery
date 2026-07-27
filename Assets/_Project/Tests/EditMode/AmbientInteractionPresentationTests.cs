@@ -7,124 +7,6 @@ namespace Wake.Tests
     public sealed class AmbientInteractionPresentationTests
     {
         [Test]
-        public void CharacterPlacement_SingleCharacterUsesCenter()
-        {
-            AmbientCharacterPlacement placement =
-                AmbientInteractionPresentation.CharacterPlacement(0, 1);
-
-            Assert.That(placement.AnchorX, Is.EqualTo(0.5f));
-            Assert.That(
-                placement.Size,
-                Is.EqualTo(new Vector2(184f, 72f)));
-        }
-
-        [Test]
-        public void CharacterPlacement_GroupStaysInsideSafeHorizontalBand()
-        {
-            AmbientCharacterPlacement first =
-                AmbientInteractionPresentation.CharacterPlacement(0, 9);
-            AmbientCharacterPlacement middle =
-                AmbientInteractionPresentation.CharacterPlacement(4, 9);
-            AmbientCharacterPlacement last =
-                AmbientInteractionPresentation.CharacterPlacement(8, 9);
-
-            Assert.That(
-                first.AnchorX,
-                Is.EqualTo(AmbientInteractionPresentation.MinimumAnchorX));
-            Assert.That(middle.AnchorX, Is.EqualTo(0.5f).Within(0.001f));
-            Assert.That(
-                last.AnchorX,
-                Is.EqualTo(AmbientInteractionPresentation.MaximumAnchorX));
-        }
-
-        [Test]
-        public void CharacterPlacement_ClampsOutOfRangeIndex()
-        {
-            AmbientCharacterPlacement before =
-                AmbientInteractionPresentation.CharacterPlacement(-4, 3);
-            AmbientCharacterPlacement after =
-                AmbientInteractionPresentation.CharacterPlacement(8, 3);
-
-            Assert.That(
-                before.AnchorX,
-                Is.EqualTo(AmbientInteractionPresentation.MinimumAnchorX));
-            Assert.That(
-                after.AnchorX,
-                Is.EqualTo(AmbientInteractionPresentation.MaximumAnchorX));
-        }
-
-        [Test]
-        public void CharacterPlacement_ThreeButtonsFitNarrowViewport()
-        {
-            const float viewportWidth = 698f;
-            const float safeAreaWidth = 698f;
-
-            AmbientCharacterPlacement first =
-                AmbientInteractionPresentation.CharacterPlacement(
-                    0, 3, viewportWidth, 0f, safeAreaWidth);
-            AmbientCharacterPlacement middle =
-                AmbientInteractionPresentation.CharacterPlacement(
-                    1, 3, viewportWidth, 0f, safeAreaWidth);
-            AmbientCharacterPlacement last =
-                AmbientInteractionPresentation.CharacterPlacement(
-                    2, 3, viewportWidth, 0f, safeAreaWidth);
-
-            Assert.That(
-                first.AnchorX * viewportWidth - first.Size.x * 0.5f,
-                Is.GreaterThanOrEqualTo(
-                    AmbientInteractionPresentation.CharacterEdgePadding));
-            Assert.That(middle.AnchorX, Is.EqualTo(0.5f).Within(0.001f));
-            Assert.That(
-                last.AnchorX * viewportWidth + last.Size.x * 0.5f,
-                Is.LessThanOrEqualTo(
-                    safeAreaWidth -
-                    AmbientInteractionPresentation.CharacterEdgePadding));
-        }
-
-        [Test]
-        public void CharacterPlacement_RespectsAsymmetricSafeArea()
-        {
-            const float viewportWidth = 920f;
-            const float safeAreaX = 48f;
-            const float safeAreaWidth = 824f;
-
-            AmbientCharacterPlacement first =
-                AmbientInteractionPresentation.CharacterPlacement(
-                    0, 3, viewportWidth, safeAreaX, safeAreaWidth);
-            AmbientCharacterPlacement last =
-                AmbientInteractionPresentation.CharacterPlacement(
-                    2, 3, viewportWidth, safeAreaX, safeAreaWidth);
-
-            Assert.That(
-                first.AnchorX * viewportWidth - first.Size.x * 0.5f,
-                Is.GreaterThanOrEqualTo(
-                    safeAreaX +
-                    AmbientInteractionPresentation.CharacterEdgePadding));
-            Assert.That(
-                last.AnchorX * viewportWidth + last.Size.x * 0.5f,
-                Is.LessThanOrEqualTo(
-                    safeAreaX +
-                    safeAreaWidth -
-                    AmbientInteractionPresentation.CharacterEdgePadding));
-        }
-
-        [Test]
-        public void CharacterLabel_ExposesAvailabilityWithoutColor()
-        {
-            Assert.That(
-                AmbientInteractionPresentation.CharacterLabel("Claire"),
-                Is.EqualTo("Claire\n대화 가능"));
-            Assert.That(
-                AmbientInteractionPresentation.CharacterLabel(
-                    "Claire",
-                    isAvailable: false),
-                Is.EqualTo("Claire\n대화 완료"));
-            Assert.That(
-                AmbientInteractionPresentation.CharacterLabel(" "),
-                Does.StartWith("탑승객"));
-        }
-
-        [Test]
         public void HotspotLabel_ExposesInteractionAndObjectName()
         {
             Assert.That(
@@ -164,17 +46,21 @@ namespace Wake.Tests
         [Test]
         public void ButtonColors_ProvideVisibleHoverAndPressStates()
         {
-            var character =
-                AmbientInteractionPresentation.CharacterColors();
+            var worldCharacter =
+                AmbientInteractionPresentation.CharacterSpriteColors(
+                    new Color(.72f, .84f, .91f, 1f));
             var hotspot =
                 AmbientInteractionPresentation.HotspotColors();
 
             Assert.That(
-                character.highlightedColor,
-                Is.Not.EqualTo(character.normalColor));
+                worldCharacter.normalColor,
+                Is.EqualTo(new Color(.72f, .84f, .91f, 1f)));
             Assert.That(
-                character.pressedColor,
-                Is.Not.EqualTo(character.highlightedColor));
+                worldCharacter.highlightedColor,
+                Is.Not.EqualTo(worldCharacter.normalColor));
+            Assert.That(
+                worldCharacter.pressedColor,
+                Is.Not.EqualTo(worldCharacter.highlightedColor));
             Assert.That(
                 hotspot.normalColor.a,
                 Is.GreaterThan(0f));
@@ -184,6 +70,45 @@ namespace Wake.Tests
             Assert.That(
                 hotspot.pressedColor,
                 Is.Not.EqualTo(hotspot.highlightedColor));
+        }
+
+        [Test]
+        public void StageProfiles_AvoidForegroundFurnitureAndMatchLighting()
+        {
+            Assert.That(
+                AmbientWorldStageCatalog.TryGet(
+                    "WORKSHOP",
+                    "WORKSHOP_MACHINIST",
+                    out AmbientWorldStageProfile workshop),
+                Is.True);
+            Assert.That(
+                AmbientWorldStageCatalog.TryGet(
+                    "ENGINE_CONTROL",
+                    "CHIEF_ENGINEER",
+                    out AmbientWorldStageProfile engine),
+                Is.True);
+            Assert.That(
+                AmbientWorldStageCatalog.TryGet(
+                    "PROMENADE",
+                    "PASSENGER_A",
+                    out AmbientWorldStageProfile promenade),
+                Is.True);
+            Assert.That(
+                AmbientWorldStageCatalog.TryGet(
+                    "BALLAST_TANKS",
+                    "BALLAST_CONTROLLER",
+                    out AmbientWorldStageProfile ballast),
+                Is.True);
+
+            Assert.That(workshop.Anchor.x, Is.LessThan(.25f));
+            Assert.That(engine.Anchor.x, Is.LessThan(.3f));
+            Assert.That(promenade.Anchor.x, Is.GreaterThan(.5f));
+            Assert.That(ballast.Anchor.x, Is.InRange(.5f, .65f));
+            Assert.That(
+                workshop.LightTint,
+                Is.Not.EqualTo(ballast.LightTint));
+            Assert.That(workshop.ShadowOpacity, Is.GreaterThan(.4f));
+            Assert.That(ballast.ShadowDirection.x, Is.LessThan(0f));
         }
     }
 }

@@ -218,7 +218,7 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator AmbientCharacterButtons_StayInsideViewport()
+        public IEnumerator AmbientCharacters_AppearInsideBackgroundAndStayClickable()
         {
             yield return StartNewGameFromVisibleButton();
             yield return null;
@@ -233,17 +233,52 @@ namespace Wake.Tests.PlayMode
 
             Assert.That(
                 ambientButtons,
-                Has.Length.EqualTo(3),
-                "The opening location should expose three ambient characters.");
+                Has.Length.EqualTo(2),
+                "The port should expose only its location-specific characters.");
+            RawImage[] groundShadows = Object.FindObjectsByType<RawImage>(
+                    FindObjectsInactive.Exclude,
+                    FindObjectsSortMode.None)
+                .Where(image =>
+                    image.name.StartsWith("AmbientGroundShadow_"))
+                .ToArray();
+            Assert.That(
+                groundShadows,
+                Has.Length.EqualTo(ambientButtons.Length),
+                "Every world character needs a separate contact shadow.");
             foreach (Button button in ambientButtons)
             {
                 RectTransform rect = button.GetComponent<RectTransform>();
+                RawImage character = button.GetComponent<RawImage>();
                 Assert.That(
                     rect.parent.name,
-                    Is.EqualTo("LocationBackground"),
-                    $"{button.name} must use the visible viewport, not the " +
-                    "cropped Cover Image, as its layout parent.");
+                    Is.EqualTo("Cover Image"),
+                    $"{button.name} must be staged inside the location image.");
+                Assert.That(
+                    character.texture,
+                    Is.Not.Null,
+                    $"{button.name} must render a full-body world character.");
+                Assert.That(
+                    character.color,
+                    Is.Not.EqualTo(Color.white),
+                    $"{button.name} must inherit the location light tint.");
+                Assert.That(
+                    button.colors.normalColor,
+                    Is.EqualTo(character.color),
+                    $"{button.name} must preserve tint between UI states.");
+                Assert.That(
+                    button.GetComponentInChildren<TMP_Text>(),
+                    Is.Null,
+                    $"{button.name} must not use a separate dialogue box.");
                 AssertInsideSafeArea(rect, button.name);
+            }
+            foreach (RawImage groundShadow in groundShadows)
+            {
+                Assert.That(groundShadow.texture, Is.Not.Null);
+                Assert.That(groundShadow.raycastTarget, Is.False);
+                Assert.That(groundShadow.color.a, Is.GreaterThan(0f));
+                Assert.That(
+                    groundShadow.rectTransform.parent.name,
+                    Is.EqualTo("Cover Image"));
             }
         }
 
