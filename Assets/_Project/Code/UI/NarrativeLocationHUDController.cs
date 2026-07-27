@@ -127,7 +127,7 @@ namespace Wake.UI
             labelRect.offsetMin = new Vector2(12f, 6f);
             labelRect.offsetMax = new Vector2(-12f, -6f);
             label = labelObject.GetComponent<TMP_Text>();
-            label.font = StatusHUDController.RuntimeKoreanFont;
+            MapTypography.ApplyLocation(label);
             label.fontSize = 21f;
             label.alignment = TextAlignmentOptions.Center;
             label.textWrappingMode = TextWrappingModes.Normal;

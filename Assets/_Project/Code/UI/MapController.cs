@@ -87,7 +87,7 @@ namespace Wake.UI
                 if (label != null)
                 {
                     label.text = $"{entry.Header}\n{entry.StatusLabel}";
-                    label.font = StatusHUDController.RuntimeKoreanFont;
+                    MapTypography.ApplyLocation(label);
                     label.enableAutoSizing = true;
                     label.fontSizeMin = 13f;
                     label.fontSizeMax = 20f;
@@ -108,7 +108,7 @@ namespace Wake.UI
                 if (label != null)
                 {
                     label.text = $"{entry.Header}\n{entry.StatusLabel}";
-                    label.font = StatusHUDController.RuntimeKoreanFont;
+                    MapTypography.ApplyLocation(label);
                     label.enableAutoSizing = true;
                     label.fontSizeMin = 13f;
                     label.fontSizeMax = 20f;
@@ -183,7 +183,7 @@ namespace Wake.UI
             rect.offsetMin = new Vector2(12f, 4f);
             rect.offsetMax = new Vector2(-12f, 48f);
             unresolvedLabel = labelObject.GetComponent<TMP_Text>();
-            unresolvedLabel.font = StatusHUDController.RuntimeKoreanFont;
+            MapTypography.ApplyNotice(unresolvedLabel);
             unresolvedLabel.fontSize = 13f;
             unresolvedLabel.color = new Color32(255, 205, 120, 255);
             unresolvedLabel.alignment = TextAlignmentOptions.Center;
