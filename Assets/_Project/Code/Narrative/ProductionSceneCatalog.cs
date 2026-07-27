@@ -257,7 +257,7 @@ namespace Wake.Narrative
             string[] locations = records
                 .Where(record => record.Speaker != "PLAYER_CHOICE")
                 .Select(record => record.StageDirection)
-                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Where(IsNarrativeLocation)
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
             int sourceRow = records.Min(record => record.SourceRow);
@@ -276,7 +276,7 @@ namespace Wake.Narrative
 
             string[] csvConditions = records
                 .Select(record => record.Condition)
-                .Where(value => !string.IsNullOrWhiteSpace(value) && value != "없음")
+                .Where(IsSchedulePrerequisite)
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
             if (!csvConditions.SequenceEqual(definition.Prerequisites))
@@ -299,6 +299,35 @@ namespace Wake.Narrative
                         $"Prerequisite '{prerequisite}' does not reference a known scene.");
                 }
             }
+        }
+
+        private static bool IsNarrativeLocation(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value) ||
+                string.Equals(value, "UI", StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            return System.Text.RegularExpressions.Regex.IsMatch(
+                value.Trim(),
+                @"^[A-Z][A-Z0-9_]*$");
+        }
+
+        private static bool IsSchedulePrerequisite(string value)
+        {
+            if (string.Equals(
+                    value,
+                    FinalTypedCondition,
+                    StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            return !string.IsNullOrWhiteSpace(value) &&
+                   System.Text.RegularExpressions.Regex.IsMatch(
+                       value.Trim(),
+                       @"^(P|D\d+)-\d+$");
         }
 
         private static void AddError(
