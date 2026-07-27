@@ -33,6 +33,9 @@ namespace Wake.Editor
                 ".asset", ".cs", ".csv", ".json", ".txt", ".unity"
             };
 
+        private static readonly HashSet<char> CorruptionSentinels =
+            new("占媛寃遺鍮紐吏⑺");
+
         public static IReadOnlyList<TypographyRole> RequiredRoles { get; } =
             new[]
             {
@@ -130,7 +133,8 @@ namespace Wake.Editor
                 {
                     if (!char.IsControl(character) &&
                         !char.IsWhiteSpace(character) &&
-                        !char.IsSurrogate(character))
+                        !char.IsSurrogate(character) &&
+                        !CorruptionSentinels.Contains(character))
                     {
                         characters.Add(character);
                     }
@@ -141,9 +145,16 @@ namespace Wake.Editor
 
         public static bool IsSupportedSource(string path)
         {
-            return !string.IsNullOrWhiteSpace(path) &&
-                SourceExtensions.Contains(Path.GetExtension(path)) &&
-                !path.Replace('\\', '/').Contains("/Fonts/", StringComparison.Ordinal);
+            if (string.IsNullOrWhiteSpace(path) ||
+                !SourceExtensions.Contains(Path.GetExtension(path)))
+            {
+                return false;
+            }
+
+            string normalized = path.Replace('\\', '/');
+            return !normalized.Contains("/Editor/", StringComparison.Ordinal) &&
+                !normalized.Contains("/Fonts/", StringComparison.Ordinal) &&
+                !normalized.Contains("/Tests/", StringComparison.Ordinal);
         }
 
         public static IReadOnlyList<MissingGlyph> Validate(

@@ -57,7 +57,9 @@ namespace Wake.Tests
         [TestCase("Assets/_Project/Data/config.json", true)]
         [TestCase("Assets/_Project/Docs/note.txt", true)]
         [TestCase("Assets/_Project/Art/icon.png", false)]
+        [TestCase("Assets/_Project/Editor/Builder.cs", false)]
         [TestCase("Assets/_Project/Fonts/license.txt", false)]
+        [TestCase("Assets/_Project/Tests/Fixture.cs", false)]
         [TestCase("", false)]
         public void IsSupportedSource_UsesExpectedProjectFiles(
             string path,
@@ -125,6 +127,19 @@ namespace Wake.Tests
 
             char[] sorted = corpus.OrderBy(character => character).ToArray();
             Assert.That(corpus, Is.EqualTo(new string(sorted)));
+        }
+
+        [Test]
+        public void CollectCharacters_RemovesCorruptionSentinels()
+        {
+            string corpus = TypographyGlyphPreflight.CollectCharacters(
+                new[] { "정상占쏙옙紐⑺문구" });
+
+            Assert.That(corpus, Does.Contain("정"));
+            Assert.That(corpus, Does.Contain("문"));
+            Assert.That(corpus, Does.Not.Contain("占"));
+            Assert.That(corpus, Does.Not.Contain("紐"));
+            Assert.That(corpus, Does.Not.Contain("⑺"));
         }
     }
 }
