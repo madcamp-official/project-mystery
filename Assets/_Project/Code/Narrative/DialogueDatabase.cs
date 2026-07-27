@@ -13,6 +13,8 @@ namespace Wake.Narrative
 
         private readonly Dictionary<string, DialogueLine> lines = new();
         private readonly Dictionary<string, DialogueRecord> records = new();
+        private readonly Dictionary<string, DialogueRecord> recordsByLineId =
+            new(StringComparer.Ordinal);
 
         public TextAsset SourceAsset => csvFile;
         public string SourceAssetName =>
@@ -42,12 +44,18 @@ namespace Wake.Narrative
         {
             lines.Clear();
             records.Clear();
+            recordsByLineId.Clear();
 
             DialogueCsvParseResult result = DialogueCsvParser.Parse(csv);
             LoadErrors = result.Errors;
             foreach (DialogueRecord record in result.Records)
             {
                 records[record.StableLineId] = record;
+                if (!string.IsNullOrWhiteSpace(record.LineId))
+                {
+                    recordsByLineId[record.LineId] = record;
+                    lines.TryAdd(record.LineId, record.ToLegacyLine());
+                }
                 lines[record.StableLineId] = record.ToLegacyLine();
                 if (!string.IsNullOrWhiteSpace(record.ChoiceId) &&
                     !record.ChoiceId.Contains(" / "))
@@ -65,7 +73,8 @@ namespace Wake.Narrative
 
         public bool TryGetRecord(string stableLineId, out DialogueRecord record)
         {
-            return records.TryGetValue(stableLineId, out record);
+            return records.TryGetValue(stableLineId, out record) ||
+                   recordsByLineId.TryGetValue(stableLineId, out record);
         }
 
         public bool ContainsScene(string sceneId)

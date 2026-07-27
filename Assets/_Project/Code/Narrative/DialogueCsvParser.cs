@@ -27,8 +27,16 @@ namespace Wake.Narrative
     {
         public static readonly string[] ProductionHeaders =
         {
-            "scene_id", "order", "speaker", "text_ko", "emotion",
-            "condition", "choice_id", "next_or_effect", "stage_direction", "voice_required"
+            "line_id", "scene_id", "order", "beat", "line_type", "speaker",
+            "text_ko", "emotion", "condition", "choice_id", "next_or_effect",
+            "stage_direction", "voice_required", "branch_group",
+            "implementation_note"
+        };
+
+        public static readonly string[] LegacyProductionHeaders =
+        {
+            "scene_id", "order", "speaker", "text_ko", "emotion", "condition",
+            "choice_id", "next_or_effect", "stage_direction", "voice_required"
         };
 
         public static DialogueCsvParseResult Parse(string csv)
@@ -53,13 +61,18 @@ namespace Wake.Narrative
                 }
             }
 
-            bool isProduction = HasAllHeaders(indices, ProductionHeaders);
+            bool isCurrentProduction =
+                HasAllHeaders(indices, ProductionHeaders);
+            bool isLegacyProduction =
+                HasAllHeaders(indices, LegacyProductionHeaders);
             bool isLegacy = HasAllHeaders(
                 indices,
                 new[] { "line_id", "scene_id", "speaker_id", "text", "emotion", "voice_required" });
-            if (!isProduction && !isLegacy)
+            if (!isCurrentProduction && !isLegacyProduction && !isLegacy)
             {
-                errors.Add("CSV does not match the production 10-column or legacy 6-column contract.");
+                errors.Add(
+                    "CSV does not match the current 15-column, legacy " +
+                    "production 10-column, or legacy 6-column contract.");
                 return new DialogueCsvParseResult(headers, Array.Empty<DialogueRecord>(), errors);
             }
 
@@ -73,9 +86,15 @@ namespace Wake.Narrative
                 }
 
                 int sourceRow = rowIndex + 1;
-                if (isProduction)
+                if (isCurrentProduction || isLegacyProduction)
                 {
-                    ParseProductionRow(row, indices, sourceRow, records, errors);
+                    ParseProductionRow(
+                        row,
+                        indices,
+                        sourceRow,
+                        isCurrentProduction,
+                        records,
+                        errors);
                 }
                 else
                 {
@@ -90,6 +109,7 @@ namespace Wake.Narrative
             IReadOnlyList<string> row,
             IReadOnlyDictionary<string, int> indices,
             int sourceRow,
+            bool requiresLineId,
             ICollection<DialogueRecord> records,
             ICollection<string> errors)
         {
@@ -100,11 +120,21 @@ namespace Wake.Narrative
                 return;
             }
 
+            string lineId = Get(row, indices, "line_id").Trim();
+            if (requiresLineId && string.IsNullOrEmpty(lineId))
+            {
+                errors.Add($"Row {sourceRow}: line_id is empty.");
+                return;
+            }
+
             string voice = Get(row, indices, "voice_required").Trim();
             bool voiceRequired = voice.Equals("Y", StringComparison.OrdinalIgnoreCase);
             records.Add(new DialogueRecord(
+                lineId,
                 Get(row, indices, "scene_id").Trim(),
                 order,
+                Get(row, indices, "beat").Trim(),
+                Get(row, indices, "line_type").Trim(),
                 Get(row, indices, "speaker").Trim(),
                 Get(row, indices, "text_ko"),
                 Get(row, indices, "emotion").Trim(),
@@ -113,6 +143,8 @@ namespace Wake.Narrative
                 Get(row, indices, "next_or_effect").Trim(),
                 Get(row, indices, "stage_direction").Trim(),
                 voice,
+                Get(row, indices, "branch_group").Trim(),
+                Get(row, indices, "implementation_note").Trim(),
                 voiceRequired,
                 sourceRow));
         }
@@ -133,22 +165,29 @@ namespace Wake.Narrative
 
             string voice = Get(row, indices, "voice_required").Trim();
             records.Add(new DialogueRecord(
+                lineId,
                 Get(row, indices, "scene_id").Trim(),
                 sourceRow - 1,
+                string.Empty,
+                string.Empty,
                 Get(row, indices, "speaker_id").Trim(),
                 Get(row, indices, "text"),
                 Get(row, indices, "emotion").Trim(),
                 string.Empty,
-                lineId,
+                string.Empty,
                 string.Empty,
                 string.Empty,
                 voice,
+                string.Empty,
+                string.Empty,
                 voice.Equals("Y", StringComparison.OrdinalIgnoreCase) ||
                 voice.Equals("TRUE", StringComparison.OrdinalIgnoreCase),
                 sourceRow));
         }
 
-        private static List<List<string>> ReadRows(string csv, ICollection<string> errors)
+        internal static List<List<string>> ReadRows(
+            string csv,
+            ICollection<string> errors)
         {
             var rows = new List<List<string>>();
             var row = new List<string>();
