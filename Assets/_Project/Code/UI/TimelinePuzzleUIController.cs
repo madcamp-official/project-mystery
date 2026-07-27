@@ -293,7 +293,7 @@ namespace Wake.UI
 
             MakeText(
                 root.transform,
-                "사건 타임라인 · 21:22–22:45",
+                "사건 타임라인 · 20:56–22:45",
                 0.90f,
                 0.98f,
                 32f,
@@ -311,15 +311,20 @@ namespace Wake.UI
             for (int index = 0; index < TimelinePuzzleCatalog.SourceBackedCards.Count; index++)
             {
                 int captured = index;
+                int column = index / 6;
+                int row = index % 6;
+                float minX = column == 0 ? 0.04f : 0.255f;
+                float maxX = column == 0 ? 0.245f : 0.46f;
+                float maxY = 0.82f - row * 0.09f;
                 Button card = MakeButton(
                     root.transform,
                     $"Card {index + 1}",
-                    0.52f + (4 - index) * 0.058f,
-                    0.572f + (4 - index) * 0.058f,
+                    maxY - 0.072f,
+                    maxY,
                     string.Empty,
-                    0.05f,
-                    0.47f,
-                    17f);
+                    minX,
+                    maxX,
+                    15f);
                 card.onClick.AddListener(() =>
                     SelectCard(TimelinePuzzleCatalog.SourceBackedCards[captured].Id));
                 cardButtons.Add(card);
@@ -349,27 +354,27 @@ namespace Wake.UI
             hintText = MakeText(
                 root.transform,
                 string.Empty,
-                0.31f,
-                0.43f,
-                18f,
+                0.18f,
+                0.28f,
+                16f,
                 0.05f,
                 0.47f);
             statusText = MakeText(
                 root.transform,
                 string.Empty,
-                0.16f,
-                0.30f,
-                18f,
+                0.08f,
+                0.17f,
+                16f,
                 0.05f,
                 0.47f);
             Button hint = MakeButton(
-                root.transform, "Hint", 0.05f, 0.13f, "힌트", 0.05f, 0.18f, 19f);
+                root.transform, "Hint", 0.01f, 0.07f, "힌트", 0.52f, 0.65f, 18f);
             hint.onClick.AddListener(() => UseHint());
             Button submit = MakeButton(
-                root.transform, "Submit", 0.05f, 0.13f, "완성 확인", 0.20f, 0.34f, 19f);
+                root.transform, "Submit", 0.01f, 0.07f, "완성 확인", 0.67f, 0.82f, 18f);
             submit.onClick.AddListener(() => Submit());
             Button close = MakeButton(
-                root.transform, "Close", 0.05f, 0.13f, "닫기", 0.36f, 0.47f, 19f);
+                root.transform, "Close", 0.01f, 0.07f, "닫기", 0.84f, 0.96f, 18f);
             close.onClick.AddListener(Close);
             InteractionTypography.Apply(
                 root.transform,

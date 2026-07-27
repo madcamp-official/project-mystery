@@ -39,53 +39,87 @@ namespace Wake.Puzzles
         public const string SceneId = "D6-05";
         public const int RequiredCardCount = 12;
 
-        public const string LastSighting = "last_sighting";
-        public const string EvelynPartyReturn = "evelyn_party_return";
+        public const string TokenHandoff = "token_handoff";
+        public const string VaultOverwrite = "vault_overwrite";
+        public const string PartyPhoto = "party_photo";
+        public const string DanielServiceEntry = "daniel_service_entry";
+        public const string BallastArrival = "ballast_arrival";
+        public const string NitrogenStart = "nitrogen_start";
         public const string Murder = "murder";
-        public const string Movement = "movement";
-        public const string BodyDeparture = Movement;
+        public const string RecordingCreated = "recording_created";
+        public const string RailDeparture = "rail_departure";
+        public const string Movement = RailDeparture;
+        public const string BodyDeparture = RailDeparture;
         public const string DetectorError = "detector_error";
         public const string SinkOverflow = "sink_overflow";
         public const string BodyDiscovery = "body_discovery";
         public const string Discovery = BodyDiscovery;
 
-        public const string ScenarioSource =
-            "Game Scenario KR p.14 · 타임라인 카드";
         public const string DialogueTimeSource =
-            "Dialogue CSV D6-05 · 살해 21:45 / 이동 22:18";
+            "Dialogue_Master D6-05 · 시스템 타임라인 12장";
 
         private static readonly TimelineCardDefinition[] ConfirmedCards =
         {
             new(
-                LastSighting,
-                "Daniel의 마지막 목격",
-                sourceReference: ScenarioSource),
+                TokenHandoff,
+                "토큰 전달",
+                "20:56",
+                DialogueTimeSource),
             new(
-                EvelynPartyReturn,
-                "Evelyn의 파티 복귀",
-                sourceReference: ScenarioSource),
+                VaultOverwrite,
+                "금고 덮어쓰기",
+                "21:05",
+                DialogueTimeSource),
+            new(
+                PartyPhoto,
+                "파티 사진",
+                "21:20",
+                DialogueTimeSource),
+            new(
+                DanielServiceEntry,
+                "Daniel 서비스 구역 진입",
+                "21:22",
+                DialogueTimeSource),
+            new(
+                BallastArrival,
+                "Ballast 구역 도착",
+                "21:35",
+                DialogueTimeSource),
+            new(
+                NitrogenStart,
+                "질소 주입 시작",
+                "21:43",
+                DialogueTimeSource),
             new(
                 Murder,
-                "실제 살해",
-                "21:45",
-                $"{ScenarioSource}; {DialogueTimeSource}"),
+                "Daniel 사망",
+                "21:46",
+                DialogueTimeSource),
             new(
-                BodyDeparture,
-                "시신 출발",
-                "22:18",
-                $"{ScenarioSource}; {DialogueTimeSource}"),
+                RecordingCreated,
+                "녹음 생성",
+                "21:47",
+                DialogueTimeSource),
+            new(
+                RailDeparture,
+                "서비스 레일 출발",
+                "22:17",
+                DialogueTimeSource),
             new(
                 DetectorError,
                 "감지기 오류",
-                sourceReference: ScenarioSource),
+                "22:18",
+                DialogueTimeSource),
             new(
                 SinkOverflow,
-                "세면대 범람",
-                sourceReference: ScenarioSource),
+                "세면대 작동",
+                "22:27",
+                DialogueTimeSource),
             new(
                 Discovery,
-                "발견",
-                sourceReference: ScenarioSource)
+                "시신 발견",
+                "22:45",
+                DialogueTimeSource)
         };
 
         public static IReadOnlyList<TimelineCardDefinition> SourceBackedCards =>
@@ -97,9 +131,14 @@ namespace Wake.Puzzles
 
         public static IReadOnlyList<string> RequiredSequence { get; } = new[]
         {
-            LastSighting,
-            EvelynPartyReturn,
+            TokenHandoff,
+            VaultOverwrite,
+            PartyPhoto,
+            DanielServiceEntry,
+            BallastArrival,
+            NitrogenStart,
             Murder,
+            RecordingCreated,
             BodyDeparture,
             DetectorError,
             SinkOverflow,
@@ -217,8 +256,18 @@ namespace Wake.Puzzles
                 }
             }
 
-            ValidateTime(cards, TimelinePuzzleCatalog.Murder, "21:45", diagnostics);
-            ValidateTime(cards, TimelinePuzzleCatalog.Movement, "22:18", diagnostics);
+            ValidateTime(cards, TimelinePuzzleCatalog.TokenHandoff, "20:56", diagnostics);
+            ValidateTime(cards, TimelinePuzzleCatalog.VaultOverwrite, "21:05", diagnostics);
+            ValidateTime(cards, TimelinePuzzleCatalog.PartyPhoto, "21:20", diagnostics);
+            ValidateTime(cards, TimelinePuzzleCatalog.DanielServiceEntry, "21:22", diagnostics);
+            ValidateTime(cards, TimelinePuzzleCatalog.BallastArrival, "21:35", diagnostics);
+            ValidateTime(cards, TimelinePuzzleCatalog.NitrogenStart, "21:43", diagnostics);
+            ValidateTime(cards, TimelinePuzzleCatalog.Murder, "21:46", diagnostics);
+            ValidateTime(cards, TimelinePuzzleCatalog.RecordingCreated, "21:47", diagnostics);
+            ValidateTime(cards, TimelinePuzzleCatalog.RailDeparture, "22:17", diagnostics);
+            ValidateTime(cards, TimelinePuzzleCatalog.DetectorError, "22:18", diagnostics);
+            ValidateTime(cards, TimelinePuzzleCatalog.SinkOverflow, "22:27", diagnostics);
+            ValidateTime(cards, TimelinePuzzleCatalog.Discovery, "22:45", diagnostics);
             return diagnostics;
         }
 
@@ -315,11 +364,11 @@ namespace Wake.Puzzles
 
         public string GetHint() => HintLevel switch
         {
-            1 => "살해 추정 시각은 21:45입니다.",
-            2 => "시신 이동 기록은 22:18입니다.",
-            3 => "마지막 목격 → 파티 복귀 → 실제 살해 → 시신 출발 → " +
-                 "감지기 오류 → 세면대 범람 → 발견 순서를 확인하세요.",
-            _ => "힌트를 사용하면 확정된 시각과 필수 순서를 확인할 수 있습니다."
+            1 => "목표를 다시 확인하세요. 20:56부터 22:45까지 사건을 시간순으로 배열합니다.",
+            2 => "핵심 증거 시각: 질소 주입 21:43, 사망 21:46, 녹음 생성 21:47.",
+            3 => "전반부는 토큰 전달 → 금고 덮어쓰기 → 파티 사진 → " +
+                 "Daniel 진입 → Ballast 도착 → 질소 주입 순서입니다.",
+            _ => "힌트는 목표 재확인, 핵심 시각 강조, 전반부 순서 공개의 세 단계입니다."
         };
 
         public TimelineCompletionResult TryComplete()

@@ -41,31 +41,41 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void SourceCatalog_UsesScenarioSevenEventOrder()
+        public void SourceCatalog_UsesDialogueMasterTwelveEventOrder()
         {
             Assert.That(
                 TimelinePuzzleCatalog.SourceBackedCards.Count,
-                Is.EqualTo(7));
+                Is.EqualTo(12));
             Assert.That(
                 TimelinePuzzleCatalog.SourceMissingCount,
-                Is.EqualTo(5));
+                Is.Zero);
             Assert.That(
                 TimelinePuzzleCatalog.SourceBackedCards.Select(card => card.Label),
                 Is.EqualTo(new[]
                 {
-                    "Daniel의 마지막 목격",
-                    "Evelyn의 파티 복귀",
-                    "실제 살해",
-                    "시신 출발",
+                    "토큰 전달",
+                    "금고 덮어쓰기",
+                    "파티 사진",
+                    "Daniel 서비스 구역 진입",
+                    "Ballast 구역 도착",
+                    "질소 주입 시작",
+                    "Daniel 사망",
+                    "녹음 생성",
+                    "서비스 레일 출발",
                     "감지기 오류",
-                    "세면대 범람",
-                    "발견"
+                    "세면대 작동",
+                    "시신 발견"
                 }));
             Assert.That(TimelinePuzzleCatalog.RequiredSequence, Is.EqualTo(new[]
             {
-                TimelinePuzzleCatalog.LastSighting,
-                TimelinePuzzleCatalog.EvelynPartyReturn,
+                TimelinePuzzleCatalog.TokenHandoff,
+                TimelinePuzzleCatalog.VaultOverwrite,
+                TimelinePuzzleCatalog.PartyPhoto,
+                TimelinePuzzleCatalog.DanielServiceEntry,
+                TimelinePuzzleCatalog.BallastArrival,
+                TimelinePuzzleCatalog.NitrogenStart,
                 TimelinePuzzleCatalog.Murder,
+                TimelinePuzzleCatalog.RecordingCreated,
                 TimelinePuzzleCatalog.BodyDeparture,
                 TimelinePuzzleCatalog.DetectorError,
                 TimelinePuzzleCatalog.SinkOverflow,
@@ -74,54 +84,59 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void SourceCatalog_PreservesOnlyDocumentedTimes()
+        public void SourceCatalog_PreservesAllDialogueMasterTimes()
         {
             Assert.That(
                 TimelinePuzzleCatalog.SourceBackedCards
-                    .Single(card => card.Id == TimelinePuzzleCatalog.Murder)
-                    .ConfirmedTime,
-                Is.EqualTo("21:45"));
-            Assert.That(
-                TimelinePuzzleCatalog.SourceBackedCards
-                    .Single(card => card.Id == TimelinePuzzleCatalog.BodyDeparture)
-                    .ConfirmedTime,
-                Is.EqualTo("22:18"));
-            Assert.That(
-                TimelinePuzzleCatalog.SourceBackedCards
-                    .Where(card =>
-                        card.Id != TimelinePuzzleCatalog.Murder &&
-                        card.Id != TimelinePuzzleCatalog.BodyDeparture)
                     .Select(card => card.ConfirmedTime),
-                Has.All.Empty);
+                Is.EqualTo(new[]
+                {
+                    "20:56", "21:05", "21:20", "21:22",
+                    "21:35", "21:43", "21:46", "21:47",
+                    "22:17", "22:18", "22:27", "22:45"
+                }));
             Assert.That(
                 TimelinePuzzleCatalog.SourceBackedCards.All(
                     card => card.HasAuthoritativeSource),
                 Is.True);
             Assert.That(
                 TimelinePuzzleCatalog.SourceBackedCards
-                    .Where(card => string.IsNullOrEmpty(card.ConfirmedTime))
-                    .All(card =>
-                        !card.Label.Any(character =>
-                            character >= '0' && character <= '9')),
-                Is.True);
+                    .Select(card => card.SourceReference),
+                Has.All.EqualTo(TimelinePuzzleCatalog.DialogueTimeSource));
         }
 
         [Test]
-        public void SourceCoverage_ReportsSevenOfTwelveWithoutInventingCards()
+        public void SourceCoverage_ReportsCompleteDialogueMasterContract()
         {
             TimelineSourceCoverage coverage =
                 TimelinePuzzleCatalog.SourceCoverage;
 
             Assert.That(coverage.RequiredCount, Is.EqualTo(12));
-            Assert.That(coverage.DefinitionCount, Is.EqualTo(7));
-            Assert.That(coverage.AuthoritativeCount, Is.EqualTo(7));
-            Assert.That(coverage.MissingSourceCount, Is.EqualTo(5));
+            Assert.That(coverage.DefinitionCount, Is.EqualTo(12));
+            Assert.That(coverage.AuthoritativeCount, Is.EqualTo(12));
+            Assert.That(coverage.MissingSourceCount, Is.Zero);
             Assert.That(coverage.UnverifiedDefinitionCount, Is.Zero);
-            Assert.That(coverage.IsComplete, Is.False);
+            Assert.That(coverage.IsComplete, Is.True);
         }
 
         [Test]
-        public void IncompleteSourceCatalog_BlocksCompletion()
+        public void SourceCatalog_UsesUniqueStableIdsAndReadableLabels()
+        {
+            IReadOnlyList<TimelineCardDefinition> cards =
+                TimelinePuzzleCatalog.SourceBackedCards;
+
+            Assert.That(
+                cards.Select(card => card.Id).Distinct().ToArray(),
+                Has.Length.EqualTo(TimelinePuzzleCatalog.RequiredCardCount));
+            Assert.That(cards.Select(card => card.Id), Has.All.Not.Empty);
+            Assert.That(cards.Select(card => card.Label), Has.All.Not.Empty);
+            Assert.That(
+                TimelinePuzzleValidator.Validate(cards),
+                Is.Empty);
+        }
+
+        [Test]
+        public void CurrentSourceCatalog_CanCompleteInWorkbookOrder()
         {
             var session = new TimelinePuzzleSession(
                 state,
@@ -137,15 +152,9 @@ namespace Wake.Tests
 
             TimelineCompletionResult result = session.TryComplete();
 
-            Assert.That(result.Completed, Is.False);
-            Assert.That(result.MissingCardCount, Is.EqualTo(5));
-            Assert.That(
-                result.Diagnostics,
-                Has.Some.Contains("정확히 12장"));
-            Assert.That(
-                result.Diagnostics.Count(message =>
-                    message.StartsWith("source_missing:")),
-                Is.EqualTo(5));
+            Assert.That(result.Completed, Is.True);
+            Assert.That(result.MissingCardCount, Is.Zero);
+            Assert.That(result.Diagnostics, Is.Empty);
         }
 
         [Test]
@@ -154,9 +163,9 @@ namespace Wake.Tests
             var session = new TimelinePuzzleSession(
                 state,
                 TimelinePuzzleCatalog.SourceBackedCards);
-            session.Place(TimelinePuzzleCatalog.EvelynPartyReturn, 1);
-            session.Place(TimelinePuzzleCatalog.SinkOverflow, 5);
-            session.Place(TimelinePuzzleCatalog.SinkOverflow, 6);
+            session.Place(TimelinePuzzleCatalog.VaultOverwrite, 1);
+            session.Place(TimelinePuzzleCatalog.SinkOverflow, 10);
+            session.Place(TimelinePuzzleCatalog.SinkOverflow, 11);
             session.UseHint();
             session.UseHint();
 
@@ -167,33 +176,38 @@ namespace Wake.Tests
 
             Assert.That(
                 restored.Placements[1],
-                Is.EqualTo(TimelinePuzzleCatalog.EvelynPartyReturn));
-            Assert.That(restored.Placements.ContainsKey(5), Is.False);
+                Is.EqualTo(TimelinePuzzleCatalog.VaultOverwrite));
+            Assert.That(restored.Placements.ContainsKey(10), Is.False);
             Assert.That(
-                restored.Placements[6],
+                restored.Placements[11],
                 Is.EqualTo(TimelinePuzzleCatalog.SinkOverflow));
             Assert.That(restored.HintLevel, Is.EqualTo(2));
-            Assert.That(restored.GetHint(), Does.Contain("22:18"));
+            Assert.That(restored.GetHint(), Does.Contain("21:43"));
         }
 
         [Test]
-        public void ExistingPlacementIds_RestoreWithoutMigration()
+        public void ObsoleteSevenCardIds_AreRejected()
         {
             var session = new TimelinePuzzleSession(
                 state,
                 TimelinePuzzleCatalog.SourceBackedCards);
-            session.Place("last_sighting", 0);
-            session.Place("movement", 3);
-            session.Place("body_discovery", 6);
+            TimelinePlacementResult first = session.Place("last_sighting", 0);
+            TimelinePlacementResult second = session.Place("movement", 3);
+            TimelinePlacementResult current =
+                session.Place(TimelinePuzzleCatalog.Discovery, 11);
 
             state.ReloadSavedState();
             var restored = new TimelinePuzzleSession(
                 state,
                 TimelinePuzzleCatalog.SourceBackedCards);
 
-            Assert.That(restored.Placements[0], Is.EqualTo("last_sighting"));
-            Assert.That(restored.Placements[3], Is.EqualTo("movement"));
-            Assert.That(restored.Placements[6], Is.EqualTo("body_discovery"));
+            Assert.That(first, Is.EqualTo(TimelinePlacementResult.UnknownCard));
+            Assert.That(second, Is.EqualTo(TimelinePlacementResult.UnknownCard));
+            Assert.That(current, Is.EqualTo(TimelinePlacementResult.Placed));
+            Assert.That(restored.Placements, Has.Count.EqualTo(1));
+            Assert.That(
+                restored.Placements[11],
+                Is.EqualTo(TimelinePuzzleCatalog.Discovery));
         }
 
         [Test]
@@ -275,7 +289,7 @@ namespace Wake.Tests
             Assert.That(slots[0].IsEmpty, Is.True);
             Assert.That(slots[0].Label, Is.EqualTo("비어 있음"));
             Assert.That(slots[3].CardId, Is.EqualTo(TimelinePuzzleCatalog.Murder));
-            Assert.That(slots[3].Label, Does.Contain("21:45"));
+            Assert.That(slots[3].Label, Does.Contain("21:46"));
         }
 
         [Test]
@@ -294,7 +308,7 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void Presentation_ShowsSourceCoverageAndFiveMissingWarnings()
+        public void Presentation_ShowsCompleteSourceCoverage()
         {
             string status = TimelinePuzzlePresentation.SourceStatus(
                 TimelinePuzzleCatalog.SourceBackedCards);
@@ -303,17 +317,26 @@ namespace Wake.Tests
                 TimelinePuzzleCatalog.SourceBackedCards);
             TimelineCompletionResult result = session.TryComplete();
 
-            Assert.That(status, Does.Contain("근거 확인 7/12"));
-            Assert.That(status, Does.Contain("source_missing 5장"));
+            Assert.That(status, Does.Contain("근거 확인 12/12"));
+            Assert.That(status, Does.Not.Contain("source_missing"));
             Assert.That(
                 TimelinePuzzlePresentation.Diagnostics(result),
-                Does.Contain("근거 자료 미확정 카드 5장"));
+                Does.Not.Contain("근거 자료 미확정"));
         }
 
         private static List<TimelineCardDefinition> CreateCompleteContract(
             bool authoritative)
         {
-            var cards = TimelinePuzzleCatalog.SourceBackedCards.ToList();
+            List<TimelineCardDefinition> cards =
+                TimelinePuzzleCatalog.SourceBackedCards
+                    .Select((card, index) => new TimelineCardDefinition(
+                        card.Id,
+                        card.Label,
+                        card.ConfirmedTime,
+                        authoritative || index < 7
+                            ? card.SourceReference
+                            : string.Empty))
+                    .ToList();
             for (int index = cards.Count;
                  index < TimelinePuzzleCatalog.RequiredCardCount;
                  index++)
