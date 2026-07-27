@@ -371,6 +371,11 @@ namespace Wake.UI
             Button close = MakeButton(
                 root.transform, "Close", 0.05f, 0.13f, "닫기", 0.36f, 0.47f, 19f);
             close.onClick.AddListener(Close);
+            InteractionTypography.Apply(
+                root.transform,
+                null,
+                hintText,
+                statusText);
             root.SetActive(false);
         }
 
@@ -404,7 +409,7 @@ namespace Wake.UI
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
             TMP_Text text = target.GetComponent<TMP_Text>();
-            text.font = StatusHUDController.RuntimeKoreanFont;
+            TypographyService.Apply(text, TypographyRole.Body);
             text.fontSize = size;
             text.alignment = TextAlignmentOptions.Center;
             text.color = Color.white;
