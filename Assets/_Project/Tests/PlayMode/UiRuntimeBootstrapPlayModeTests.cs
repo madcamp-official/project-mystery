@@ -108,6 +108,26 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator TitleLogo_UsesEntireSourceImage()
+        {
+            yield return null;
+
+            Image logo = RequireComponent<Image>(
+                "StartScene/Title Presentation/Under the Horizon Logo");
+            Assert.That(logo.sprite, Is.Not.Null);
+            Assert.That(logo.preserveAspect, Is.True);
+            Assert.That(logo.sprite.rect.x, Is.Zero);
+            Assert.That(logo.sprite.rect.y, Is.Zero);
+            Assert.That(
+                logo.sprite.rect.width,
+                Is.EqualTo(logo.sprite.texture.width));
+            Assert.That(
+                logo.sprite.rect.height,
+                Is.EqualTo(logo.sprite.texture.height));
+            AssertNoRuntimeErrors("타이틀 로고 전체 영역");
+        }
+
+        [UnityTest]
         public IEnumerator FinalAccusation_AutoPreparesDeductionsAndAdvances()
         {
             yield return StartNewGameFromVisibleButton();
