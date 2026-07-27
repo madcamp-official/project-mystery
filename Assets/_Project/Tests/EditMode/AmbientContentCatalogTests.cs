@@ -10,7 +10,7 @@ namespace Wake.Tests
         [Test]
         public void WorkbookAmbientBarks_AreAllRepresented()
         {
-            Assert.That(AmbientBarkCatalog.All.Count, Is.EqualTo(32));
+            Assert.That(AmbientBarkCatalog.All.Count, Is.EqualTo(47));
             Assert.That(
                 AmbientBarkCatalog.All.Select(item => item.Id),
                 Is.Unique);
@@ -20,6 +20,87 @@ namespace Wake.Tests
                     !string.IsNullOrWhiteSpace(item.Text) &&
                     !string.IsNullOrWhiteSpace(item.Condition)),
                 Is.True);
+        }
+
+        [Test]
+        public void AmbientBarks_AreLocationSpecificAndCoverEveryLocation()
+        {
+            Assert.That(
+                AmbientBarkCatalog.All.Any(item => item.Location == "ANY"),
+                Is.False);
+            Assert.That(
+                AmbientBarkCatalog.All
+                    .Select(item => item.Location)
+                    .Distinct()
+                    .OrderBy(item => item),
+                Is.EquivalentTo(
+                    AmbientBarkCatalog.SupportedLocations
+                        .OrderBy(item => item)));
+        }
+
+        [Test]
+        public void RestrictedEngineeringLocations_DoNotSpawnPassengers()
+        {
+            string[] restrictedLocations =
+            {
+                "SERVICE_RAIL", "BALLAST_CONTROL_ANNEX", "ENGINE_CONTROL",
+                "CREW_STAIRS", "VAULT", "ARCHIVE", "SERVICE_HUB",
+                "STABILIZERS", "BALLAST_TANKS", "GENERATOR", "WORKSHOP"
+            };
+
+            Assert.That(
+                AmbientBarkCatalog.All
+                    .Where(item =>
+                        restrictedLocations.Contains(item.Location))
+                    .All(item =>
+                        item.Speaker.StartsWith("CREW_")),
+                Is.True);
+        }
+
+        [Test]
+        public void LocationSelection_ReturnsOnlyRelevantCharactersAndDialogue()
+        {
+            AmbientBarkRecord[] port =
+                AmbientBarkCatalog.GetAvailable("PORT", null).ToArray();
+            AmbientBarkRecord[] engine =
+                AmbientBarkCatalog.GetAvailable(
+                    "ENGINE_CONTROL",
+                    null).ToArray();
+
+            Assert.That(port, Has.Length.EqualTo(2));
+            Assert.That(
+                port.Select(item => item.Speaker),
+                Is.EquivalentTo(
+                    new[] { "CREW_ATTENDANT", "PASSENGER_A" }));
+            Assert.That(engine, Has.Length.EqualTo(1));
+            Assert.That(engine[0].Speaker, Is.EqualTo("CREW_ENGINEER"));
+            Assert.That(engine[0].Text, Does.Contain("주기관 출력"));
+        }
+
+        [Test]
+        public void RepeatedSpeakers_DoNotRepeatDialogueAcrossLocations()
+        {
+            var repeatedSpeakers = AmbientBarkCatalog.All
+                .GroupBy(item => item.Speaker)
+                .Where(group => group.Count() > 1)
+                .ToArray();
+
+            Assert.That(repeatedSpeakers, Is.Not.Empty);
+            foreach (var appearances in repeatedSpeakers)
+            {
+                Assert.That(
+                    appearances.All(item => item.Location != "ANY"),
+                    Is.True,
+                    appearances.Key);
+                Assert.That(
+                    appearances.Select(item => item.Text),
+                    Is.Unique,
+                    appearances.Key);
+            }
+
+            Assert.That(
+                AmbientBarkCatalog.All.Select(item => item.Text),
+                Is.Unique);
         }
 
         [Test]
