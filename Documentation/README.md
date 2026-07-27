@@ -15,6 +15,9 @@ Unity가 PDF와 XLSX를 불필요하게 임포트하지 않도록 원본 파일�
 파일 이름, SHA-256, 페이지 수와 데이터 기대값은 `Source/sources.json`에서 관리한다.
 원본을 교체할 때는 같은 파일 이름을 유지하고 해시와 검증 기대값을 함께 갱신한다.
 
+공식 원본과 현재 Unity 구현의 연결 기준, 장면·장소·UI·엔딩·QA 계약은
+`Under_the_Horizon_Implementation_Baseline_KR.md`에서 확인한다.
+
 ## 대사 데이터 흐름
 
 ```text
