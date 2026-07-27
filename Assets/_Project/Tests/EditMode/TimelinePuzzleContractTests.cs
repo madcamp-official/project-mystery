@@ -126,13 +126,17 @@ namespace Wake.Tests
                 TimelinePuzzleCatalog.SourceBackedCards;
 
             Assert.That(
-                cards.Select(card => card.Id).Distinct().ToArray(),
-                Has.Length.EqualTo(TimelinePuzzleCatalog.RequiredCardCount));
-            Assert.That(cards.Select(card => card.Id), Has.All.Not.Empty);
-            Assert.That(cards.Select(card => card.Label), Has.All.Not.Empty);
+                cards.Select(card => card.Id).Distinct().Count(),
+                Is.EqualTo(TimelinePuzzleCatalog.RequiredCardCount));
             Assert.That(
-                TimelinePuzzleValidator.Validate(cards),
-                Is.Empty);
+                cards.All(card => !string.IsNullOrWhiteSpace(card.Id)),
+                Is.True);
+            Assert.That(
+                cards.All(card => !string.IsNullOrWhiteSpace(card.Label)),
+                Is.True);
+            Assert.That(
+                TimelinePuzzleValidator.Validate(cards).Count,
+                Is.Zero);
         }
 
         [Test]
