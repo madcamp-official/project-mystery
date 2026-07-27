@@ -129,7 +129,7 @@ namespace Wake.UI
             titleRect.offsetMin = new Vector2(210f, -76f);
             titleRect.offsetMax = new Vector2(-210f, -14f);
             TMP_Text title = titleObject.GetComponent<TMP_Text>();
-            title.font = StatusHUDController.RuntimeKoreanFont;
+            MapTypography.ApplyLocation(title);
             title.text = "MV ELYSIUM  ·  장소 선택";
             title.fontSize = 34f;
             title.fontStyle = FontStyles.Bold;
@@ -242,7 +242,7 @@ namespace Wake.UI
             labelRect.offsetMin = new Vector2(8f, 4f);
             labelRect.offsetMax = new Vector2(-8f, -4f);
             TMP_Text label = labelObject.GetComponent<TMP_Text>();
-            label.font = StatusHUDController.RuntimeKoreanFont;
+            MapTypography.ApplyLocation(label);
             label.text = $"{entry.Spec.DisplayName}\n{entry.StatusLabel}";
             label.alignment = TextAlignmentOptions.Center;
             label.enableAutoSizing = true;
