@@ -57,7 +57,6 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class ResponsiveDialogueLayout : MonoBehaviour
     {
-        public static readonly Vector2 ReferenceResolution = new(2880f, 1800f);
         public const float DialogueHeight = 460f;
         public const float EdgePadding = 28f;
         public const float NavigationTop = 184f;
@@ -69,7 +68,6 @@ namespace Wake.UI
         [SerializeField] private Vector2 portraitSize = new(260f, 300f);
         [SerializeField] private Vector2 speakerPlateSize = new(460f, 68f);
 
-        private Canvas canvas;
         private RectTransform ingameRoot;
         private RectTransform linePanel;
         private RectTransform textPanel;
@@ -112,7 +110,6 @@ namespace Wake.UI
             RectTransform targetChoices,
             IReadOnlyList<Button> targetChoiceButtons)
         {
-            canvas = targetCanvas;
             linePanel = targetLinePanel;
             ingameRoot = linePanel != null
                 ? linePanel.parent as RectTransform
@@ -139,7 +136,6 @@ namespace Wake.UI
                 ? ingameRoot.Find("Settings Btn") as RectTransform
                 : null;
 
-            ConfigureCanvasScaler();
             ConfigureIngameRoot();
 
             // Capture the baseline before ConfigureText/ConfigureChoices
@@ -314,20 +310,6 @@ namespace Wake.UI
                 return;
             Canvas.ForceUpdateCanvases();
             dialogueScroll.verticalNormalizedPosition = 1f;
-        }
-
-        private void ConfigureCanvasScaler()
-        {
-            CanvasScaler scaler = canvas != null
-                ? canvas.GetComponent<CanvasScaler>()
-                : null;
-            if (scaler == null)
-                return;
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = ReferenceResolution;
-            scaler.screenMatchMode =
-                CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0.5f;
         }
 
         private void ConfigureText()

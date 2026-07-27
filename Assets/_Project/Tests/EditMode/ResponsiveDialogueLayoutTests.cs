@@ -75,21 +75,6 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void Initialize_ConfiguresCanvasScalerForReferenceResolution()
-        {
-            using LayoutRig rig = new(1920f, 1080f);
-
-            CanvasScaler scaler = rig.CanvasRect.GetComponent<CanvasScaler>();
-            Assert.That(
-                scaler.referenceResolution,
-                Is.EqualTo(ResponsiveDialogueLayout.ReferenceResolution));
-            Assert.That(scaler.matchWidthOrHeight, Is.EqualTo(0.5f));
-            Assert.That(
-                scaler.uiScaleMode,
-                Is.EqualTo(CanvasScaler.ScaleMode.ScaleWithScreenSize));
-        }
-
-        [Test]
         public void GameplayRoot_IsResetToFullStretchRegardlessOfAuthoredScale()
         {
             using LayoutRig rig = new(1920f, 1080f);
