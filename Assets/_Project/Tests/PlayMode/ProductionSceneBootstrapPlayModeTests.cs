@@ -218,6 +218,36 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator AmbientCharacterButtons_StayInsideViewport()
+        {
+            yield return StartNewGameFromVisibleButton();
+            yield return null;
+            UnityEngine.Canvas.ForceUpdateCanvases();
+
+            Button[] ambientButtons = Object.FindObjectsByType<Button>(
+                    FindObjectsInactive.Exclude,
+                    FindObjectsSortMode.None)
+                .Where(button =>
+                    button.name.StartsWith("AmbientCharacter_"))
+                .ToArray();
+
+            Assert.That(
+                ambientButtons,
+                Has.Length.EqualTo(3),
+                "The opening location should expose three ambient characters.");
+            foreach (Button button in ambientButtons)
+            {
+                RectTransform rect = button.GetComponent<RectTransform>();
+                Assert.That(
+                    rect.parent.name,
+                    Is.EqualTo("LocationBackground"),
+                    $"{button.name} must use the visible viewport, not the " +
+                    "cropped Cover Image, as its layout parent.");
+                AssertInsideSafeArea(rect, button.name);
+            }
+        }
+
+        [UnityTest]
         public IEnumerator ContinueButton_RestoresProductionLineFromCheckpoint()
         {
             yield return StartNewGameFromVisibleButton();

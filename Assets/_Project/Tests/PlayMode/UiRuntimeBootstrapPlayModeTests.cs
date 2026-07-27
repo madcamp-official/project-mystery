@@ -5,6 +5,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
+using Wake.Evidence;
+using Wake.Puzzles;
 using Wake.UI;
 
 namespace Wake.Tests.PlayMode
@@ -72,6 +74,134 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator NavigationIcons_HaveNoTextLabels()
+        {
+            TMP_Text startSettings = RequireObject("StartScene/Settings Btn")
+                .GetComponentInChildren<TMP_Text>(true);
+            Assert.That(startSettings, Is.Not.Null);
+            Assert.That(
+                startSettings.text,
+                Is.Empty,
+                "The start screen Settings button should render only its icon.");
+
+            yield return StartNewGameFromVisibleButton();
+
+            string[] iconButtonPaths =
+            {
+                "Ingame/Evidence Btn",
+                "Ingame/Map Btn",
+                "Ingame/Settings Btn"
+            };
+            foreach (string path in iconButtonPaths)
+            {
+                TMP_Text label = RequireObject(path)
+                    .GetComponentInChildren<TMP_Text>(true);
+                Assert.That(
+                    label,
+                    Is.Not.Null,
+                    $"{path} should preserve its existing text component.");
+                Assert.That(
+                    label.text,
+                    Is.Empty,
+                    $"{path} should render only its icon.");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator FinalAccusation_AutoPreparesDeductionsAndAdvances()
+        {
+            yield return StartNewGameFromVisibleButton();
+            string[] requiredEvidence =
+            {
+                "C-01", "C-03", "C-04", "C-05", "C-06", "C-07",
+                "C-08", "C-09", "C-10", "C-12", "C-14", "C-16"
+            };
+            foreach (string evidenceId in requiredEvidence)
+            {
+                Assert.That(
+                    EvidenceInventory.Instance.TryAddById(evidenceId),
+                    Is.True,
+                    evidenceId);
+            }
+
+            FinalAccusationUIController accusation =
+                RequireObject("Ingame")
+                    .GetComponent<FinalAccusationUIController>();
+            accusation.Open();
+            yield return null;
+
+            Assert.That(
+                RequireObject("Ingame/Final Accusation").activeSelf,
+                Is.True);
+            Assert.That(
+                FinalAccusationSession.RequiredDeductionIds.All(
+                    State.HasUnlockedDeduction),
+                Is.True);
+            Assert.That(
+                RequireComponent<Button>(
+                    "Ingame/Final Accusation/최종 논증 제출").interactable,
+                Is.True);
+
+            yield return InvokeAndSettle(
+                RequireComponent<Button>(
+                    "Ingame/Final Accusation/Culprit"));
+            yield return InvokeAndSettle(
+                RequireComponent<Button>(
+                    "Ingame/Final Accusation/최종 논증 제출"));
+
+            Assert.That(
+                RequireObject(
+                    "Ingame/Final Accusation/MurderLocation").activeSelf,
+                Is.True);
+            Assert.That(
+                RequireObject("Ingame/Final Accusation")
+                    .GetComponentsInChildren<TMP_Text>(true)
+                    .Any(text => text.text.Contains("1단계 정답")),
+                Is.True);
+            AssertNoRuntimeErrors("최종 심문 자동 논증 준비");
+        }
+
+        [UnityTest]
+        public IEnumerator FinalAccusation_MissingEvidenceReturnsFromTheoryBoard()
+        {
+            yield return StartNewGameFromVisibleButton();
+            FinalAccusationUIController accusation =
+                RequireObject("Ingame")
+                    .GetComponent<FinalAccusationUIController>();
+            accusation.Open();
+            yield return null;
+
+            Assert.That(
+                RequireComponent<Button>(
+                    "Ingame/Final Accusation/최종 논증 제출").interactable,
+                Is.False);
+            Button boardButton = RequireComponent<Button>(
+                "Ingame/Final Accusation/증거 보드 열기");
+            Assert.That(boardButton.gameObject.activeSelf, Is.True);
+
+            yield return InvokeAndSettle(boardButton);
+            Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Evidence));
+            Assert.That(
+                RequireObject("Evidence Theory Board").activeSelf,
+                Is.True);
+
+            yield return InvokeAndSettle(
+                RequireComponent<Button>("Evidence Theory Board/Close"));
+
+            Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Ingame));
+            Assert.That(
+                RequireObject("Ingame/Final Accusation").activeSelf,
+                Is.True);
+            Assert.That(
+                RequireObject("Ingame/Final Accusation")
+                    .GetComponentsInChildren<TMP_Text>(true)
+                    .Any(text => text.text.Contains(
+                        "최종 심문에 필요한 핵심 논증")),
+                Is.True);
+            AssertNoRuntimeErrors("최종 심문 증거 보드 복귀");
+        }
+
+        [UnityTest]
         public IEnumerator PrimaryButtons_RoundTripWithoutOrphanModal()
         {
             yield return StartNewGameFromVisibleButton();
@@ -102,6 +232,7 @@ namespace Wake.Tests.PlayMode
                         TypographyRole.BodyRegular)));
             TMP_Text title =
                 RequireComponent<TMP_Text>("Evidence/Text (TMP)");
+            Assert.That(title.text, Is.EqualTo("증거"));
             Assert.That(title.text, Does.Not.Contain("C-"));
             Assert.That(
                 title.font,
@@ -110,12 +241,10 @@ namespace Wake.Tests.PlayMode
                         TypographyRole.Heading)));
             Assert.That(
                 RequireComponent<Button>("Evidence/Next").interactable,
-                Is.False,
-                "Undiscovered evidence must not expose navigable slots.");
+                Is.False);
             Assert.That(
                 RequireComponent<Button>("Evidence/Next (1)").interactable,
-                Is.False,
-                "Undiscovered evidence must not expose navigable slots.");
+                Is.False);
             yield return InvokeAndSettle(
                 RequireComponent<Button>("Evidence/Turn (2)"));
             Assert.That(Ui.OpenRuntimeModalCount, Is.EqualTo(1));

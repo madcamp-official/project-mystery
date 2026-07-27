@@ -5,6 +5,7 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using Wake.Core;
 using Wake.Evidence;
+using Wake.Exploration;
 using Wake.Narrative;
 
 namespace Wake.UI
@@ -344,6 +345,8 @@ namespace Wake.UI
             mapPanel.SetActive(panel == mapPanel);
             evidencePanel.SetActive(panel == evidencePanel);
             ActivePanel = panelKind;
+            LocationLoader.Instance?.SetPresentationVisible(
+                panel != startScenePanel);
             if (statusHud != null)
             {
                 statusHud.SetActive(panel != startScenePanel);

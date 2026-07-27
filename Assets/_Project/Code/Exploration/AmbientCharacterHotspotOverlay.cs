@@ -12,6 +12,8 @@ namespace Wake.Exploration
     {
         private readonly List<GameObject> spawned = new();
         private RectTransform contentRect;
+        private Vector2 lastViewportSize;
+        private Rect lastSafeArea;
 
         public void Initialize(RectTransform backgroundContentRect)
         {
@@ -30,14 +32,12 @@ namespace Wake.Exploration
                     Wake.Core.GameStateManager.Instance);
             for (int index = 0; index < barks.Count; index++)
             {
-                CreateCharacterButton(barks[index], index, barks.Count);
+                CreateCharacterButton(barks[index]);
             }
+            RefreshLayout();
         }
 
-        private void CreateCharacterButton(
-            AmbientBarkRecord bark,
-            int index,
-            int count)
+        private void CreateCharacterButton(AmbientBarkRecord bark)
         {
             GameObject target = new(
                 $"AmbientCharacter_{bark.Speaker}",
@@ -48,14 +48,9 @@ namespace Wake.Exploration
                 typeof(Outline));
             target.transform.SetParent(contentRect, false);
             RectTransform rect = target.GetComponent<RectTransform>();
-            AmbientCharacterPlacement placement =
-                AmbientInteractionPresentation.CharacterPlacement(
-                    index,
-                    count);
-            rect.anchorMin = new Vector2(placement.AnchorX, .03f);
-            rect.anchorMax = new Vector2(placement.AnchorX, .03f);
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.zero;
             rect.pivot = new Vector2(.5f, 0f);
-            rect.sizeDelta = placement.Size;
 
             Image image = target.GetComponent<Image>();
             image.color = Color.white;
@@ -90,6 +85,63 @@ namespace Wake.Exploration
                     bark.Text,
                     bark.Emotion));
             spawned.Add(target);
+        }
+
+        private void LateUpdate()
+        {
+            if (contentRect != null &&
+                spawned.Count > 0 &&
+                (contentRect.rect.size != lastViewportSize ||
+                 Screen.safeArea != lastSafeArea))
+            {
+                RefreshLayout();
+            }
+        }
+
+        private void RefreshLayout()
+        {
+            if (contentRect == null)
+                return;
+
+            Vector2 viewportSize = contentRect.rect.size;
+            if (viewportSize.x <= 0f || viewportSize.y <= 0f)
+                return;
+
+            float screenWidth = Mathf.Max(1f, Screen.width);
+            float screenHeight = Mathf.Max(1f, Screen.height);
+            float scaleX = viewportSize.x / screenWidth;
+            float scaleY = viewportSize.y / screenHeight;
+            Rect safeArea = Screen.safeArea;
+            float safeAreaX = safeArea.xMin * scaleX;
+            float safeAreaWidth = safeArea.width * scaleX;
+            float bottom =
+                safeArea.yMin * scaleY +
+                AmbientInteractionPresentation.CharacterEdgePadding;
+
+            for (int index = 0; index < spawned.Count; index++)
+            {
+                GameObject target = spawned[index];
+                if (target == null)
+                    continue;
+
+                AmbientCharacterPlacement placement =
+                    AmbientInteractionPresentation.CharacterPlacement(
+                        index,
+                        spawned.Count,
+                        viewportSize.x,
+                        safeAreaX,
+                        safeAreaWidth);
+                RectTransform rect = target.GetComponent<RectTransform>();
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.zero;
+                rect.anchoredPosition = new Vector2(
+                    placement.AnchorX * viewportSize.x,
+                    bottom);
+                rect.sizeDelta = placement.Size;
+            }
+
+            lastViewportSize = viewportSize;
+            lastSafeArea = safeArea;
         }
 
         private void Clear()

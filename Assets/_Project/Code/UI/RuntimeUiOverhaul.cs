@@ -78,6 +78,10 @@ namespace Wake.UI
         private IEnumerator Animate()
         {
             yield return null; // 배경을 먼저 한 프레임 렌더링한다.
+            if (!isActiveAndEnabled)
+            {
+                yield break;
+            }
             int visibleIndex = 0;
             foreach (Transform child in transform)
             {
@@ -110,31 +114,46 @@ namespace Wake.UI
 
         private static IEnumerator Slide(RectTransform rect, int index)
         {
+            if (rect == null)
+            {
+                yield break;
+            }
             Vector2 end = rect.anchoredPosition;
             float direction = index % 2 == 0 ? -1f : 1f;
             Vector2 start = end + new Vector2(direction * 72f, 0f);
-            CanvasGroup group = rect.GetComponent<CanvasGroup>();
+            CanvasGroup group = rect.GetComponent<CanvasGroup>() ??
+                                rect.gameObject.AddComponent<CanvasGroup>();
             if (group == null)
             {
-                group = rect.gameObject.AddComponent<CanvasGroup>();
+                yield break;
             }
             group.alpha = 0f;
             rect.anchoredPosition = start;
             float elapsed = 0f;
             const float duration = 0.32f;
-            while (elapsed < duration && rect != null)
+            while (elapsed < duration)
             {
+                if (rect == null || group == null ||
+                    !rect.gameObject.activeInHierarchy)
+                {
+                    yield break;
+                }
                 elapsed += Time.unscaledDeltaTime;
                 float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
                 rect.anchoredPosition = Vector2.LerpUnclamped(start, end, t);
                 group.alpha = t;
                 yield return null;
             }
-            if (rect != null)
+            if (rect != null && group != null)
             {
                 rect.anchoredPosition = end;
                 group.alpha = 1f;
             }
+        }
+
+        private void OnDisable()
+        {
+            StopAllCoroutines();
         }
     }
 

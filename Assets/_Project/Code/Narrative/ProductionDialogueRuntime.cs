@@ -215,8 +215,15 @@ namespace Wake.Narrative
         private readonly HashSet<string> completedScenes;
         private readonly GameStateManager state;
         private readonly Func<string, bool> tryGrantEvidence;
+        private readonly HashSet<string> resolvedChoiceIds =
+            new(StringComparer.OrdinalIgnoreCase);
         private List<DialogueRecord> activeScene = new();
         private int index;
+        private int presentedChoiceBlockEnd = -1;
+        private int repeatableChoiceStart = -1;
+        private int repeatableChoiceEnd = -1;
+        private string repeatableChoiceGroup = string.Empty;
+        private string activeRepeatableCondition = string.Empty;
         public DialogueRecord Current { get; private set; }
         public IReadOnlyList<DialogueRecord> Choices { get; private set; } =
             Array.Empty<DialogueRecord>();
@@ -262,6 +269,9 @@ namespace Wake.Narrative
             Phase = ProductionScenePhase.NotStarted;
             PendingInteractionId = string.Empty;
             Current = null;
+            resolvedChoiceIds.Clear();
+            presentedChoiceBlockEnd = -1;
+            ClearRepeatableChoiceContext();
             if (!scenes.TryGetValue(sceneId, out activeScene) ||
                 !PrerequisitesAreMet(activeScene))
             {
@@ -371,6 +381,7 @@ namespace Wake.Narrative
                 return false;
             }
             DialogueRecord selectedChoice = Choices[choiceIndex];
+            resolvedChoiceIds.Add(selectedChoice.ChoiceId);
             state?.AddFlag(
                 ProductionConditionEvaluator.ChoiceFlag(selectedChoice.ChoiceId));
             ApplyEffect(selectedChoice);
@@ -378,7 +389,23 @@ namespace Wake.Narrative
                 InvestigationEventKind.ChoiceResolved,
                 selectedChoice.StableLineId,
                 ActiveSceneId);
-            index += Choices.Count;
+            if (repeatableChoiceStart >= 0)
+            {
+                activeRepeatableCondition = ChoiceCondition(selectedChoice.ChoiceId);
+                index = presentedChoiceBlockEnd;
+                while (index < repeatableChoiceEnd &&
+                       !string.Equals(
+                           activeScene[index].Condition,
+                           activeRepeatableCondition,
+                           StringComparison.OrdinalIgnoreCase))
+                {
+                    index++;
+                }
+            }
+            else
+            {
+                index = presentedChoiceBlockEnd;
+            }
             Choices = Array.Empty<DialogueRecord>();
             PresentCurrent();
             return true;
@@ -386,6 +413,9 @@ namespace Wake.Narrative
 
         private void PresentCurrent()
         {
+            RestoreRepeatableChoiceContext();
+            ReturnToRepeatableChoicesAfterBranch();
+
             var conditions = new ProductionConditionEvaluator(state);
             while (index < activeScene.Count &&
                    !conditions.Evaluate(activeScene[index].Condition).IsMet)
@@ -414,10 +444,22 @@ namespace Wake.Narrative
             }
             if (activeScene[index].Speaker == "PLAYER_CHOICE")
             {
-                List<DialogueRecord> available = activeScene
+                List<DialogueRecord> choiceBlock = activeScene
                     .Skip(index)
                     .TakeWhile(record => record.Speaker == "PLAYER_CHOICE")
                     .ToList();
+                presentedChoiceBlockEnd = index + choiceBlock.Count;
+                ConfigureRepeatableChoiceContext(choiceBlock);
+                List<DialogueRecord> available = repeatableChoiceStart >= 0
+                    ? choiceBlock.Where(record => !IsChoiceResolved(record)).ToList()
+                    : choiceBlock;
+                if (available.Count == 0 && repeatableChoiceStart >= 0)
+                {
+                    index = repeatableChoiceEnd;
+                    ClearRepeatableChoiceContext();
+                    PresentCurrent();
+                    return;
+                }
                 if (available.Count > ChoiceCapacity)
                 {
                     warnings.Add(
@@ -429,6 +471,145 @@ namespace Wake.Narrative
                 return;
             }
             Current = activeScene[index];
+        }
+
+        private void ConfigureRepeatableChoiceContext(
+            IReadOnlyList<DialogueRecord> choiceBlock)
+        {
+            if (choiceBlock.Count == 0 ||
+                !IsRepeatableChoiceGroup(choiceBlock[0].BranchGroup) ||
+                choiceBlock.Any(record => !string.Equals(
+                    record.BranchGroup,
+                    choiceBlock[0].BranchGroup,
+                    StringComparison.OrdinalIgnoreCase)))
+            {
+                ClearRepeatableChoiceContext();
+                return;
+            }
+
+            repeatableChoiceStart = index;
+            repeatableChoiceGroup = choiceBlock[0].BranchGroup;
+            repeatableChoiceEnd = presentedChoiceBlockEnd;
+            while (repeatableChoiceEnd < activeScene.Count &&
+                   string.Equals(
+                       activeScene[repeatableChoiceEnd].BranchGroup,
+                       repeatableChoiceGroup,
+                       StringComparison.OrdinalIgnoreCase))
+            {
+                repeatableChoiceEnd++;
+            }
+        }
+
+        private void RestoreRepeatableChoiceContext()
+        {
+            if (repeatableChoiceStart >= 0 ||
+                index < 0 ||
+                index >= activeScene.Count ||
+                !IsRepeatableChoiceGroup(activeScene[index].BranchGroup))
+            {
+                return;
+            }
+
+            string group = activeScene[index].BranchGroup;
+            int choiceStart = index;
+            while (choiceStart > 0 &&
+                   string.Equals(
+                       activeScene[choiceStart - 1].BranchGroup,
+                       group,
+                       StringComparison.OrdinalIgnoreCase))
+            {
+                choiceStart--;
+            }
+            while (choiceStart < activeScene.Count &&
+                   activeScene[choiceStart].Speaker != "PLAYER_CHOICE")
+            {
+                choiceStart++;
+            }
+            if (choiceStart >= activeScene.Count)
+            {
+                return;
+            }
+
+            int choiceEnd = choiceStart;
+            while (choiceEnd < activeScene.Count &&
+                   activeScene[choiceEnd].Speaker == "PLAYER_CHOICE" &&
+                   string.Equals(
+                       activeScene[choiceEnd].BranchGroup,
+                       group,
+                       StringComparison.OrdinalIgnoreCase))
+            {
+                choiceEnd++;
+            }
+
+            repeatableChoiceStart = choiceStart;
+            repeatableChoiceGroup = group;
+            repeatableChoiceEnd = choiceEnd;
+            while (repeatableChoiceEnd < activeScene.Count &&
+                   string.Equals(
+                       activeScene[repeatableChoiceEnd].BranchGroup,
+                       group,
+                       StringComparison.OrdinalIgnoreCase))
+            {
+                repeatableChoiceEnd++;
+            }
+            presentedChoiceBlockEnd = choiceEnd;
+            activeRepeatableCondition =
+                index >= choiceEnd ? activeScene[index].Condition : string.Empty;
+        }
+
+        private void ReturnToRepeatableChoicesAfterBranch()
+        {
+            if (repeatableChoiceStart < 0 ||
+                string.IsNullOrEmpty(activeRepeatableCondition) ||
+                (index < repeatableChoiceEnd &&
+                 string.Equals(
+                     activeScene[index].Condition,
+                     activeRepeatableCondition,
+                     StringComparison.OrdinalIgnoreCase)))
+            {
+                return;
+            }
+
+            activeRepeatableCondition = string.Empty;
+            bool hasRemainingChoice = activeScene
+                .Skip(repeatableChoiceStart)
+                .Take(presentedChoiceBlockEnd - repeatableChoiceStart)
+                .Any(record => !IsChoiceResolved(record));
+            if (hasRemainingChoice)
+            {
+                index = repeatableChoiceStart;
+                return;
+            }
+
+            index = repeatableChoiceEnd;
+            ClearRepeatableChoiceContext();
+        }
+
+        private bool IsChoiceResolved(DialogueRecord record)
+        {
+            return resolvedChoiceIds.Contains(record.ChoiceId) ||
+                   (state != null &&
+                    state.HasFlag(
+                        ProductionConditionEvaluator.ChoiceFlag(record.ChoiceId)));
+        }
+
+        private static bool IsRepeatableChoiceGroup(string branchGroup)
+        {
+            return !string.IsNullOrWhiteSpace(branchGroup) &&
+                   branchGroup.Trim().EndsWith(
+                       "_FREE",
+                       StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string ChoiceCondition(string choiceId) =>
+            $"choice({choiceId})";
+
+        private void ClearRepeatableChoiceContext()
+        {
+            repeatableChoiceStart = -1;
+            repeatableChoiceEnd = -1;
+            repeatableChoiceGroup = string.Empty;
+            activeRepeatableCondition = string.Empty;
         }
 
         private bool PrerequisitesAreMet(IEnumerable<DialogueRecord> records)

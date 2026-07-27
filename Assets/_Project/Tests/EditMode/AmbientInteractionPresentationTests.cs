@@ -54,6 +54,61 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void CharacterPlacement_ThreeButtonsFitNarrowViewport()
+        {
+            const float viewportWidth = 698f;
+            const float safeAreaWidth = 698f;
+
+            AmbientCharacterPlacement first =
+                AmbientInteractionPresentation.CharacterPlacement(
+                    0, 3, viewportWidth, 0f, safeAreaWidth);
+            AmbientCharacterPlacement middle =
+                AmbientInteractionPresentation.CharacterPlacement(
+                    1, 3, viewportWidth, 0f, safeAreaWidth);
+            AmbientCharacterPlacement last =
+                AmbientInteractionPresentation.CharacterPlacement(
+                    2, 3, viewportWidth, 0f, safeAreaWidth);
+
+            Assert.That(
+                first.AnchorX * viewportWidth - first.Size.x * 0.5f,
+                Is.GreaterThanOrEqualTo(
+                    AmbientInteractionPresentation.CharacterEdgePadding));
+            Assert.That(middle.AnchorX, Is.EqualTo(0.5f).Within(0.001f));
+            Assert.That(
+                last.AnchorX * viewportWidth + last.Size.x * 0.5f,
+                Is.LessThanOrEqualTo(
+                    safeAreaWidth -
+                    AmbientInteractionPresentation.CharacterEdgePadding));
+        }
+
+        [Test]
+        public void CharacterPlacement_RespectsAsymmetricSafeArea()
+        {
+            const float viewportWidth = 920f;
+            const float safeAreaX = 48f;
+            const float safeAreaWidth = 824f;
+
+            AmbientCharacterPlacement first =
+                AmbientInteractionPresentation.CharacterPlacement(
+                    0, 3, viewportWidth, safeAreaX, safeAreaWidth);
+            AmbientCharacterPlacement last =
+                AmbientInteractionPresentation.CharacterPlacement(
+                    2, 3, viewportWidth, safeAreaX, safeAreaWidth);
+
+            Assert.That(
+                first.AnchorX * viewportWidth - first.Size.x * 0.5f,
+                Is.GreaterThanOrEqualTo(
+                    safeAreaX +
+                    AmbientInteractionPresentation.CharacterEdgePadding));
+            Assert.That(
+                last.AnchorX * viewportWidth + last.Size.x * 0.5f,
+                Is.LessThanOrEqualTo(
+                    safeAreaX +
+                    safeAreaWidth -
+                    AmbientInteractionPresentation.CharacterEdgePadding));
+        }
+
+        [Test]
         public void CharacterLabel_ExposesAvailabilityWithoutColor()
         {
             Assert.That(
