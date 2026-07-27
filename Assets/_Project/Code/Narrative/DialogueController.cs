@@ -1,7 +1,9 @@
 using TMPro;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using Wake.Core;
 using Wake.Evidence;
@@ -22,6 +24,10 @@ namespace Wake.Narrative
             "Choice", "Choice (1)", "Choice (2)", "Choice (3)"
         };
 
+        private const string TypewriterSfxResourcePath = "SoundEffect/Type_Writer";
+
+        [SerializeField] private float typewriterCharacterInterval = 0.02f;
+
         private GameObject linePanel;
         private TMP_Text lineText;
         private TMP_Text speakerText;
@@ -37,6 +43,11 @@ namespace Wake.Narrative
         private DialogueNode currentNode;
         private ProductionDialogueFlow productionFlow;
         private bool ambientLineActive;
+
+        private AudioSource typewriterAudioSource;
+        private AudioClip typewriterClip;
+        private Coroutine typewriterRoutine;
+        private bool isTypewriterActive;
 
         public bool IsBusy { get; private set; }
         public string ActiveProductionSceneId =>
@@ -80,6 +91,15 @@ namespace Wake.Narrative
                 choiceLabels);
 
             nextButton.onClick.AddListener(OnNextClicked);
+            typewriterClip = Resources.Load<AudioClip>(TypewriterSfxResourcePath);
+            typewriterAudioSource = GetComponent<AudioSource>();
+            if (typewriterAudioSource == null)
+            {
+                typewriterAudioSource = gameObject.AddComponent<AudioSource>();
+            }
+            typewriterAudioSource.playOnAwake = false;
+            typewriterAudioSource.loop = true;
+            typewriterAudioSource.clip = typewriterClip;
             responsiveLayout = canvas.gameObject
                 .GetComponent<ResponsiveDialogueLayout>();
             if (responsiveLayout == null)
@@ -97,6 +117,106 @@ namespace Wake.Narrative
                 selectBtn.GetComponent<RectTransform>(),
                 choiceButtons);
             linePanel.SetActive(false);
+        }
+
+        private void Update()
+        {
+            if (!IsBusy ||
+                linePanel == null ||
+                !linePanel.activeInHierarchy ||
+                choicesContainer == null ||
+                choicesContainer.activeInHierarchy ||
+                nextButton == null ||
+                !nextButton.gameObject.activeInHierarchy)
+            {
+                return;
+            }
+
+            Keyboard keyboard = Keyboard.current;
+            if (keyboard == null)
+            {
+                return;
+            }
+
+            bool advancePressed =
+                keyboard.enterKey.wasPressedThisFrame ||
+                keyboard.numpadEnterKey.wasPressedThisFrame ||
+                keyboard.spaceKey.wasPressedThisFrame;
+            if (advancePressed)
+            {
+                OnNextClicked();
+            }
+        }
+
+        private void SetLineText(string text, bool isNarrationOrSystem)
+        {
+            StopTypewriter();
+            string content = text ?? string.Empty;
+            lineText.text = content;
+            lineText.maxVisibleCharacters = 0;
+            lineText.ForceMeshUpdate();
+            int totalCharacters = lineText.textInfo.characterCount;
+            if (totalCharacters <= 0)
+            {
+                return;
+            }
+
+            isTypewriterActive = true;
+            if (isNarrationOrSystem && typewriterClip != null)
+            {
+                typewriterAudioSource.Play();
+            }
+
+            typewriterRoutine = StartCoroutine(
+                TypewriterRoutine(totalCharacters));
+        }
+
+        private IEnumerator TypewriterRoutine(int totalCharacters)
+        {
+            for (int i = 1; i <= totalCharacters; i++)
+            {
+                lineText.maxVisibleCharacters = i;
+                yield return new WaitForSeconds(typewriterCharacterInterval);
+            }
+
+            FinishTypewriter();
+        }
+
+        private void SkipTypewriter()
+        {
+            if (typewriterRoutine != null)
+            {
+                StopCoroutine(typewriterRoutine);
+                typewriterRoutine = null;
+            }
+
+            FinishTypewriter();
+        }
+
+        private void FinishTypewriter()
+        {
+            lineText.maxVisibleCharacters = int.MaxValue;
+            isTypewriterActive = false;
+            typewriterRoutine = null;
+            if (typewriterAudioSource != null && typewriterAudioSource.isPlaying)
+            {
+                typewriterAudioSource.Stop();
+            }
+        }
+
+        private void StopTypewriter()
+        {
+            if (typewriterRoutine != null)
+            {
+                StopCoroutine(typewriterRoutine);
+                typewriterRoutine = null;
+            }
+
+            isTypewriterActive = false;
+            if (typewriterAudioSource != null && typewriterAudioSource.isPlaying)
+            {
+                typewriterAudioSource.Stop();
+            }
         }
 
         private void CreatePortrait(Transform parent)
@@ -188,7 +308,7 @@ namespace Wake.Narrative
             choicesContainer.SetActive(false);
             nextButton.gameObject.SetActive(true);
             speakerText.text = DialoguePortraitCatalog.GetDisplayName(speaker);
-            lineText.text = text;
+            SetLineText(text, isNarrationOrSystem: false);
             responsiveLayout?.ResetTextScroll();
             ShowPortrait(
                 speaker,
@@ -255,6 +375,7 @@ namespace Wake.Narrative
 
         public void CancelActiveDialogue()
         {
+            StopTypewriter();
             IsBusy = false;
             currentSet = null;
             currentNode = null;
@@ -358,7 +479,10 @@ namespace Wake.Narrative
             DialogueSpeakerIdentity speaker = DialoguePresentationMap.GetSpeaker(record.Speaker);
             speakerText.text =
                 DialoguePresentationMap.GetSpeakerLabel(record.Speaker, speaker);
-            lineText.text = record.TextKo;
+            bool isNarrationOrSystem =
+                speaker.Kind == DialogueSpeakerKind.Narration ||
+                speaker.Kind == DialogueSpeakerKind.System;
+            SetLineText(record.TextKo, isNarrationOrSystem);
             responsiveLayout?.ResetTextScroll();
             ShowPortrait(
                 speaker.PortraitId,
@@ -384,7 +508,12 @@ namespace Wake.Narrative
             if (db != null && db.TryGetLine(currentNode.LineId, out DialogueLine line))
             {
                 speakerText.text = line.Speaker;
-                lineText.text = line.Text;
+                DialogueSpeakerIdentity legacySpeaker =
+                    DialoguePresentationMap.GetSpeaker(line.Speaker);
+                bool isNarrationOrSystem =
+                    legacySpeaker.Kind == DialogueSpeakerKind.Narration ||
+                    legacySpeaker.Kind == DialogueSpeakerKind.System;
+                SetLineText(line.Text, isNarrationOrSystem);
                 responsiveLayout?.ResetTextScroll();
                 ShowPortrait(line.Speaker);
                 StatusHUDController hud = FindFirstObjectByType<StatusHUDController>();
@@ -393,7 +522,9 @@ namespace Wake.Narrative
             else
             {
                 speakerText.text = string.Empty;
-                lineText.text = $"[MISSING LINE: {currentNode.LineId}]";
+                SetLineText(
+                    $"[MISSING LINE: {currentNode.LineId}]",
+                    isNarrationOrSystem: true);
                 responsiveLayout?.ResetTextScroll();
                 ShowPortrait(string.Empty);
                 StatusHUDController hud = FindFirstObjectByType<StatusHUDController>();
@@ -436,6 +567,12 @@ namespace Wake.Narrative
 
         private void OnNextClicked()
         {
+            if (isTypewriterActive)
+            {
+                SkipTypewriter();
+                return;
+            }
+
             if (ambientLineActive)
             {
                 EndDialogue();
@@ -472,6 +609,7 @@ namespace Wake.Narrative
 
         private void EndDialogue()
         {
+            StopTypewriter();
             string completedProductionScene = productionFlow?.ActiveSceneId;
             if (productionFlow?.Phase == ProductionScenePhase.Completed)
             {
