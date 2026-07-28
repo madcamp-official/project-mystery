@@ -27,10 +27,25 @@ namespace Wake.UI
             }
         }
 
-        public void OnPointerEnter(PointerEventData _) => Apply(1.055f, 1.16f);
+        public void OnPointerEnter(PointerEventData _)
+        {
+            UiInteractionToken token = UiVisualThemeService.Interaction;
+            Apply(token.HoverScale, token.HoverBrightness);
+        }
+
         public void OnPointerExit(PointerEventData _) => Apply(1f, 1f);
-        public void OnPointerDown(PointerEventData _) => Apply(0.98f, 1.08f);
-        public void OnPointerUp(PointerEventData _) => Apply(1.055f, 1.16f);
+
+        public void OnPointerDown(PointerEventData _)
+        {
+            UiInteractionToken token = UiVisualThemeService.Interaction;
+            Apply(token.PressedScale, token.PressedBrightness);
+        }
+
+        public void OnPointerUp(PointerEventData _)
+        {
+            UiInteractionToken token = UiVisualThemeService.Interaction;
+            Apply(token.HoverScale, token.HoverBrightness);
+        }
 
         private void Apply(float scale, float brightness)
         {

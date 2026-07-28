@@ -135,7 +135,7 @@ namespace Wake.UI
             cruiseMapImage.sprite = cruiseMapSprite;
             cruiseMapImage.color = cruiseMapSprite != null
                 ? Color.white
-                : new Color(0.015f, 0.025f, 0.045f, 1f);
+                : UiVisualThemeService.Resolve(UiColorToken.Canvas);
             if (cruiseMapSprite == null)
             {
                 Debug.LogError(
@@ -198,21 +198,21 @@ namespace Wake.UI
                 ? Image.Type.Sliced
                 : Image.Type.Simple;
             node.Image.color = locked
-                ? new Color32(48, 53, 62, 235)
+                ? UiVisualThemeService.Resolve(UiColorToken.Disabled)
                 : entry.Status == ProductionMapEntryStatus.Completed
-                    ? new Color32(55, 105, 105, 245)
-                    : new Color32(183, 133, 54, 250);
+                    ? UiVisualThemeService.Resolve(UiColorToken.Success)
+                    : UiVisualThemeService.Resolve(UiColorToken.Brass);
             node.Outline.effectColor = locked
-                ? new Color32(15, 18, 24, 230)
-                : new Color32(246, 211, 135, 240);
+                ? UiVisualThemeService.Resolve(UiColorToken.SurfaceOverlay)
+                : UiVisualThemeService.Resolve(UiColorToken.Focus);
             node.Button.interactable = !locked;
             node.Button.onClick.RemoveAllListeners();
             node.Button.onClick.AddListener(() => SelectEntry(entry));
             node.Label.text =
                 $"{entry.Spec.DisplayName}\n{entry.StatusLabel}";
             node.Label.color = locked
-                ? new Color32(175, 180, 188, 255)
-                : Color.white;
+                ? UiVisualThemeService.Resolve(UiColorToken.TextSecondary)
+                : UiVisualThemeService.Resolve(UiColorToken.TextPrimary);
         }
 
         private void SelectEntry(ProductionMapEntry entry)

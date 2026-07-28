@@ -66,14 +66,17 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void Toast_DefaultIsAppliedThroughTypographyService()
+        public void Toast_DefaultIsAppliedThroughVisualThemeService()
         {
             string source = ReadRuntimeSource("UI/ToastController.cs");
 
             Assert.That(
                 source,
                 Does.Contain(
-                    "TypographyService.Apply(toastText, TypographyRole.Body)"));
+                    "UiVisualThemeService.ApplyText("));
+            Assert.That(
+                source,
+                Does.Contain("UiTextStyle.Body"));
             Assert.That(
                 source,
                 Does.Not.Contain("RuntimeKoreanFont"));
