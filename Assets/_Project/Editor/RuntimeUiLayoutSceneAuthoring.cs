@@ -30,6 +30,7 @@ namespace Wake.Editor
 
             BuildHud(layout);
             BuildDialogue(layout);
+            ConfigureDialogueAdvance(canvas);
             BuildModals(layout);
             BuildLocationOverlays(layout);
 
@@ -98,9 +99,59 @@ namespace Wake.Editor
                 "dialogue.speaker-portrait",
                 new Vector2(.27f, .13f), new Vector2(.27f, .13f),
                 new Vector2(360f, 430f), magenta);
+            Slot(dialogue, "Focus Panel Slot",
+                "dialogue.focus-panel",
+                new Vector2(.09f, .18f), new Vector2(.83f, .56f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Compact Panel Slot",
+                "dialogue.compact-panel",
+                new Vector2(.18f, .08f), new Vector2(.82f, .32f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Narration Panel Slot",
+                "dialogue.narration-panel",
+                new Vector2(.14f, .22f), new Vector2(.86f, .49f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Focus Portrait Left Slot",
+                "dialogue.focus-portrait-left",
+                new Vector2(.04f, .12f), new Vector2(.36f, .78f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Focus Portrait Right Slot",
+                "dialogue.focus-portrait-right",
+                new Vector2(.64f, .12f), new Vector2(.96f, .82f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Compact Portrait Slot",
+                "dialogue.compact-portrait",
+                new Vector2(.12f, .10f), new Vector2(.34f, .40f),
+                Vector2.zero, magenta);
             Slot(dialogue, "Investigation Overlay Slot",
                 "dialogue.investigation",
                 Vector2.zero, Vector2.one, Vector2.zero, magenta);
+        }
+
+        private static void ConfigureDialogueAdvance(RectTransform canvas)
+        {
+            Transform target =
+                canvas.Find("Ingame/Line Panel/Panel/Next");
+            if (target == null ||
+                !target.TryGetComponent(out UnityEngine.UI.Button button))
+            {
+                Debug.LogWarning(
+                    "Dialogue advance button was not found while authoring.");
+                return;
+            }
+
+            const string assetRoot =
+                "Assets/_Project/Art/UI/Dialogue/";
+            Sprite normal = AssetDatabase.LoadAssetAtPath<Sprite>(
+                assetRoot + "ui_btn_dialogue_advance_normal.png");
+            Sprite pressed = AssetDatabase.LoadAssetAtPath<Sprite>(
+                assetRoot + "ui_btn_dialogue_advance_pressed.png");
+            DialogueAdvanceControl control =
+                target.GetComponent<DialogueAdvanceControl>() ??
+                target.gameObject.AddComponent<DialogueAdvanceControl>();
+            control.Initialize(button);
+            control.SetSprites(normal, pressed);
+            EditorUtility.SetDirty(target.gameObject);
         }
 
         private static void BuildModals(RectTransform layout)

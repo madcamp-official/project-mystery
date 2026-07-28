@@ -35,10 +35,13 @@ namespace Wake.Narrative
         private RawImage speakerPortrait;
         private AspectRatioFitter speakerPortraitAspect;
         private Button nextButton;
+        private DialogueAdvanceControl advanceControl;
         private GameObject choicesContainer;
         private Button[] choiceButtons;
         private TMP_Text[] choiceLabels;
+        private DialogueChoicePresentation choicePresentation;
         private ResponsiveDialogueLayout responsiveLayout;
+        private DialoguePresentationView presentationView;
         private InvestigationDialogueUIController investigationUi;
 
         private DialogueSet currentSet;
@@ -54,6 +57,9 @@ namespace Wake.Narrative
         private int lastAdvanceInputFrame = -1;
 
         public bool IsBusy { get; private set; }
+        public DialoguePresentationSpec ActivePresentation { get; private set; } =
+            DialoguePresentationPolicy.Hidden;
+        public event Action<DialoguePresentationSpec> PresentationChanged;
         public string ActiveProductionSceneId =>
             productionFlow?.ActiveSceneId ?? string.Empty;
 
@@ -76,6 +82,10 @@ namespace Wake.Narrative
             linePanel = linePanelTransform.gameObject;
             lineText = linePanelTransform.Find("Panel/line").GetComponent<TMP_Text>();
             nextButton = linePanelTransform.Find("Panel/Next").GetComponent<Button>();
+            advanceControl =
+                nextButton.GetComponent<DialogueAdvanceControl>() ??
+                nextButton.gameObject.AddComponent<DialogueAdvanceControl>();
+            advanceControl.Initialize(nextButton);
             speakerText = linePanelTransform.Find("Image/Text (TMP)").GetComponent<TMP_Text>();
             CreatePortrait(linePanelTransform);
 
@@ -89,6 +99,13 @@ namespace Wake.Narrative
                     ProductionDialogueFlow.ChoiceCapacity);
             choiceButtons = choiceSet.Buttons;
             choiceLabels = choiceSet.Labels;
+            choicePresentation =
+                selectBtn.GetComponent<DialogueChoicePresentation>() ??
+                selectBtn.gameObject.AddComponent<
+                    DialogueChoicePresentation>();
+            choicePresentation.Initialize(
+                selectBtn as RectTransform,
+                choiceButtons);
             DialogueTypography.ApplySurface(
                 lineText,
                 speakerText,
@@ -120,6 +137,22 @@ namespace Wake.Narrative
                 nextButton.GetComponent<RectTransform>(),
                 selectBtn.GetComponent<RectTransform>(),
                 choiceButtons);
+            responsiveLayout.SetPresentationDriven(true);
+            presentationView =
+                canvas.GetComponent<DialoguePresentationView>();
+            if (presentationView == null)
+            {
+                presentationView =
+                    canvas.gameObject.AddComponent<
+                        DialoguePresentationView>();
+            }
+            presentationView.Initialize(
+                linePanelTransform.parent as RectTransform,
+                linePanelTransform as RectTransform,
+                speakerPortrait.GetComponent<RectTransform>(),
+                lineText,
+                speakerText,
+                nextButton.GetComponent<RectTransform>());
             investigationUi =
                 canvas.GetComponent<InvestigationDialogueUIController>();
             if (investigationUi == null)
@@ -130,6 +163,7 @@ namespace Wake.Narrative
             }
             investigationUi.Initialize(canvas);
             linePanel.SetActive(false);
+            advanceControl.SetState(DialogueAdvanceState.Hidden);
         }
 
         private void Update()
@@ -171,10 +205,14 @@ namespace Wake.Narrative
             int totalCharacters = lineText.textInfo.characterCount;
             if (totalCharacters <= 0)
             {
+                advanceControl?.SetState(
+                    DialogueAdvanceState.AdvanceLine);
                 return;
             }
 
             isTypewriterActive = true;
+            advanceControl?.SetState(
+                DialogueAdvanceState.RevealLine);
             if (isNarrationOrSystem && typewriterClip != null)
             {
                 typewriterAudioSource.Play();
@@ -211,6 +249,8 @@ namespace Wake.Narrative
             lineText.maxVisibleCharacters = int.MaxValue;
             isTypewriterActive = false;
             typewriterRoutine = null;
+            advanceControl?.SetState(
+                DialogueAdvanceState.AdvanceLine);
             if (typewriterAudioSource != null && typewriterAudioSource.isPlaying)
             {
                 typewriterAudioSource.Stop();
@@ -321,9 +361,12 @@ namespace Wake.Narrative
             ambientLineActive = true;
             IsBusy = true;
             linePanel.SetActive(true);
-            choicesContainer.SetActive(false);
-            nextButton.gameObject.SetActive(true);
+            choicePresentation.Hide();
+            advanceControl.SetState(DialogueAdvanceState.AdvanceLine);
             speakerText.text = DialoguePortraitCatalog.GetDisplayName(speaker);
+            ApplyPresentation(
+                DialoguePresentationPolicy.ForAmbient(
+                    DialoguePresentationMap.GetSpeaker(speaker)));
             SetLineText(text, isNarrationOrSystem: false);
             responsiveLayout?.ResetTextScroll();
             ShowPortrait(
@@ -398,9 +441,11 @@ namespace Wake.Narrative
             productionFlow = null;
             ambientLineActive = false;
             pendingInvestigationTitle = string.Empty;
+            ApplyPresentation(DialoguePresentationPolicy.Hidden);
             linePanel?.SetActive(false);
             investigationUi?.Hide();
-            choicesContainer?.SetActive(false);
+            choicePresentation?.Hide();
+            advanceControl?.SetState(DialogueAdvanceState.Hidden);
             speakerPortrait?.gameObject.SetActive(false);
             FindFirstObjectByType<StatusHUDController>()
                 ?.ClearContextCharacter();
@@ -510,8 +555,14 @@ namespace Wake.Narrative
             linePanel.SetActive(true);
             SaveProductionCheckpoint();
             bool hasChoices = productionFlow.IsAwaitingChoice;
-            choicesContainer.SetActive(hasChoices);
-            nextButton.gameObject.SetActive(!hasChoices);
+            if (hasChoices)
+                choicesContainer.SetActive(true);
+            else
+                choicePresentation.Hide();
+            advanceControl.SetState(
+                hasChoices
+                    ? DialogueAdvanceState.Hidden
+                    : DialogueAdvanceState.AdvanceLine);
             if (hasChoices)
             {
                 for (int i = 0; i < choiceButtons.Length; i++)
@@ -536,6 +587,7 @@ namespace Wake.Narrative
                     });
                 }
                 responsiveLayout?.RefreshChoiceLayout();
+                choicePresentation.Show();
                 return;
             }
 
@@ -544,6 +596,8 @@ namespace Wake.Narrative
                 DialoguePresentationMap.GetSpeaker(
                     record.Speaker,
                     record.LineType);
+            ApplyPresentation(
+                DialoguePresentationPolicy.ForProduction(speaker));
             speakerText.text =
                 DialoguePresentationMap.GetSpeakerLabel(record.Speaker, speaker);
             bool isNarrationOrSystem =
@@ -584,6 +638,9 @@ namespace Wake.Narrative
         private void PresentInvestigationTarget(DialogueRecord marker)
         {
             StopTypewriter();
+            ApplyPresentation(
+                DialoguePresentationPolicy.ForInvestigation());
+            advanceControl?.SetState(DialogueAdvanceState.Hidden);
             linePanel.SetActive(false);
             pendingInvestigationTitle =
                 InvestigationPresentationPolicy.MarkerTitle(marker);
@@ -606,6 +663,9 @@ namespace Wake.Narrative
         private void PresentInvestigationResult(DialogueRecord record)
         {
             StopTypewriter();
+            ApplyPresentation(
+                DialoguePresentationPolicy.ForInvestigation());
+            advanceControl?.SetState(DialogueAdvanceState.Hidden);
             linePanel.SetActive(false);
             string title = string.IsNullOrWhiteSpace(
                 pendingInvestigationTitle)
@@ -654,6 +714,9 @@ namespace Wake.Narrative
                 speakerText.text = line.Speaker;
                 DialogueSpeakerIdentity legacySpeaker =
                     DialoguePresentationMap.GetSpeaker(line.Speaker);
+                ApplyPresentation(
+                    DialoguePresentationPolicy.ForProduction(
+                        legacySpeaker));
                 bool isNarrationOrSystem =
                     legacySpeaker.Kind == DialogueSpeakerKind.Narration ||
                     legacySpeaker.Kind == DialogueSpeakerKind.System;
@@ -676,8 +739,14 @@ namespace Wake.Narrative
             }
 
             bool hasBranch = currentNode.Options != null && currentNode.Options.Count > 1;
-            choicesContainer.SetActive(hasBranch);
-            nextButton.gameObject.SetActive(!hasBranch);
+            if (hasBranch)
+                choicesContainer.SetActive(true);
+            else
+                choicePresentation.Hide();
+            advanceControl.SetState(
+                hasBranch
+                    ? DialogueAdvanceState.Hidden
+                    : DialogueAdvanceState.AdvanceLine);
 
             if (!hasBranch)
             {
@@ -708,6 +777,7 @@ namespace Wake.Narrative
                 choiceButtons[i].onClick.AddListener(() => ResolveOption(option));
             }
             responsiveLayout?.RefreshChoiceLayout();
+            choicePresentation.Show();
         }
 
         private void OnNextClicked()
@@ -755,6 +825,7 @@ namespace Wake.Narrative
 
         private void ResolveOption(DialogueOption option)
         {
+            choicePresentation?.Hide();
             if (option == null)
             {
                 EndDialogue();
@@ -785,6 +856,9 @@ namespace Wake.Narrative
             productionFlow = null;
             ambientLineActive = false;
             pendingInvestigationTitle = string.Empty;
+            ApplyPresentation(DialoguePresentationPolicy.Hidden);
+            choicePresentation?.Hide();
+            advanceControl?.SetState(DialogueAdvanceState.Hidden);
             investigationUi?.Hide();
             if (linePanel != null)
             {
@@ -870,6 +944,16 @@ namespace Wake.Narrative
                 productionFlow.CurrentIndex,
                 productionFlow.IsAwaitingChoice,
                 productionFlow.PendingInteractionId);
+        }
+
+        private void ApplyPresentation(DialoguePresentationSpec presentation)
+        {
+            if (ActivePresentation == presentation)
+                return;
+
+            ActivePresentation = presentation;
+            presentationView?.Apply(presentation);
+            PresentationChanged?.Invoke(presentation);
         }
     }
 }
