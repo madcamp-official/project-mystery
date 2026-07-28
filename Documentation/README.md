@@ -18,6 +18,28 @@ Unity가 PDF와 XLSX를 불필요하게 임포트하지 않도록 원본 파일�
 공식 원본과 현재 Unity 구현의 연결 기준, 장면·장소·UI·엔딩·QA 계약은
 `Under_the_Horizon_Implementation_Baseline_KR.md`에서 확인한다.
 
+현재 승인된 UI 표현과 상호작용 결정은
+`Under_the_Horizon_UI_Decision_Record_KR.md`에서 확인한다. 이 결정 기록은
+사용자에게 보이는 UI 표현에 한해 기존 프로덕션 매뉴얼과 내부 문서의 오래된
+UI 설명보다 우선한다.
+
+## 내부 UI 구현 문서
+
+UI 문서는 다음 순서로 읽는다.
+
+1. `Under_the_Horizon_UI_Decision_Record_KR.md`
+   - 사용자에게 보이는 UI 표현과 폐기할 기존 기준
+2. `Under_the_Horizon_UI_Wireframe_Spec_KR.md`
+   - 38개 기본 화면, 2개 상태 변형, WF-01~WF-40과 공통 7구역
+3. `Under_the_Horizon_UI_Wireframe_Production_Order_KR.md`
+   - WF-01~WF-40의 제작 차수, 선행 조건과 검수 게이트
+4. `Under_the_Horizon_UI_State_Transition_Matrix_KR.md`
+   - 후속 단계에서 작성할 장면·화면 상태·복귀 경로 매핑
+
+공식 PDF와 XLSX는 위 내부 UI 문서를 반영하기 위해 직접 덮어쓰지 않는다.
+프로덕션 매뉴얼 원본을 개정할 때는 `Source/sources.json`의 해시, 크기와 페이지
+계약을 함께 갱신한다.
+
 ## 대사 데이터 흐름
 
 ```text
@@ -52,6 +74,5 @@ XLSX가 유일한 편집 원본이다. Unity용 CSV는 생성 결과이므로 �
 - 핵심 증거: C-01부터 C-18까지 18개
 - 엔딩: A, B, C, Bad
 - 최종 심문: 6단계
-- 폐기된 시스템: Theory Slots
 
 게임 이름은 사용자에게 표시되는 모든 문서와 UI에서 `Under the Horizon`으로 쓴다.
