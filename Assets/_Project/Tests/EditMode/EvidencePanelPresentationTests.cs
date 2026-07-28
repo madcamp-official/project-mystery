@@ -64,7 +64,9 @@ namespace Wake.Tests
                 view.Items[1].State,
                 Is.EqualTo(EvidencePanelItemState.Collected));
             Assert.That(view.UnreliableCount, Is.EqualTo(1));
-            Assert.That(view.Items[0].Detail, Does.Contain("가설 검증에 사용 불가"));
+            Assert.That(
+                view.Items[0].Reliability,
+                Does.Contain("신뢰성을 다시 확인"));
         }
 
         [Test]
@@ -75,10 +77,28 @@ namespace Wake.Tests
                 EvidencePanelPresentation.Create(inventory, 100).Items[0];
             Assert.That(item.Title, Does.Contain("수정 기사"));
             Assert.That(item.Detail, Does.Contain("피해자의 오판"));
-            Assert.That(item.Detail, Does.Contain("논증 역할 · 완전 엔딩"));
             Assert.That(item.Detail, Does.Not.Contain("D8-03"));
             Assert.That(item.Title, Does.Not.Contain("C-18"));
+            Assert.That(item.CarouselLabel, Does.Not.Contain("C-18"));
+            Assert.That(item.AcquisitionPlace, Is.EqualTo("항구"));
+            Assert.That(item.RelatedPeople, Does.Contain("리처드 호손"));
+            Assert.That(item.Reliability, Is.Not.Empty);
             Assert.That(item.HasImage, Is.False);
+        }
+
+        [Test]
+        public void RecordDetail_SeparatesStoryMetadataFromDescription()
+        {
+            inventory.TryAddById("C-15");
+            EvidencePanelItem item =
+                EvidencePanelPresentation.Create(inventory, 100).Items[0];
+
+            Assert.That(item.AcquisitionPlace, Does.Contain("금고실"));
+            Assert.That(item.AcquisitionPlace, Does.Contain("의무실"));
+            Assert.That(item.RelatedPeople, Is.EqualTo("마커스 케인"));
+            Assert.That(item.Detail, Does.Not.Contain(item.Id));
+            Assert.That(item.Detail, Does.Not.Contain("총 단서"));
+            Assert.That(item.Detail, Does.Not.Contain("수집률"));
         }
 
         [Test]
