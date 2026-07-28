@@ -373,6 +373,10 @@ namespace Wake.UI
                 settingsPopup.transform.Find("Settings/Credit");
             if (credit != null)
                 credit.gameObject.SetActive(false);
+            Transform exit =
+                settingsPopup.transform.Find("Exit Btn");
+            if (exit != null)
+                exit.gameObject.SetActive(false);
             Canvas.ForceUpdateCanvases();
             SettingsController.FitPopupInsideCanvas(
                 settingsPopup.transform as RectTransform,
