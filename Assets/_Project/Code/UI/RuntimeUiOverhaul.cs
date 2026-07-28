@@ -566,7 +566,7 @@ namespace Wake.UI
         // start together and share the water's duration/easing exactly.
         private const float LobbyLeadIn = 0f;
         private const float LobbyExitDuration = DiveDuration;
-        private static readonly Vector3 WaterRevealStart = new(0f, -48f, 2f);
+        private static readonly Vector3 WaterRevealStart = new(0f, -46f, 2f);
         private static readonly Vector3 WaterRevealEnd = new(0f, -4f, 2f);
 
         private GameObject overlay;
