@@ -79,6 +79,13 @@ namespace Wake.Exploration
             Refresh();
         }
 
+        public void ResetTransientState()
+        {
+            pointerInside = false;
+            selected = false;
+            Refresh();
+        }
+
         private void OnEnable() => Refresh();
 
         private void Refresh()

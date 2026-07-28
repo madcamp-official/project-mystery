@@ -369,6 +369,14 @@ namespace Wake.UI
             }
             settingsPopup.transform.SetAsLastSibling();
             settingsPopup.SetActive(true);
+            Transform credit =
+                settingsPopup.transform.Find("Settings/Credit");
+            if (credit != null)
+                credit.gameObject.SetActive(false);
+            Canvas.ForceUpdateCanvases();
+            SettingsController.FitPopupInsideCanvas(
+                settingsPopup.transform as RectTransform,
+                settingsPopup.transform.parent as RectTransform);
         }
 
         public void CloseSettings()

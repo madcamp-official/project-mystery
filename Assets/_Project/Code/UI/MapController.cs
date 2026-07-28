@@ -222,9 +222,7 @@ namespace Wake.UI
                     () => UIManager.Instance?.ShowIngame());
             else
                 node.Button.onClick.AddListener(() => SelectEntry(entry));
-            node.Label.text =
-                $"{entry.Spec.DisplayName}\n" +
-                (current ? "현재 위치" : entry.StatusLabel);
+            node.Label.text = entry.Spec.DisplayName;
             node.Label.color = locked
                 ? UiVisualThemeService.Resolve(UiColorToken.TextSecondary)
                 : current
