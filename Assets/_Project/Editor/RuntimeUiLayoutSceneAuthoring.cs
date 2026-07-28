@@ -32,6 +32,7 @@ namespace Wake.Editor
                 layout,
                 "Dialogue Slots/Focus Panel Slot");
 
+            BuildScreenShellSlots(layout);
             BuildHud(layout);
             BuildDialogue(layout);
             ConfigureDialogueAdvance(canvas);
@@ -51,6 +52,83 @@ namespace Wake.Editor
             Debug.Log(
                 $"Runtime UI layout ready: " +
                 $"{layout.GetComponentsInChildren<RuntimeUiLayoutSlot>(true).Length} slots.");
+        }
+
+        private static void BuildScreenShellSlots(RectTransform layout)
+        {
+            Color blue = new(.25f, .80f, 1f, .90f);
+            RectTransform shell =
+                EnsureRect(layout, "Screen Shell Slots");
+            Stretch(shell);
+
+            RuntimeUiLayoutSlot context = Slot(
+                shell,
+                "Context Top Left Slot",
+                ScreenRegionIds.ContextTopLeft,
+                new Vector2(.02f, .84f),
+                new Vector2(.26f, .98f),
+                Vector2.zero,
+                blue).GetComponent<RuntimeUiLayoutSlot>();
+            RuntimeUiLayoutSlot objective = Slot(
+                shell,
+                "Objective Top Slot",
+                ScreenRegionIds.ObjectiveTop,
+                new Vector2(.25f, .84f),
+                new Vector2(.75f, .98f),
+                Vector2.zero,
+                blue).GetComponent<RuntimeUiLayoutSlot>();
+            RuntimeUiLayoutSlot global = Slot(
+                shell,
+                "Global Top Right Slot",
+                ScreenRegionIds.GlobalTopRight,
+                new Vector2(.74f, .84f),
+                new Vector2(.98f, .98f),
+                Vector2.zero,
+                blue).GetComponent<RuntimeUiLayoutSlot>();
+            RuntimeUiLayoutSlot tools = Slot(
+                shell,
+                "Tools Bottom Left Slot",
+                ScreenRegionIds.ToolsBottomLeft,
+                new Vector2(.02f, .03f),
+                new Vector2(.26f, .20f),
+                Vector2.zero,
+                blue).GetComponent<RuntimeUiLayoutSlot>();
+            RuntimeUiLayoutSlot reading = Slot(
+                shell,
+                "Reading Bottom Slot",
+                ScreenRegionIds.ReadingBottom,
+                new Vector2(.20f, .03f),
+                new Vector2(.80f, .30f),
+                Vector2.zero,
+                blue).GetComponent<RuntimeUiLayoutSlot>();
+            RuntimeUiLayoutSlot primary = Slot(
+                shell,
+                "Primary Bottom Right Slot",
+                ScreenRegionIds.PrimaryBottomRight,
+                new Vector2(.74f, .03f),
+                new Vector2(.98f, .20f),
+                Vector2.zero,
+                blue).GetComponent<RuntimeUiLayoutSlot>();
+            RuntimeUiLayoutSlot content = Slot(
+                shell,
+                "Content Center Slot",
+                ScreenRegionIds.ContentCenter,
+                new Vector2(.02f, .18f),
+                new Vector2(.98f, .86f),
+                Vector2.zero,
+                blue).GetComponent<RuntimeUiLayoutSlot>();
+
+            ScreenRegionSet regions =
+                shell.GetComponent<ScreenRegionSet>() ??
+                shell.gameObject.AddComponent<ScreenRegionSet>();
+            regions.Configure(
+                context,
+                objective,
+                global,
+                tools,
+                reading,
+                primary,
+                content);
         }
 
         private static void BuildHud(RectTransform layout)

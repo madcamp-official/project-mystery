@@ -34,6 +34,13 @@ namespace Wake.Tests
                     .FirstOrDefault(candidate =>
                         candidate.name == "Runtime UI Layout");
                 Assert.That(layout, Is.Not.Null);
+                Transform shellSlots =
+                    layout.Find("Screen Shell Slots");
+                Assert.That(shellSlots, Is.Not.Null);
+                ScreenRegionSet regionSet =
+                    shellSlots.GetComponent<ScreenRegionSet>();
+                Assert.That(regionSet, Is.Not.Null);
+                Assert.That(regionSet.IsComplete, Is.True);
 
                 int missingScripts = layout
                     .GetComponentsInChildren<Transform>(true)
