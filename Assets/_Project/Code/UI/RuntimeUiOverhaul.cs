@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -547,7 +548,9 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class SaveSlotSelectionController : MonoBehaviour
     {
-        private const float RevealDuration = 1.6f;
+        private const float RevealDuration = 3f;
+        private const float DiveDuration = 1.2f;
+        private const float RiseDuration = RevealDuration - DiveDuration;
         private static readonly Vector3 WaterRevealStart = new(0f, -17f, 2f);
         private static readonly Vector3 WaterRevealEnd = new(0f, -4f, 2f);
 
@@ -591,13 +594,34 @@ namespace Wake.UI
             revealRoutine = StartCoroutine(TransitionRoutine(showing));
         }
 
+        private static float EaseInCubic(float t) => t * t * t;
+
+        private static float EaseOutCubic(float t) => 1f - Mathf.Pow(1f - t, 3f);
+
+        private static IEnumerator RunSegment(
+            float duration, Func<float, float> ease, Action<float> apply)
+        {
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                apply(ease(Mathf.Clamp01(elapsed / duration)));
+                yield return null;
+            }
+            apply(1f);
+        }
+
+        // Two-stage motion: submerging accelerates into the dive (ease-in),
+        // then the save slot panel decelerates as it settles into view
+        // (ease-out). Closing plays the same two stages in reverse order
+        // so the panel dives out first and the water settles back last.
         private IEnumerator TransitionRoutine(bool showing)
         {
             float travel = ((RectTransform)transform).rect.height;
             Vector2 shown = Vector2.zero;
             Vector2 hidden = new Vector2(0f, -travel);
-            Vector2 from = showing ? hidden : shown;
-            Vector2 to = showing ? shown : hidden;
+            Vector2 slotFrom = showing ? hidden : shown;
+            Vector2 slotTo = showing ? shown : hidden;
             Vector3 waterFrom = showing ? WaterRevealStart : WaterRevealEnd;
             Vector3 waterTo = showing ? WaterRevealEnd : WaterRevealStart;
             Vector2 lobbyShown = Vector2.zero;
@@ -605,7 +629,7 @@ namespace Wake.UI
             Vector2 lobbyFrom = showing ? lobbyShown : lobbyExited;
             Vector2 lobbyTo = showing ? lobbyExited : lobbyShown;
 
-            contentRect.anchoredPosition = from;
+            contentRect.anchoredPosition = slotFrom;
             water = water != null ? water : GameObject.Find("water")?.transform;
             lightShaft = lightShaft != null
                 ? lightShaft
@@ -627,27 +651,46 @@ namespace Wake.UI
                 lobbyContent.anchoredPosition = lobbyFrom;
             }
 
-            float elapsed = 0f;
-            while (elapsed < RevealDuration)
+            IEnumerator PanelStage(Func<float, float> ease, float duration)
             {
-                elapsed += Time.unscaledDeltaTime;
-                float t = Mathf.SmoothStep(0f, 1f, elapsed / RevealDuration);
-                contentRect.anchoredPosition =
-                    Vector2.LerpUnclamped(from, to, t);
-                if (water != null)
+                return RunSegment(duration, ease, t =>
                 {
-                    water.position = Vector3.LerpUnclamped(waterFrom, waterTo, t);
-                }
-                if (lobbyContent != null)
-                {
-                    lobbyContent.anchoredPosition =
-                        Vector2.LerpUnclamped(lobbyFrom, lobbyTo, t);
-                }
-                lightShaft?.SetIntensity(showing ? t : 1f - t);
-                yield return null;
+                    contentRect.anchoredPosition =
+                        Vector2.LerpUnclamped(slotFrom, slotTo, t);
+                    if (lobbyContent != null)
+                    {
+                        lobbyContent.anchoredPosition =
+                            Vector2.LerpUnclamped(lobbyFrom, lobbyTo, t);
+                    }
+                });
             }
 
-            contentRect.anchoredPosition = to;
+            IEnumerator WaterStage(
+                Func<float, float> ease, float duration, bool intensityRising)
+            {
+                return RunSegment(duration, ease, t =>
+                {
+                    if (water != null)
+                    {
+                        water.position =
+                            Vector3.LerpUnclamped(waterFrom, waterTo, t);
+                    }
+                    lightShaft?.SetIntensity(intensityRising ? t : 1f - t);
+                });
+            }
+
+            if (showing)
+            {
+                yield return WaterStage(EaseInCubic, DiveDuration, true);
+                yield return PanelStage(EaseOutCubic, RiseDuration);
+            }
+            else
+            {
+                yield return PanelStage(EaseInCubic, DiveDuration);
+                yield return WaterStage(EaseOutCubic, RiseDuration, false);
+            }
+
+            contentRect.anchoredPosition = slotTo;
             if (water != null)
             {
                 water.position = waterTo;
