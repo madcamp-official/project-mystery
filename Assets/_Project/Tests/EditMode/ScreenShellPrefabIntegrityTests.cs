@@ -108,15 +108,51 @@ namespace Wake.Tests
             ScreenShellLayout ending = Load(ScreenShellType.Ending);
             ScreenShellLayout exploration =
                 Load(ScreenShellType.Exploration);
+            ScreenShellLayout puzzle = Load(ScreenShellType.Puzzle);
             ScreenShellLayout modal =
                 Load(ScreenShellType.ModalOverlay);
 
             Assert.That(system.Policy.BlocksGameplayHud, Is.True);
             Assert.That(system.Policy.ShowsGlobalNavigation, Is.False);
             Assert.That(ending.Policy.BlocksGameplayHud, Is.True);
+            Assert.That(ending.Policy.ShowsGlobalNavigation, Is.False);
             Assert.That(exploration.Policy.ShowsGlobalNavigation, Is.True);
+            Assert.That(puzzle.Policy.ShowsGlobalNavigation, Is.True);
             Assert.That(modal.Policy.CapturesInput, Is.True);
             Assert.That(modal.Policy.ShowsGlobalNavigation, Is.False);
+        }
+
+        [Test]
+        public void LateGameShells_ContainAuthoredSpecializedRegions()
+        {
+            HashSet<string> puzzleIds = Load(ScreenShellType.Puzzle)
+                .GetComponentsInChildren<RuntimeUiLayoutSlot>(true)
+                .Select(slot => slot.SlotId)
+                .ToHashSet();
+            Assert.That(
+                puzzleIds,
+                Is.SupersetOf(new[]
+                {
+                    ScreenShellSlotIds.PuzzlePanel,
+                    ScreenShellSlotIds.FinalAccusationPanel
+                }));
+
+            HashSet<string> endingIds = Load(ScreenShellType.Ending)
+                .GetComponentsInChildren<RuntimeUiLayoutSlot>(true)
+                .Select(slot => slot.SlotId)
+                .ToHashSet();
+            Assert.That(
+                endingIds,
+                Is.SupersetOf(new[]
+                {
+                    ScreenShellSlotIds.EndingBackground,
+                    ScreenShellSlotIds.EndingLogo,
+                    ScreenShellSlotIds.EndingRoute,
+                    ScreenShellSlotIds.EndingTitle,
+                    ScreenShellSlotIds.EndingEpilogue,
+                    ScreenShellSlotIds.EndingReason,
+                    ScreenShellSlotIds.EndingPrimary
+                }));
         }
 
         private static ScreenShellLayout Load(ScreenShellType type)

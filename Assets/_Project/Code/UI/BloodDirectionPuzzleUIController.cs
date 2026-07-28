@@ -270,10 +270,13 @@ namespace Wake.UI
 
             root = MakePanel("Blood Direction Puzzle", canvas, Ink);
             RectTransform rootRect = root.GetComponent<RectTransform>();
-            rootRect.anchorMin = new Vector2(0.02f, 0.025f);
-            rootRect.anchorMax = new Vector2(0.98f, 0.975f);
-            rootRect.offsetMin = Vector2.zero;
-            rootRect.offsetMax = Vector2.zero;
+            ScreenShellRuntimePresenter.Place(
+                rootRect,
+                ScreenShellSlotIds.PuzzlePanel,
+                new Vector2(.04f, .08f),
+                new Vector2(.96f, .92f));
+            root.AddComponent<ScreenShellRuntimePresenter>()
+                .Configure(ScreenShellType.Puzzle);
 
             TMP_Text title = MakeText(root.transform, "피의 방향", 32f);
             SetRect(title.rectTransform, 0.035f, 0.91f, 0.62f, 0.985f);
@@ -600,6 +603,7 @@ namespace Wake.UI
             TMP_Text text = MakeText(target.transform, label, fontSize);
             SetRect(text.rectTransform, 0.04f, 0.04f, 0.96f, 0.96f);
             text.raycastTarget = false;
+            ScreenShellRuntimePresenter.PrepareButton(button);
             return button;
         }
 
@@ -612,7 +616,9 @@ namespace Wake.UI
             Image image = target.GetComponent<Image>();
             image.sprite = sprite;
             image.preserveAspect = true;
-            return target.AddComponent<Button>();
+            Button button = target.AddComponent<Button>();
+            ScreenShellRuntimePresenter.PrepareButton(button);
+            return button;
         }
 
         private static void SetRect(

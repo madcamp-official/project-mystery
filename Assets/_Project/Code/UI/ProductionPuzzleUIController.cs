@@ -275,13 +275,14 @@ namespace Wake.UI
                 typeof(Image));
             root.transform.SetParent(canvas, false);
             RectTransform rect = root.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.5f, 0.5f);
-            rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = new Vector2(760f, 560f);
-            RuntimeUiLayoutRegistry.CopyLayout(
+            ScreenShellRuntimePresenter.Place(
                 rect,
-                "modal.production-puzzle");
+                ScreenShellSlotIds.PuzzlePanel,
+                new Vector2(.04f, .08f),
+                new Vector2(.96f, .92f));
             root.GetComponent<Image>().color = Panel;
+            root.AddComponent<ScreenShellRuntimePresenter>()
+                .Configure(ScreenShellType.Puzzle);
 
             titleText = MakeText("Title", 0.82f, 1f, 34f);
             objectiveText = MakeText("Objective", 0.66f, 0.82f, 22f);
@@ -357,7 +358,9 @@ namespace Wake.UI
             target.GetComponent<Image>().color = Available;
             TMP_Text text = MakeTextChild(target.transform, label);
             text.raycastTarget = false;
-            return target.GetComponent<Button>();
+            Button button = target.GetComponent<Button>();
+            ScreenShellRuntimePresenter.PrepareButton(button);
+            return button;
         }
 
         private static TMP_Text MakeTextChild(Transform parent, string value)

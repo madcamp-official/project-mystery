@@ -86,7 +86,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: screen.content.center
   editorColor: {r: 1, g: 0.3, b: 0.93000007, a: 0.85}
@@ -138,7 +138,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: screen.context.topLeft
   editorColor: {r: 1, g: 0.3, b: 0.93000007, a: 0.85}
@@ -190,7 +190,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: screen.tools.bottomLeft
   editorColor: {r: 1, g: 0.3, b: 0.93000007, a: 0.85}
@@ -242,7 +242,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: screen.objective.top
   editorColor: {r: 1, g: 0.3, b: 0.93000007, a: 0.85}
@@ -294,7 +294,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: shell.portrait.right
   editorColor: {r: 1, g: 0.3, b: 0.93000007, a: 0.85}
@@ -346,7 +346,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: shell.modal.panel
   editorColor: {r: 1, g: 0.3, b: 0.93000007, a: 0.85}
@@ -440,7 +440,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: shell.portrait.left
   editorColor: {r: 1, g: 0.3, b: 0.93000007, a: 0.85}
@@ -492,7 +492,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: screen.global.topRight
   editorColor: {r: 1, g: 0.3, b: 0.93000007, a: 0.85}
@@ -560,7 +560,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e04792cd344663140b9aaf9246b56699, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutRegistry
 --- !u!114 &6298905515620653252
 MonoBehaviour:
@@ -572,7 +572,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba526aadcd9291240842eb694d02a026, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.ScreenRegionSet
   contextTopLeft: {fileID: 8240886455414411536}
   objectiveTop: {fileID: 8753951099413307661}
@@ -591,7 +591,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 28640bbde26978647a7d87920926e0bd, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.ScreenShellLayout
   shellType: 3
   regions: {fileID: 6298905515620653252}
@@ -649,7 +649,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: shell.safeArea
   editorColor: {r: 1, g: 0.3, b: 0.93000007, a: 0.85}
@@ -701,7 +701,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: screen.primary.bottomRight
   editorColor: {r: 1, g: 0.3, b: 0.93000007, a: 0.85}
@@ -753,7 +753,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: shell.choices
   editorColor: {r: 1, g: 0.3, b: 0.93000007, a: 0.85}
@@ -805,7 +805,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: shell.modal.dim
   editorColor: {r: 1, g: 0.3, b: 0.93000007, a: 0.85}
@@ -857,7 +857,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: screen.reading.bottom
   editorColor: {r: 1, g: 0.3, b: 0.93000007, a: 0.85}

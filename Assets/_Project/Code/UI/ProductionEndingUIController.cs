@@ -12,6 +12,9 @@ namespace Wake.UI
         MonoBehaviour,
         IRuntimeModalController
     {
+        private static readonly Color32 Paper = new(239, 218, 171, 255);
+        private static readonly Color32 Brass = new(201, 154, 72, 255);
+
         private GameObject root;
         private TMP_Text routeText;
         private TMP_Text titleText;
@@ -20,17 +23,12 @@ namespace Wake.UI
 
         public bool IsOpen => root != null && root.activeSelf;
 
-        private void Awake()
-        {
-            BuildUi();
-        }
+        private void Awake() => BuildUi();
 
         public void HandleSubmission(FinalAccusationSubmission submission)
         {
             if (!submission.Submitted || submission.Result == null)
-            {
                 return;
-            }
 
             FinalAccusationResult result = submission.Result;
             GameStateManager state = GameStateManager.Instance;
@@ -58,9 +56,7 @@ namespace Wake.UI
         {
             GameStateManager state = GameStateManager.Instance;
             if (state == null || string.IsNullOrEmpty(state.FinalEndingId))
-            {
                 return;
-            }
 
             Show(state.FinalEndingId, "저장된 최종 수사 결과입니다.");
         }
@@ -69,15 +65,10 @@ namespace Wake.UI
         {
             GameStateManager state = GameStateManager.Instance;
             if (state != null)
-            {
-                Show(state.FinalEndingId, "귀항 후 사건 평가가 확정됐습니다.");
-            }
+                Show(state.FinalEndingId, "귀항 후 사건 평가가 확정되었습니다.");
         }
 
-        public void Close()
-        {
-            root?.SetActive(false);
-        }
+        public void Close() => root?.SetActive(false);
 
         private void Show(string endingId, string reason)
         {
@@ -94,39 +85,63 @@ namespace Wake.UI
             epilogueText.text = ending.Epilogue;
             reasonText.text = reason ?? string.Empty;
             root.SetActive(true);
+            Canvas.ForceUpdateCanvases();
+            ResetScrollPositions();
         }
 
         private void BuildUi()
         {
             Transform canvas = GameObject.Find("Canvas")?.transform;
             if (canvas == null)
-            {
                 return;
-            }
 
             root = MakeObject("Production Ending", canvas, typeof(Image));
-            RectTransform rect = root.GetComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = rect.offsetMax = Vector2.zero;
-            RuntimeUiLayoutRegistry.CopyLayout(rect, "modal.ending");
+            RectTransform rootRect = root.GetComponent<RectTransform>();
+            ScreenShellRuntimePresenter.Place(
+                rootRect,
+                ScreenShellSlotIds.EndingBackground,
+                Vector2.zero,
+                Vector2.one);
             Image background = root.GetComponent<Image>();
             background.sprite =
                 Resources.Load<Sprite>("UiOverhaul/ui_ending_background");
             background.preserveAspect = false;
             background.color = Color.white;
+            root.AddComponent<ScreenShellRuntimePresenter>()
+                .Configure(ScreenShellType.Ending);
 
-            MakePanel(new Vector2(0.065f, 0.40f), new Vector2(0.43f, 0.69f));
-            MakePanel(new Vector2(0.065f, 0.14f), new Vector2(0.43f, 0.38f));
             MakeBorder();
             MakeLogo();
+            routeText = MakeText(
+                "Ending Route",
+                ScreenShellSlotIds.EndingRoute,
+                24f,
+                new Vector2(.08f, .61f),
+                new Vector2(.41f, .69f));
+            titleText = MakeText(
+                "Ending Title",
+                ScreenShellSlotIds.EndingTitle,
+                46f,
+                new Vector2(.08f, .50f),
+                new Vector2(.41f, .61f));
+            epilogueText = MakeScrollableText(
+                "Ending Epilogue",
+                ScreenShellSlotIds.EndingEpilogue,
+                22f,
+                new Vector2(.075f, .37f),
+                new Vector2(.415f, .50f));
+            reasonText = MakeScrollableText(
+                "Ending Reason",
+                ScreenShellSlotIds.EndingReason,
+                19f,
+                new Vector2(.075f, .14f),
+                new Vector2(.415f, .35f));
 
-            routeText = MakeText("", 0.61f, 0.67f, 24f, 0.08f, 0.41f);
-            titleText = MakeText("", 0.51f, 0.61f, 46f, 0.08f, 0.41f);
-            epilogueText = MakeText("", 0.42f, 0.51f, 22f, 0.085f, 0.405f);
-            reasonText = MakeText("", 0.19f, 0.34f, 19f, 0.085f, 0.405f);
-            Button returnToTitle =
-                MakeButton("타이틀로", 0.045f, 0.115f);
+            Button returnToTitle = MakeButton(
+                "타이틀로",
+                ScreenShellSlotIds.EndingPrimary,
+                new Vector2(.08f, .04f),
+                new Vector2(.31f, .12f));
             returnToTitle.onClick.AddListener(ReturnToTitle);
             FeatureTypography.ApplyEnding(
                 root.transform,
@@ -145,89 +160,142 @@ namespace Wake.UI
         }
 
         private TMP_Text MakeText(
-            string value,
-            float minY,
-            float maxY,
+            string name,
+            string slotId,
             float size,
-            float minX = 0.08f,
-            float maxX = 0.92f)
+            Vector2 fallbackMin,
+            Vector2 fallbackMax)
         {
             GameObject target = MakeObject(
-                "Label",
+                name,
                 root.transform,
                 typeof(TextMeshProUGUI));
-            RectTransform rect = target.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(minX, minY);
-            rect.anchorMax = new Vector2(maxX, maxY);
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-            TMP_Text text = target.GetComponent<TMP_Text>();
-            TypographyService.Apply(text, TypographyRole.Body);
-            text.fontSize = size;
-            text.color = new Color32(239, 218, 171, 255);
+            ScreenShellRuntimePresenter.Place(
+                target.GetComponent<RectTransform>(),
+                slotId,
+                fallbackMin,
+                fallbackMax);
+            TMP_Text text = ConfigureText(target, size);
             text.alignment = TextAlignmentOptions.Center;
-            text.text = value;
-            text.textWrappingMode = TextWrappingModes.Normal;
+            ScreenShellRuntimePresenter.PrepareReadableText(text);
             return text;
         }
 
-        private Button MakeButton(string label, float minY, float maxY)
+        private TMP_Text MakeScrollableText(
+            string name,
+            string slotId,
+            float size,
+            Vector2 fallbackMin,
+            Vector2 fallbackMax)
+        {
+            GameObject viewport = MakeObject(
+                $"{name} Viewport",
+                root.transform,
+                typeof(Image),
+                typeof(RectMask2D),
+                typeof(ScrollRect));
+            RectTransform viewportRect =
+                viewport.GetComponent<RectTransform>();
+            ScreenShellRuntimePresenter.Place(
+                viewportRect,
+                slotId,
+                fallbackMin,
+                fallbackMax);
+            viewport.GetComponent<Image>().color =
+                new Color(.018f, .022f, .052f, .91f);
+            Outline outline = viewport.AddComponent<Outline>();
+            outline.effectColor = Brass;
+            outline.effectDistance = new Vector2(2f, -2f);
+
+            GameObject content = MakeObject(
+                name,
+                viewport.transform,
+                typeof(TextMeshProUGUI),
+                typeof(ContentSizeFitter));
+            RectTransform contentRect =
+                content.GetComponent<RectTransform>();
+            contentRect.anchorMin = new Vector2(0f, 1f);
+            contentRect.anchorMax = new Vector2(1f, 1f);
+            contentRect.pivot = new Vector2(.5f, 1f);
+            contentRect.anchoredPosition = Vector2.zero;
+            contentRect.sizeDelta = new Vector2(-36f, 0f);
+            TMP_Text text = ConfigureText(content, size);
+            text.alignment = TextAlignmentOptions.TopLeft;
+            text.textWrappingMode = TextWrappingModes.Normal;
+            text.overflowMode = TextOverflowModes.Overflow;
+            text.margin = new Vector4(10f, 12f, 10f, 12f);
+            ContentSizeFitter fitter =
+                content.GetComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            ScrollRect scroll = viewport.GetComponent<ScrollRect>();
+            scroll.viewport = viewportRect;
+            scroll.content = contentRect;
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 36f;
+            return text;
+        }
+
+        private static TMP_Text ConfigureText(GameObject target, float size)
+        {
+            TMP_Text text = target.GetComponent<TMP_Text>();
+            TypographyService.Apply(text, TypographyRole.Body);
+            text.fontSize = size;
+            text.color = Paper;
+            text.text = string.Empty;
+            return text;
+        }
+
+        private Button MakeButton(
+            string label,
+            string slotId,
+            Vector2 fallbackMin,
+            Vector2 fallbackMax)
         {
             GameObject target = MakeObject(
                 label,
                 root.transform,
                 typeof(Image),
                 typeof(Button));
-            RectTransform rect = target.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.09f, minY);
-            rect.anchorMax = new Vector2(0.29f, maxY);
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
+            ScreenShellRuntimePresenter.Place(
+                target.GetComponent<RectTransform>(),
+                slotId,
+                fallbackMin,
+                fallbackMax);
             target.GetComponent<Image>().color =
-                new Color(0.17f, 0.10f, 0.28f, 0.98f);
+                new Color(.17f, .10f, .28f, .98f);
             Outline outline = target.AddComponent<Outline>();
-            outline.effectColor = new Color32(201, 154, 72, 255);
+            outline.effectColor = Brass;
             outline.effectDistance = new Vector2(2f, -2f);
-            GameObject labelObject = MakeObject(
-                "Label", target.transform, typeof(TextMeshProUGUI));
-            RectTransform labelRect = labelObject.GetComponent<RectTransform>();
-            labelRect.anchorMin = Vector2.zero;
-            labelRect.anchorMax = Vector2.one;
-            labelRect.offsetMin = labelRect.offsetMax = Vector2.zero;
-            TMP_Text text = labelObject.GetComponent<TMP_Text>();
-            TypographyService.Apply(text, TypographyRole.Body);
-            text.text = label;
-            text.fontSize = 24f;
-            text.color = new Color32(239, 218, 171, 255);
-            text.alignment = TextAlignmentOptions.Center;
-            text.transform.SetParent(target.transform, false);
-            text.raycastTarget = false;
-            return target.GetComponent<Button>();
-        }
 
-        private void MakePanel(Vector2 anchorMin, Vector2 anchorMax)
-        {
-            GameObject panel = MakeObject(
-                "Ending Panel", root.transform, typeof(Image));
-            RectTransform rect = panel.GetComponent<RectTransform>();
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.offsetMin = rect.offsetMax = Vector2.zero;
-            panel.GetComponent<Image>().color =
-                new Color(0.018f, 0.022f, 0.052f, 0.91f);
-            Outline outline = panel.AddComponent<Outline>();
-            outline.effectColor = new Color32(180, 131, 56, 230);
-            outline.effectDistance = new Vector2(2f, -2f);
+            GameObject labelObject = MakeObject(
+                "Label",
+                target.transform,
+                typeof(TextMeshProUGUI));
+            Stretch(labelObject.GetComponent<RectTransform>());
+            TMP_Text text = ConfigureText(labelObject, 24f);
+            text.text = label;
+            text.alignment = TextAlignmentOptions.Center;
+            text.raycastTarget = false;
+
+            Button button = target.GetComponent<Button>();
+            ScreenShellRuntimePresenter.PrepareButton(button, 180f, 56f);
+            return button;
         }
 
         private void MakeBorder()
         {
             GameObject border = MakeObject(
-                "Ending Border", root.transform, typeof(Image));
+                "Ending Border",
+                root.transform,
+                typeof(Image));
             RectTransform rect = border.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.012f, 0.022f);
-            rect.anchorMax = new Vector2(0.988f, 0.978f);
-            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            Stretch(rect);
+            rect.offsetMin = new Vector2(16f, 16f);
+            rect.offsetMax = new Vector2(-16f, -16f);
             Image image = border.GetComponent<Image>();
             image.color = Color.clear;
             image.raycastTarget = false;
@@ -239,15 +307,36 @@ namespace Wake.UI
         private void MakeLogo()
         {
             GameObject logoObject = MakeObject(
-                "Under the Horizon Logo", root.transform, typeof(Image));
-            RectTransform rect = logoObject.GetComponent<RectTransform>();
-            rect.anchorMin = rect.anchorMax = new Vector2(0.225f, 0.835f);
-            rect.sizeDelta = new Vector2(410f, 230f);
+                "Under the Horizon Logo",
+                root.transform,
+                typeof(Image));
+            ScreenShellRuntimePresenter.Place(
+                logoObject.GetComponent<RectTransform>(),
+                ScreenShellSlotIds.EndingLogo,
+                new Vector2(.07f, .70f),
+                new Vector2(.38f, .95f));
             Image image = logoObject.GetComponent<Image>();
             image.sprite =
                 Resources.Load<Sprite>("UiOverhaul/logo_transparent");
             image.preserveAspect = true;
             image.raycastTarget = false;
+        }
+
+        private void ResetScrollPositions()
+        {
+            foreach (ScrollRect scroll in
+                     root.GetComponentsInChildren<ScrollRect>(true))
+            {
+                scroll.verticalNormalizedPosition = 1f;
+            }
+        }
+
+        private static void Stretch(RectTransform rect)
+        {
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = Vector2.zero;
         }
 
         private static GameObject MakeObject(
