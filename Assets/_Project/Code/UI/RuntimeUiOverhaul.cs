@@ -548,8 +548,8 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class SaveSlotSelectionController : MonoBehaviour
     {
-        private const float RevealDuration = 4.4f;
-        private const float DiveDuration = 2.2f;
+        private const float RevealDuration = 5.2f;
+        private const float DiveDuration = 3f;
         private const float RiseDuration = RevealDuration - DiveDuration;
         private const float PanelTravelExtra = 2.8f;
         private const float LobbyTravelExtra = 3.5f;
@@ -685,8 +685,9 @@ namespace Wake.UI
 
             if (showing)
             {
-                yield return WaterStage(EaseInCubic, DiveDuration, true);
+                Coroutine dive = StartCoroutine(WaterStage(EaseInCubic, DiveDuration, true));
                 yield return PanelStage(EaseOutQuint, RiseDuration);
+                yield return dive;
             }
             else
             {
