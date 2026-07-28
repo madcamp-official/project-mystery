@@ -551,7 +551,7 @@ namespace Wake.UI
         private const float RevealDuration = 4f;
         private const float DiveDuration = 2.2f;
         private const float RiseDuration = RevealDuration - DiveDuration;
-        private const float SettlePause = 0.4f;
+        private const float PanelTravelExtra = 1.8f;
         private static readonly Vector3 WaterRevealStart = new(0f, -17f, 2f);
         private static readonly Vector3 WaterRevealEnd = new(0f, -4f, 2f);
 
@@ -620,7 +620,7 @@ namespace Wake.UI
         {
             float travel = ((RectTransform)transform).rect.height;
             Vector2 shown = Vector2.zero;
-            Vector2 hidden = new Vector2(0f, -travel);
+            Vector2 hidden = new Vector2(0f, -travel * PanelTravelExtra);
             Vector2 slotFrom = showing ? hidden : shown;
             Vector2 slotTo = showing ? shown : hidden;
             Vector3 waterFrom = showing ? WaterRevealStart : WaterRevealEnd;
@@ -683,13 +683,11 @@ namespace Wake.UI
             if (showing)
             {
                 yield return WaterStage(EaseInCubic, DiveDuration, true);
-                yield return new WaitForSecondsRealtime(SettlePause);
                 yield return PanelStage(EaseOutCubic, RiseDuration);
             }
             else
             {
                 yield return PanelStage(EaseInCubic, DiveDuration);
-                yield return new WaitForSecondsRealtime(SettlePause);
                 yield return WaterStage(EaseOutCubic, RiseDuration, false);
             }
 
