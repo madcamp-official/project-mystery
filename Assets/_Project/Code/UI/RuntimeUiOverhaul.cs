@@ -575,7 +575,10 @@ namespace Wake.UI
 
         private void Close()
         {
+            confirmation.SetActive(false);
             PlayTransition(showing: false);
+            UIManager.Instance?.SetSystemScreenState(
+                SystemScreenState.Title);
         }
 
         private void PlayTransition(bool showing)
@@ -941,14 +944,6 @@ namespace Wake.UI
             {
                 UIManager.Instance?.StartNewGameInSlot(pendingSlot);
             }
-        }
-
-        private void Close()
-        {
-            confirmation.SetActive(false);
-            overlay.SetActive(false);
-            UIManager.Instance?.SetSystemScreenState(
-                SystemScreenState.Title);
         }
 
         internal static GameObject Panel(Transform parent, string name, Color color)
