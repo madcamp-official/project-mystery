@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Wake.Core;
 
@@ -15,6 +16,7 @@ namespace Wake.Exploration
         public static LocationLoader Instance { get; private set; }
 
         public LocationDefinition CurrentLocation { get; private set; }
+        public event Action<LocationDefinition> LocationChanged;
         public bool IsPresentationVisible =>
             container != null && container.gameObject.activeSelf;
 
@@ -97,6 +99,7 @@ namespace Wake.Exploration
             ambientCharacters?.Show(location.LocationCode);
             ambientInspectables?.Show(location.LocationCode);
             CurrentLocation = location;
+            LocationChanged?.Invoke(location);
             AudioManager.Instance?.PlayLocationTheme(location.LocationCode);
             GameStateManager.Instance?.RecordLocation(location.LocationCode);
             failure = LoadFailure.None;
