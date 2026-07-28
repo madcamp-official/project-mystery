@@ -434,7 +434,19 @@ namespace Wake.UI
 
             Button quit = CreateTitleButton(
                 root, "게임 종료", new Vector2(-525f, -155f), false);
-            quit.onClick.AddListener(Application.Quit);
+            quit.gameObject.name = "Quit Game Button";
+            quit.onClick.AddListener(QuitGame);
+        }
+
+        public static void QuitGame()
+        {
+#if UNITY_EDITOR
+            System.Type editorApplication = System.Type.GetType(
+                "UnityEditor.EditorApplication, UnityEditor");
+            editorApplication?.GetProperty("isPlaying")?.SetValue(null, false);
+#else
+            Application.Quit();
+#endif
         }
 
         private static Button CreateTitleButton(

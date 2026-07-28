@@ -162,7 +162,8 @@ namespace Wake.UI
                 .ToArray();
             var entries = new List<ProductionMapEntry>();
 
-            foreach (CanonicalLocationSpec spec in CanonicalLocationCatalog.All)
+            foreach (CanonicalLocationSpec spec in
+                     CanonicalLocationCatalog.StoryRelevant)
             {
                 LocationDefinition location = graph?.FindByCode(spec.Code);
                 ProductionSceneDefinition[] scenes = ProductionSceneCatalog.All
