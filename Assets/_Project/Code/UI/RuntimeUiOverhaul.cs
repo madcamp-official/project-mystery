@@ -555,6 +555,7 @@ namespace Wake.UI
         private GameObject confirmation;
         private RectTransform contentRect;
         private RectTransform lobbyContent;
+        private RectTransform ingamePanel;
         private Transform water;
         private LightShaftEffect lightShaft;
         private Coroutine revealRoutine;
@@ -935,14 +936,59 @@ namespace Wake.UI
                 return;
             }
 
-            overlay.SetActive(false);
-            if (pendingContinue)
+            if (revealRoutine != null)
             {
-                UIManager.Instance?.ContinueGameInSlot(pendingSlot);
+                StopCoroutine(revealRoutine);
+            }
+            revealRoutine = StartCoroutine(
+                EnterGameRoutine(pendingSlot, pendingContinue));
+        }
+
+        private IEnumerator EnterGameRoutine(int slot, bool continuing)
+        {
+            ingamePanel = ingamePanel != null
+                ? ingamePanel
+                : GameObject.Find("Canvas")?.transform.Find("Ingame")
+                    as RectTransform;
+
+            float travel = ((RectTransform)transform).rect.height;
+            Vector2 ingameHidden = new Vector2(0f, -travel);
+            Vector2 ingameShown = Vector2.zero;
+
+            if (ingamePanel != null)
+            {
+                ingamePanel.gameObject.SetActive(true);
+                ingamePanel.anchoredPosition = ingameHidden;
+            }
+
+            Coroutine exitRoutine = StartCoroutine(TransitionRoutine(showing: false));
+
+            float elapsed = 0f;
+            while (elapsed < RevealDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.SmoothStep(0f, 1f, elapsed / RevealDuration);
+                if (ingamePanel != null)
+                {
+                    ingamePanel.anchoredPosition =
+                        Vector2.LerpUnclamped(ingameHidden, ingameShown, t);
+                }
+                yield return null;
+            }
+            if (ingamePanel != null)
+            {
+                ingamePanel.anchoredPosition = ingameShown;
+            }
+            yield return exitRoutine;
+
+            revealRoutine = null;
+            if (continuing)
+            {
+                UIManager.Instance?.ContinueGameInSlot(slot);
             }
             else
             {
-                UIManager.Instance?.StartNewGameInSlot(pendingSlot);
+                UIManager.Instance?.StartNewGameInSlot(slot);
             }
         }
 
