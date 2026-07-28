@@ -87,7 +87,7 @@ namespace Wake.Exploration
 
         private static readonly AmbientWorldStageRecord[] Entries =
         {
-            S("PORT", "DOCK_PORTER", .18f, .025f, .49f, false,
+            S("PORT", "DOCK_PORTER", .18f, .025f, .50f, false,
                 Daylight, .020f, -.010f, .30f, .70f),
             S("PORT", "PASSENGER_A", .77f, .035f, .58f, true,
                 Daylight, .018f, -.008f, .27f, .62f),

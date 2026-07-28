@@ -20,6 +20,7 @@ namespace Wake.Exploration
         public HotspotState State { get; private set; } = HotspotState.Unseen;
 
         private Color baseColor;
+        private bool pointerInside;
 
         protected virtual void Awake()
         {
@@ -31,20 +32,47 @@ namespace Wake.Exploration
             if (highlightRenderer != null)
             {
                 baseColor = highlightRenderer.color;
+                SetHighlightAlpha(
+                    ExplorationHotspotFeedback
+                        .AccessibilityIndicatorsEnabled
+                        ? pulseMinAlpha
+                        : 0f);
             }
         }
 
         protected virtual void Update()
         {
-            if (State != HotspotState.Unseen || highlightRenderer == null)
+            if (highlightRenderer == null)
             {
                 return;
             }
 
+            if (State != HotspotState.Unseen)
+            {
+                SetHighlightAlpha(baseColor.a);
+                return;
+            }
+
+            bool reveal =
+                pointerInside ||
+                ExplorationHotspotFeedback
+                    .AccessibilityIndicatorsEnabled;
+            if (!reveal)
+            {
+                SetHighlightAlpha(0f);
+                return;
+            }
+
             float t = (Mathf.Sin(Time.time * pulseSpeed) + 1f) * 0.5f;
-            float alpha = Mathf.Lerp(pulseMinAlpha, 1f, t);
-            highlightRenderer.color = new Color(baseColor.r, baseColor.g, baseColor.b, alpha);
+            SetHighlightAlpha(
+                Mathf.Lerp(pulseMinAlpha, baseColor.a, t));
         }
+
+        private void OnMouseEnter() => pointerInside = true;
+
+        private void OnMouseExit() => pointerInside = false;
+
+        private void OnMouseDown() => Interact();
 
         public void Interact()
         {
@@ -61,5 +89,14 @@ namespace Wake.Exploration
         }
 
         protected abstract void OnInteract();
+
+        private void SetHighlightAlpha(float alpha)
+        {
+            highlightRenderer.color = new Color(
+                baseColor.r,
+                baseColor.g,
+                baseColor.b,
+                Mathf.Clamp01(alpha));
+        }
     }
 }

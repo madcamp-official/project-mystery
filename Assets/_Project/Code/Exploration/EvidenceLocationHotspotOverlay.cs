@@ -183,6 +183,9 @@ namespace Wake.Exploration
             colors.fadeDuration = .08f;
             button.colors = colors;
             button.onClick.AddListener(() => Interact(spec));
+            CanonicalEvidenceCatalog.TryGet(spec.EvidenceId, out var entry);
+            target.AddComponent<ExplorationHotspotFeedback>()
+                .Configure(entry?.DisplayName ?? "단서 조사");
             spawned.Add(target);
         }
 

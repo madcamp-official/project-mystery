@@ -169,6 +169,8 @@ namespace Wake.Exploration
             button.targetGraphic = image;
             button.transition = Selectable.Transition.ColorTint;
             button.onClick.AddListener(onClick);
+            target.AddComponent<ExplorationHotspotFeedback>()
+                .Configure(DialoguePortraitCatalog.GetDisplayName(speaker));
 
             target.name += $"_{spawned.Count}_{instanceId}";
             var view = new WorldCharacterView
