@@ -1042,7 +1042,7 @@ namespace Wake.UI
             float travel = ((RectTransform)transform).rect.height;
             Vector2 slotShown = Vector2.zero;
             Vector2 slotHidden = new Vector2(0f, -travel * PanelTravelExtra);
-            Vector2 ingameHidden = new Vector2(0f, -travel);
+            Vector2 ingameHidden = new Vector2(0f, travel);
             Vector2 ingameShown = Vector2.zero;
 
             water = water != null ? water : GameObject.Find("water")?.transform;
