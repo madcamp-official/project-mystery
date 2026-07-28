@@ -346,16 +346,23 @@ namespace Wake.UI
             if (ingameRoot == null)
                 return;
 
+            // The authored buttons remain only as binding contracts for
+            // older scene content. They must never become visible again
+            // when a dialogue finishes.
             string[] names = { "Map Btn", "Evidence Btn", "Settings Btn" };
             foreach (string name in names)
             {
                 Transform navigation = ingameRoot.Find(name);
-                if (navigation != null &&
-                    navigation.gameObject.activeSelf != visible)
-                {
-                    navigation.gameObject.SetActive(visible);
-                }
+                if (navigation != null)
+                    navigation.gameObject.SetActive(false);
             }
+
+            Transform canvas = ingameRoot.parent;
+            Transform globalNavigation =
+                canvas?.Find("Exploration Global Navigation");
+            if (globalNavigation != null &&
+                globalNavigation.gameObject.activeSelf != visible)
+                globalNavigation.gameObject.SetActive(visible);
         }
 
         private static CanvasGroup EnsureCanvasGroup(Transform target)

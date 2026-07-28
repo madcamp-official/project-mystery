@@ -78,7 +78,10 @@ namespace Wake.UI
             renderedPanel = panel;
             renderedLocationCode = ResolveLocationCode();
             renderedObjectiveKey = ResolveObjectiveKey();
-            if (!visible)
+            if (!visible ||
+                !root.activeInHierarchy ||
+                root.transform.parent == null ||
+                !root.transform.parent.gameObject.activeInHierarchy)
                 return;
 
             root.transform.SetAsLastSibling();
