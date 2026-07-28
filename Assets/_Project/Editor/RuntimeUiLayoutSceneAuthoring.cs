@@ -41,6 +41,7 @@ namespace Wake.Editor
             ConfigureDialogueAdvance(canvas);
             BuildEvidenceRecords(canvas, layout);
             BuildModals(layout);
+            BuildLateGameScreens(layout);
             BuildLocationOverlays(layout);
 
             Transform progress =
@@ -133,6 +134,88 @@ namespace Wake.Editor
                 reading,
                 primary,
                 content);
+        }
+
+        private static void BuildLateGameScreens(RectTransform layout)
+        {
+            Color purple = new(.72f, .45f, 1f, .90f);
+            Color gold = new(.92f, .68f, .25f, .92f);
+            RectTransform lateGame =
+                EnsureRect(layout, "Late Game Screen Slots");
+            Stretch(lateGame);
+
+            Slot(
+                lateGame,
+                "Puzzle Panel Slot",
+                ScreenShellSlotIds.PuzzlePanel,
+                new Vector2(.04f, .08f),
+                new Vector2(.96f, .92f),
+                Vector2.zero,
+                purple);
+            Slot(
+                lateGame,
+                "Final Accusation Panel Slot",
+                ScreenShellSlotIds.FinalAccusationPanel,
+                new Vector2(.18f, .07f),
+                new Vector2(.82f, .93f),
+                Vector2.zero,
+                purple);
+            Slot(
+                lateGame,
+                "Ending Background Slot",
+                ScreenShellSlotIds.EndingBackground,
+                Vector2.zero,
+                Vector2.one,
+                Vector2.zero,
+                gold);
+            Slot(
+                lateGame,
+                "Ending Logo Slot",
+                ScreenShellSlotIds.EndingLogo,
+                new Vector2(.07f, .70f),
+                new Vector2(.38f, .95f),
+                Vector2.zero,
+                gold);
+            Slot(
+                lateGame,
+                "Ending Route Slot",
+                ScreenShellSlotIds.EndingRoute,
+                new Vector2(.07f, .61f),
+                new Vector2(.42f, .69f),
+                Vector2.zero,
+                gold);
+            Slot(
+                lateGame,
+                "Ending Title Slot",
+                ScreenShellSlotIds.EndingTitle,
+                new Vector2(.07f, .50f),
+                new Vector2(.42f, .61f),
+                Vector2.zero,
+                gold);
+            Slot(
+                lateGame,
+                "Ending Epilogue Slot",
+                ScreenShellSlotIds.EndingEpilogue,
+                new Vector2(.075f, .37f),
+                new Vector2(.415f, .50f),
+                Vector2.zero,
+                gold);
+            Slot(
+                lateGame,
+                "Ending Reason Slot",
+                ScreenShellSlotIds.EndingReason,
+                new Vector2(.075f, .14f),
+                new Vector2(.415f, .35f),
+                Vector2.zero,
+                gold);
+            Slot(
+                lateGame,
+                "Ending Primary Slot",
+                ScreenShellSlotIds.EndingPrimary,
+                new Vector2(.08f, .04f),
+                new Vector2(.31f, .12f),
+                Vector2.zero,
+                gold);
         }
 
         private static void BuildHud(RectTransform layout)

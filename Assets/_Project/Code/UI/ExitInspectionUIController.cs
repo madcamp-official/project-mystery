@@ -245,11 +245,14 @@ namespace Wake.UI
             }
 
             root = Object("Exit Inspection", canvas, typeof(Image));
-            Place(root, 0.5f, 0.5f, 0.5f, 0.5f, new Vector2(920f, 680f));
-            RuntimeUiLayoutRegistry.CopyLayout(
+            ScreenShellRuntimePresenter.Place(
                 root.GetComponent<RectTransform>(),
-                "modal.exit-inspection");
+                ScreenShellSlotIds.PuzzlePanel,
+                new Vector2(.04f, .08f),
+                new Vector2(.96f, .92f));
             root.GetComponent<Image>().color = Panel;
+            root.AddComponent<ScreenShellRuntimePresenter>()
+                .Configure(ScreenShellType.Puzzle);
             Text(root.transform, "흔적 없는 출구 검증", .90f, .98f, 34f);
             Text(root.transform,
                 "외벽 발판·공조 덕트·설비 점검구를 검사해 이동 흔적을 확인하세요.",
@@ -335,7 +338,9 @@ namespace Wake.UI
             target.GetComponent<Image>().color = Available;
             TMP_Text text = Text(target.transform, string.Empty, 0f, 1f, 19f);
             text.raycastTarget = false;
-            return target.GetComponent<Button>();
+            Button button = target.GetComponent<Button>();
+            ScreenShellRuntimePresenter.PrepareButton(button);
+            return button;
         }
 
         private static TMP_Text Label(Button button) =>

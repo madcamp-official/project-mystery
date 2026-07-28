@@ -402,7 +402,13 @@ namespace Wake.UI
             feedAtlas = Resources.Load<Texture2D>(
                 "Puzzles/CameraBlindSpot/cctv_feeds");
             root = Panel("Camera Blind Spot Puzzle", canvas, Backdrop);
-            SetRect(root.GetComponent<RectTransform>(), .012f, .018f, .988f, .982f);
+            ScreenShellRuntimePresenter.Place(
+                root.GetComponent<RectTransform>(),
+                ScreenShellSlotIds.PuzzlePanel,
+                new Vector2(.04f, .08f),
+                new Vector2(.96f, .92f));
+            root.AddComponent<ScreenShellRuntimePresenter>()
+                .Configure(ScreenShellType.Puzzle);
 
             TMP_Text title = Text(root.transform,
                 "카메라의 맹점 / 영상 및 설비 로그 대조", 30f,
@@ -768,6 +774,7 @@ namespace Wake.UI
                 TextAlignmentOptions.Center);
             SetRect(text.rectTransform, .03f, .03f, .97f, .97f);
             text.raycastTarget = false;
+            ScreenShellRuntimePresenter.PrepareButton(button);
             return button;
         }
 
