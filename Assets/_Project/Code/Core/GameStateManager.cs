@@ -112,6 +112,17 @@ namespace Wake.Core
             GameStateSaveStore.HasRecoverableData(slot);
         public static void SetActiveSaveSlot(int slot) =>
             GameStateSaveStore.SelectSlot(slot);
+        public static void DeleteSaveSlot(int slot)
+        {
+            int previous = ActiveSaveSlot;
+            GameStateSaveStore.SelectSlot(slot);
+            GameStateSaveStore.ClearAll();
+            GameStateSaveStore.SelectSlot(previous);
+            if (Instance != null && previous == Mathf.Clamp(slot, 1, 3))
+            {
+                Instance.ReloadSavedState();
+            }
+        }
 
         [SerializeField] private int startingTrust = DefaultTrust;
         [SerializeField] private int startingPublicAnxiety = 15;
@@ -189,6 +200,12 @@ namespace Wake.Core
             data = CreateDefaultData();
             SaveAndNotify();
             FeedbackRequested?.Invoke("\uC0C8 \uC218\uC0AC\uB97C \uC2DC\uC791\uD569\uB2C8\uB2E4.");
+        }
+
+        public void SaveCurrentState()
+        {
+            SaveAndNotify();
+            FeedbackRequested?.Invoke("현재 수사 기록을 저장했습니다.");
         }
 
         public int GetTrust(string characterId)
