@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Wake.Core;
 using Wake.Evidence;
+using Wake.Exploration;
 using System.Text.RegularExpressions;
 
 namespace Wake.UI
@@ -1038,6 +1039,7 @@ namespace Wake.UI
                 ? ingamePanel
                 : GameObject.Find("Canvas")?.transform.Find("Ingame")
                     as RectTransform;
+            RectTransform locationBackground = LocationLoader.Instance?.BackgroundRect;
 
             float travel = ((RectTransform)transform).rect.height;
             Vector2 slotShown = Vector2.zero;
@@ -1055,6 +1057,10 @@ namespace Wake.UI
                 ingamePanel.gameObject.SetActive(true);
                 ingamePanel.anchoredPosition = ingameHidden;
             }
+            if (locationBackground != null)
+            {
+                locationBackground.anchoredPosition = ingameHidden;
+            }
 
             yield return MoveRect(
                 contentRect, slotShown, slotHidden, EaseInQuint, RiseDuration);
@@ -1066,16 +1072,29 @@ namespace Wake.UI
                 ? StartCoroutine(MoveRect(
                     ingamePanel, ingameHidden, ingameShown, WaterTrapezoid, LobbyExitDuration))
                 : null;
+            Coroutine backgroundEnter = locationBackground != null
+                ? StartCoroutine(MoveRect(
+                    locationBackground, ingameHidden, ingameShown,
+                    WaterTrapezoid, LobbyExitDuration))
+                : null;
             yield return waterSurface;
             if (ingameEnter != null)
             {
                 yield return ingameEnter;
+            }
+            if (backgroundEnter != null)
+            {
+                yield return backgroundEnter;
             }
 
             contentRect.anchoredPosition = slotHidden;
             if (water != null)
             {
                 water.position = WaterRevealStart;
+            }
+            if (lobbyContent != null)
+            {
+                lobbyContent.anchoredPosition = Vector2.zero;
             }
             lightShaft?.SetIntensity(0f);
             overlay.SetActive(false);
