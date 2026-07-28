@@ -19,11 +19,11 @@ namespace Wake.Tests.PlayMode
         {
             Assert.That(Ui.IsInitialized, Is.True);
             Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Start));
-            Assert.That(Ui.RuntimeModalControllerCount, Is.EqualTo(8));
+            Assert.That(Ui.RuntimeModalControllerCount, Is.EqualTo(9));
 
             Assert.That(Ui.EnsureInitialized(), Is.True);
             Assert.That(Ui.EnsureInitialized(), Is.True);
-            Assert.That(Ui.RuntimeModalControllerCount, Is.EqualTo(8));
+            Assert.That(Ui.RuntimeModalControllerCount, Is.EqualTo(9));
 
             GameObject ingame = RequireObject("Ingame");
             Assert.That(
@@ -31,6 +31,9 @@ namespace Wake.Tests.PlayMode
                 Has.Length.EqualTo(1));
             Assert.That(
                 ingame.GetComponents<ProductionPuzzleUIController>(),
+                Has.Length.EqualTo(1));
+            Assert.That(
+                ingame.GetComponents<BloodDirectionPuzzleUIController>(),
                 Has.Length.EqualTo(1));
             Assert.That(
                 ingame.GetComponents<FinalAccusationUIController>(),
