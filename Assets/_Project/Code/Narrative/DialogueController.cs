@@ -55,6 +55,10 @@ namespace Wake.Narrative
         private Coroutine typewriterRoutine;
         private bool isTypewriterActive;
         private int lastAdvanceInputFrame = -1;
+        private IReadOnlyList<string> linePages = Array.Empty<string>();
+        private int linePageIndex;
+        private bool lineNarrationOrSystem;
+        private bool choicesPendingAfterPages;
 
         public bool IsBusy { get; private set; }
         public DialoguePresentationSpec ActivePresentation { get; private set; } =
@@ -87,7 +91,9 @@ namespace Wake.Narrative
                 nextButton.gameObject.AddComponent<DialogueAdvanceControl>();
             advanceControl.Initialize(nextButton);
             speakerText = linePanelTransform.Find("Image/Text (TMP)").GetComponent<TMP_Text>();
-            CreatePortrait(linePanelTransform);
+            CreatePortrait(
+                linePanelTransform.parent,
+                linePanelTransform.GetSiblingIndex() + 1);
 
             Transform selectBtn = linePanelTransform.Find("Select Btn");
             choicesContainer = selectBtn.gameObject;
@@ -152,7 +158,8 @@ namespace Wake.Narrative
                 speakerPortrait.GetComponent<RectTransform>(),
                 lineText,
                 speakerText,
-                nextButton.GetComponent<RectTransform>());
+                nextButton.GetComponent<RectTransform>(),
+                selectBtn.GetComponent<RectTransform>());
             investigationUi =
                 canvas.GetComponent<InvestigationDialogueUIController>();
             if (investigationUi == null)
@@ -198,7 +205,23 @@ namespace Wake.Narrative
         private void SetLineText(string text, bool isNarrationOrSystem)
         {
             StopTypewriter();
-            string content = text ?? string.Empty;
+            linePages = DialogueTextPaginator.Split(text);
+            linePageIndex = 0;
+            lineNarrationOrSystem = isNarrationOrSystem;
+            choicesPendingAfterPages = false;
+            PresentCurrentLinePage();
+        }
+
+        private void PresentCurrentLinePage()
+        {
+            StopTypewriter();
+            string content = linePages.Count > 0
+                ? linePages[Mathf.Clamp(
+                    linePageIndex,
+                    0,
+                    linePages.Count - 1)]
+                : string.Empty;
+            lineText.pageToDisplay = 1;
             lineText.text = content;
             lineText.maxVisibleCharacters = 0;
             lineText.ForceMeshUpdate();
@@ -213,13 +236,26 @@ namespace Wake.Narrative
             isTypewriterActive = true;
             advanceControl?.SetState(
                 DialogueAdvanceState.RevealLine);
-            if (isNarrationOrSystem && typewriterClip != null)
+            if (lineNarrationOrSystem && typewriterClip != null)
             {
                 typewriterAudioSource.Play();
             }
 
             typewriterRoutine = StartCoroutine(
                 TypewriterRoutine(totalCharacters));
+        }
+
+        private bool HasMoreLinePages =>
+            linePageIndex + 1 < linePages.Count;
+
+        private bool TryAdvanceLinePage()
+        {
+            if (!HasMoreLinePages)
+                return false;
+
+            linePageIndex++;
+            PresentCurrentLinePage();
+            return true;
         }
 
         private IEnumerator TypewriterRoutine(int totalCharacters)
@@ -249,8 +285,11 @@ namespace Wake.Narrative
             lineText.maxVisibleCharacters = int.MaxValue;
             isTypewriterActive = false;
             typewriterRoutine = null;
-            advanceControl?.SetState(
-                DialogueAdvanceState.AdvanceLine);
+            if (choicesPendingAfterPages && !HasMoreLinePages)
+                RevealPendingChoices();
+            else
+                advanceControl?.SetState(
+                    DialogueAdvanceState.AdvanceLine);
             if (typewriterAudioSource != null && typewriterAudioSource.isPlaying)
             {
                 typewriterAudioSource.Stop();
@@ -272,7 +311,30 @@ namespace Wake.Narrative
             }
         }
 
-        private void CreatePortrait(Transform parent)
+        private void PresentChoicesOrContinuePages()
+        {
+            responsiveLayout?.RefreshChoiceLayout();
+            if (HasMoreLinePages)
+            {
+                choicesPendingAfterPages = true;
+                choicePresentation.Hide();
+                advanceControl.SetState(DialogueAdvanceState.AdvanceLine);
+                return;
+            }
+
+            choicesPendingAfterPages = false;
+            choicePresentation.Show();
+        }
+
+        private void RevealPendingChoices()
+        {
+            choicesPendingAfterPages = false;
+            responsiveLayout?.RefreshChoiceLayout();
+            choicePresentation.Show();
+            advanceControl.SetState(DialogueAdvanceState.Hidden);
+        }
+
+        private void CreatePortrait(Transform parent, int siblingIndex)
         {
             GameObject portraitObject = new GameObject(
                 "Speaker Portrait",
@@ -281,7 +343,7 @@ namespace Wake.Narrative
                 typeof(RawImage),
                 typeof(AspectRatioFitter));
             portraitObject.transform.SetParent(parent, false);
-            portraitObject.transform.SetAsFirstSibling();
+            portraitObject.transform.SetSiblingIndex(siblingIndex);
 
             RectTransform rect = portraitObject.GetComponent<RectTransform>();
             rect.anchorMin = new Vector2(0.5f, 0.5f);
@@ -297,7 +359,8 @@ namespace Wake.Narrative
             speakerPortrait.raycastTarget = false;
 
             speakerPortraitAspect = portraitObject.GetComponent<AspectRatioFitter>();
-            speakerPortraitAspect.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+            speakerPortraitAspect.aspectMode =
+                AspectRatioFitter.AspectMode.None;
             portraitObject.SetActive(false);
         }
 
@@ -317,7 +380,7 @@ namespace Wake.Narrative
             }
 
             DialoguePortraitAsset asset =
-                DialoguePortraitCatalog.Resolve(speaker, emotion);
+                DialoguePortraitCatalog.ResolveWorldFigure(speaker);
             if (!asset.Found)
             {
                 Debug.LogWarning($"No portrait texture found for speaker '{speaker}'.");
@@ -329,6 +392,7 @@ namespace Wake.Narrative
             speakerPortrait.uvRect = asset.UvRect;
             speakerPortraitAspect.aspectRatio = asset.AspectRatio;
             speakerPortrait.gameObject.SetActive(true);
+            presentationView?.Apply(ActivePresentation);
         }
 
         public void StartDialogue(DialogueSet dialogueSet)
@@ -362,6 +426,7 @@ namespace Wake.Narrative
             IsBusy = true;
             linePanel.SetActive(true);
             choicePresentation.Hide();
+            presentationView?.SetChoicesVisible(false);
             advanceControl.SetState(DialogueAdvanceState.AdvanceLine);
             speakerText.text = DialoguePortraitCatalog.GetDisplayName(speaker);
             ApplyPresentation(
@@ -555,6 +620,7 @@ namespace Wake.Narrative
             linePanel.SetActive(true);
             SaveProductionCheckpoint();
             bool hasChoices = productionFlow.IsAwaitingChoice;
+            presentationView?.SetChoicesVisible(hasChoices);
             if (hasChoices)
                 choicesContainer.SetActive(true);
             else
@@ -586,8 +652,7 @@ namespace Wake.Narrative
                         RenderProduction();
                     });
                 }
-                responsiveLayout?.RefreshChoiceLayout();
-                choicePresentation.Show();
+                PresentChoicesOrContinuePages();
                 return;
             }
 
@@ -739,6 +804,7 @@ namespace Wake.Narrative
             }
 
             bool hasBranch = currentNode.Options != null && currentNode.Options.Count > 1;
+            presentationView?.SetChoicesVisible(hasBranch);
             if (hasBranch)
                 choicesContainer.SetActive(true);
             else
@@ -776,8 +842,7 @@ namespace Wake.Narrative
                 choiceButtons[i].onClick.RemoveAllListeners();
                 choiceButtons[i].onClick.AddListener(() => ResolveOption(option));
             }
-            responsiveLayout?.RefreshChoiceLayout();
-            choicePresentation.Show();
+            PresentChoicesOrContinuePages();
         }
 
         private void OnNextClicked()
@@ -800,6 +865,9 @@ namespace Wake.Narrative
                 SkipTypewriter();
                 return;
             }
+
+            if (TryAdvanceLinePage())
+                return;
 
             if (ambientLineActive)
             {
@@ -857,6 +925,7 @@ namespace Wake.Narrative
             ambientLineActive = false;
             pendingInvestigationTitle = string.Empty;
             ApplyPresentation(DialoguePresentationPolicy.Hidden);
+            presentationView?.SetChoicesVisible(false);
             choicePresentation?.Hide();
             advanceControl?.SetState(DialogueAdvanceState.Hidden);
             investigationUi?.Hide();
@@ -948,12 +1017,11 @@ namespace Wake.Narrative
 
         private void ApplyPresentation(DialoguePresentationSpec presentation)
         {
-            if (ActivePresentation == presentation)
-                return;
-
+            bool changed = ActivePresentation != presentation;
             ActivePresentation = presentation;
             presentationView?.Apply(presentation);
-            PresentationChanged?.Invoke(presentation);
+            if (changed)
+                PresentationChanged?.Invoke(presentation);
         }
     }
 }

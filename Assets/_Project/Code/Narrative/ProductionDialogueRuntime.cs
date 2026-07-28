@@ -176,8 +176,22 @@ namespace Wake.Narrative
                     new DialogueSpeakerIdentity("CLAIRE", DialogueSpeakerKind.Character),
                 "EVELYN_RECORD" =>
                     new DialogueSpeakerIdentity("EVELYN", DialogueSpeakerKind.RecordedVoice),
+                "EVELYN_MESSAGE" =>
+                    new DialogueSpeakerIdentity("EVELYN", DialogueSpeakerKind.RecordedVoice),
                 "JULIAN_RECORD" =>
                     new DialogueSpeakerIdentity("JULIAN", DialogueSpeakerKind.RecordedVoice),
+                "THOMAS_RECORD" =>
+                    new DialogueSpeakerIdentity("THOMAS", DialogueSpeakerKind.RecordedVoice),
+                "DANIEL_CHAT" =>
+                    new DialogueSpeakerIdentity("DANIEL", DialogueSpeakerKind.RecordedVoice),
+                "NEWS_REPORT" or "ANON_CHAT" =>
+                    new DialogueSpeakerIdentity(
+                        string.Empty,
+                        DialogueSpeakerKind.Narration),
+                "UI_HINT" =>
+                    new DialogueSpeakerIdentity(
+                        string.Empty,
+                        DialogueSpeakerKind.System),
                 "NARRATION" =>
                     new DialogueSpeakerIdentity(string.Empty, DialogueSpeakerKind.Narration),
                 "SYSTEM" =>

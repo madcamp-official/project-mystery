@@ -350,7 +350,7 @@ namespace Wake.UI
                     DialogueTypographyMetrics.ChoiceMinimum,
                     DialogueTypographyMetrics.ChoiceMaximum,
                     DialogueTypographyMetrics.ChoiceLineSpacing,
-                    TextOverflowModes.Overflow);
+                    TextOverflowModes.Ellipsis);
             }
             RefreshChoiceLayout();
         }
@@ -361,6 +361,10 @@ namespace Wake.UI
                 choiceButtons == null)
                 return;
 
+            // Presentation mode can move this container immediately before
+            // choices are populated. Resolve its new stretched width now
+            // instead of measuring the stale previous-frame rectangle.
+            Canvas.ForceUpdateCanvases();
             var activeLabels = new List<TMP_Text>();
             foreach (Button button in choiceButtons)
             {
