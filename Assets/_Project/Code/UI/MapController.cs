@@ -52,6 +52,10 @@ namespace Wake.UI
                 state != null ? state.PublicAnxiety : 0,
                 state?.FinalEndingId,
                 state?.UnlockedProductionSceneIds);
+            ProductionObjectivePresentation? objective =
+                state != null
+                    ? ProductionObjectiveViewModel.Resolve(state).Presentation
+                    : null;
 
             foreach (ProductionMapEntry entry in CurrentViewModel.Entries)
             {
@@ -65,7 +69,14 @@ namespace Wake.UI
                     continue;
                 }
 
-                ApplyEntry(node, entry);
+                bool isObjectiveDestination =
+                    objective.HasValue &&
+                    objective.Value.MarkerMode == ObjectiveMarkerMode.Map &&
+                    string.Equals(
+                        objective.Value.TargetLocation,
+                        entry.Spec.Code,
+                        StringComparison.Ordinal);
+                ApplyEntry(node, entry, isObjectiveDestination);
             }
         }
 
@@ -177,18 +188,95 @@ namespace Wake.UI
                 }
 
                 MapTypography.ApplyLocation(label);
+                GameObject destinationMarker =
+                    EnsureDestinationMarker(child);
                 mapNodes[code] = new MapNodeView(
                     child.gameObject,
                     image,
                     button,
                     outline,
-                    label);
+                    label,
+                    destinationMarker);
             }
+        }
+
+        private static GameObject EnsureDestinationMarker(Transform node)
+        {
+            Transform existing = node.Find("Objective Destination Arrow");
+            if (existing != null)
+            {
+                return existing.gameObject;
+            }
+
+            GameObject marker = new(
+                "Objective Destination Arrow",
+                typeof(RectTransform));
+            marker.transform.SetParent(node, false);
+            RectTransform markerRect =
+                marker.GetComponent<RectTransform>();
+            markerRect.anchorMin = new Vector2(1f, 0.5f);
+            markerRect.anchorMax = new Vector2(1f, 0.5f);
+            markerRect.pivot = new Vector2(1f, 0.5f);
+            markerRect.anchoredPosition = new Vector2(-10f, 0f);
+            markerRect.sizeDelta = new Vector2(48f, 34f);
+
+            Color color = new Color32(255, 205, 84, 255);
+            CreateArrowPart(
+                markerRect,
+                "Shaft",
+                new Vector2(24f, 8f),
+                new Vector2(3f, 0f),
+                0f,
+                color);
+            CreateArrowPart(
+                markerRect,
+                "Head Upper",
+                new Vector2(20f, 8f),
+                new Vector2(24f, 7f),
+                42f,
+                color);
+            CreateArrowPart(
+                markerRect,
+                "Head Lower",
+                new Vector2(20f, 8f),
+                new Vector2(24f, -7f),
+                -42f,
+                color);
+            marker.transform.SetAsLastSibling();
+            marker.SetActive(false);
+            return marker;
+        }
+
+        private static void CreateArrowPart(
+            RectTransform parent,
+            string name,
+            Vector2 size,
+            Vector2 position,
+            float rotation,
+            Color color)
+        {
+            GameObject part = new(
+                name,
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image));
+            part.transform.SetParent(parent, false);
+            RectTransform rect = part.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 0.5f);
+            rect.anchorMax = new Vector2(0f, 0.5f);
+            rect.pivot = new Vector2(0f, 0.5f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+            rect.localRotation = Quaternion.Euler(0f, 0f, rotation);
+            Image image = part.GetComponent<Image>();
+            image.color = color;
+            image.raycastTarget = false;
         }
 
         private void ApplyEntry(
             MapNodeView node,
-            ProductionMapEntry entry)
+            ProductionMapEntry entry,
+            bool isObjectiveDestination)
         {
             bool locked =
                 entry.Status == ProductionMapEntryStatus.Locked;
@@ -203,6 +291,8 @@ namespace Wake.UI
                 : Image.Type.Simple;
             node.Image.color = current
                 ? UiVisualThemeService.Resolve(UiColorToken.Cream)
+                : isObjectiveDestination && !locked
+                    ? new Color32(255, 205, 84, 255)
                 : locked
                 ? UiVisualThemeService.Resolve(UiColorToken.Disabled)
                 : entry.Status == ProductionMapEntryStatus.Completed
@@ -210,19 +300,32 @@ namespace Wake.UI
                     : UiVisualThemeService.Resolve(UiColorToken.Brass);
             node.Outline.effectColor = current
                 ? UiVisualThemeService.Resolve(UiColorToken.Brass)
+                : isObjectiveDestination && !locked
+                    ? UiVisualThemeService.Resolve(UiColorToken.Focus)
                 : locked
                 ? UiVisualThemeService.Resolve(UiColorToken.SurfaceOverlay)
                 : UiVisualThemeService.Resolve(UiColorToken.Focus);
             node.Outline.effectDistance =
-                current ? new Vector2(5f, -5f) : new Vector2(2f, -2f);
+                current || isObjectiveDestination
+                    ? new Vector2(5f, -5f)
+                    : new Vector2(2f, -2f);
             node.Button.interactable = !locked;
+            node.DestinationMarker.SetActive(
+                isObjectiveDestination && !current && !locked);
+            if (isObjectiveDestination)
+            {
+                node.Root.transform.SetAsLastSibling();
+            }
             node.Button.onClick.RemoveAllListeners();
             if (current)
                 node.Button.onClick.AddListener(
                     () => UIManager.Instance?.ShowIngame());
             else
                 node.Button.onClick.AddListener(() => SelectEntry(entry));
-            node.Label.text = entry.Spec.DisplayName;
+            node.Label.text =
+                isObjectiveDestination && !current && !locked
+                    ? $"목표 · {entry.Spec.DisplayName}"
+                    : entry.Spec.DisplayName;
             node.Label.color = locked
                 ? UiVisualThemeService.Resolve(UiColorToken.TextSecondary)
                 : current
@@ -330,13 +433,15 @@ namespace Wake.UI
                 Image image,
                 Button button,
                 Outline outline,
-                TMP_Text label)
+                TMP_Text label,
+                GameObject destinationMarker)
             {
                 Root = root;
                 Image = image;
                 Button = button;
                 Outline = outline;
                 Label = label;
+                DestinationMarker = destinationMarker;
             }
 
             public GameObject Root { get; }
@@ -344,6 +449,7 @@ namespace Wake.UI
             public Button Button { get; }
             public Outline Outline { get; }
             public TMP_Text Label { get; }
+            public GameObject DestinationMarker { get; }
         }
     }
 }
