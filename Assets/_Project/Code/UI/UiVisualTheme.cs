@@ -205,17 +205,17 @@ namespace Wake.UI
         [SerializeField] private UiTextToken caption = new(
             TypographyRole.BodyRegular, UiColorToken.TextSecondary, 18f);
         [SerializeField] private UiTextToken body = new(
-            TypographyRole.Body, UiColorToken.TextPrimary, 28f, 8f);
+            TypographyRole.Body, UiColorToken.TextPrimary, 26f, 6f);
         [SerializeField] private UiTextToken bodyLarge = new(
-            TypographyRole.Body, UiColorToken.TextPrimary, 36f, 10f);
+            TypographyRole.Body, UiColorToken.TextPrimary, 34f, 8f);
         [SerializeField] private UiTextToken choice = new(
-            TypographyRole.Choice, UiColorToken.TextPrimary, 30f);
+            TypographyRole.Choice, UiColorToken.TextPrimary, 28f);
         [SerializeField] private UiTextToken speakerName = new(
-            TypographyRole.SpeakerName, UiColorToken.Canvas, 30f);
+            TypographyRole.SpeakerName, UiColorToken.Canvas, 28f);
         [SerializeField] private UiTextToken heading = new(
-            TypographyRole.Heading, UiColorToken.Cream, 36f);
+            TypographyRole.Heading, UiColorToken.Cream, 38f);
         [SerializeField] private UiTextToken display = new(
-            TypographyRole.HeadingStrong, UiColorToken.Cream, 48f);
+            TypographyRole.HeadingStrong, UiColorToken.Cream, 52f);
         [SerializeField] private UiTextToken technical = new(
             TypographyRole.Technical, UiColorToken.Cream, 20f);
         [SerializeField] private UiTextToken handwritten = new(

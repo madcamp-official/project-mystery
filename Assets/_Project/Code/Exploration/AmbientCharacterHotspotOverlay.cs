@@ -49,7 +49,9 @@ namespace Wake.Exploration
             BindDialogue();
         }
 
-        public void Show(string locationCode)
+        public void Show(
+            string locationCode,
+            string narrativeSceneId = null)
         {
             Clear();
             if (contentRect == null)
@@ -57,9 +59,11 @@ namespace Wake.Exploration
 
             currentLocationCode =
                 locationCode?.Trim().ToUpperInvariant() ?? string.Empty;
-            currentSceneId = AmbientBarkCatalog.ResolveCurrentSceneId(
-                Wake.Core.GameStateManager.Instance,
-                DialogueController.Instance?.ActiveProductionSceneId);
+            currentSceneId = !string.IsNullOrWhiteSpace(narrativeSceneId)
+                ? narrativeSceneId.Trim().ToUpperInvariant()
+                : AmbientBarkCatalog.ResolveCurrentSceneId(
+                    Wake.Core.GameStateManager.Instance,
+                    DialogueController.Instance?.ActiveProductionSceneId);
             IReadOnlyList<AmbientBarkRecord> barks =
                 AmbientBarkCatalog.GetAvailable(
                     currentLocationCode,

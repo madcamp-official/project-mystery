@@ -10,17 +10,21 @@ namespace Wake.Exploration
         private readonly GameStateManager state;
         private readonly IProductionScenePlayer player;
         private readonly Func<LocationDefinition, bool> tryLoadLocation;
+        private readonly Action<string> prepareNarrativeScene;
+        private string deferredPhysicalSceneId = string.Empty;
 
         public ProductionSceneTravelCoordinator(
             LocationGraph graph,
             GameStateManager state,
             IProductionScenePlayer player,
-            Func<LocationDefinition, bool> tryLoadLocation)
+            Func<LocationDefinition, bool> tryLoadLocation,
+            Action<string> prepareNarrativeScene = null)
         {
             this.graph = graph;
             this.state = state;
             this.player = player;
             this.tryLoadLocation = tryLoadLocation;
+            this.prepareNarrativeScene = prepareNarrativeScene;
         }
 
         public SceneTravelResult TryEnter(string sceneId)
@@ -87,6 +91,9 @@ namespace Wake.Exploration
                     evaluated.Location);
             }
 
+            if (loadPhysicalLocation)
+                prepareNarrativeScene?.Invoke(evaluated.Scene.SceneId);
+
             if (loadPhysicalLocation &&
                 (tryLoadLocation == null ||
                  !tryLoadLocation(evaluated.Location)))
@@ -98,7 +105,10 @@ namespace Wake.Exploration
                     evaluated.Location);
             }
 
-            if (!player.StartProductionScene(evaluated.Scene.SceneId))
+            // Physical rooms are exploration spaces first. Their production
+            // scene starts from the focus character hotspot, not map travel.
+            if (!loadPhysicalLocation &&
+                !player.StartProductionScene(evaluated.Scene.SceneId))
             {
                 return SceneTravelResult.Denied(
                     SceneAccessDenialReason.DialogueUnavailable,
@@ -120,6 +130,8 @@ namespace Wake.Exploration
                 evaluated.Location != null
                     ? evaluated.Location.LocationCode
                     : evaluated.Scene.NarrativeLocationCode);
+            if (loadPhysicalLocation)
+                deferredPhysicalSceneId = evaluated.Scene.SceneId;
             return evaluated;
         }
 
@@ -144,11 +156,16 @@ namespace Wake.Exploration
 
         private bool IsAlreadyActive(string sceneId)
         {
-            return !string.IsNullOrWhiteSpace(player?.ActiveProductionSceneId) &&
-                   string.Equals(
-                       player.ActiveProductionSceneId,
+            return string.Equals(
+                       deferredPhysicalSceneId,
                        sceneId,
-                       StringComparison.OrdinalIgnoreCase);
+                       StringComparison.OrdinalIgnoreCase) ||
+                   (!string.IsNullOrWhiteSpace(
+                        player?.ActiveProductionSceneId) &&
+                    string.Equals(
+                        player.ActiveProductionSceneId,
+                        sceneId,
+                        StringComparison.OrdinalIgnoreCase));
         }
     }
 }

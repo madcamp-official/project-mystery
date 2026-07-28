@@ -238,6 +238,10 @@ namespace Wake.UI
             }
             else
             {
+                LocationLoader.Instance?.PrepareNarrativeScene(
+                    entry.UsesSceneTravel
+                        ? entry.SceneId
+                        : string.Empty);
                 SelectLocation(entry.Location);
             }
         }
@@ -291,7 +295,9 @@ namespace Wake.UI
                 DialogueController.Instance,
                 location =>
                     LocationLoader.Instance != null &&
-                    LocationLoader.Instance.TryLoadLocation(location, out _));
+                    LocationLoader.Instance.TryLoadLocation(location, out _),
+                sceneId =>
+                    LocationLoader.Instance?.PrepareNarrativeScene(sceneId));
         }
 
         private void ShowTravelFeedback()

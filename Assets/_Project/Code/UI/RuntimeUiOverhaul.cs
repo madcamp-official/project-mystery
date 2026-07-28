@@ -309,10 +309,13 @@ namespace Wake.UI
         private void Start()
         {
             Build();
+            ApplyLogoLayout();
         }
 
         private void OnEnable()
         {
+            Build();
+            ApplyLogoLayout();
             if (presentation != null)
             {
                 presentation.SetActive(true);
@@ -321,8 +324,14 @@ namespace Wake.UI
 
         private void Build()
         {
+            if (presentation == null)
+            {
+                presentation =
+                    transform.Find("Title Presentation")?.gameObject;
+            }
             if (presentation != null)
             {
+                ApplyLogoLayout();
                 return;
             }
 
@@ -430,14 +439,35 @@ namespace Wake.UI
                 typeof(Image));
             logoObject.transform.SetParent(root, false);
             RectTransform logoRect = logoObject.GetComponent<RectTransform>();
-            RuntimeUiLayoutRegistry.CopyWorldLayout(
-                logoRect,
-                ScreenRegionIds.ContextTopLeft);
+            ApplyLogoLayout(logoRect);
             Image logo = logoObject.GetComponent<Image>();
             logo.sprite =
                 Resources.Load<Sprite>("UiOverhaul/logo_transparent");
             logo.preserveAspect = true;
             logo.raycastTarget = false;
+        }
+
+        private void ApplyLogoLayout()
+        {
+            RectTransform logoRect = presentation?.transform.Find(
+                    "Under the Horizon Logo")
+                as RectTransform;
+            ApplyLogoLayout(logoRect);
+        }
+
+        private static void ApplyLogoLayout(RectTransform logoRect)
+        {
+            if (logoRect == null)
+                return;
+
+            // Exactly twice the original 24% x 14% title-safe slot.
+            // The right edge stops at screen center so it cannot cover the
+            // character composition, and it remains well above the menu.
+            logoRect.anchorMin = new Vector2(0.00f, 0.30f);
+            logoRect.anchorMax = new Vector2(0.50f, 1.00f);
+            logoRect.offsetMin = Vector2.zero;
+            logoRect.offsetMax = Vector2.zero;
+            logoRect.localScale = Vector3.one;
         }
 
         private static void CreateMenu(
@@ -521,35 +551,49 @@ namespace Wake.UI
 
         private static void CreateFooter(RectTransform root)
         {
-            TMP_Text copyright = SaveSlotSelectionController.MakeText(
-                root,
-                "© MAD CAMP · UNDER THE HORIZON",
-                18f,
-                Vector2.zero,
-                Vector2.zero);
-            copyright.name = "Copyright";
+            GameObject footerObject = new(
+                "Title Footer",
+                typeof(RectTransform),
+                typeof(VerticalLayoutGroup));
+            footerObject.transform.SetParent(root, false);
+            RectTransform footer =
+                footerObject.GetComponent<RectTransform>();
             RuntimeUiLayoutRegistry.CopyWorldLayout(
-                copyright.rectTransform,
-                ScreenRegionIds.ReadingBottom);
-            copyright.alignment = TextAlignmentOptions.BottomLeft;
-            UiVisualThemeService.ApplyText(
-                copyright,
-                UiTextStyle.Caption);
+                footer,
+                ScreenRegionIds.PrimaryBottomRight);
+            VerticalLayoutGroup layout =
+                footerObject.GetComponent<VerticalLayoutGroup>();
+            layout.spacing =
+                UiVisualThemeService.Resolve(UiSpacingToken.ExtraSmall);
+            layout.childAlignment = TextAnchor.LowerRight;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
 
             TMP_Text version = SaveSlotSelectionController.MakeText(
-                root,
+                footer,
                 $"버전 {Application.version}",
                 18f,
                 Vector2.zero,
                 Vector2.zero);
             version.name = "Version";
-            RuntimeUiLayoutRegistry.CopyWorldLayout(
-                version.rectTransform,
-                ScreenRegionIds.PrimaryBottomRight);
-            version.alignment = TextAlignmentOptions.BottomRight;
+            version.alignment = TextAlignmentOptions.Right;
             UiVisualThemeService.ApplyText(
                 version,
                 UiTextStyle.Technical);
+
+            TMP_Text copyright = SaveSlotSelectionController.MakeText(
+                footer,
+                "© MAD CAMP · UNDER THE HORIZON",
+                18f,
+                Vector2.zero,
+                Vector2.zero);
+            copyright.name = "Copyright";
+            copyright.alignment = TextAlignmentOptions.Right;
+            UiVisualThemeService.ApplyText(
+                copyright,
+                UiTextStyle.Caption);
         }
 
     }

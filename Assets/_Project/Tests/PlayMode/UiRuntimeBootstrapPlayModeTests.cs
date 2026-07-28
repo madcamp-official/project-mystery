@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
+using Wake.Core;
 using Wake.Evidence;
 using Wake.Puzzles;
 using Wake.UI;
@@ -214,7 +215,7 @@ namespace Wake.Tests.PlayMode
             Assert.That(line.enableAutoSizing, Is.True);
             Assert.That(
                 line.overflowMode,
-                Is.EqualTo(TextOverflowModes.Truncate));
+                Is.EqualTo(TextOverflowModes.Overflow));
             Assert.That(line.isTextOverflowing, Is.False);
 
             dialogue.CancelActiveDialogue();
@@ -246,7 +247,54 @@ namespace Wake.Tests.PlayMode
             Assert.That(
                 logo.sprite.rect.height,
                 Is.EqualTo(logo.sprite.texture.height));
+            RectTransform logoRect = logo.rectTransform;
+            Assert.That(
+                logoRect.anchorMax.x - logoRect.anchorMin.x,
+                Is.EqualTo(0.48f).Within(0.001f));
+            Assert.That(
+                logoRect.anchorMin.y,
+                Is.GreaterThanOrEqualTo(0.7f));
             AssertNoRuntimeErrors("타이틀 로고 전체 영역");
+        }
+
+        [UnityTest]
+        public IEnumerator SettingsSliders_ChangeLiveAudioSourceVolumes()
+        {
+            AudioManager audio = AudioManager.Instance;
+            Assert.That(audio, Is.Not.Null);
+            float originalMusic = audio.MusicVolume;
+            float originalSfx = audio.SfxVolume;
+
+            Ui.OpenSettings();
+            yield return null;
+            Slider music = RequireComponent<Slider>(
+                "Settings Popup/Settings/Sound");
+            Slider sfx = RequireComponent<Slider>(
+                "Settings Popup/Settings/Sound (1)");
+
+            Assert.That(
+                music.value,
+                Is.EqualTo(audio.MusicVolume).Within(0.001f));
+            Assert.That(
+                sfx.value,
+                Is.EqualTo(audio.SfxVolume).Within(0.001f));
+
+            music.value = 0.31f;
+            sfx.value = 0.47f;
+            yield return null;
+
+            Assert.That(audio.MusicVolume, Is.EqualTo(0.31f).Within(0.001f));
+            Assert.That(audio.SfxVolume, Is.EqualTo(0.47f).Within(0.001f));
+            Assert.That(
+                GameObject.Find("MusicSource").GetComponent<AudioSource>().volume,
+                Is.EqualTo(0.31f).Within(0.001f));
+            Assert.That(
+                GameObject.Find("SfxSource").GetComponent<AudioSource>().volume,
+                Is.EqualTo(0.47f).Within(0.001f));
+
+            audio.SetMusicVolume(originalMusic);
+            audio.SetSfxVolume(originalSfx);
+            AssertNoRuntimeErrors("설정 음량 실시간 반영");
         }
 
         [UnityTest]

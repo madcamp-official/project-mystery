@@ -1,5 +1,7 @@
 using System.Linq;
 using NUnit.Framework;
+using TMPro;
+using UnityEditor;
 using Wake.Editor;
 using Wake.UI;
 
@@ -140,6 +142,31 @@ namespace Wake.Tests
             Assert.That(corpus, Does.Not.Contain("占"));
             Assert.That(corpus, Does.Not.Contain("紐"));
             Assert.That(corpus, Does.Not.Contain("⑺"));
+        }
+
+        [TestCase('헬')]
+        [TestCase('믈')]
+        [TestCase('쇼')]
+        public void ProjectBodyFont_DynamicallySuppliesMissingKoreanSyllable(
+            char character)
+        {
+            TypographyCatalog catalog =
+                AssetDatabase.LoadAssetAtPath<TypographyCatalog>(
+                    TypographyCatalogBuilder.CatalogPath);
+            TMP_FontAsset body = catalog?.Body;
+
+            Assert.That(body, Is.Not.Null);
+            Assert.That(
+                body.atlasPopulationMode,
+                Is.EqualTo(AtlasPopulationMode.Dynamic));
+            Assert.That(body.sourceFontFile, Is.Not.Null);
+            Assert.That(
+                body.HasCharacter(
+                    character,
+                    searchFallbacks: true,
+                    tryAddCharacter: true),
+                Is.True,
+                $"Pretendard must render U+{(int)character:X4}.");
         }
     }
 }

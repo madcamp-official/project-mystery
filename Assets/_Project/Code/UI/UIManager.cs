@@ -369,6 +369,8 @@ namespace Wake.UI
             }
             settingsPopup.transform.SetAsLastSibling();
             settingsPopup.SetActive(true);
+            FindFirstObjectByType<SettingsController>()
+                ?.RefreshFromAudioManager();
             Transform credit =
                 settingsPopup.transform.Find("Settings/Credit");
             if (credit != null)

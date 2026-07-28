@@ -138,7 +138,7 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void MapTravel_LoadsLocationStartsDialogueAndUsesScheduleTime()
+        public void MapTravel_LoadsLocationDefersDialogueAndUsesScheduleTime()
         {
             state.RecordCompletedScene("D1-01");
             state.UnlockProductionScene("D1-02");
@@ -181,8 +181,8 @@ namespace Wake.Tests
 
             Assert.That(result.IsAllowed, Is.True);
             Assert.That(repeated.IsAllowed, Is.True);
-            Assert.That(player.StartedSceneId, Is.EqualTo("D1-02"));
-            Assert.That(player.StartCount, Is.EqualTo(1));
+            Assert.That(player.StartedSceneId, Is.Empty);
+            Assert.That(player.StartCount, Is.Zero);
             Assert.That(loadCount, Is.EqualTo(1));
             Assert.That(sceneEnteredCount, Is.EqualTo(1));
             Assert.That(state.Day, Is.EqualTo(1));

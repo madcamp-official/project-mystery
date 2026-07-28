@@ -16,6 +16,8 @@ namespace Wake.Exploration
         public static LocationLoader Instance { get; private set; }
 
         public LocationDefinition CurrentLocation { get; private set; }
+        public string NarrativeSceneContext { get; private set; } =
+            string.Empty;
         public event Action<LocationDefinition> LocationChanged;
         public bool IsPresentationVisible =>
             container != null && container.gameObject.activeSelf;
@@ -67,6 +69,7 @@ namespace Wake.Exploration
 
             if (location == CurrentLocation)
             {
+                RefreshInteractionOverlays();
                 failure = LoadFailure.None;
                 return true;
             }
@@ -97,7 +100,9 @@ namespace Wake.Exploration
                 location.BackgroundFocus,
                 location.BackgroundZoom);
             evidenceHotspots?.Show(location.LocationCode);
-            ambientCharacters?.Show(location.LocationCode);
+            ambientCharacters?.Show(
+                location.LocationCode,
+                NarrativeSceneContext);
             ambientInspectables?.Show(location.LocationCode);
             CurrentLocation = location;
             LocationChanged?.Invoke(location);
@@ -105,6 +110,24 @@ namespace Wake.Exploration
             GameStateManager.Instance?.RecordLocation(location.LocationCode);
             failure = LoadFailure.None;
             return true;
+        }
+
+        public void PrepareNarrativeScene(string sceneId)
+        {
+            NarrativeSceneContext =
+                sceneId?.Trim().ToUpperInvariant() ?? string.Empty;
+        }
+
+        private void RefreshInteractionOverlays()
+        {
+            if (CurrentLocation == null)
+                return;
+
+            evidenceHotspots?.Show(CurrentLocation.LocationCode);
+            ambientCharacters?.Show(
+                CurrentLocation.LocationCode,
+                NarrativeSceneContext);
+            ambientInspectables?.Show(CurrentLocation.LocationCode);
         }
 
         private void CreateBackgroundPresenter()

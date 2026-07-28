@@ -19,23 +19,23 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void FullHd_LineMaximumMatchesFortyPixelTarget()
+        public void FullHd_LineRangeRemainsReadableAndCanFitLongText()
         {
             Vector2 range = DialogueTypographyMetrics.GetLineScreenRange(
                 new Vector2(1920f, 1080f));
 
-            Assert.That(range.x, Is.EqualTo(32.9f).Within(Tolerance));
-            Assert.That(range.y, Is.EqualTo(40.5f).Within(Tolerance));
+            Assert.That(range.x, Is.EqualTo(20.2f).Within(Tolerance));
+            Assert.That(range.y, Is.EqualTo(35.4f).Within(Tolerance));
         }
 
         [Test]
-        public void FullHd_ChoiceMaximumMatchesThirtySixPixelTarget()
+        public void FullHd_ChoiceRangePreservesHierarchy()
         {
             Vector2 range = DialogueTypographyMetrics.GetChoiceScreenRange(
                 new Vector2(1920f, 1080f));
 
-            Assert.That(range.x, Is.EqualTo(30.4f).Within(Tolerance));
-            Assert.That(range.y, Is.EqualTo(36.7f).Within(Tolerance));
+            Assert.That(range.x, Is.EqualTo(21.5f).Within(Tolerance));
+            Assert.That(range.y, Is.EqualTo(30.4f).Within(Tolerance));
         }
 
         [Test]
@@ -44,8 +44,8 @@ namespace Wake.Tests
             Vector2 range = DialogueTypographyMetrics.GetSpeakerScreenRange(
                 new Vector2(1920f, 1080f));
 
-            Assert.That(range.x, Is.EqualTo(27.8f).Within(Tolerance));
-            Assert.That(range.y, Is.EqualTo(32.9f).Within(Tolerance));
+            Assert.That(range.x, Is.EqualTo(22.8f).Within(Tolerance));
+            Assert.That(range.y, Is.EqualTo(29.1f).Within(Tolerance));
         }
 
         [TestCase(1280f, 720f, 0.4216f)]
