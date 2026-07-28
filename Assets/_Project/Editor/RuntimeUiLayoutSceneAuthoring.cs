@@ -27,6 +27,10 @@ namespace Wake.Editor
             RectTransform layout = EnsureRect(canvas, "Runtime UI Layout");
             Stretch(layout);
             layout.SetAsLastSibling();
+            RemoveMissingScripts(layout);
+            RemoveObsoletePlaceholder(
+                layout,
+                "Dialogue Slots/Focus Panel Slot");
 
             BuildHud(layout);
             BuildDialogue(layout);
@@ -99,9 +103,13 @@ namespace Wake.Editor
                 "dialogue.speaker-portrait",
                 new Vector2(.27f, .13f), new Vector2(.27f, .13f),
                 new Vector2(360f, 430f), magenta);
-            Slot(dialogue, "Focus Panel Slot",
-                "dialogue.focus-panel",
-                new Vector2(.09f, .18f), new Vector2(.83f, .56f),
+            Slot(dialogue, "Focus Panel Left Slot",
+                "dialogue.focus-panel-left",
+                new Vector2(.06f, .18f), new Vector2(.60f, .68f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Focus Panel Right Slot",
+                "dialogue.focus-panel-right",
+                new Vector2(.40f, .18f), new Vector2(.94f, .68f),
                 Vector2.zero, magenta);
             Slot(dialogue, "Compact Panel Slot",
                 "dialogue.compact-panel",
@@ -113,11 +121,11 @@ namespace Wake.Editor
                 Vector2.zero, magenta);
             Slot(dialogue, "Focus Portrait Left Slot",
                 "dialogue.focus-portrait-left",
-                new Vector2(.04f, .12f), new Vector2(.36f, .78f),
+                new Vector2(.04f, .10f), new Vector2(.38f, .86f),
                 Vector2.zero, magenta);
             Slot(dialogue, "Focus Portrait Right Slot",
                 "dialogue.focus-portrait-right",
-                new Vector2(.64f, .12f), new Vector2(.96f, .82f),
+                new Vector2(.62f, .10f), new Vector2(.96f, .86f),
                 Vector2.zero, magenta);
             Slot(dialogue, "Compact Portrait Slot",
                 "dialogue.compact-portrait",
@@ -259,6 +267,8 @@ namespace Wake.Editor
             rect.pivot = new Vector2(.5f, .5f);
             rect.anchoredPosition = Vector2.zero;
             rect.sizeDelta = size;
+            GameObjectUtility.RemoveMonoBehavioursWithMissingScript(
+                rect.gameObject);
             RuntimeUiLayoutSlot slot =
                 rect.GetComponent<RuntimeUiLayoutSlot>() ??
                 rect.gameObject.AddComponent<RuntimeUiLayoutSlot>();
@@ -288,6 +298,25 @@ namespace Wake.Editor
             rect.pivot = new Vector2(.5f, .5f);
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
+        }
+
+        private static void RemoveMissingScripts(Transform root)
+        {
+            foreach (Transform child in root.GetComponentsInChildren<Transform>(
+                         true))
+            {
+                GameObjectUtility.RemoveMonoBehavioursWithMissingScript(
+                    child.gameObject);
+            }
+        }
+
+        private static void RemoveObsoletePlaceholder(
+            Transform root,
+            string path)
+        {
+            Transform obsolete = root.Find(path);
+            if (obsolete != null)
+                Object.DestroyImmediate(obsolete.gameObject);
         }
     }
 }

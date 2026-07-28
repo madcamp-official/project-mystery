@@ -301,7 +301,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 17075634}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 306024117}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: hud.anxiety
@@ -839,7 +839,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 34706750}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 306024117}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: location.NEWS_LOUNGE.inspectable.PROP_COFFEE
@@ -889,7 +889,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 57732972}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 306024117}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: modal.timeline-puzzle
@@ -1379,7 +1379,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 117501915}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 306024117}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: location.GANGWAY.character.CREW_SECURITY
@@ -1429,7 +1429,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 117676314}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 306024117}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: location.MEDBAY.character.CREW_SECURITY
@@ -1479,7 +1479,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 123640646}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 306024117}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: location.VIP_LOUNGE.inspectable.PROP_BELL
@@ -1541,7 +1541,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text:
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5c2a1beafb734de498ade912d3e89685, type: 2}
   m_sharedMaterial: {fileID: 8849810412386327734, guid: 5c2a1beafb734de498ade912d3e89685, type: 2}
@@ -1666,7 +1666,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 140580334}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 306024117}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: location.DINING.character.PASSENGER_C
@@ -2279,7 +2279,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 178240404}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 306024117}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: location.PROMENADE.evidence.C-14
@@ -2579,7 +2579,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 202068539}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 306024117}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: location.GANGWAY.character.PASSENGER_D
@@ -2923,7 +2923,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 215644644}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 306024117}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: location.PROMENADE.inspectable.PROP_ROBOT
@@ -2973,7 +2973,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 239248344}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 306024117}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: location.ENGINE_CONTROL.inspectable.PROP_CLIPBOARD
@@ -3059,7 +3059,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 252799206}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 306024117}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: location.PORT.evidence.C-01
@@ -3222,7 +3222,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 267329768}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 306024117}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: location.PORT.inspectable.PROP_BROCHURE
@@ -3669,7 +3669,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 304997369}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 306024117}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: location.ARCHIVE.evidence.C-17
@@ -3834,7 +3834,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 313945147}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1885730823}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: dialogue.compact-panel
@@ -4767,7 +4767,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: ''
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5c2a1beafb734de498ade912d3e89685, type: 2}
   m_sharedMaterial: {fileID: 8849810412386327734, guid: 5c2a1beafb734de498ade912d3e89685, type: 2}
@@ -6968,7 +6968,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: ''
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5c2a1beafb734de498ade912d3e89685, type: 2}
   m_sharedMaterial: {fileID: 8849810412386327734, guid: 5c2a1beafb734de498ade912d3e89685, type: 2}
@@ -7760,8 +7760,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1605726926}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.04, y: 0.12}
-  m_AnchorMax: {x: 0.36, y: 0.78}
+  m_AnchorMin: {x: 0.04, y: 0.1}
+  m_AnchorMax: {x: 0.38, y: 0.86}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -7774,7 +7774,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 745684875}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1885730823}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: dialogue.focus-portrait-left
@@ -8436,8 +8436,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1605726926}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.64, y: 0.12}
-  m_AnchorMax: {x: 0.96, y: 0.82}
+  m_AnchorMin: {x: 0.62, y: 0.1}
+  m_AnchorMax: {x: 0.96, y: 0.86}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -8450,7 +8450,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 900633596}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1885730823}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: dialogue.focus-portrait-right
@@ -8662,7 +8662,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: ''
+  m_text:
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5c2a1beafb734de498ade912d3e89685, type: 2}
   m_sharedMaterial: {fileID: 8849810412386327734, guid: 5c2a1beafb734de498ade912d3e89685, type: 2}
@@ -11503,9 +11503,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -28, y: -155.5}
+  m_AnchoredPosition: {x: -120, y: -520}
   m_SizeDelta: {x: 200, y: 200}
-  m_Pivot: {x: 1, y: 1}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1191014373
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12655,7 +12655,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1305219141}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1885730823}
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: dialogue.narration-panel
@@ -13464,56 +13464,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1387338264}
   m_CullTransparentMesh: 1
---- !u!1 &1397107938
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1397107939}
-  - component: {fileID: 1397107940}
-  m_Layer: 0
-  m_Name: Focus Panel Slot
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1397107939
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1397107938}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1605726926}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.09, y: 0.18}
-  m_AnchorMax: {x: 0.83, y: 0.56}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1397107940
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1397107938}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1885730823}
-  m_Name: 
-  m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
-  slotId: dialogue.focus-panel
-  editorColor: {r: 1, g: 0.35, b: 0.75, a: 0.85}
 --- !u!1 &1400004708
 GameObject:
   m_ObjectHideFlags: 0
@@ -15608,12 +15558,13 @@ RectTransform:
   m_Children:
   - {fileID: 1504594977}
   - {fileID: 1459846672}
-  - {fileID: 1397107939}
   - {fileID: 313945148}
   - {fileID: 1305219142}
   - {fileID: 745684876}
   - {fileID: 900633597}
   - {fileID: 2008206758}
+  - {fileID: 1772677777}
+  - {fileID: 1610372171}
   m_Father: {fileID: 1144242569}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -15895,6 +15846,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1609105670}
   m_CullTransparentMesh: 1
+--- !u!1 &1610372170
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1610372171}
+  - component: {fileID: 1610372172}
+  m_Layer: 0
+  m_Name: Focus Panel Right Slot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1610372171
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1610372170}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1605726926}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.4, y: 0.18}
+  m_AnchorMax: {x: 0.94, y: 0.68}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1610372172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1610372170}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
+  slotId: dialogue.focus-panel-right
+  editorColor: {r: 1, g: 0.35, b: 0.75, a: 0.85}
 --- !u!1 &1613172528
 GameObject:
   m_ObjectHideFlags: 0
@@ -17368,6 +17369,56 @@ MonoBehaviour:
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: location.SERVICE_RAIL.character.RAIL_TECHNICIAN
   editorColor: {r: 0.3, g: 1, b: 0.45, a: 0.8}
+--- !u!1 &1772677776
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1772677777}
+  - component: {fileID: 1772677778}
+  m_Layer: 0
+  m_Name: Focus Panel Left Slot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1772677777
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1772677776}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1605726926}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.06, y: 0.18}
+  m_AnchorMax: {x: 0.6, y: 0.68}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1772677778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1772677776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
+  slotId: dialogue.focus-panel-left
+  editorColor: {r: 1, g: 0.35, b: 0.75, a: 0.85}
 --- !u!1 &1781726916
 GameObject:
   m_ObjectHideFlags: 0
@@ -17491,9 +17542,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 2434.3, y: -184}
+  m_AnchoredPosition: {x: 120, y: -520}
   m_SizeDelta: {x: 150, y: 150}
-  m_Pivot: {x: 0, y: 1}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1802013736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18297,9 +18348,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 2600, y: -155.5}
+  m_AnchoredPosition: {x: 315, y: -520}
   m_SizeDelta: {x: 220, y: 220}
-  m_Pivot: {x: 0, y: 1}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1906706260
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20079,8 +20130,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2097857432}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.1085, y: 0.035}
-  m_AnchorMax: {x: 0.2915, y: 0.64500004}
+  m_AnchorMin: {x: 0.1065, y: 0.025}
+  m_AnchorMax: {x: 0.2535, y: 0.515}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -20111,6 +20162,7 @@ GameObject:
   - component: {fileID: 2065806685}
   - component: {fileID: 2065806684}
   - component: {fileID: 2065806687}
+  - component: {fileID: 2065806688}
   m_Layer: 5
   m_Name: Next
   m_TagString: Untagged
@@ -20230,7 +20282,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ead67299e9cd4c0dace8306957f5ae66, type: 3}
-  m_Name: ''
+  m_Name:
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.DialogueAdvanceControl
   button: {fileID: 2065806684}
   icon: {fileID: 2065806685}
@@ -20238,6 +20290,18 @@ MonoBehaviour:
   normalSprite: {fileID: 21300000, guid: 1d0a647d06857fd4090edd091f74efb5, type: 3}
   pressedSprite: {fileID: 21300000, guid: f0f3457ecafda564588c157f88b6d6a5, type: 3}
   revealAlpha: 0.72
+--- !u!225 &2065806688
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2065806682}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &2073888764
 GameObject:
   m_ObjectHideFlags: 0

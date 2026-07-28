@@ -1,3 +1,6 @@
 ﻿<Solution>
-  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="Wake.Editor.csproj" />
+  <Project Path="Wake.Runtime.csproj" />
+  <Project Path="Wake.EditModeTests.csproj" />
+  <Project Path="Wake.PlayModeTests.csproj" />
 </Solution>

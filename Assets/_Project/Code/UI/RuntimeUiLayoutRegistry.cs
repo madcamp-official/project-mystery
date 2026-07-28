@@ -132,8 +132,8 @@ namespace Wake.UI
                 RectTransformUtility.CalculateRelativeRectTransformBounds(
                     parent,
                     slot);
-            runtimeRect.anchorMin = Vector2.zero;
-            runtimeRect.anchorMax = Vector2.zero;
+            runtimeRect.anchorMin = new Vector2(0.5f, 0.5f);
+            runtimeRect.anchorMax = new Vector2(0.5f, 0.5f);
             runtimeRect.pivot = new Vector2(0.5f, 0.5f);
             runtimeRect.anchoredPosition = bounds.center;
             runtimeRect.sizeDelta = bounds.size;
@@ -162,38 +162,4 @@ namespace Wake.UI
         }
     }
 
-    [ExecuteAlways]
-    [DisallowMultipleComponent]
-    public sealed class RuntimeUiLayoutSlot : MonoBehaviour
-    {
-        [SerializeField] private string slotId = string.Empty;
-        [SerializeField] private Color editorColor =
-            new(0.20f, 0.75f, 1f, 0.85f);
-
-        public string SlotId => string.IsNullOrWhiteSpace(slotId)
-            ? gameObject.name
-            : slotId;
-
-        public void Configure(string id, Color color)
-        {
-            slotId = id?.Trim() ?? string.Empty;
-            editorColor = color;
-        }
-
-        private void OnDrawGizmos()
-        {
-            if (transform is not RectTransform rect)
-                return;
-
-            Vector3[] corners = new Vector3[4];
-            rect.GetWorldCorners(corners);
-            Gizmos.color = editorColor;
-            for (int index = 0; index < corners.Length; index++)
-            {
-                Gizmos.DrawLine(
-                    corners[index],
-                    corners[(index + 1) % corners.Length]);
-            }
-        }
-    }
 }

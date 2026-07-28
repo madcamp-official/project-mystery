@@ -94,10 +94,10 @@ namespace Wake.Narrative
                 return ForSpeaker(speaker);
 
             return new DialoguePresentationSpec(
-                DialoguePresentationMode.Compact,
-                DialoguePortraitSide.Left,
-                0.18f,
-                0.34f,
+                DialoguePresentationMode.Focus,
+                DialoguePortraitSide.Right,
+                0.38f,
+                0.68f,
                 showSpeakerName: true);
         }
 
@@ -149,18 +149,18 @@ namespace Wake.Narrative
 
                 case DialogueSpeakerKind.NonPlayer:
                     return new DialoguePresentationSpec(
-                        DialoguePresentationMode.Compact,
-                        DialoguePortraitSide.Left,
-                        0.18f,
-                        0.34f,
+                        DialoguePresentationMode.Focus,
+                        DialoguePortraitSide.Right,
+                        0.38f,
+                        0.68f,
                         showSpeakerName: true);
 
                 default:
                     return new DialoguePresentationSpec(
                         DialoguePresentationMode.Focus,
                         DialoguePortraitSide.Right,
-                        0.32f,
-                        0.56f,
+                        0.38f,
+                        0.68f,
                         showSpeakerName: true);
             }
         }

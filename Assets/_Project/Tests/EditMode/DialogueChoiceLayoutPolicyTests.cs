@@ -39,11 +39,11 @@ namespace Wake.Tests
         public void NarrowContainer_FallsBackToOneColumn()
         {
             DialogueChoiceLayoutSpec spec =
-                DialogueChoiceLayoutPolicy.Calculate(1000f, 2);
+                DialogueChoiceLayoutPolicy.Calculate(760f, 2);
 
             Assert.That(spec.Columns, Is.EqualTo(1));
             Assert.That(spec.Rows, Is.EqualTo(2));
-            Assert.That(spec.CellSize.x, Is.EqualTo(980f));
+            Assert.That(spec.CellSize.x, Is.EqualTo(740f));
         }
 
         [TestCase(2, 1)]
