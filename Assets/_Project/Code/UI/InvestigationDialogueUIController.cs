@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Wake.Narrative;
 
 namespace Wake.UI
 {
@@ -14,6 +16,10 @@ namespace Wake.UI
         private TMP_Text bodyText;
         private TMP_Text actionLabel;
         private Button actionButton;
+        private IReadOnlyList<string> pages = Array.Empty<string>();
+        private int pageIndex;
+        private string finalActionLabel = string.Empty;
+        private Action completion;
 
         public bool IsOpen => root != null && root.activeSelf;
 
@@ -27,8 +33,7 @@ namespace Wake.UI
                 canvas,
                 typeof(Image));
             RectTransform rootRect = root.GetComponent<RectTransform>();
-            Stretch(rootRect);
-            RuntimeUiLayoutRegistry.CopyLayout(
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
                 rootRect,
                 "dialogue.investigation");
             Image dimmer = root.GetComponent<Image>();
@@ -40,9 +45,9 @@ namespace Wake.UI
                 typeof(Image),
                 typeof(Outline));
             RectTransform frameRect = frame.GetComponent<RectTransform>();
-            frameRect.anchorMin = new Vector2(.16f, .14f);
-            frameRect.anchorMax = new Vector2(.84f, .86f);
-            frameRect.offsetMin = frameRect.offsetMax = Vector2.zero;
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
+                frameRect,
+                "dialogue.investigation.frame");
             Image frameImage = frame.GetComponent<Image>();
             frameImage.color = new Color32(13, 30, 48, 252);
             Outline outline = frame.GetComponent<Outline>();
@@ -52,8 +57,7 @@ namespace Wake.UI
             sectionLabel = CreateText(
                 "Section",
                 frame.transform,
-                new Vector2(.08f, .79f),
-                new Vector2(.92f, .93f),
+                "dialogue.investigation.section",
                 26f,
                 TextAlignmentOptions.Left,
                 new Color32(217, 180, 105, 255));
@@ -65,8 +69,7 @@ namespace Wake.UI
             titleText = CreateText(
                 "Title",
                 frame.transform,
-                new Vector2(.08f, .61f),
-                new Vector2(.92f, .82f),
+                "dialogue.investigation.title",
                 48f,
                 TextAlignmentOptions.Left,
                 new Color32(248, 235, 207, 255));
@@ -77,8 +80,7 @@ namespace Wake.UI
             bodyText = CreateText(
                 "Observation",
                 frame.transform,
-                new Vector2(.08f, .23f),
-                new Vector2(.92f, .61f),
+                "dialogue.investigation.body",
                 34f,
                 TextAlignmentOptions.TopLeft,
                 new Color32(226, 228, 221, 255));
@@ -86,7 +88,7 @@ namespace Wake.UI
             bodyText.enableAutoSizing = true;
             bodyText.fontSizeMin = 24f;
             bodyText.fontSizeMax = 36f;
-            bodyText.overflowMode = TextOverflowModes.Ellipsis;
+            bodyText.overflowMode = TextOverflowModes.Truncate;
             bodyText.lineSpacing = 18f;
             TypographyService.Apply(bodyText, TypographyRole.Body);
 
@@ -97,19 +99,17 @@ namespace Wake.UI
                 typeof(Button));
             RectTransform buttonRect =
                 buttonObject.GetComponent<RectTransform>();
-            buttonRect.anchorMin = new Vector2(.32f, .07f);
-            buttonRect.anchorMax = new Vector2(.68f, .20f);
-            buttonRect.offsetMin = buttonRect.offsetMax = Vector2.zero;
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
+                buttonRect,
+                "dialogue.investigation.action");
             Image buttonImage = buttonObject.GetComponent<Image>();
             buttonImage.color = new Color32(207, 169, 96, 255);
             actionButton = buttonObject.GetComponent<Button>();
             actionButton.targetGraphic = buttonImage;
 
-            actionLabel = CreateText(
+            actionLabel = CreateContainedText(
                 "Label",
                 buttonObject.transform,
-                Vector2.zero,
-                Vector2.one,
                 28f,
                 TextAlignmentOptions.Center,
                 new Color32(12, 22, 34, 255));
@@ -149,6 +149,8 @@ namespace Wake.UI
         public void Hide()
         {
             actionButton?.onClick.RemoveAllListeners();
+            pages = Array.Empty<string>();
+            completion = null;
             root?.SetActive(false);
         }
 
@@ -164,12 +166,39 @@ namespace Wake.UI
 
             sectionLabel.text = section ?? string.Empty;
             titleText.text = title ?? string.Empty;
-            bodyText.text = body ?? string.Empty;
-            actionLabel.text = action ?? string.Empty;
+            pages = DialogueTextPaginator.Split(body, 120);
+            pageIndex = 0;
+            finalActionLabel = action ?? string.Empty;
+            completion = callback;
             actionButton.onClick.RemoveAllListeners();
-            actionButton.onClick.AddListener(() => callback?.Invoke());
+            actionButton.onClick.AddListener(AdvancePage);
+            PresentPage();
             root.transform.SetAsLastSibling();
             root.SetActive(true);
+        }
+
+        private void AdvancePage()
+        {
+            if (pageIndex + 1 < pages.Count)
+            {
+                pageIndex++;
+                PresentPage();
+                return;
+            }
+
+            Action callback = completion;
+            completion = null;
+            callback?.Invoke();
+        }
+
+        private void PresentPage()
+        {
+            bodyText.text = pages.Count == 0
+                ? string.Empty
+                : pages[Mathf.Clamp(pageIndex, 0, pages.Count - 1)];
+            actionLabel.text = pageIndex + 1 < pages.Count
+                ? "계속"
+                : finalActionLabel;
         }
 
         private static GameObject CreateObject(
@@ -189,8 +218,7 @@ namespace Wake.UI
         private static TMP_Text CreateText(
             string name,
             Transform parent,
-            Vector2 anchorMin,
-            Vector2 anchorMax,
+            string slotId,
             float fontSize,
             TextAlignmentOptions alignment,
             Color color)
@@ -200,9 +228,7 @@ namespace Wake.UI
                 parent,
                 typeof(TextMeshProUGUI));
             RectTransform rect = textObject.GetComponent<RectTransform>();
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            RuntimeUiLayoutRegistry.CopyWorldLayout(rect, slotId);
 
             TextMeshProUGUI text =
                 textObject.GetComponent<TextMeshProUGUI>();
@@ -212,11 +238,28 @@ namespace Wake.UI
             return text;
         }
 
-        private static void Stretch(RectTransform rect)
+        private static TMP_Text CreateContainedText(
+            string name,
+            Transform parent,
+            float fontSize,
+            TextAlignmentOptions alignment,
+            Color color)
         {
+            GameObject textObject = CreateObject(
+                name,
+                parent,
+                typeof(TextMeshProUGUI));
+            RectTransform rect = textObject.GetComponent<RectTransform>();
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
             rect.offsetMin = rect.offsetMax = Vector2.zero;
+
+            TextMeshProUGUI text =
+                textObject.GetComponent<TextMeshProUGUI>();
+            text.fontSize = fontSize;
+            text.alignment = alignment;
+            text.color = color;
+            return text;
         }
     }
 }

@@ -212,6 +212,73 @@ namespace Wake.Editor
             Slot(dialogue, "Investigation Overlay Slot",
                 "dialogue.investigation",
                 Vector2.zero, Vector2.one, Vector2.zero, magenta);
+            Slot(dialogue, "Dialogue Dim Slot",
+                "dialogue.dim",
+                Vector2.zero, Vector2.one, Vector2.zero, magenta);
+            Slot(dialogue, "Focus Text Left Slot",
+                "dialogue.focus-text-left",
+                new Vector2(.09f, .31f), new Vector2(.55f, .61f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Focus Text Right Slot",
+                "dialogue.focus-text-right",
+                new Vector2(.45f, .31f), new Vector2(.91f, .61f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Compact Text Slot",
+                "dialogue.compact-text",
+                new Vector2(.37f, .15f), new Vector2(.77f, .27f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Narration Text Slot",
+                "dialogue.narration-text",
+                new Vector2(.20f, .29f), new Vector2(.80f, .43f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Speaker Name Left Slot",
+                "dialogue.speaker-name-left",
+                new Vector2(.06f, .69f), new Vector2(.31f, .75f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Speaker Name Right Slot",
+                "dialogue.speaker-name-right",
+                new Vector2(.69f, .69f), new Vector2(.94f, .75f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Advance Left Slot",
+                "dialogue.advance-left",
+                new Vector2(.54f, .20f), new Vector2(.59f, .28f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Advance Right Slot",
+                "dialogue.advance-right",
+                new Vector2(.41f, .20f), new Vector2(.46f, .28f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Advance Center Slot",
+                "dialogue.advance-center",
+                new Vector2(.75f, .08f), new Vector2(.80f, .16f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Choices Left Slot",
+                "dialogue.choices-left",
+                new Vector2(.06f, .04f), new Vector2(.58f, .20f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Choices Right Slot",
+                "dialogue.choices-right",
+                new Vector2(.42f, .04f), new Vector2(.94f, .20f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Investigation Frame Slot",
+                "dialogue.investigation.frame",
+                new Vector2(.16f, .14f), new Vector2(.84f, .86f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Investigation Section Slot",
+                "dialogue.investigation.section",
+                new Vector2(.21f, .73f), new Vector2(.79f, .82f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Investigation Title Slot",
+                "dialogue.investigation.title",
+                new Vector2(.21f, .58f), new Vector2(.79f, .73f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Investigation Body Slot",
+                "dialogue.investigation.body",
+                new Vector2(.21f, .31f), new Vector2(.79f, .58f),
+                Vector2.zero, magenta);
+            Slot(dialogue, "Investigation Action Slot",
+                "dialogue.investigation.action",
+                new Vector2(.40f, .18f), new Vector2(.60f, .28f),
+                Vector2.zero, magenta);
         }
 
         private static void ConfigureDialogueAdvance(RectTransform canvas)
@@ -251,6 +318,7 @@ namespace Wake.Editor
                 "modal.production-puzzle", 760f, 560f, gold);
             Modal(modals, "Marcus Interrogation Slot",
                 "modal.marcus-interrogation", 1000f, 700f, gold);
+            BuildMarcusInterrogation(modals, gold);
             Modal(modals, "Timeline Puzzle Slot",
                 "modal.timeline-puzzle", 1040f, 690f, gold);
             Modal(modals, "Orpheus Restoration Slot",
@@ -315,6 +383,79 @@ namespace Wake.Editor
                     spec.NormalizedRect.min, spec.NormalizedRect.max,
                     Vector2.zero, green);
             }
+        }
+
+        private static void BuildMarcusInterrogation(
+            RectTransform modals,
+            Color color)
+        {
+            Slot(modals, "Marcus Interrogation Dim Slot",
+                "interrogation.dim",
+                Vector2.zero, Vector2.one, Vector2.zero, color);
+            Slot(modals, "Marcus Interrogation Panel Slot",
+                "interrogation.panel",
+                new Vector2(.15f, .08f), new Vector2(.85f, .92f),
+                Vector2.zero, color);
+            Slot(modals, "Marcus Interrogation Title Slot",
+                "interrogation.title",
+                new Vector2(.20f, .82f), new Vector2(.80f, .90f),
+                Vector2.zero, color);
+            Slot(modals, "Marcus Interrogation Guidance Slot",
+                "interrogation.guidance",
+                new Vector2(.20f, .75f), new Vector2(.80f, .82f),
+                Vector2.zero, color);
+            Slot(modals, "Marcus Interrogation State Slot",
+                "interrogation.state",
+                new Vector2(.20f, .68f), new Vector2(.80f, .75f),
+                Vector2.zero, color);
+
+            const int columns = 2;
+            const int rows = 4;
+            const float left = .19f;
+            const float right = .81f;
+            const float bottom = .31f;
+            const float top = .68f;
+            const float horizontalGap = .018f;
+            const float verticalGap = .014f;
+            float cellWidth =
+                (right - left - horizontalGap) / columns;
+            float cellHeight =
+                (top - bottom - verticalGap * (rows - 1)) / rows;
+            for (int index = 0; index < 8; index++)
+            {
+                int column = index % columns;
+                int row = index / columns;
+                float xMin =
+                    left + column * (cellWidth + horizontalGap);
+                float yMax =
+                    top - row * (cellHeight + verticalGap);
+                Slot(modals, $"Marcus Question {index + 1} Slot",
+                    $"interrogation.question.{index + 1}",
+                    new Vector2(xMin, yMax - cellHeight),
+                    new Vector2(xMin + cellWidth, yMax),
+                    Vector2.zero, color);
+            }
+
+            Slot(modals, "Marcus Interrogation Feedback Slot",
+                "interrogation.feedback",
+                new Vector2(.20f, .23f), new Vector2(.80f, .30f),
+                Vector2.zero, color);
+            Slot(modals, "Marcus Interrogation Back Slot",
+                "interrogation.back",
+                new Vector2(.17f, .11f), new Vector2(.31f, .19f),
+                Vector2.zero, color);
+            Slot(modals, "Marcus Interrogation Yes Slot",
+                "interrogation.answer.yes",
+                new Vector2(.38f, .11f), new Vector2(.49f, .19f),
+                Vector2.zero, color);
+            Slot(modals, "Marcus Interrogation No Slot",
+                "interrogation.answer.no",
+                new Vector2(.51f, .11f), new Vector2(.62f, .19f),
+                Vector2.zero, color);
+            Slot(modals, "Marcus Interrogation Submit Slot",
+                "interrogation.submit",
+                new Vector2(.69f, .11f), new Vector2(.83f, .19f),
+                Vector2.zero, color);
         }
 
         private static void Modal(
