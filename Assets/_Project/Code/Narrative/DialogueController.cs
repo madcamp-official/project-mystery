@@ -54,6 +54,9 @@ namespace Wake.Narrative
         private int lastAdvanceInputFrame = -1;
 
         public bool IsBusy { get; private set; }
+        public DialoguePresentationSpec ActivePresentation { get; private set; } =
+            DialoguePresentationPolicy.Hidden;
+        public event Action<DialoguePresentationSpec> PresentationChanged;
         public string ActiveProductionSceneId =>
             productionFlow?.ActiveSceneId ?? string.Empty;
 
@@ -324,6 +327,9 @@ namespace Wake.Narrative
             choicesContainer.SetActive(false);
             nextButton.gameObject.SetActive(true);
             speakerText.text = DialoguePortraitCatalog.GetDisplayName(speaker);
+            ApplyPresentation(
+                DialoguePresentationPolicy.ForAmbient(
+                    DialoguePresentationMap.GetSpeaker(speaker)));
             SetLineText(text, isNarrationOrSystem: false);
             responsiveLayout?.ResetTextScroll();
             ShowPortrait(
@@ -398,6 +404,7 @@ namespace Wake.Narrative
             productionFlow = null;
             ambientLineActive = false;
             pendingInvestigationTitle = string.Empty;
+            ApplyPresentation(DialoguePresentationPolicy.Hidden);
             linePanel?.SetActive(false);
             investigationUi?.Hide();
             choicesContainer?.SetActive(false);
@@ -544,6 +551,8 @@ namespace Wake.Narrative
                 DialoguePresentationMap.GetSpeaker(
                     record.Speaker,
                     record.LineType);
+            ApplyPresentation(
+                DialoguePresentationPolicy.ForProduction(speaker));
             speakerText.text =
                 DialoguePresentationMap.GetSpeakerLabel(record.Speaker, speaker);
             bool isNarrationOrSystem =
@@ -584,6 +593,8 @@ namespace Wake.Narrative
         private void PresentInvestigationTarget(DialogueRecord marker)
         {
             StopTypewriter();
+            ApplyPresentation(
+                DialoguePresentationPolicy.ForInvestigation());
             linePanel.SetActive(false);
             pendingInvestigationTitle =
                 InvestigationPresentationPolicy.MarkerTitle(marker);
@@ -606,6 +617,8 @@ namespace Wake.Narrative
         private void PresentInvestigationResult(DialogueRecord record)
         {
             StopTypewriter();
+            ApplyPresentation(
+                DialoguePresentationPolicy.ForInvestigation());
             linePanel.SetActive(false);
             string title = string.IsNullOrWhiteSpace(
                 pendingInvestigationTitle)
@@ -654,6 +667,9 @@ namespace Wake.Narrative
                 speakerText.text = line.Speaker;
                 DialogueSpeakerIdentity legacySpeaker =
                     DialoguePresentationMap.GetSpeaker(line.Speaker);
+                ApplyPresentation(
+                    DialoguePresentationPolicy.ForProduction(
+                        legacySpeaker));
                 bool isNarrationOrSystem =
                     legacySpeaker.Kind == DialogueSpeakerKind.Narration ||
                     legacySpeaker.Kind == DialogueSpeakerKind.System;
@@ -785,6 +801,7 @@ namespace Wake.Narrative
             productionFlow = null;
             ambientLineActive = false;
             pendingInvestigationTitle = string.Empty;
+            ApplyPresentation(DialoguePresentationPolicy.Hidden);
             investigationUi?.Hide();
             if (linePanel != null)
             {
@@ -863,6 +880,15 @@ namespace Wake.Narrative
                 productionFlow.CurrentIndex,
                 productionFlow.IsAwaitingChoice,
                 productionFlow.PendingInteractionId);
+        }
+
+        private void ApplyPresentation(DialoguePresentationSpec presentation)
+        {
+            if (ActivePresentation == presentation)
+                return;
+
+            ActivePresentation = presentation;
+            PresentationChanged?.Invoke(presentation);
         }
     }
 }
