@@ -375,6 +375,8 @@ namespace Wake.Tests.PlayMode
         public IEnumerator PrimaryButtons_RoundTripWithoutOrphanModal()
         {
             yield return StartNewGameFromVisibleButton();
+            Dialogue.CancelActiveDialogue();
+            yield return null;
             AssertOnlyPanel(UiPrimaryPanel.Ingame);
 
             yield return InvokeAndSettle(
