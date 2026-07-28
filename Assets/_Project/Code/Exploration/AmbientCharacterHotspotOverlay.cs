@@ -39,10 +39,13 @@ namespace Wake.Exploration
         private Vector2 lastContentSize;
         private string currentLocationCode = string.Empty;
         private string currentSceneId = string.Empty;
+        private DialogueController boundDialogue;
+        private bool dialoguePresentationVisible;
 
         public void Initialize(RectTransform backgroundContentRect)
         {
             contentRect = backgroundContentRect;
+            BindDialogue();
         }
 
         public void Show(string locationCode)
@@ -82,6 +85,7 @@ namespace Wake.Exploration
             }
 
             RefreshLayout();
+            ApplyDialogueVisibility();
         }
 
         private void CreateAmbientCharacter(AmbientBarkRecord bark)
@@ -288,6 +292,7 @@ namespace Wake.Exploration
 
         private void LateUpdate()
         {
+            BindDialogue();
             if (contentRect != null &&
                 spawned.Count > 0 &&
                 contentRect.rect.size != lastContentSize)
@@ -295,6 +300,44 @@ namespace Wake.Exploration
                 RefreshLayout();
             }
             RefreshCompletionPresentation();
+        }
+
+        private void BindDialogue()
+        {
+            DialogueController dialogue = DialogueController.Instance;
+            if (boundDialogue == dialogue)
+                return;
+
+            if (boundDialogue != null)
+                boundDialogue.PresentationChanged -=
+                    HandleDialoguePresentationChanged;
+
+            boundDialogue = dialogue;
+            if (boundDialogue == null)
+                return;
+
+            boundDialogue.PresentationChanged +=
+                HandleDialoguePresentationChanged;
+            dialoguePresentationVisible =
+                boundDialogue.ActivePresentation.IsVisible;
+            ApplyDialogueVisibility();
+        }
+
+        private void HandleDialoguePresentationChanged(
+            DialoguePresentationSpec presentation)
+        {
+            dialoguePresentationVisible = presentation.IsVisible;
+            ApplyDialogueVisibility();
+        }
+
+        private void ApplyDialogueVisibility()
+        {
+            bool visible = !dialoguePresentationVisible;
+            foreach (WorldCharacterView view in spawned)
+            {
+                view?.Target?.SetActive(visible);
+                view?.GroundShadowObject?.SetActive(visible);
+            }
         }
 
         private void RefreshLayout()
@@ -590,6 +633,15 @@ namespace Wake.Exploration
                     Destroy(view.BlendMaterial);
             }
             spawned.Clear();
+        }
+
+        private void OnDestroy()
+        {
+            if (boundDialogue != null)
+            {
+                boundDialogue.PresentationChanged -=
+                    HandleDialoguePresentationChanged;
+            }
         }
     }
 }
