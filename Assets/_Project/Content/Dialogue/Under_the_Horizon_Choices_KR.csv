@@ -24,7 +24,7 @@ D2-01_HATCH,D2-01,설비 점검구부터 조사,,inspect:C-05,D2-01_ORDER,READY
 D2-03_C1,D2-03,의사를 압박,,trust_helena:-1; flag:helena_defensive,D2-03_APPROACH,READY
 D2-03_C2,D2-03,협조 요청,,trust_helena:+1; flag:helena_cooperative,D2-03_APPROACH,READY
 D2-04_C1,D2-04,영상만 보기,,timeBlock:-1; flag:camera_only,D2-04_LOG,READY
-D2-04_C2,D2-04,설비 로그 대조,,flag:ceiling_investigation; evidence:C-08,D2-04_LOG,READY
+D2-04_C2,D2-04,설비 로그 대조,,flag:facility_log_requested,D2-04_LOG,READY
 D2-05_C1,D2-05,오언을 호출한다,,trust_owen:+1; flag:rail_foreshadow_direct,D2-05_OWEN,READY
 D2-05_C2,D2-05,직접 패널을 연다,,evidenceIntegrity:-5; flag:rail_foreshadow_indirect,D2-05_OWEN,READY
 D3-01_C1,D3-01,공개 해명 권고,,publicAnxiety:-15; trust_richard:-1; flag:public_briefing,D3-01_RESPONSE,READY

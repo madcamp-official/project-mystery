@@ -807,6 +807,13 @@ namespace Wake.Narrative
             }
             else if (string.Equals(
                          completedProductionScene,
+                         CameraBlindSpotSession.SceneId,
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                FindFirstObjectByType<CameraBlindSpotUIController>()?.Open();
+            }
+            else if (string.Equals(
+                         completedProductionScene,
                          MarcusInterrogationCatalog.SceneId,
                          StringComparison.OrdinalIgnoreCase))
             {

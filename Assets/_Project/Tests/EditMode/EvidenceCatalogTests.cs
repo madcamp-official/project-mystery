@@ -176,7 +176,6 @@ namespace Wake.Tests
         [TestCase("C-05", "d2_01_17")]
         [TestCase("C-06", "d6_03_05")]
         [TestCase("C-07", "d2_02_14")]
-        [TestCase("C-08", "d2_04_14")]
         [TestCase("C-09", "d6_01_10")]
         [TestCase("C-10", "d6_04_10")]
         [TestCase("C-11", "d2_03_07")]
@@ -198,6 +197,23 @@ namespace Wake.Tests
                 CanonicalEvidenceContractValidator
                     .GetCanonicalEvidenceEffects(record),
                 Contains.Item(evidenceId));
+        }
+
+        [Test]
+        public void CameraBlindSpotEvidence_IsGrantedOnlyByInteraction()
+        {
+            Assert.That(
+                CanonicalEvidenceCatalog.TryGet("C-08", out var entry),
+                Is.True);
+            Assert.That(
+                entry.GrantMode,
+                Is.EqualTo(CanonicalEvidenceGrantMode.Interaction));
+            DialogueRecord record = records.Single(item =>
+                item.StableLineId == "d2_04_14");
+            Assert.That(
+                CanonicalEvidenceContractValidator
+                    .GetCanonicalEvidenceEffects(record),
+                Does.Not.Contain("C-08"));
         }
 
         [TestCase("d1_06_13", "C-07")]
