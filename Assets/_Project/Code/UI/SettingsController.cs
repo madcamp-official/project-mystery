@@ -8,7 +8,6 @@ namespace Wake.UI
         private Slider musicSlider;
         private Slider sfxSlider;
         private Button closeButton;
-        private Button exitButton;
 
         private void Awake()
         {
@@ -19,16 +18,17 @@ namespace Wake.UI
             musicSlider = settingsRoot.Find("Settings/Sound").GetComponent<Slider>();
             sfxSlider = settingsRoot.Find("Settings/Sound (1)").GetComponent<Slider>();
             closeButton = settingsRoot.Find("Close").GetComponent<Button>();
-            exitButton = settingsRoot.Find("Exit Btn").GetComponent<Button>();
             Transform credit = settingsRoot.Find("Settings/Credit");
             if (credit != null)
                 credit.gameObject.SetActive(false);
+            Transform exit = settingsRoot.Find("Exit Btn");
+            if (exit != null)
+                exit.gameObject.SetActive(false);
             FitPopupInsideCanvas(
                 settingsRoot as RectTransform,
                 canvas);
 
             closeButton.onClick.AddListener(() => UIManager.Instance.CloseSettings());
-            exitButton.onClick.AddListener(OnExitClicked);
 
             musicSlider.onValueChanged.AddListener(OnMusicChanged);
             sfxSlider.onValueChanged.AddListener(OnSfxChanged);
@@ -46,8 +46,8 @@ namespace Wake.UI
             popup.anchoredPosition = Vector2.zero;
 
             // The legacy popup artwork extends beyond its root rect.
-            // These bounds describe the complete authored composition,
-            // including the panel and its two bottom action buttons.
+            // These bounds describe the complete authored panel and close
+            // action while preserving the source artwork's safe margin.
             const float authoredWidth = 356.5f;
             const float authoredHeight = 484.6f;
             Canvas rootCanvas = canvas.GetComponentInParent<Canvas>();
@@ -73,11 +73,6 @@ namespace Wake.UI
         private void OnSfxChanged(float value)
         {
             Debug.Log($"SFX volume set to {value:0.00}");
-        }
-
-        private void OnExitClicked()
-        {
-            UIManager.Instance?.RequestQuit();
         }
     }
 }

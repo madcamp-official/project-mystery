@@ -443,6 +443,9 @@ namespace Wake.Tests.PlayMode
             Assert.That(
                 RequireObject("Settings Popup/Settings/Credit").activeSelf,
                 Is.False);
+            Assert.That(
+                RequireObject("Settings Popup/Exit Btn").activeSelf,
+                Is.False);
             AssertInsideSafeArea(
                 RequireComponent<RectTransform>(
                     "Settings Popup/Settings"),
@@ -451,10 +454,6 @@ namespace Wake.Tests.PlayMode
                 RequireComponent<RectTransform>(
                     "Settings Popup/Close"),
                 "설정 닫기");
-            AssertInsideSafeArea(
-                RequireComponent<RectTransform>(
-                    "Settings Popup/Exit Btn"),
-                "게임 종료");
 
             CanvasGroup evidenceInput =
                 RequireObject("Evidence").GetComponent<CanvasGroup>();
