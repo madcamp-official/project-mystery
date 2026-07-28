@@ -22,6 +22,7 @@ namespace Wake.Core
         [Header("SFX")]
         [SerializeField] private AudioClip evidencePickupSfx;
         [SerializeField] private AudioClip badEndSfx;
+        [SerializeField] private AudioClip buttonClickSfx;
 
         private GameStateManager state;
 
@@ -94,6 +95,11 @@ namespace Wake.Core
         public void PlayEvidencePickup()
         {
             PlaySfx(evidencePickupSfx);
+        }
+
+        public void PlayButtonClick()
+        {
+            PlaySfx(buttonClickSfx);
         }
 
         public void PlayMusic(AudioClip clip)
