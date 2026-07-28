@@ -84,6 +84,44 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator EvidenceRecord_UsesAuthoredMetadataAndScrollViewport()
+        {
+            Assert.That(
+                EvidenceInventory.Instance.TryAddById("C-01"),
+                Is.True);
+
+            Ui.ShowEvidence();
+            yield return null;
+
+            TMP_Text title =
+                RequireComponent<TMP_Text>("Evidence/Text (TMP)");
+            TMP_Text acquisition =
+                RequireComponent<TMP_Text>("Evidence/Acquisition Place");
+            TMP_Text relatedPeople =
+                RequireComponent<TMP_Text>("Evidence/Related People");
+            TMP_Text reliability =
+                RequireComponent<TMP_Text>("Evidence/Reliability");
+            TMP_Text description =
+                RequireComponent<TMP_Text>(
+                    "Evidence/Description Viewport/Description");
+            ScrollRect scroll =
+                RequireComponent<ScrollRect>(
+                    "Evidence/Description Viewport");
+
+            Assert.That(title.text, Is.Not.Empty);
+            Assert.That(title.text, Does.Not.Contain("C-"));
+            Assert.That(acquisition.text, Does.Contain("획득 장소"));
+            Assert.That(relatedPeople.text, Does.Contain("관련 인물"));
+            Assert.That(reliability.text, Is.Not.Empty);
+            Assert.That(
+                description.overflowMode,
+                Is.EqualTo(TextOverflowModes.Overflow));
+            Assert.That(scroll.vertical, Is.True);
+            Assert.That(scroll.content, Is.SameAs(description.rectTransform));
+            AssertNoRuntimeErrors("조사 기록 상세 화면");
+        }
+
+        [UnityTest]
         public IEnumerator ExplorationNavigation_UsesNaturalLanguageLabels()
         {
             TMP_Text startSettings = RequireObject("StartScene/Settings Btn")
@@ -388,9 +426,12 @@ namespace Wake.Tests.PlayMode
                 RequireComponent<Image>("Evidence/Image").sprite,
                 Is.Null);
             TMP_Text placeholder =
-                RequireComponent<TMP_Text>("Evidence/Description");
+                RequireComponent<TMP_Text>(
+                    "Evidence/Description Viewport/Description");
             Assert.That(placeholder.gameObject.activeSelf, Is.True);
-            Assert.That(placeholder.text, Does.Contain("확보한 증거가 없습니다"));
+            Assert.That(
+                placeholder.text,
+                Does.Contain("조사하면 기록이 추가됩니다"));
             Assert.That(
                 placeholder.font,
                 Is.SameAs(
@@ -398,7 +439,7 @@ namespace Wake.Tests.PlayMode
                         TypographyRole.BodyRegular)));
             TMP_Text title =
                 RequireComponent<TMP_Text>("Evidence/Text (TMP)");
-            Assert.That(title.text, Is.EqualTo("증거"));
+            Assert.That(title.text, Is.EqualTo("조사 기록"));
             Assert.That(title.text, Does.Not.Contain("C-"));
             Assert.That(
                 title.font,
