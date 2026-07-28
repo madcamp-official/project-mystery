@@ -39,6 +39,7 @@ namespace Wake.Narrative
         private GameObject choicesContainer;
         private Button[] choiceButtons;
         private TMP_Text[] choiceLabels;
+        private DialogueChoicePresentation choicePresentation;
         private ResponsiveDialogueLayout responsiveLayout;
         private DialoguePresentationView presentationView;
         private InvestigationDialogueUIController investigationUi;
@@ -98,6 +99,13 @@ namespace Wake.Narrative
                     ProductionDialogueFlow.ChoiceCapacity);
             choiceButtons = choiceSet.Buttons;
             choiceLabels = choiceSet.Labels;
+            choicePresentation =
+                selectBtn.GetComponent<DialogueChoicePresentation>() ??
+                selectBtn.gameObject.AddComponent<
+                    DialogueChoicePresentation>();
+            choicePresentation.Initialize(
+                selectBtn as RectTransform,
+                choiceButtons);
             DialogueTypography.ApplySurface(
                 lineText,
                 speakerText,
@@ -353,7 +361,7 @@ namespace Wake.Narrative
             ambientLineActive = true;
             IsBusy = true;
             linePanel.SetActive(true);
-            choicesContainer.SetActive(false);
+            choicePresentation.Hide();
             advanceControl.SetState(DialogueAdvanceState.AdvanceLine);
             speakerText.text = DialoguePortraitCatalog.GetDisplayName(speaker);
             ApplyPresentation(
@@ -436,7 +444,7 @@ namespace Wake.Narrative
             ApplyPresentation(DialoguePresentationPolicy.Hidden);
             linePanel?.SetActive(false);
             investigationUi?.Hide();
-            choicesContainer?.SetActive(false);
+            choicePresentation?.Hide();
             advanceControl?.SetState(DialogueAdvanceState.Hidden);
             speakerPortrait?.gameObject.SetActive(false);
             FindFirstObjectByType<StatusHUDController>()
@@ -547,7 +555,10 @@ namespace Wake.Narrative
             linePanel.SetActive(true);
             SaveProductionCheckpoint();
             bool hasChoices = productionFlow.IsAwaitingChoice;
-            choicesContainer.SetActive(hasChoices);
+            if (hasChoices)
+                choicesContainer.SetActive(true);
+            else
+                choicePresentation.Hide();
             advanceControl.SetState(
                 hasChoices
                     ? DialogueAdvanceState.Hidden
@@ -576,6 +587,7 @@ namespace Wake.Narrative
                     });
                 }
                 responsiveLayout?.RefreshChoiceLayout();
+                choicePresentation.Show();
                 return;
             }
 
@@ -727,7 +739,10 @@ namespace Wake.Narrative
             }
 
             bool hasBranch = currentNode.Options != null && currentNode.Options.Count > 1;
-            choicesContainer.SetActive(hasBranch);
+            if (hasBranch)
+                choicesContainer.SetActive(true);
+            else
+                choicePresentation.Hide();
             advanceControl.SetState(
                 hasBranch
                     ? DialogueAdvanceState.Hidden
@@ -762,6 +777,7 @@ namespace Wake.Narrative
                 choiceButtons[i].onClick.AddListener(() => ResolveOption(option));
             }
             responsiveLayout?.RefreshChoiceLayout();
+            choicePresentation.Show();
         }
 
         private void OnNextClicked()
@@ -809,6 +825,7 @@ namespace Wake.Narrative
 
         private void ResolveOption(DialogueOption option)
         {
+            choicePresentation?.Hide();
             if (option == null)
             {
                 EndDialogue();
@@ -840,6 +857,7 @@ namespace Wake.Narrative
             ambientLineActive = false;
             pendingInvestigationTitle = string.Empty;
             ApplyPresentation(DialoguePresentationPolicy.Hidden);
+            choicePresentation?.Hide();
             advanceControl?.SetState(DialogueAdvanceState.Hidden);
             investigationUi?.Hide();
             if (linePanel != null)
