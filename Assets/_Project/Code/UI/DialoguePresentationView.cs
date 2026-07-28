@@ -8,7 +8,10 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class DialoguePresentationView : MonoBehaviour
     {
-        private const string FocusPanelSlot = "dialogue.focus-panel";
+        private const string FocusPanelLeftSlot =
+            "dialogue.focus-panel-left";
+        private const string FocusPanelRightSlot =
+            "dialogue.focus-panel-right";
         private const string CompactPanelSlot = "dialogue.compact-panel";
         private const string NarrationPanelSlot = "dialogue.narration-panel";
         private const string FocusPortraitLeftSlot =
@@ -17,6 +20,8 @@ namespace Wake.UI
             "dialogue.focus-portrait-right";
         private const string CompactPortraitSlot =
             "dialogue.compact-portrait";
+        private const float PortraitSafeInset = 0.90f;
+        private const float PortraitBottomPadding = 0.025f;
 
         private RectTransform ingameRoot;
         private RectTransform linePanel;
@@ -24,9 +29,14 @@ namespace Wake.UI
         private RectTransform textRect;
         private RectTransform speakerPlate;
         private RectTransform nextButton;
+        private RectTransform choices;
+        private TMP_Text lineText;
         private Image backgroundDim;
+        private Transform statusHud;
+        private CanvasGroup locationContextGroup;
         private DialoguePresentationSpec active;
         private Vector2Int lastScreen;
+        private bool choicesVisible;
         private bool initialized;
 
         public DialoguePresentationSpec Active => active;
@@ -37,11 +47,13 @@ namespace Wake.UI
             RectTransform targetPortrait,
             TMP_Text targetLineText,
             TMP_Text targetSpeakerText,
-            RectTransform targetNextButton)
+            RectTransform targetNextButton,
+            RectTransform targetChoices)
         {
             ingameRoot = targetIngameRoot;
             linePanel = targetLinePanel;
             portrait = targetPortrait;
+            lineText = targetLineText;
             textRect = targetLineText != null
                 ? targetLineText.rectTransform
                 : null;
@@ -49,9 +61,21 @@ namespace Wake.UI
                 ? targetSpeakerText.transform.parent as RectTransform
                 : null;
             nextButton = targetNextButton;
+            choices = targetChoices;
             backgroundDim = EnsureBackgroundDim();
+            RestoreNavigationVisibility();
             initialized = true;
             Apply(DialoguePresentationPolicy.Hidden);
+        }
+
+        public void SetChoicesVisible(bool visible)
+        {
+            choicesVisible = visible;
+            if (!initialized || !active.IsVisible)
+                return;
+
+            ApplyTextLayout(active.Mode);
+            ApplyChoiceLayout();
         }
 
         public void Apply(DialoguePresentationSpec presentation)
@@ -61,6 +85,9 @@ namespace Wake.UI
                 return;
 
             ApplyDim(presentation);
+            SetHudVisible(ShouldShowHud(
+                presentation,
+                ResolvePrimaryPanel()));
             if (!presentation.IsVisible ||
                 presentation.Mode == DialoguePresentationMode.Investigation)
             {
@@ -69,11 +96,12 @@ namespace Wake.UI
                 return;
             }
 
-            string panelSlot = PanelSlotFor(presentation.Mode);
+            string panelSlot = PanelSlotFor(presentation);
             RuntimeUiLayoutRegistry.CopyLayout(linePanel, panelSlot);
             ApplyTextLayout(presentation.Mode);
             ApplySpeakerPlate(presentation.ShowSpeakerName);
             ApplyNextButton();
+            ApplyChoiceLayout();
             ApplyPortrait(presentation);
             lastScreen = new Vector2Int(Screen.width, Screen.height);
         }
@@ -83,8 +111,19 @@ namespace Wake.UI
             {
                 DialoguePresentationMode.Compact => CompactPanelSlot,
                 DialoguePresentationMode.Narration => NarrationPanelSlot,
-                _ => FocusPanelSlot
+                _ => FocusPanelLeftSlot
             };
+
+        public static string PanelSlotFor(
+            DialoguePresentationSpec presentation)
+        {
+            if (presentation.Mode != DialoguePresentationMode.Focus)
+                return PanelSlotFor(presentation.Mode);
+
+            return presentation.PortraitSide == DialoguePortraitSide.Left
+                ? FocusPanelRightSlot
+                : FocusPanelLeftSlot;
+        }
 
         public static string PortraitSlotFor(
             DialoguePresentationSpec presentation)
@@ -97,6 +136,13 @@ namespace Wake.UI
                 ? FocusPortraitLeftSlot
                 : FocusPortraitRightSlot;
         }
+
+        public static bool ShouldShowHud(
+            DialoguePresentationSpec presentation,
+            UiPrimaryPanel primaryPanel) =>
+            !presentation.IsVisible &&
+            primaryPanel is not UiPrimaryPanel.None and
+                not UiPrimaryPanel.Start;
 
         private Image EnsureBackgroundDim()
         {
@@ -154,9 +200,15 @@ namespace Wake.UI
                 return;
             }
 
-            RuntimeUiLayoutRegistry.CopyWorldLayout(
-                portrait,
-                PortraitSlotFor(presentation));
+            if (!RuntimeUiLayoutRegistry.CopyWorldLayout(
+                    portrait,
+                    PortraitSlotFor(presentation)))
+            {
+                portrait.gameObject.SetActive(false);
+                return;
+            }
+
+            FitPortraitToSlot(presentation.PortraitHeightRatio);
         }
 
         private void ApplyTextLayout(DialoguePresentationMode mode)
@@ -165,13 +217,24 @@ namespace Wake.UI
                 return;
 
             bool compact = mode == DialoguePresentationMode.Compact;
+            float textBottom = choicesVisible ? 0.58f : 0.15f;
             textRect.anchorMin = compact
-                ? new Vector2(0.30f, 0.18f)
-                : new Vector2(0.09f, 0.17f);
-            textRect.anchorMax = new Vector2(0.90f, 0.82f);
+                ? new Vector2(0.30f, textBottom)
+                : new Vector2(0.08f, textBottom);
+            textRect.anchorMax = new Vector2(0.91f, 0.86f);
             textRect.pivot = new Vector2(0f, 0.5f);
             textRect.anchoredPosition = Vector2.zero;
             textRect.sizeDelta = Vector2.zero;
+
+            if (lineText == null)
+                return;
+
+            lineText.enableAutoSizing = true;
+            lineText.fontSizeMin = DialogueTypographyMetrics.LineMinimum;
+            lineText.fontSizeMax = DialogueTypographyMetrics.LineMaximum;
+            lineText.textWrappingMode = TextWrappingModes.Normal;
+            lineText.overflowMode = TextOverflowModes.Truncate;
+            lineText.margin = new Vector4(8f, 4f, 8f, 4f);
         }
 
         private void ApplySpeakerPlate(bool visible)
@@ -202,9 +265,142 @@ namespace Wake.UI
             nextButton.sizeDelta = new Vector2(88f, 88f);
         }
 
+        private void ApplyChoiceLayout()
+        {
+            if (choices == null)
+                return;
+
+            choices.anchorMin = new Vector2(0.05f, 0.06f);
+            choices.anchorMax = new Vector2(0.95f, 0.06f);
+            choices.pivot = new Vector2(0.5f, 0f);
+            choices.anchoredPosition = Vector2.zero;
+            float height = choices.sizeDelta.y > 0f
+                ? choices.sizeDelta.y
+                : 180f;
+            choices.sizeDelta = new Vector2(0f, height);
+        }
+
+        private void FitPortraitToSlot(float heightRatio)
+        {
+            if (portrait == null ||
+                portrait.parent is not RectTransform parent)
+            {
+                return;
+            }
+
+            AspectRatioFitter fitter =
+                portrait.GetComponent<AspectRatioFitter>();
+            float aspect = fitter != null && fitter.aspectRatio > 0f
+                ? fitter.aspectRatio
+                : 0.72f;
+            Vector2 slotSize = portrait.sizeDelta;
+            float maximumHeight =
+                Mathf.Max(
+                    1f,
+                    parent.rect.height * heightRatio *
+                    PortraitSafeInset);
+            float availableHeight = slotSize.y * PortraitSafeInset;
+            float availableWidth = slotSize.x * PortraitSafeInset;
+            float height = Mathf.Min(availableHeight, maximumHeight);
+            float width = height * aspect;
+            if (width > availableWidth)
+            {
+                width = availableWidth;
+                height = width / aspect;
+            }
+
+            portrait.sizeDelta = new Vector2(width, height);
+            portrait.anchoredPosition += new Vector2(
+                0f,
+                slotSize.y * PortraitBottomPadding);
+            if (fitter != null)
+                fitter.aspectMode = AspectRatioFitter.AspectMode.None;
+        }
+
+        private void SetHudVisible(bool visible)
+        {
+            if (ingameRoot == null)
+                return;
+
+            Transform canvas = ingameRoot.parent;
+            statusHud ??= canvas != null
+                ? canvas.Find("Status HUD")
+                : null;
+            locationContextGroup ??= EnsureCanvasGroup(
+                ingameRoot.Find("Narrative Location Context"));
+            if (statusHud != null &&
+                statusHud.gameObject.activeSelf != visible)
+            {
+                statusHud.gameObject.SetActive(visible);
+            }
+            SetGroupVisible(locationContextGroup, visible);
+            SetNavigationVisible(visible);
+        }
+
+        private void RestoreNavigationVisibility()
+        {
+            SetNavigationVisible(true);
+        }
+
+        private void SetNavigationVisible(bool visible)
+        {
+            if (ingameRoot == null)
+                return;
+
+            string[] names = { "Map Btn", "Evidence Btn", "Settings Btn" };
+            foreach (string name in names)
+            {
+                Transform navigation = ingameRoot.Find(name);
+                if (navigation != null &&
+                    navigation.gameObject.activeSelf != visible)
+                {
+                    navigation.gameObject.SetActive(visible);
+                }
+            }
+        }
+
+        private static CanvasGroup EnsureCanvasGroup(Transform target)
+        {
+            if (target == null)
+                return null;
+
+            return target.GetComponent<CanvasGroup>() ??
+                   target.gameObject.AddComponent<CanvasGroup>();
+        }
+
+        private static void SetGroupVisible(
+            CanvasGroup group,
+            bool visible)
+        {
+            if (group == null)
+                return;
+
+            group.alpha = visible ? 1f : 0f;
+            group.interactable = visible;
+            group.blocksRaycasts = visible;
+        }
+
+        private UiPrimaryPanel ResolvePrimaryPanel()
+        {
+            UIManager manager = UIManager.Instance;
+            if (manager != null)
+                return manager.ActivePanel;
+
+            return ingameRoot != null &&
+                   ingameRoot.gameObject.activeInHierarchy
+                ? UiPrimaryPanel.Ingame
+                : UiPrimaryPanel.Start;
+        }
+
         private void LateUpdate()
         {
-            if (!initialized || !active.IsVisible)
+            if (!initialized)
+                return;
+
+            SetHudVisible(ShouldShowHud(
+                active,
+                ResolvePrimaryPanel()));
+            if (!active.IsVisible)
                 return;
 
             Vector2Int screen = new(Screen.width, Screen.height);

@@ -232,6 +232,40 @@ namespace Wake.Narrative
                 false);
         }
 
+        public static DialoguePortraitAsset ResolveWorldFigure(
+            string characterId)
+        {
+            if (!TryGet(characterId, out DialoguePortraitDefinition definition))
+                return default;
+
+            Texture2D mainFigure = Resources.Load<Texture2D>(
+                $"WorldMainCharacters/{definition.ExpressionSheet}");
+            if (mainFigure != null)
+            {
+                return FullFigure(
+                    mainFigure,
+                    new Rect(0f, 0f, 1f, 1f));
+            }
+
+            string fallbackPath = definition.FallbackTexture.Contains("/")
+                ? definition.FallbackTexture
+                : $"Characters/{definition.FallbackTexture}";
+            Texture2D fallback = Resources.Load<Texture2D>(fallbackPath);
+            if (fallback == null)
+                return default;
+
+            Rect uv = fallbackPath.Contains(
+                "world_atlas_",
+                StringComparison.OrdinalIgnoreCase)
+                ? new Rect(
+                    definition.FallbackCrop.x,
+                    0f,
+                    definition.FallbackCrop.width,
+                    1f)
+                : new Rect(0f, 0f, 1f, 1f);
+            return FullFigure(fallback, uv);
+        }
+
         public static string GetDisplayName(string characterId)
         {
             return TryGet(characterId, out DialoguePortraitDefinition definition)
@@ -271,6 +305,20 @@ namespace Wake.Narrative
                     0.38f,
                     cellWidth,
                     0.62f));
+        }
+
+        private static DialoguePortraitAsset FullFigure(
+            Texture2D texture,
+            Rect uv)
+        {
+            return new DialoguePortraitAsset(
+                true,
+                texture,
+                uv,
+                texture.width * uv.width /
+                (texture.height * uv.height),
+                string.Empty,
+                false);
         }
 
         private static string EmotionSuffix(PortraitEmotion emotion) => emotion switch
