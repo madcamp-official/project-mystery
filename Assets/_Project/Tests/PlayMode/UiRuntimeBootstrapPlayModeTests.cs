@@ -19,6 +19,10 @@ namespace Wake.Tests.PlayMode
         {
             Assert.That(Ui.IsInitialized, Is.True);
             Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Start));
+            Assert.That(
+                RequireObject("Status HUD").activeSelf,
+                Is.False,
+                "시작 화면에서는 게임 상태 HUD가 숨겨져야 합니다.");
             Assert.That(Ui.RuntimeModalControllerCount, Is.EqualTo(10));
 
             Assert.That(Ui.EnsureInitialized(), Is.True);
@@ -111,6 +115,128 @@ namespace Wake.Tests.PlayMode
                     Is.Empty,
                     $"{path} should render only its icon.");
             }
+        }
+
+        [UnityTest]
+        public IEnumerator NavigationIcons_RemainInsideTheGameplayViewport()
+        {
+            yield return StartNewGameFromVisibleButton();
+
+            RectTransform ingame =
+                RequireObject("Ingame").GetComponent<RectTransform>();
+            RectTransform canvas = ingame.parent as RectTransform;
+            RectTransform statusHud =
+                RequireObject("Status HUD").GetComponent<RectTransform>();
+            Bounds statusBounds =
+                RectTransformUtility.CalculateRelativeRectTransformBounds(
+                    canvas,
+                    statusHud);
+            string[] paths =
+            {
+                "Ingame/Evidence Btn",
+                "Ingame/Map Btn",
+                "Ingame/Settings Btn"
+            };
+            foreach (string path in paths)
+            {
+                RectTransform button =
+                    RequireObject(path).GetComponent<RectTransform>();
+                Bounds bounds =
+                    RectTransformUtility.CalculateRelativeRectTransformBounds(
+                        ingame,
+                        button);
+                Assert.That(
+                    bounds.min.x,
+                    Is.GreaterThanOrEqualTo(ingame.rect.xMin),
+                    $"{path} must not be placed beyond the left edge.");
+                Assert.That(
+                    bounds.max.x,
+                    Is.LessThanOrEqualTo(ingame.rect.xMax),
+                    $"{path} must not be placed beyond the right edge.");
+                Assert.That(
+                    button.anchoredPosition.y,
+                    Is.LessThanOrEqualTo(-400f),
+                    $"{path} must remain below the status HUD.");
+                Bounds canvasBounds =
+                    RectTransformUtility.CalculateRelativeRectTransformBounds(
+                        canvas,
+                        button);
+                Assert.That(
+                    canvasBounds.max.y,
+                    Is.LessThan(statusBounds.min.y),
+                    $"{path} must not overlap the status HUD.");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator LongAmbientDialogue_StaysInsideItsTextRect()
+        {
+            yield return StartNewGameFromVisibleButton();
+
+            Wake.Narrative.DialogueController dialogue =
+                Object.FindFirstObjectByType<
+                    Wake.Narrative.DialogueController>();
+            dialogue.CancelActiveDialogue();
+            yield return null;
+            const string original =
+                "머서 씨 짐에는 기자 장비 표식이 붙어 있습니다. " +
+                "초대장 확인 전에는 선적하지 않겠습니다. " +
+                "긴 문장도 대화창의 안전 영역을 벗어나면 안 됩니다.";
+            Assert.That(
+                dialogue.StartAmbientLine(
+                    "DOCK_PORTER",
+                    original),
+                Is.True);
+            yield return null;
+
+            TMP_Text line =
+                RequireComponent<TMP_Text>("Ingame/Line Panel/Panel/line");
+            Button next =
+                RequireComponent<Button>("Ingame/Line Panel/Panel/Next");
+            RawImage portrait =
+                RequireComponent<RawImage>(
+                    "Ingame/Speaker Portrait");
+            GameObject mapNavigation =
+                RequireObject("Ingame/Map Btn");
+            Assert.That(portrait.texture, Is.Not.Null);
+            Assert.That(portrait.uvRect.y, Is.Zero.Within(0.001f));
+            Assert.That(portrait.uvRect.height, Is.EqualTo(1f).Within(0.001f));
+            Assert.That(
+                mapNavigation.activeSelf,
+                Is.False,
+                "Navigation controls must hide while dialogue is active.");
+
+            string presented = line.text;
+            int guard = 0;
+            while (presented.Length < original.Length && guard++ < 10)
+            {
+                line.maxVisibleCharacters = int.MaxValue;
+                next.onClick.Invoke();
+                yield return null;
+                next.onClick.Invoke();
+                yield return null;
+                presented += line.text;
+            }
+
+            Assert.That(
+                presented,
+                Is.EqualTo(original),
+                "Pagination must preserve every character of the dialogue.");
+            line.maxVisibleCharacters = int.MaxValue;
+            line.ForceMeshUpdate();
+
+            Assert.That(line.enableAutoSizing, Is.True);
+            Assert.That(
+                line.overflowMode,
+                Is.EqualTo(TextOverflowModes.Truncate));
+            Assert.That(line.isTextOverflowing, Is.False);
+
+            dialogue.CancelActiveDialogue();
+            yield return null;
+            Assert.That(
+                mapNavigation.activeSelf,
+                Is.True,
+                "Navigation controls must return after dialogue ends.");
         }
 
         [UnityTest]

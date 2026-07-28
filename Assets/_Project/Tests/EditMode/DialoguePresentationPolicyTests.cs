@@ -32,27 +32,27 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void AmbientCharacter_UsesCompactLayout()
+        public void AmbientCharacter_UsesRightFocusLayout()
         {
             DialoguePresentationSpec spec =
                 DialoguePresentationPolicy.ForAmbient(
                     Speaker("CLAIRE", DialogueSpeakerKind.Character));
 
-            Assert.That(spec.Mode, Is.EqualTo(DialoguePresentationMode.Compact));
-            Assert.That(spec.PortraitSide, Is.EqualTo(DialoguePortraitSide.Left));
-            Assert.That(spec.BackgroundDimAlpha, Is.LessThan(0.25f));
+            Assert.That(spec.Mode, Is.EqualTo(DialoguePresentationMode.Focus));
+            Assert.That(spec.PortraitSide, Is.EqualTo(DialoguePortraitSide.Right));
+            Assert.That(spec.BackgroundDimAlpha, Is.GreaterThanOrEqualTo(0.35f));
             Assert.That(spec.ShowSpeakerName, Is.True);
         }
 
         [Test]
-        public void GenericNpc_UsesCompactLayout()
+        public void GenericNpc_UsesRightFocusLayout()
         {
             DialoguePresentationSpec spec =
                 DialoguePresentationPolicy.ForProduction(
                     Speaker("NPC", DialogueSpeakerKind.NonPlayer));
 
-            Assert.That(spec.Mode, Is.EqualTo(DialoguePresentationMode.Compact));
-            Assert.That(spec.PortraitSide, Is.EqualTo(DialoguePortraitSide.Left));
+            Assert.That(spec.Mode, Is.EqualTo(DialoguePresentationMode.Focus));
+            Assert.That(spec.PortraitSide, Is.EqualTo(DialoguePortraitSide.Right));
             Assert.That(spec.ShowPortrait, Is.True);
         }
 
