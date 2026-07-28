@@ -548,8 +548,8 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class SaveSlotSelectionController : MonoBehaviour
     {
-        private const float RevealDuration = 3f;
-        private const float DiveDuration = 1.2f;
+        private const float RevealDuration = 4f;
+        private const float DiveDuration = 2.2f;
         private const float RiseDuration = RevealDuration - DiveDuration;
         private static readonly Vector3 WaterRevealStart = new(0f, -17f, 2f);
         private static readonly Vector3 WaterRevealEnd = new(0f, -4f, 2f);
