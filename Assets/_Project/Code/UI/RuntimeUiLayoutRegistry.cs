@@ -128,15 +128,36 @@ namespace Wake.UI
                 return false;
             }
 
-            Bounds bounds =
-                RectTransformUtility.CalculateRelativeRectTransformBounds(
-                    parent,
-                    slot);
-            runtimeRect.anchorMin = new Vector2(0.5f, 0.5f);
-            runtimeRect.anchorMax = new Vector2(0.5f, 0.5f);
+            Vector3[] worldCorners = new Vector3[4];
+            slot.GetWorldCorners(worldCorners);
+
+            Vector2 localMin = parent.InverseTransformPoint(worldCorners[0]);
+            Vector2 localMax = localMin;
+            for (int index = 1; index < worldCorners.Length; index++)
+            {
+                Vector2 localCorner =
+                    parent.InverseTransformPoint(worldCorners[index]);
+                localMin = Vector2.Min(localMin, localCorner);
+                localMax = Vector2.Max(localMax, localCorner);
+            }
+
+            Rect parentRect = parent.rect;
+            if (parentRect.width <= Mathf.Epsilon ||
+                parentRect.height <= Mathf.Epsilon)
+            {
+                return false;
+            }
+
+            Vector2 parentSize = parentRect.size;
+            runtimeRect.anchorMin = new Vector2(
+                (localMin.x - parentRect.xMin) / parentSize.x,
+                (localMin.y - parentRect.yMin) / parentSize.y);
+            runtimeRect.anchorMax = new Vector2(
+                (localMax.x - parentRect.xMin) / parentSize.x,
+                (localMax.y - parentRect.yMin) / parentSize.y);
             runtimeRect.pivot = new Vector2(0.5f, 0.5f);
-            runtimeRect.anchoredPosition = bounds.center;
-            runtimeRect.sizeDelta = bounds.size;
+            runtimeRect.anchoredPosition = Vector2.zero;
+            runtimeRect.sizeDelta = Vector2.zero;
             runtimeRect.localRotation = Quaternion.identity;
             runtimeRect.localScale = Vector3.one;
             return true;

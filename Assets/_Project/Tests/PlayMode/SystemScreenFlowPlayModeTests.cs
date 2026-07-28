@@ -26,6 +26,14 @@ namespace Wake.Tests.PlayMode
 
             Assert.That(labels.Select(label => label.text), Is.EquivalentTo(
                 new[] { "시작", "설정", "크레딧", "종료" }));
+            RectTransform menuRect = menu as RectTransform;
+            RectTransform logoRect = Canvas.Find(
+                "StartScene/Title Presentation/Under the Horizon Logo")
+                as RectTransform;
+            AssertResponsiveLayout(menuRect);
+            AssertResponsiveLayout(logoRect);
+            AssertInsideCanvas(menuRect);
+            AssertInsideCanvas(logoRect);
             Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Start));
             Assert.That(
                 Ui.ActiveSystemScreen,
@@ -184,6 +192,35 @@ namespace Wake.Tests.PlayMode
                 Is.EqualTo(SystemScreenState.None));
             Assert.That(ingameInput.interactable, Is.True);
             AssertNoRuntimeErrors("일시정지와 확인 모달");
+        }
+
+        private void AssertResponsiveLayout(RectTransform rect)
+        {
+            Assert.That(rect, Is.Not.Null);
+            Assert.That(rect.anchorMin.x, Is.LessThan(rect.anchorMax.x));
+            Assert.That(rect.anchorMin.y, Is.LessThan(rect.anchorMax.y));
+            Assert.That(rect.anchoredPosition, Is.EqualTo(Vector2.zero));
+            Assert.That(rect.sizeDelta, Is.EqualTo(Vector2.zero));
+        }
+
+        private void AssertInsideCanvas(RectTransform rect)
+        {
+            RectTransform canvasRect = Canvas as RectTransform;
+            Bounds bounds =
+                RectTransformUtility.CalculateRelativeRectTransformBounds(
+                    canvasRect,
+                    rect);
+            Rect visible = canvasRect.rect;
+            const float tolerance = 0.5f;
+
+            Assert.That(bounds.min.x, Is.GreaterThanOrEqualTo(
+                visible.xMin - tolerance));
+            Assert.That(bounds.max.x, Is.LessThanOrEqualTo(
+                visible.xMax + tolerance));
+            Assert.That(bounds.min.y, Is.GreaterThanOrEqualTo(
+                visible.yMin - tolerance));
+            Assert.That(bounds.max.y, Is.LessThanOrEqualTo(
+                visible.yMax + tolerance));
         }
     }
 }
