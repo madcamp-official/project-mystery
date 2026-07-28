@@ -551,6 +551,7 @@ namespace Wake.UI
         private const float RevealDuration = 4f;
         private const float DiveDuration = 2.2f;
         private const float RiseDuration = RevealDuration - DiveDuration;
+        private const float SettlePause = 0.4f;
         private static readonly Vector3 WaterRevealStart = new(0f, -17f, 2f);
         private static readonly Vector3 WaterRevealEnd = new(0f, -4f, 2f);
 
@@ -682,11 +683,13 @@ namespace Wake.UI
             if (showing)
             {
                 yield return WaterStage(EaseInCubic, DiveDuration, true);
+                yield return new WaitForSecondsRealtime(SettlePause);
                 yield return PanelStage(EaseOutCubic, RiseDuration);
             }
             else
             {
                 yield return PanelStage(EaseInCubic, DiveDuration);
+                yield return new WaitForSecondsRealtime(SettlePause);
                 yield return WaterStage(EaseOutCubic, RiseDuration, false);
             }
 
