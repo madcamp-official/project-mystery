@@ -350,6 +350,14 @@ namespace Wake.UI
             KeepLegacyButtonContract(originalStart);
             KeepLegacyButtonContract(originalSettings);
 
+            GameObject backdropObject = new(
+                "Lobby Backdrop", typeof(RectTransform));
+            backdropObject.transform.SetParent(transform, false);
+            RectTransform backdropRect =
+                backdropObject.GetComponent<RectTransform>();
+            SaveSlotSelectionController.Stretch(backdropRect);
+            backdropObject.AddComponent<LobbyBackdropController>();
+
             presentation = new GameObject(
                 "Title Presentation",
                 typeof(RectTransform),
@@ -563,6 +571,7 @@ namespace Wake.UI
         private GameObject confirmation;
         private RectTransform contentRect;
         private RectTransform lobbyContent;
+        private LobbyBackdropController lobbyBackdrop;
         private RectTransform ingamePanel;
         private Transform water;
         private LightShaftEffect lightShaft;
@@ -665,7 +674,9 @@ namespace Wake.UI
                 {
                     water.position = Vector3.LerpUnclamped(from, to, t);
                 }
-                lightShaft?.SetIntensity(intensityRising ? t : 1f - t);
+                float depth = intensityRising ? t : 1f - t;
+                lightShaft?.SetIntensity(depth);
+                lobbyBackdrop?.SetDepth(depth);
             });
         }
 
@@ -699,6 +710,10 @@ namespace Wake.UI
             lobbyContent = lobbyContent != null
                 ? lobbyContent
                 : transform.Find("Title Presentation") as RectTransform;
+            lobbyBackdrop = lobbyBackdrop != null
+                ? lobbyBackdrop
+                : transform.Find("Lobby Backdrop")
+                    ?.GetComponent<LobbyBackdropController>();
             if (water != null)
             {
                 water.position = waterFrom;
@@ -1051,6 +1066,10 @@ namespace Wake.UI
             lightShaft = lightShaft != null
                 ? lightShaft
                 : water?.GetComponentInChildren<LightShaftEffect>(true);
+            lobbyBackdrop = lobbyBackdrop != null
+                ? lobbyBackdrop
+                : transform.Find("Lobby Backdrop")
+                    ?.GetComponent<LobbyBackdropController>();
 
             if (ingamePanel != null)
             {
