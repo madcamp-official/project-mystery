@@ -58,8 +58,8 @@ namespace Wake.Tests
         public void Validator_DetectsSceneCountDrift()
         {
             string changed = scenes.Replace(
-                "P-01,프롤로그,항구의 기자,15:10,PORT,관찰 튜토리얼 후 대니얼과 대화,없음,P-02,대니얼,구겨진 초대장; 암호화 메신저 알림,경고를 진지하게 듣기 / 농담으로 넘기기,26,17,2,0,COMPLETE",
-                "P-01,프롤로그,항구의 기자,15:10,PORT,관찰 튜토리얼 후 대니얼과 대화,없음,P-02,대니얼,구겨진 초대장; 암호화 메신저 알림,경고를 진지하게 듣기 / 농담으로 넘기기,25,17,2,0,COMPLETE");
+                "P-01,프롤로그,항구의 기자,15:10,PORT,관찰 튜토리얼 후 다니엘과 대화,없음,P-02,다니엘,구겨진 초대장; 암호화 메신저 알림,경고를 진지하게 듣기 / 농담으로 넘기기,26,17,2,0,COMPLETE",
+                "P-01,프롤로그,항구의 기자,15:10,PORT,관찰 튜토리얼 후 다니엘과 대화,없음,P-02,다니엘,구겨진 초대장; 암호화 메신저 알림,경고를 진지하게 듣기 / 농담으로 넘기기,25,17,2,0,COMPLETE");
 
             OfficialDialogueContractReport report =
                 OfficialDialogueContractValidator.Validate(
@@ -76,8 +76,8 @@ namespace Wake.Tests
         public void Validator_DetectsUnknownNextScene()
         {
             string changed = scenes.Replace(
-                ",P-02,대니얼,",
-                ",D9-99,대니얼,");
+                ",P-02,다니엘,",
+                ",D9-99,다니엘,");
 
             OfficialDialogueContractReport report =
                 OfficialDialogueContractValidator.Validate(

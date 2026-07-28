@@ -1,5 +1,5 @@
 evidence_id,display_name,interpretation,source_scene,argument_role,coverage
-C-01,Daniel의 초대장,Richard 전자서명은 진짜지만 발송 서버는 비서실,P-01/P-02/D7-04,초대 위조·유인,COVERED
+C-01,다니엘의 초대장,리처드의 전자서명은 진짜지만 발송 서버는 비서실,P-01/P-02/D7-04,초대 위조·유인,COVERED
 C-02,열린 출입문,잠금 트릭이 아니라 흔적 부재가 문제,D1-06,밀실 명제,COVERED
 C-03,외벽 발판,염분막과 센서 기록이 온전,D2-01,출구 미사용,COVERED
 C-04,덕트 먼지,통과 흔적 없음,D2-01,출구 미사용,COVERED
@@ -11,9 +11,9 @@ C-09,안정화 로그,86kg이 7층에서 8층으로 이동,D6-01,시신 이동,C
 C-10,운반백 자국,어깨·허리 압박과 검은 합성섬유,D6-02/D6-04,운반 수단,COVERED
 C-11,안정제,사망 시각 오판과 저항 지연,D2-03,사망 시각 수정,COVERED
 C-12,질소 로그,실제 직접 사인,D6-03/D6-04,살해 수법,COVERED
-C-13,익명 채팅,Richard 유죄 가설을 강화하는 선택적 진실,D2-06/D5-03,유인 동기,COVERED
-C-14,문장 습관,Evelyn의 반복 표현,D3-05,제보자 식별,COVERED
+C-13,익명 채팅,리처드 유죄 가설을 강화하는 선택적 진실,D2-06/D5-03,유인 동기,COVERED
+C-14,문장 습관,이블린의 반복 표현,D3-05,제보자 식별,COVERED
 C-15,Marcus 인증,금고 접근 지원,D3-04/D4-04,공범 연결,COVERED
-C-16,보호면 DNA,Daniel과 Evelyn 직접 접촉,D7-02,최종 물증,COVERED
-C-17,Orpheus 음성,Richard의 무지와 Evelyn의 계획,D7-03,과거 진실,COVERED
+C-16,보호면 DNA,다니엘과 이블린의 직접 접촉,D7-02,최종 물증,COVERED
+C-17,오르페우스호 음성,리처드의 무지와 이블린의 계획,D7-03,과거 진실,COVERED
 C-18,수정 기사,피해자의 오판을 사후에 바로잡음,D8-03,완전 엔딩,COVERED

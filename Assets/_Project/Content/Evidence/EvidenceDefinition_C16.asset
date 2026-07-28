@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   evidenceId: C-16
   displayName: 보호면 DNA
-  description: Daniel과 Evelyn의 직접 접촉을 입증한다.
+  description: 다니엘과 이블린의 직접 접촉을 입증한다.
   category: identity
   isDirect: 1
   views:

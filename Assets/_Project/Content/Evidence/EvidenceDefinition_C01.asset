@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: EvidenceDefinition_C01
   m_EditorClassIdentifier:
   evidenceId: C-01
-  displayName: Daniel의 초대장
-  description: Richard 전자서명은 진짜지만 발송 서버는 비서실이다.
+  displayName: 다니엘의 초대장
+  description: 리처드의 전자서명은 진짜지만 발송 서버는 비서실이다.
   category: invitation
   isDirect: 0
   views:

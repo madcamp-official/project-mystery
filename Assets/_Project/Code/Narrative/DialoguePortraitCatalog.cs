@@ -73,11 +73,11 @@ namespace Wake.Narrative
 
         private static readonly DialoguePortraitDefinition[] Entries =
         {
-            D("ADRIAN", "에이드리언 베일", "adrian_vale"),
+            D("ADRIAN", "아드리안 베일", "adrian_vale"),
             D("CLAIRE", "클레어 호손", "claire_hawthorne"),
-            D("DANIEL", "대니얼 머서", "daniel_mercer"),
+            D("DANIEL", "다니엘 머서", "daniel_mercer"),
             D("RICHARD", "리처드 호손", "richard_hawthorne"),
-            D("EVELYN", "에벌린 쇼", "evelyn_shaw"),
+            D("EVELYN", "이블린 쇼", "evelyn_shaw"),
             D("THOMAS", "토머스 리드", "thomas_reed"),
             D("MARCUS", "마커스 벨", "marcus_bell",
                 "marcus_bell_and_helena_ward",

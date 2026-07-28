@@ -258,7 +258,8 @@ namespace Wake.UI
                 return;
             }
 
-            timeText.text = $"DAY {state.Day}  ·  {state.CurrentTimeBlock}";
+            timeText.text =
+                $"{state.Day}일 차  ·  {TimeBlockLabel(state.CurrentTimeBlock)}";
 
             anxietyText.text = state.PublicAnxiety >= GameStateManager.RestrictedAreaAnxiety
                 ? $"! 승객 불안  {state.PublicAnxiety}/100"
@@ -280,7 +281,8 @@ namespace Wake.UI
                 if (showTrust)
                 {
                     int trust = state.GetTrust(contextCharacter);
-                    trustText.text = $"{contextCharacter}  신뢰  {trust}/5";
+                    trustText.text =
+                        $"{CharacterDisplayName(contextCharacter)}  신뢰도  {trust}/5";
                     RefreshTrustPips(trust);
                 }
             }
@@ -290,7 +292,7 @@ namespace Wake.UI
         {
             if (timeText != null)
             {
-                timeText.text = "DAY 1  ·  AM";
+                timeText.text = "1일 차  ·  오전";
                 anxietyText.text = "승객 불안  15/100";
                 integrityText.text = "현장 보존도  100/100";
                 SetFill(anxietyFill, 15);
@@ -356,6 +358,26 @@ namespace Wake.UI
 
             string normalized = characterName.Trim().ToUpperInvariant();
             return normalized is "ADRIAN" or "ADRIAN VALE" or "CLAIRE";
+        }
+
+        private static string CharacterDisplayName(string characterId)
+        {
+            return DialoguePortraitCatalog.TryGet(
+                characterId,
+                out DialoguePortraitDefinition definition)
+                ? definition.DisplayName
+                : "조사 대상";
+        }
+
+        private static string TimeBlockLabel(TimeBlock block)
+        {
+            return block switch
+            {
+                TimeBlock.AM => "오전",
+                TimeBlock.PM => "오후",
+                TimeBlock.NIGHT => "야간",
+                _ => "시간 미정"
+            };
         }
 
         private static Transform EnsurePanel(
@@ -625,7 +647,7 @@ namespace Wake.UI
 
         private void ShowBadEnd(string message)
         {
-            ToastController.Instance?.ShowAlert($"BAD END · {message}");
+            ToastController.Instance?.ShowAlert($"게임 종료 · {message}");
         }
     }
 }

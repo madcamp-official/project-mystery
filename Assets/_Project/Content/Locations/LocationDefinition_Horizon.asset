@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LocationDefinition_Horizon
   m_EditorClassIdentifier:
   locationCode: HORIZON
-  displayName: Horizon Room
+  displayName: 호라이즌 룸
   deck: 9
   roomCode: D9-4
   backgroundSprite: {fileID: 21300000, guid: 18ad6fb49feb40daac3eebab664bb05f, type: 3}

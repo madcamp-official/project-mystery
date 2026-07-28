@@ -66,8 +66,8 @@ namespace Wake.Core
         {
             new(
                 FinalAccusationStage.Culprit,
-                "Daniel Mercer를 살해한 범인은 누구인가?",
-                O("D8-01_A1_EVELYN", "Evelyn Shaw",
+                "다니엘 머서를 살해한 범인은 누구인가?",
+                O("D8-01_A1_EVELYN", "이블린 쇼",
                     (int)AccusedPerson.Evelyn, true),
                 O("D8-01_A1_RICHARD", "Richard Hawthorne",
                     (int)AccusedPerson.Richard),
@@ -80,7 +80,7 @@ namespace Wake.Core
                 "실제 살해 장소는 어디인가?",
                 O("D8-01_A2_BALLAST", "Ballast Control Annex",
                     (int)MurderLocation.BallastControlAnnex, true),
-                O("D8-01_A2_HORIZON", "Horizon Room",
+                O("D8-01_A2_HORIZON", "호라이즌 룸",
                     (int)MurderLocation.HorizonRoom),
                 O("D8-01_A2_VAULT", "금고",
                     (int)MurderLocation.Vault),
@@ -99,7 +99,7 @@ namespace Wake.Core
                     (int)MurderMethod.Drug)),
             new(
                 FinalAccusationStage.BodyTransport,
-                "시신은 Horizon Room으로 어떻게 이동했는가?",
+                "시신은 호라이즌 룸으로 어떻게 이동했는가?",
                 O("D8-01_A4_RAIL", "천장 서비스 레일",
                     (int)BodyTransport.CeilingServiceRail, true),
                 O("D8-01_A4_ROBOT", "서비스 로봇",
@@ -110,7 +110,7 @@ namespace Wake.Core
                     (int)BodyTransport.Manual)),
             new(
                 FinalAccusationStage.MurderMotive,
-                "Evelyn이 Daniel을 제거한 핵심 동기는 무엇인가?",
+                "이블린이 다니엘을 제거한 핵심 동기는 무엇인가?",
                 O("D8-01_A5_MISCONCEPTION",
                     "Richard를 범인으로 믿게 만든 오판",
                     (int)DanielTargetBelief.Misconception, true),
@@ -123,7 +123,7 @@ namespace Wake.Core
             new(
                 FinalAccusationStage.OrpheusMastermind,
                 "MV Orpheus 사건의 설계자는 누구인가?",
-                O("D8-01_A6_EVELYN", "Evelyn Shaw",
+                O("D8-01_A6_EVELYN", "이블린 쇼",
                     (int)OrpheusEventDesign.Evelyn, true),
                 O("D8-01_A6_RICHARD", "Richard Hawthorne",
                     (int)OrpheusEventDesign.Richard),

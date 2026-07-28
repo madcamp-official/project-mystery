@@ -1,6 +1,6 @@
 line_id,scene_id,speaker_id,text,emotion,voice_required
 crew_intro,TEST,CREW,"이 구역은 승객 출입 제한입니다. 무슨 일이시죠?",neutral,N
-adrian_reply1,TEST,ADRIAN,"Daniel Mercer 건으로 몇 가지 확인하러 왔습니다.",neutral,N
+adrian_reply1,TEST,ADRIAN,"다니엘 머서 건으로 몇 가지 확인하러 왔습니다.",neutral,N
 crew_branch_q,TEST,CREW,"뭐부터 여쭤보시겠습니까?",neutral,N
 opt_exits,TEST,,"비상구 쪽부터",neutral,N
 opt_log,TEST,,"출입 기록부터",neutral,N

@@ -240,7 +240,7 @@ namespace Wake.Tests
         {
             var changed = new CanonicalEvidenceEntry(
                 "C-01",
-                "Daniel의 초대장",
+                "다니엘의 초대장",
                 "테스트",
                 "invitation",
                 false,
@@ -260,7 +260,7 @@ namespace Wake.Tests
         {
             var changed = new CanonicalEvidenceEntry(
                 "C-01",
-                "Daniel의 초대장",
+                "다니엘의 초대장",
                 "테스트",
                 "invitation",
                 false,

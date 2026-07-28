@@ -86,14 +86,14 @@ namespace Wake.UI
                 true,
                 warning,
                 warning
-                    ? $"{context.SceneId} · 위치 확인 필요"
-                    : $"{context.SceneId} · 현재 위치",
+                    ? "위치 확인 필요"
+                    : "현재 위치",
                 warning
                     ? $"⚠ {context.DisplayName}"
                     : context.DisplayName,
                 warning
                     ? context.WarningMessage
-                    : $"탐색 배경 · {context.PhysicalLocationCode}",
+                    : "탐색 가능한 현장",
                 warning ? WarningColor : ResolvedColor);
         }
 

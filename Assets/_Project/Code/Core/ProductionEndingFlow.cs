@@ -38,14 +38,14 @@ namespace Wake.Core
                 "엔딩 A",
                 "Complete Wake",
                 "Evelyn의 현재 살인과 Richard의 Orpheus 은폐가 모두 공개됩니다. " +
-                "Julian의 명예가 회복되고 Daniel의 기사는 사실에 맞게 수정됩니다.",
+                "줄리언의 명예가 회복되고 다니엘의 기사는 사실에 맞게 수정됩니다.",
                 true),
             new(
                 FinalAccusationResolver.ConvenientEndingId,
                 "엔딩 B",
                 "Convenient Culprit",
                 "현재 살인은 해결되지만 Orpheus 은폐는 남습니다. " +
-                "Daniel의 기사는 일부만 수정되고 Richard의 책임은 다시 봉인됩니다.",
+                "다니엘의 기사는 일부만 수정되고 리처드의 책임은 다시 봉인됩니다.",
                 true),
             new(
                 FinalAccusationResolver.WrongPersonEndingId,

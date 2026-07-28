@@ -54,22 +54,22 @@ namespace Wake.UI
 
         public string StatusLabel => Status switch
         {
-            ProductionMapEntryStatus.Available => $"{SceneId} · 이동 가능",
-            ProductionMapEntryStatus.Completed => $"{SceneId} · 완료",
+            ProductionMapEntryStatus.Available => "이동 가능",
+            ProductionMapEntryStatus.Completed => "완료",
             ProductionMapEntryStatus.LocationOnly => "자유 이동",
             _ => DenialReason switch
             {
                 SceneAccessDenialReason.PrerequisiteSceneIncomplete =>
-                    $"{SceneId} · 선행 장면 필요",
+                    "선행 장면 필요",
                 SceneAccessDenialReason.SceneNotUnlocked =>
-                    $"{SceneId} · 선행 장면 필요",
+                    "선행 장면 필요",
                 SceneAccessDenialReason.BoardingSequenceIncomplete =>
                     "승선 완료 후 이동 가능",
                 SceneAccessDenialReason.RestrictedByPublicAnxiety =>
-                    $"{SceneId} · 승객 불안으로 폐쇄",
+                    "승객 불안으로 폐쇄",
                 SceneAccessDenialReason.LocationVisualMissing =>
-                    $"{SceneId} · 배경 누락",
-                _ => $"{SceneId} · 이동 불가"
+                    "배경 누락",
+                _ => "이동 불가"
             }
         };
     }
@@ -95,10 +95,10 @@ namespace Wake.UI
         public string StatusLabel => Status switch
         {
             ProductionMapEntryStatus.Available =>
-                $"{SceneId} · 배경 유지 · 시작 가능",
+                "배경 유지 · 시작 가능",
             ProductionMapEntryStatus.Completed =>
-                $"{SceneId} · 완료",
-            _ => $"{SceneId} · 선행 장면 필요"
+                "완료",
+            _ => "선행 장면 필요"
         };
     }
 

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LocationDefinition_RICHARD_SUITE
   m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
   locationCode: RICHARD_SUITE
-  displayName: Richard Suite
+  displayName: 리처드 스위트룸
   deck: 10
   roomCode: D10-1
   backgroundSprite: {fileID: 21300000, guid: b3d56a4ebad292f44aa96d62a543dba6, type: 3}

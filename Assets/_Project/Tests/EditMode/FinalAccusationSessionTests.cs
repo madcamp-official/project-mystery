@@ -41,7 +41,7 @@ namespace Wake.Tests
             Assert.That(result.Submitted, Is.False);
             Assert.That(
                 result.Messages,
-                Has.Some.Contains("Daniel Mercer를 살해한 범인은 누구인가?"));
+                Has.Some.Contains("다니엘 머서를 살해한 범인은 누구인가?"));
             Assert.That(result.Messages, Has.Some.StartsWith("핵심 논증이 부족"));
             Assert.That(result.Messages, Has.Some.Contains("천장 시신 반입"));
             Assert.That(result.Messages, Has.None.Contains("body_insertion"));

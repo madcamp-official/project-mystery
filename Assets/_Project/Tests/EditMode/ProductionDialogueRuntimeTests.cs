@@ -72,8 +72,8 @@ namespace Wake.Tests
             Assert.That(identity.Kind, Is.EqualTo(kind));
         }
 
-        [TestCase("ADRIAN_독백", "에이드리언 베일 · 독백")]
-        [TestCase("EVELYN_RECORD", "에벌린 쇼 · 기록 음성")]
+        [TestCase("ADRIAN_독백", "아드리안 베일 · 독백")]
+        [TestCase("EVELYN_RECORD", "이블린 쇼 · 기록 음성")]
         [TestCase("NARRATION", "내레이션")]
         [TestCase("SYSTEM", "시스템")]
         [TestCase("승무원_NPC", "승무원")]
@@ -104,7 +104,7 @@ namespace Wake.Tests
                 DialoguePresentationMap.GetSpeakerLabel(
                     "ADRIAN",
                     identity),
-                Is.EqualTo("에이드리언 베일 · 독백"));
+                Is.EqualTo("아드리안 베일 · 독백"));
         }
 
         [Test]

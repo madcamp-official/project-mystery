@@ -194,7 +194,7 @@ namespace Wake.UI
                 case FacilityLogKind.Door:
                     logTitleText.text = "출입문 로그";
                     logBodyText.text =
-                        "21:50–22:30  Horizon Room 출입문\n" +
+                        "21:50–22:30  호라이즌 룸 출입문\n" +
                         "상태 확인: 닫힘\n개방·인증·통과 이벤트 없음";
                     eventDetailText.text =
                         "출입 기록 없음이 확인되었습니다. CCTV에서도 같은 구간에 인물이 없습니다.";
@@ -271,7 +271,7 @@ namespace Wake.UI
 
             isPlaying = false;
             eventDetailText.text =
-                "오류 위치\nHorizon Room 천장 감지기 · HR-SD-07\n" +
+                "오류 위치\n호라이즌 룸 천장 감지기 · HR-SD-07\n" +
                 "천장 중앙, 행사 레일 인접 구역";
             statusText.text =
                 "사람이 문으로 들어온 흔적은 없습니다. 하지만 22:18 천장 부근에서 설비 이상이 발생했습니다.";
@@ -496,10 +496,10 @@ namespace Wake.UI
 
             string[] captions =
             {
-                "Horizon Room 외부 복도",
+                "호라이즌 룸 외부 복도",
                 "선실 복도 교차 지점",
                 "서비스 복도",
-                "Horizon Room 출입구"
+                "호라이즌 룸 출입구"
             };
             for (int index = 0; index < 4; index++)
             {

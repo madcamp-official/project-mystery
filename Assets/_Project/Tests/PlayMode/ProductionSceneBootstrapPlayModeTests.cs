@@ -204,7 +204,7 @@ namespace Wake.Tests.PlayMode
             Assert.That(
                 State.GetTrust("DANIEL"),
                 Is.EqualTo(trustBefore + 1),
-                "공식 P-01_C1의 Daniel 신뢰 +1 효과가 적용되어야 합니다.");
+                "공식 P-01_C1의 다니엘 신뢰도 +1 효과가 적용되어야 합니다.");
             RawImage portrait = RequireComponent<RawImage>(
                 "Ingame/Line Panel/Speaker Portrait");
             Assert.That(portrait.gameObject.activeInHierarchy, Is.True);

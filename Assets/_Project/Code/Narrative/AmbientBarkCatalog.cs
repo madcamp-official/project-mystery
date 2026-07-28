@@ -138,7 +138,7 @@ namespace Wake.Narrative
                 "벽면 송고 단말기에 수정 기록이 남아 있어요. 기사가 몇 번이나 바뀐 모양입니다.",
                 "curious", "always", "NEWS_LOUNGE"),
             B("NEWS_ARTICLE", "PASSENGER_B",
-                "대니얼 머서의 기사를 읽었어요. 삭제되기 전에 저장해 뒀습니다.",
+                "다니엘 머서의 기사를 읽었어요. 삭제되기 전에 저장해 뒀습니다.",
                 "uneasy", "flag:scheduled_article", "NEWS_LOUNGE"),
 
             B("SECURITY_OFFICER", "SECURITY_OPERATOR",

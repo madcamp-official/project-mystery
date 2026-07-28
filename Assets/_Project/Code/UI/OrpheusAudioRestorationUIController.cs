@@ -63,7 +63,7 @@ namespace Wake.UI
         public static string SpeakerLabel(string speaker) => speaker switch
         {
             "JULIAN_RECORD" => "Julian 기록 음성",
-            "EVELYN_RECORD" => "Evelyn 기록 음성",
+            "EVELYN_RECORD" => "이블린 기록 음성",
             "RICHARD" => "Richard",
             _ => string.IsNullOrWhiteSpace(speaker) ? "알 수 없는 화자" : speaker
         };

@@ -221,7 +221,7 @@ namespace Wake.Puzzles
                 return new MarcusInterrogationCompletion(
                     false,
                     authentication,
-                    "Evelyn 인증 제공 여부를 먼저 확인하세요.");
+                    "이블린 인증 제공 여부를 먼저 확인하세요.");
             }
 
             if (!ProductionSceneCompletionGate.CanStartInteraction(
@@ -256,7 +256,7 @@ namespace Wake.Puzzles
             {
                 state.AddFlag(
                     MarcusInterrogationCatalog.AuthenticationFlag,
-                    "Evelyn 인증 제공 확인");
+                    "이블린 인증 제공 확인");
             }
 
             if (ProductionSceneCompletionGate.TryComplete(
@@ -400,7 +400,7 @@ namespace Wake.Puzzles
             if (authenticationCount != 1)
             {
                 warnings.Add(
-                    $"Evelyn 인증 판정 질문은 정확히 1개여야 합니다: {authenticationCount}개");
+                    $"이블린 인증 판정 질문은 정확히 1개여야 합니다: {authenticationCount}개");
             }
 
             if (items.Length != MarcusInterrogationCatalog.OfficialQuestionCount)

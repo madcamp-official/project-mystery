@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   evidenceId: C-17
   displayName: Orpheus 음성
-  description: Richard의 무지와 Evelyn의 계획을 분리한다.
+  description: 리처드의 무지와 이블린의 계획을 분리한다.
   category: history
   isDirect: 0
   views:

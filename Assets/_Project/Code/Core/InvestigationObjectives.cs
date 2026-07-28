@@ -96,12 +96,12 @@ namespace Wake.Core
             O(
                 "objective_p_01_arrival",
                 "P-01",
-                "항구에서 Daniel을 만나기",
+                "항구에서 다니엘을 만나기",
                 R(InvestigationEventKind.SceneEntered, "P-01")),
             O(
                 "objective_d2_01_exit_inspection",
                 "D2-01",
-                "Horizon Room의 출구 흔적 확인하기",
+                "호라이즌 룸의 출구 흔적 확인하기",
                 R(InvestigationEventKind.EvidenceCollected, "C-03"),
                 R(InvestigationEventKind.EvidenceCollected, "C-04"),
                 R(InvestigationEventKind.EvidenceCollected, "C-05")),

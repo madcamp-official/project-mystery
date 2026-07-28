@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   evidenceId: C-12
   displayName: 질소 로그
-  description: Daniel의 실제 직접 사인을 입증한다.
+  description: 다니엘의 실제 직접 사인을 입증한다.
   category: medical
   isDirect: 0
   views:

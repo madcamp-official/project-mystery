@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   evidenceId: C-13
   displayName: 익명 채팅
-  description: Richard 유죄 가설을 강화하는 선택적 진실이다.
+  description: 리처드 유죄 가설을 강화하는 선택적 진실이다.
   category: communication
   isDirect: 0
   views:

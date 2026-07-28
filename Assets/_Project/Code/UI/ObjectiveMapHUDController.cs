@@ -374,9 +374,9 @@ namespace Wake.UI
                     : Color.white;
             titleText.text = $"{item.StateLabel} · {item.Definition.Title}";
             progressText.text =
-                $"{item.Definition.SceneId} · {CurrentProductionViewModel.Summary}";
+                CurrentProductionViewModel.Summary;
             string nextLabel = CurrentProductionViewModel.Next.HasValue
-                ? $" · 다음: {CurrentProductionViewModel.Next.Value.Definition.SceneId} " +
+                ? " · 다음: " +
                   CurrentProductionViewModel.Next.Value.Definition.Title
                 : string.Empty;
             accessibilityText.text =

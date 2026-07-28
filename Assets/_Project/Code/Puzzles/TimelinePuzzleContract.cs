@@ -77,7 +77,7 @@ namespace Wake.Puzzles
                 DialogueTimeSource),
             new(
                 DanielServiceEntry,
-                "Daniel 서비스 구역 진입",
+                "다니엘 서비스 구역 진입",
                 "21:22",
                 DialogueTimeSource),
             new(
@@ -92,7 +92,7 @@ namespace Wake.Puzzles
                 DialogueTimeSource),
             new(
                 Murder,
-                "Daniel 사망",
+                "다니엘 사망",
                 "21:46",
                 DialogueTimeSource),
             new(
@@ -367,7 +367,7 @@ namespace Wake.Puzzles
             1 => "목표를 다시 확인하세요. 20:56부터 22:45까지 사건을 시간순으로 배열합니다.",
             2 => "핵심 증거 시각: 질소 주입 21:43, 사망 21:46, 녹음 생성 21:47.",
             3 => "전반부는 토큰 전달 → 금고 덮어쓰기 → 파티 사진 → " +
-                 "Daniel 진입 → Ballast 도착 → 질소 주입 순서입니다.",
+                 "다니엘 진입 → 밸러스트 도착 → 질소 주입 순서입니다.",
             _ => "힌트는 목표 재확인, 핵심 시각 강조, 전반부 순서 공개의 세 단계입니다."
         };
 

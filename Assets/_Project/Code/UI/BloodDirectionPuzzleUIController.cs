@@ -291,7 +291,7 @@ namespace Wake.UI
             feedbackText.color = new Color(0.95f, 0.78f, 0.62f);
 
             GameObject boardObject = MakePanel(
-                "Horizon Room Floor",
+                "호라이즌 룸 바닥",
                 root.transform,
                 new Color(0.08f, 0.07f, 0.065f, 1f));
             board = boardObject.GetComponent<RectTransform>();
