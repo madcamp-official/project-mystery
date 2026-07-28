@@ -7,7 +7,7 @@ namespace Wake.Tests
     public sealed class DialogueTextPaginatorTests
     {
         [Test]
-        public void LongDialogue_IsSplitWithoutDroppingAnyContent()
+        public void LongDialogue_IsPresentedAsOneCompleteLine()
         {
             const string text =
                 "첫 번째 문장을 모두 보여 줍니다. " +
@@ -16,20 +16,20 @@ namespace Wake.Tests
 
             var pages = DialogueTextPaginator.Split(text, 24);
 
-            Assert.That(pages.Count, Is.GreaterThan(1));
-            Assert.That(string.Concat(pages), Is.EqualTo(text));
+            Assert.That(pages, Has.Count.EqualTo(1));
+            Assert.That(pages[0], Is.EqualTo(text));
         }
 
         [Test]
-        public void Pages_RespectTheConfiguredCharacterLimit()
+        public void LegacyCharacterLimit_DoesNotCreateExtraClicks()
         {
             string text = string.Concat(
                 Enumerable.Repeat("가나다라마바사", 12));
 
             var pages = DialogueTextPaginator.Split(text, 20);
 
-            Assert.That(pages, Has.All.Length.LessThanOrEqualTo(20));
-            Assert.That(string.Concat(pages), Is.EqualTo(text));
+            Assert.That(pages, Has.Count.EqualTo(1));
+            Assert.That(pages[0], Is.EqualTo(text));
         }
 
         [Test]

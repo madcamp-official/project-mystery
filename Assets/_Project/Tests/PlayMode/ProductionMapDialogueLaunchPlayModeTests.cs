@@ -15,7 +15,7 @@ namespace Wake.Tests.PlayMode
         UiBasicScenePlayModeFixture
     {
         [UnityTest]
-        public IEnumerator AvailableEntry_LoadsBackgroundAndStartsCsvScene()
+        public IEnumerator AvailableEntry_WaitsForFocusCharacterClick()
         {
             yield return CompleteOpeningScene();
             Assert.That(State.HasCompletedScene("P-01"), Is.True);
@@ -28,7 +28,14 @@ namespace Wake.Tests.PlayMode
             Assert.That(gangway.interactable, Is.True);
             Assert.That(
                 gangway.GetComponentInChildren<TMP_Text>().text,
-                Is.EqualTo("승선 통로"));
+                Is.EqualTo("목표 · 승선 통로"));
+            Transform destinationArrow =
+                gangway.transform.Find("Objective Destination Arrow");
+            Assert.That(destinationArrow, Is.Not.Null);
+            Assert.That(destinationArrow.gameObject.activeInHierarchy, Is.True);
+            Assert.That(
+                destinationArrow.GetComponentsInChildren<Image>(true),
+                Has.Length.EqualTo(3));
 
             yield return InvokeAndSettle(gangway);
 
@@ -37,11 +44,22 @@ namespace Wake.Tests.PlayMode
                 map.LastTravelResult.Location.LocationCode,
                 Is.EqualTo("GANGWAY"));
             Assert.That(State.CurrentLocationCode, Is.EqualTo("GANGWAY"));
+            Assert.That(Dialogue.IsBusy, Is.False);
+            Assert.That(Dialogue.ActiveProductionSceneId, Is.Empty);
+            Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Ingame));
+            Assert.That(State.DialogueCheckpoint, Is.Null);
+
+            Button daniel = Object.FindObjectsByType<Button>(
+                    FindObjectsInactive.Exclude,
+                    FindObjectsSortMode.None)
+                .Single(button =>
+                    button.name.StartsWith("AmbientCharacter_DANIEL"));
+            yield return InvokeAndSettle(daniel);
+
             Assert.That(Dialogue.IsBusy, Is.True);
             Assert.That(
                 Dialogue.ActiveProductionSceneId,
                 Is.EqualTo("P-02"));
-            Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Ingame));
             Assert.That(State.DialogueCheckpoint, Is.Not.Null);
             Assert.That(
                 State.DialogueCheckpoint.activeSceneId,

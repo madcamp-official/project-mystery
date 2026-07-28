@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -22,6 +23,7 @@ namespace Wake.Exploration
             public Shadow SilhouetteShadow;
             public Button Button;
             public GameObject GroundShadowObject;
+            public GameObject ObjectiveMarker;
             public RectTransform GroundShadowRect;
             public RawImage GroundShadowImage;
             public AmbientWorldCharacterAsset Asset;
@@ -49,7 +51,9 @@ namespace Wake.Exploration
             BindDialogue();
         }
 
-        public void Show(string locationCode)
+        public void Show(
+            string locationCode,
+            string narrativeSceneId = null)
         {
             Clear();
             if (contentRect == null)
@@ -57,9 +61,11 @@ namespace Wake.Exploration
 
             currentLocationCode =
                 locationCode?.Trim().ToUpperInvariant() ?? string.Empty;
-            currentSceneId = AmbientBarkCatalog.ResolveCurrentSceneId(
-                Wake.Core.GameStateManager.Instance,
-                DialogueController.Instance?.ActiveProductionSceneId);
+            currentSceneId = !string.IsNullOrWhiteSpace(narrativeSceneId)
+                ? narrativeSceneId.Trim().ToUpperInvariant()
+                : AmbientBarkCatalog.ResolveCurrentSceneId(
+                    Wake.Core.GameStateManager.Instance,
+                    DialogueController.Instance?.ActiveProductionSceneId);
             IReadOnlyList<AmbientBarkRecord> barks =
                 AmbientBarkCatalog.GetAvailable(
                     currentLocationCode,
@@ -75,7 +81,7 @@ namespace Wake.Exploration
                     currentSceneId,
                     out ScenePresenceRecord scene))
             {
-                int mainLimit = Mathf.Max(0, 3 - spawned.Count);
+                int mainLimit = Mathf.Max(0, 5 - spawned.Count);
                 IReadOnlyList<SceneWorldCharacter> characters =
                     ScenePresencePresentationPolicy.SelectVisible(
                         scene,
@@ -194,7 +200,84 @@ namespace Wake.Exploration
                 BlendMaterial = blendMaterial,
                 BaseTint = Color.white
             };
+            view.ObjectiveMarker = CreateObjectiveMarker(
+                target.transform,
+                speaker,
+                isMainCharacter && isFocusParticipant);
             spawned.Add(view);
+        }
+
+        private GameObject CreateObjectiveMarker(
+            Transform parent,
+            string characterId,
+            bool isEligibleCharacter)
+        {
+            if (!isEligibleCharacter ||
+                Wake.Core.GameStateManager.Instance == null)
+            {
+                return null;
+            }
+
+            ProductionObjectiveViewModel objective =
+                ProductionObjectiveViewModel.Resolve(
+                    Wake.Core.GameStateManager.Instance);
+            if (!objective.Presentation.HasValue ||
+                objective.Presentation.Value.MarkerMode !=
+                ObjectiveMarkerMode.Npc ||
+                objective.Presentation.Value.Definition.SceneId !=
+                currentSceneId ||
+                !ProductionObjectiveNpcTargets.Contains(
+                    currentSceneId,
+                    characterId))
+            {
+                return null;
+            }
+
+            GameObject marker = new(
+                "Objective Talk Marker",
+                typeof(RectTransform),
+                typeof(Canvas),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(Outline));
+            marker.transform.SetParent(parent, false);
+            RectTransform markerRect = marker.GetComponent<RectTransform>();
+            markerRect.anchorMin = new Vector2(0.80f, 0.88f);
+            markerRect.anchorMax = new Vector2(0.80f, 0.88f);
+            markerRect.pivot = new Vector2(0.5f, 0.5f);
+            markerRect.sizeDelta = new Vector2(92f, 52f);
+            Canvas markerCanvas = marker.GetComponent<Canvas>();
+            markerCanvas.overrideSorting = true;
+            markerCanvas.sortingOrder = 50;
+            Image background = marker.GetComponent<Image>();
+            background.color =
+                UiVisualThemeService.Resolve(UiColorToken.Brass);
+            background.raycastTarget = false;
+            Outline outline = marker.GetComponent<Outline>();
+            outline.effectColor = Color.white;
+            outline.effectDistance = new Vector2(2f, -2f);
+
+            GameObject labelObject = new(
+                "Talk",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(TextMeshProUGUI));
+            labelObject.transform.SetParent(marker.transform, false);
+            RectTransform labelRect =
+                labelObject.GetComponent<RectTransform>();
+            labelRect.anchorMin = Vector2.zero;
+            labelRect.anchorMax = Vector2.one;
+            labelRect.offsetMin = Vector2.zero;
+            labelRect.offsetMax = Vector2.zero;
+            TMP_Text label = labelObject.GetComponent<TMP_Text>();
+            label.text = "대화";
+            label.fontSize = 21f;
+            label.alignment = TextAlignmentOptions.Center;
+            label.color = UiVisualThemeService.Resolve(UiColorToken.Canvas);
+            label.raycastTarget = false;
+            MapTypography.ApplyLocation(label);
+            marker.transform.SetAsLastSibling();
+            return marker;
         }
 
         private void StartMainCharacterDialogue(
@@ -493,6 +576,7 @@ namespace Wake.Exploration
                 view.Image.color = tint;
                 view.Button.colors =
                     AmbientInteractionPresentation.CharacterSpriteColors(tint);
+                view.ObjectiveMarker?.SetActive(!completed);
             }
         }
 

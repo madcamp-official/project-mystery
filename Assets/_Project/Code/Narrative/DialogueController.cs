@@ -127,6 +127,8 @@ namespace Wake.Narrative
             typewriterAudioSource.playOnAwake = false;
             typewriterAudioSource.loop = true;
             typewriterAudioSource.clip = typewriterClip;
+            typewriterAudioSource.volume =
+                AudioManager.Instance?.SfxVolume ?? 1f;
             responsiveLayout = canvas.gameObject
                 .GetComponent<ResponsiveDialogueLayout>();
             if (responsiveLayout == null)
@@ -238,6 +240,8 @@ namespace Wake.Narrative
                 DialogueAdvanceState.RevealLine);
             if (lineNarrationOrSystem && typewriterClip != null)
             {
+                typewriterAudioSource.volume =
+                    AudioManager.Instance?.SfxVolume ?? 1f;
                 typewriterAudioSource.Play();
             }
 

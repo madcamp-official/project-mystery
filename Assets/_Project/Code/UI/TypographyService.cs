@@ -35,6 +35,14 @@ namespace Wake.UI
             TMP_FontAsset font = catalog != null
                 ? catalog.Resolve(role)
                 : TMP_Settings.defaultFontAsset;
+            TMP_FontAsset body = catalog?.Body;
+            if (font != null &&
+                body != null &&
+                font != body &&
+                !font.fallbackFontAssetTable.Contains(body))
+            {
+                font.fallbackFontAssetTable.Add(body);
+            }
             TypographyWhitespacePolicy.Ensure(font);
             return font;
         }

@@ -132,6 +132,33 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void AwaitingSceneTransition_KeepsSavedFreeRoamLocationInsteadOfNextScene()
+        {
+            // Player finished P-01's dialogue and is free-roaming PORT without
+            // having manually walked into P-02 yet.
+            Assert.That(
+                state.SaveDialogueCheckpoint("P-01", 5, false, string.Empty),
+                Is.True);
+            Assert.That(
+                state.ClearDialogueCheckpoint("P-01", string.Empty),
+                Is.True);
+            state.RecordLocation("PORT");
+
+            string storySceneId =
+                GameResumeLocationPolicy.ResolveStorySceneId(
+                    state,
+                    "P-02");
+            LocationDefinition location =
+                GameResumeLocationPolicy.ResolveLocation(
+                    graph,
+                    state,
+                    storySceneId);
+
+            Assert.That(storySceneId, Is.Empty);
+            Assert.That(location.LocationCode, Is.EqualTo("PORT"));
+        }
+
+        [Test]
         public void EndingOnlySave_KeepsLastValidSavedLocation()
         {
             state.RecordLocation("PROMENADE");

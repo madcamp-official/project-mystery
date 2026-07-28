@@ -4,6 +4,11 @@ namespace Wake.Core
 {
     public class AudioManager : MonoBehaviour
     {
+        private const string MusicVolumePreference = "audio.music.volume";
+        private const string SfxVolumePreference = "audio.sfx.volume";
+        private const float DefaultMusicVolume = 0.5f;
+        private const float DefaultSfxVolume = 0.5f;
+
         public static AudioManager Instance { get; private set; }
 
         [SerializeField] private AudioSource musicSource;
@@ -20,9 +25,19 @@ namespace Wake.Core
 
         private GameStateManager state;
 
+        public float MusicVolume { get; private set; } = DefaultMusicVolume;
+        public float SfxVolume { get; private set; } = DefaultSfxVolume;
+
         private void Awake()
         {
             Instance = this;
+            MusicVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(
+                MusicVolumePreference,
+                DefaultMusicVolume));
+            SfxVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(
+                SfxVolumePreference,
+                DefaultSfxVolume));
+            ApplyVolumes();
         }
 
         private void Start()
@@ -106,6 +121,30 @@ namespace Wake.Core
             }
 
             sfxSource.PlayOneShot(clip);
+        }
+
+        public void SetMusicVolume(float value)
+        {
+            MusicVolume = Mathf.Clamp01(value);
+            if (musicSource != null)
+                musicSource.volume = MusicVolume;
+            PlayerPrefs.SetFloat(MusicVolumePreference, MusicVolume);
+        }
+
+        public void SetSfxVolume(float value)
+        {
+            SfxVolume = Mathf.Clamp01(value);
+            if (sfxSource != null)
+                sfxSource.volume = SfxVolume;
+            PlayerPrefs.SetFloat(SfxVolumePreference, SfxVolume);
+        }
+
+        private void ApplyVolumes()
+        {
+            if (musicSource != null)
+                musicSource.volume = MusicVolume;
+            if (sfxSource != null)
+                sfxSource.volume = SfxVolume;
         }
     }
 }

@@ -282,9 +282,10 @@ namespace Wake.UI
             lineText.enableAutoSizing = true;
             lineText.fontSizeMin = DialogueTypographyMetrics.LineMinimum;
             lineText.fontSizeMax = DialogueTypographyMetrics.LineMaximum;
+            lineText.lineSpacing = DialogueTypographyMetrics.BodyLineSpacing;
             lineText.textWrappingMode = TextWrappingModes.Normal;
-            lineText.overflowMode = TextOverflowModes.Truncate;
-            lineText.margin = new Vector4(8f, 4f, 8f, 4f);
+            lineText.overflowMode = TextOverflowModes.Overflow;
+            lineText.margin = new Vector4(12f, 8f, 12f, 8f);
         }
 
         private void ApplySpeakerPlate(

@@ -118,6 +118,7 @@ namespace Wake.UI
             {
                 audioSource = gameObject.AddComponent<AudioSource>();
             }
+            audioSource.volume = AudioManager.Instance?.SfxVolume ?? 1f;
             BuildUi();
         }
 
@@ -204,6 +205,7 @@ namespace Wake.UI
             {
                 audioSource.Stop();
                 audioSource.clip = request.Clip;
+                audioSource.volume = AudioManager.Instance?.SfxVolume ?? 1f;
                 audioSource.Play();
             }
             return request;

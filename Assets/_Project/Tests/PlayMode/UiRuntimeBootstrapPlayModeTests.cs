@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
+using Wake.Core;
 using Wake.Evidence;
 using Wake.Puzzles;
 using Wake.UI;
@@ -65,6 +66,9 @@ namespace Wake.Tests.PlayMode
                 ingame.GetComponents<ProductionEndingUIController>(),
                 Has.Length.EqualTo(1));
             Assert.That(
+                ingame.GetComponents<ObjectiveMapHUDController>(),
+                Has.Length.EqualTo(1));
+            Assert.That(
                 RequireObject("Evidence")
                     .GetComponents<EvidenceTheoryBoardController>(),
                 Has.Length.EqualTo(1));
@@ -119,6 +123,90 @@ namespace Wake.Tests.PlayMode
             Assert.That(scroll.vertical, Is.True);
             Assert.That(scroll.content, Is.SameAs(description.rectTransform));
             AssertNoRuntimeErrors("조사 기록 상세 화면");
+        }
+
+        [UnityTest]
+        public IEnumerator NewGame_ShowsNaturalLanguageObjectiveHud()
+        {
+            yield return StartNewGameFromVisibleButton(
+                startOpeningDialogue: false);
+            yield return null;
+
+            Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Ingame));
+            GameObject objective = RequireObject("Ingame/Objective HUD");
+            Assert.That(objective.activeInHierarchy, Is.True);
+            Assert.That(
+                objective.transform.Find("Title")
+                    ?.GetComponent<TMP_Text>()?.text,
+                Is.EqualTo("항구의 기자를 찾기"));
+            Assert.That(
+                objective.transform.Find("Progress")
+                    ?.GetComponent<TMP_Text>()?.text,
+                Does.StartWith("다음 목표 · 탐색"));
+            Assert.That(
+                objective.GetComponentsInChildren<TMP_Text>(true)
+                    .Select(text => text.text),
+                Has.None.Contains("P-01"));
+            Assert.That(
+                Dialogue.ActiveProductionSceneId,
+                Is.Empty,
+                "첫 장면 대사는 Daniel을 클릭하기 전까지 시작하면 안 됩니다.");
+            Assert.That(
+                RequireObject("Ingame/Line Panel").activeSelf,
+                Is.False);
+
+            yield return InvokeAndSettle(objective.GetComponent<Button>());
+            GameObject details =
+                RequireObject("Ingame/Objective HUD/Objective Details");
+            Assert.That(details.activeInHierarchy, Is.True);
+            Assert.That(
+                details.GetComponentInChildren<TMP_Text>(true).text,
+                Does.Contain("다니엘 머서 찾기"));
+
+            Button daniel = Object.FindObjectsByType<Button>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None)
+                .First(button =>
+                    button.name.StartsWith("AmbientCharacter_DANIEL"));
+            Transform talkMarker =
+                daniel.transform.Find("Objective Talk Marker");
+            Assert.That(talkMarker, Is.Not.Null);
+            Assert.That(talkMarker.gameObject.activeInHierarchy, Is.True);
+            Assert.That(
+                talkMarker.GetComponentInChildren<TMP_Text>(true).text,
+                Is.EqualTo("대화"));
+            yield return InvokeAndSettle(daniel);
+            Assert.That(
+                Dialogue.ActiveProductionSceneId,
+                Is.EqualTo("P-01"));
+        }
+
+        [UnityTest]
+        public IEnumerator SaveSlotTransition_KeepsObjectiveHudHidden()
+        {
+            Button startButton = RequireObject(
+                    "StartScene/Title Presentation")
+                .GetComponentsInChildren<Button>(true)
+                .First(button => button.name == "시작하기");
+            yield return InvokeAndSettle(startButton);
+            Button slot = RequireObject("StartScene/Save Slot Selection")
+                .GetComponentsInChildren<Button>(true)
+                .First(button =>
+                    button.name.StartsWith("Save Slot") &&
+                    button.GetComponentInChildren<TMP_Text>(true).text.Contains(
+                        "비어 있는 기록"));
+            yield return InvokeAndSettle(slot);
+            Button confirm = RequireObject(
+                    "StartScene/Save Slot Selection/Start Confirmation/Confirm")
+                .GetComponent<Button>();
+            yield return InvokeAndSettle(confirm);
+
+            GameObject objective = RequireObject("Ingame/Objective HUD");
+            Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Start));
+            Assert.That(
+                objective.activeInHierarchy,
+                Is.False,
+                "저장 슬롯 전환이 끝나기 전에는 목표 HUD가 보여서는 안 됩니다.");
         }
 
         [UnityTest]
@@ -252,7 +340,7 @@ namespace Wake.Tests.PlayMode
             Assert.That(line.enableAutoSizing, Is.True);
             Assert.That(
                 line.overflowMode,
-                Is.EqualTo(TextOverflowModes.Truncate));
+                Is.EqualTo(TextOverflowModes.Overflow));
             Assert.That(line.isTextOverflowing, Is.False);
 
             dialogue.CancelActiveDialogue();
@@ -284,7 +372,54 @@ namespace Wake.Tests.PlayMode
             Assert.That(
                 logo.sprite.rect.height,
                 Is.EqualTo(logo.sprite.texture.height));
+            RectTransform logoRect = logo.rectTransform;
+            Assert.That(
+                logoRect.anchorMax.x - logoRect.anchorMin.x,
+                Is.EqualTo(0.48f).Within(0.001f));
+            Assert.That(
+                logoRect.anchorMin.y,
+                Is.GreaterThanOrEqualTo(0.7f));
             AssertNoRuntimeErrors("타이틀 로고 전체 영역");
+        }
+
+        [UnityTest]
+        public IEnumerator SettingsSliders_ChangeLiveAudioSourceVolumes()
+        {
+            AudioManager audio = AudioManager.Instance;
+            Assert.That(audio, Is.Not.Null);
+            float originalMusic = audio.MusicVolume;
+            float originalSfx = audio.SfxVolume;
+
+            Ui.OpenSettings();
+            yield return null;
+            Slider music = RequireComponent<Slider>(
+                "Settings Popup/Settings/Sound");
+            Slider sfx = RequireComponent<Slider>(
+                "Settings Popup/Settings/Sound (1)");
+
+            Assert.That(
+                music.value,
+                Is.EqualTo(audio.MusicVolume).Within(0.001f));
+            Assert.That(
+                sfx.value,
+                Is.EqualTo(audio.SfxVolume).Within(0.001f));
+
+            music.value = 0.31f;
+            sfx.value = 0.47f;
+            yield return null;
+
+            Assert.That(audio.MusicVolume, Is.EqualTo(0.31f).Within(0.001f));
+            Assert.That(audio.SfxVolume, Is.EqualTo(0.47f).Within(0.001f));
+            Assert.That(
+                GameObject.Find("MusicSource").GetComponent<AudioSource>().volume,
+                Is.EqualTo(0.31f).Within(0.001f));
+            Assert.That(
+                GameObject.Find("SfxSource").GetComponent<AudioSource>().volume,
+                Is.EqualTo(0.47f).Within(0.001f));
+
+            audio.SetMusicVolume(originalMusic);
+            audio.SetSfxVolume(originalSfx);
+            AssertNoRuntimeErrors("설정 음량 실시간 반영");
         }
 
         [UnityTest]
@@ -426,12 +561,9 @@ namespace Wake.Tests.PlayMode
                 RequireComponent<Image>("Evidence/Image").sprite,
                 Is.Null);
             TMP_Text placeholder =
-                RequireComponent<TMP_Text>(
-                    "Evidence/Description Viewport/Description");
+                RequireComponent<TMP_Text>("Evidence/Description");
             Assert.That(placeholder.gameObject.activeSelf, Is.True);
-            Assert.That(
-                placeholder.text,
-                Does.Contain("조사하면 기록이 추가됩니다"));
+            Assert.That(placeholder.text, Does.Contain("확보한 증거가 없습니다"));
             Assert.That(
                 placeholder.font,
                 Is.SameAs(
@@ -439,7 +571,7 @@ namespace Wake.Tests.PlayMode
                         TypographyRole.BodyRegular)));
             TMP_Text title =
                 RequireComponent<TMP_Text>("Evidence/Text (TMP)");
-            Assert.That(title.text, Is.EqualTo("조사 기록"));
+            Assert.That(title.text, Is.EqualTo("증거"));
             Assert.That(title.text, Does.Not.Contain("C-"));
             Assert.That(
                 title.font,

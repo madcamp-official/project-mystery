@@ -184,6 +184,7 @@ namespace Wake.UI
                 ingamePanel));
             RegisterModal(EnsureComponent<EvidenceTheoryBoardController>(
                 evidencePanel));
+            EnsureComponent<ObjectiveMapHUDController>(ingamePanel);
             EnsureComponent<NarrativeLocationHUDController>(ingamePanel);
             EnsureComponent<EvidenceNotebookTabsController>(evidencePanel);
             EnsureComponent<RuntimeUiOverhaulController>(gameObject);
@@ -369,6 +370,8 @@ namespace Wake.UI
             }
             settingsPopup.transform.SetAsLastSibling();
             settingsPopup.SetActive(true);
+            FindFirstObjectByType<SettingsController>()
+                ?.RefreshFromAudioManager();
             Transform credit =
                 settingsPopup.transform.Find("Settings/Credit");
             if (credit != null)
