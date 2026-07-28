@@ -11,8 +11,8 @@ namespace Wake.Evidence
     {
         public static EvidencePanelController Instance { get; private set; }
 
-        private const float ItemSpacing = 180f;
-        private const float SelectedScale = 1.15f;
+        private const float ItemSpacing = 330f;
+        private const float SelectedScale = 1.08f;
 
         private readonly List<GameObject> spawnedItems = new();
         private Transform carouselContainer;
@@ -204,6 +204,11 @@ namespace Wake.Evidence
                 return;
             }
 
+            SetButtonLabel(prevButton, "이전 기록");
+            SetButtonLabel(nextButton, "다음 기록");
+            SetButtonLabel(backButton, "돌아가기");
+            SetButtonLabel(turnLeftButton, string.Empty);
+            SetButtonLabel(turnRightButton, string.Empty);
             SetButtonLabel(theoryBoardButton, "기록 비교");
             nextButton.onClick.AddListener(() => Advance(1));
             prevButton.onClick.AddListener(() => Advance(-1));
@@ -316,7 +321,14 @@ namespace Wake.Evidence
                 if (label != null)
                 {
                     label.text = viewModel.Items[index].CarouselLabel;
+                    ConfigureCarouselLabel(label);
                     EvidenceTypography.ApplyCarouselLabel(label);
+                    label.color =
+                        viewModel.Items[index].State ==
+                        EvidencePanelItemState.Unreliable
+                            ? UiVisualThemeService.Resolve(
+                                UiColorToken.TextPrimary)
+                            : new Color32(48, 39, 31, 255);
                 }
                 ApplyItemState(
                     instance.GetComponent<Image>(),
@@ -330,6 +342,24 @@ namespace Wake.Evidence
             PositionCarouselItems();
         }
 
+        private static void ConfigureCarouselLabel(TMP_Text label)
+        {
+            RectTransform rect = label.rectTransform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.offsetMin = new Vector2(18f, 12f);
+            rect.offsetMax = new Vector2(-18f, -12f);
+            label.alignment = TextAlignmentOptions.Center;
+            label.textWrappingMode = TextWrappingModes.Normal;
+            label.overflowMode = TextOverflowModes.Ellipsis;
+            label.enableAutoSizing = true;
+            label.fontSizeMin = 24f;
+            label.fontSizeMax = 34f;
+            label.maxVisibleLines = 2;
+        }
+
         private static void ApplyItemState(
             Graphic background,
             EvidencePanelItemState state)
@@ -341,7 +371,7 @@ namespace Wake.Evidence
             background.color = state switch
             {
                 EvidencePanelItemState.Collected =>
-                    UiVisualThemeService.Resolve(UiColorToken.Success),
+                    Color.white,
                 EvidencePanelItemState.Unreliable =>
                     UiVisualThemeService.Resolve(UiColorToken.Danger),
                 _ => UiVisualThemeService.Resolve(
@@ -351,6 +381,11 @@ namespace Wake.Evidence
 
         private void PositionCarouselItems()
         {
+            Sprite normalSprite =
+                itemTemplate.GetComponent<Image>()?.sprite;
+            Sprite selectedSprite =
+                itemTemplate.GetComponent<Button>()
+                    ?.spriteState.selectedSprite;
             for (int index = 0; index < spawnedItems.Count; index++)
             {
                 RectTransform rect =
@@ -361,6 +396,29 @@ namespace Wake.Evidence
                     new Vector2((index - selectedIndex) * ItemSpacing, 0f);
                 rect.localScale = Vector3.one *
                     (index == selectedIndex ? SelectedScale : 1f);
+                Image image = spawnedItems[index].GetComponent<Image>();
+                if (image != null)
+                {
+                    image.sprite =
+                        index == selectedIndex &&
+                        selectedSprite != null
+                            ? selectedSprite
+                            : normalSprite;
+                }
+                TMP_Text label =
+                    spawnedItems[index]
+                        .GetComponentInChildren<TMP_Text>(true);
+                if (label != null)
+                {
+                    label.color = index == selectedIndex
+                        ? UiVisualThemeService.Resolve(
+                            UiColorToken.TextPrimary)
+                        : viewModel.Items[index].State ==
+                          EvidencePanelItemState.Unreliable
+                            ? UiVisualThemeService.Resolve(
+                                UiColorToken.TextPrimary)
+                            : new Color32(48, 39, 31, 255);
+                }
             }
         }
 
@@ -393,14 +451,14 @@ namespace Wake.Evidence
         private void Rotate(int delta)
         {
             EvidenceDefinition evidence = GetSelectedItem()?.Definition;
-            if (evidence?.Views == null || evidence.Views.Length == 0)
+            List<Sprite> views = GetUsableViews(evidence);
+            if (views.Count < 2)
             {
                 return;
             }
             currentViewIndex =
-                (currentViewIndex + delta + evidence.Views.Length) %
-                evidence.Views.Length;
-            ApplyView(evidence);
+                (currentViewIndex + delta + views.Count) % views.Count;
+            detailView.SetImage(views[currentViewIndex]);
         }
 
         private void ApplySelection()
@@ -423,19 +481,40 @@ namespace Wake.Evidence
             nextButton.interactable =
                 selectedIndex < viewModel.Items.Count - 1;
             EvidenceDefinition evidence = selected?.Definition;
-            bool hasMultipleViews =
-                evidence?.Views != null && evidence.Views.Length > 1;
+            bool hasMultipleViews = GetUsableViews(evidence).Count > 1;
             turnLeftButton.gameObject.SetActive(hasMultipleViews);
             turnRightButton.gameObject.SetActive(hasMultipleViews);
         }
 
         private void ApplyView(EvidenceDefinition evidence)
         {
-            Sprite sprite = evidence.Views != null &&
-                            evidence.Views.Length > 0
-                ? evidence.Views[currentViewIndex]
+            List<Sprite> views = GetUsableViews(evidence);
+            currentViewIndex = views.Count == 0
+                ? 0
+                : Mathf.Clamp(currentViewIndex, 0, views.Count - 1);
+            Sprite sprite = views.Count > 0
+                ? views[currentViewIndex]
                 : null;
             detailView.SetImage(sprite);
+        }
+
+        private static List<Sprite> GetUsableViews(
+            EvidenceDefinition evidence)
+        {
+            List<Sprite> result = new();
+            if (evidence?.Views == null)
+            {
+                return result;
+            }
+
+            foreach (Sprite view in evidence.Views)
+            {
+                if (view != null && !result.Contains(view))
+                {
+                    result.Add(view);
+                }
+            }
+            return result;
         }
 
         private EvidencePanelItem? GetSelectedItem()
