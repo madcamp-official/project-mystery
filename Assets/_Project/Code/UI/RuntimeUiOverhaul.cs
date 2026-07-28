@@ -552,6 +552,7 @@ namespace Wake.UI
         private const float DiveDuration = 2.2f;
         private const float RiseDuration = RevealDuration - DiveDuration;
         private const float PanelTravelExtra = 2.8f;
+        private const float LobbyTravelExtra = 3.5f;
         private static readonly Vector3 WaterRevealStart = new(0f, -48f, 2f);
         private static readonly Vector3 WaterRevealEnd = new(0f, -4f, 2f);
 
@@ -628,7 +629,7 @@ namespace Wake.UI
             Vector3 waterFrom = showing ? WaterRevealStart : WaterRevealEnd;
             Vector3 waterTo = showing ? WaterRevealEnd : WaterRevealStart;
             Vector2 lobbyShown = Vector2.zero;
-            Vector2 lobbyExited = new Vector2(0f, travel);
+            Vector2 lobbyExited = new Vector2(0f, travel * LobbyTravelExtra);
             Vector2 lobbyFrom = showing ? lobbyShown : lobbyExited;
             Vector2 lobbyTo = showing ? lobbyExited : lobbyShown;
 
