@@ -42,17 +42,12 @@ namespace Wake.UI
 
         private void OnCreditClicked()
         {
-            Debug.Log("Credit button clicked (placeholder - no credit screen yet).");
+            UIManager.Instance?.ShowCredits();
         }
 
         private void OnExitClicked()
         {
-            Debug.Log("Exit requested.");
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-#else
-            Application.Quit();
-#endif
+            UIManager.Instance?.RequestQuit();
         }
     }
 }
