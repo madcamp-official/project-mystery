@@ -73,6 +73,26 @@ namespace Wake.Tests
             Assert.That(player.StartedSceneId, Is.EqualTo("P-01"));
         }
 
+        [Test]
+        public void ResumeGame_AfterSceneCompletionWithoutTravelDoesNotAutoStartNextScene()
+        {
+            // Player finished the previous scene's dialogue and is free-roaming
+            // the room without having manually walked into the next scene yet.
+            state.SaveDialogueCheckpoint("P-01", 5, false, string.Empty);
+            Assert.That(
+                state.ClearDialogueCheckpoint("P-01", string.Empty),
+                Is.True);
+            Assert.That(state.IsAwaitingSceneTransition, Is.True);
+
+            var player = new FakePlayer();
+            var director = new ProductionSceneDirector(state, player);
+
+            Assert.That(director.ResumeGame(), Is.True);
+
+            Assert.That(player.StartedSceneId, Is.Empty);
+            Assert.That(state.DialogueCheckpoint, Is.Null);
+        }
+
         private void DestroyState()
         {
             if (GameStateManager.Instance != null)

@@ -12,7 +12,10 @@ namespace Wake.Core
         /// <summary>
         /// The saved dialogue checkpoint is authoritative while a story scene is
         /// in progress. Without a checkpoint, Continue prepares the next scene
-        /// selected by <see cref="ProductionSceneDirector"/>.
+        /// selected by <see cref="ProductionSceneDirector"/> - unless the player
+        /// had already finished the previous scene and was free-roaming (never
+        /// manually entered the next one), in which case the saved location must
+        /// win instead of skipping straight into the next scene's dialogue.
         /// </summary>
         public static string ResolveStorySceneId(
             GameStateManager state,
@@ -23,6 +26,11 @@ namespace Wake.Core
             if (ProductionSceneCatalog.TryGet(checkpointSceneId, out _))
             {
                 return checkpointSceneId;
+            }
+
+            if (state != null && state.IsAwaitingSceneTransition)
+            {
+                return string.Empty;
             }
 
             string nextSceneId = NormalizeSceneId(nextAvailableSceneId);

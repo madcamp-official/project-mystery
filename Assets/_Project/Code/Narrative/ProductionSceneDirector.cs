@@ -80,6 +80,15 @@ namespace Wake.Narrative
                 state.ClearDialogueCheckpoint();
             }
 
+            if (state.IsAwaitingSceneTransition)
+            {
+                // The player finished the previous scene and was free-roaming
+                // without having manually entered the next one yet. Continue
+                // must return them to that exploration, not auto-play the next
+                // scene's dialogue for them.
+                return true;
+            }
+
             string sceneId = FindNextAvailableScene();
             return !string.IsNullOrEmpty(sceneId) && TryEnter(sceneId, false);
         }
