@@ -13,6 +13,8 @@ namespace Wake.UI
         private static readonly string[] EvidenceContentNames =
         {
             "Evidences", "Image", "Text (TMP)", "Description",
+            "Description Viewport", "Acquisition Place",
+            "Related People", "Reliability",
             "Next", "Next (1)", "Turn", "Turn (1)", "Turn (2)", "Turn (3)"
         };
 
@@ -45,14 +47,18 @@ namespace Wake.UI
             tabs = new GameObject("Notebook Tabs", typeof(RectTransform));
             tabs.transform.SetParent(root, false);
             RectTransform tabsRect = tabs.GetComponent<RectTransform>();
-            tabsRect.anchorMin = tabsRect.anchorMax = new Vector2(.5f, 1f);
-            tabsRect.anchoredPosition = new Vector2(0f, -180f);
-            tabsRect.sizeDelta = new Vector2(610f, 62f);
+            if (!RuntimeUiLayoutRegistry.CopyWorldLayout(
+                    tabsRect,
+                    "evidence.tabs"))
+            {
+                Debug.LogError(
+                    "Evidence notebook is missing the authored tabs slot.");
+            }
 
             Button evidence = SaveSlotSelectionController.MakeButton(
                 tabsRect, "Evidence Tab", new Vector2(-155f, 0f), new Vector2(290f, 54f));
             SaveSlotSelectionController.MakeText(
-                evidence.transform as RectTransform, "증거", 24f,
+                evidence.transform as RectTransform, "조사 기록", 24f,
                 Vector2.zero, new Vector2(250f, 44f));
             evidence.onClick.AddListener(ShowEvidence);
             Button people = SaveSlotSelectionController.MakeButton(
@@ -70,9 +76,13 @@ namespace Wake.UI
             characters = SaveSlotSelectionController.Panel(
                 root, "Characters And Relationships", new Color32(5, 15, 29, 235));
             RectTransform panel = characters.GetComponent<RectTransform>();
-            panel.anchorMin = new Vector2(.08f, .08f);
-            panel.anchorMax = new Vector2(.92f, .86f);
-            panel.offsetMin = panel.offsetMax = Vector2.zero;
+            if (!RuntimeUiLayoutRegistry.CopyWorldLayout(
+                    panel,
+                    "evidence.people-panel"))
+            {
+                Debug.LogError(
+                    "Evidence notebook is missing the authored people slot.");
+            }
 
             GameObject viewportObject = new(
                 "Viewport", typeof(RectTransform), typeof(Image),
@@ -146,7 +156,8 @@ namespace Wake.UI
                         GameStateManager.DefaultTrust;
             SaveSlotSelectionController.MakeText(
                 rect,
-                $"{person.DisplayName}\n관계 · 신뢰 {trust}/{GameStateManager.MaxTrust}",
+                $"{person.DisplayName}\n" +
+                InterrogationRelationshipPresentation.ResolveTrust(trust),
                 21f, new Vector2(0f, -115f), new Vector2(270f, 65f));
         }
 

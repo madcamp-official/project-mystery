@@ -107,7 +107,7 @@ namespace Wake.UI
             if (screenTitle != null)
             {
                 MapTypography.ApplyLocation(screenTitle);
-                screenTitle.text = "MV ELYSIUM  ·  장소 선택";
+                screenTitle.text = "엘리시움호 · 장소 선택";
             }
 
             Transform viewport = roomsContainer.Find(
