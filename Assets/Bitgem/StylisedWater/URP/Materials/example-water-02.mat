@@ -115,8 +115,8 @@ Material:
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 1
-    - _WaveFrequency: 5
-    - _WaveScale: 0.03
+    - _WaveFrequency: 3
+    - _WaveScale: 0.003
     - _WaveSpeed: 2
     - _WorkflowMode: 1
     - _ZTest: 4

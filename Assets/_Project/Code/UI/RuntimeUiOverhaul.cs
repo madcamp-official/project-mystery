@@ -610,8 +610,12 @@ namespace Wake.UI
         // start together and share the water's duration/easing exactly.
         private const float LobbyLeadIn = 0f;
         private const float LobbyExitDuration = DiveDuration;
-        private static readonly Vector3 WaterRevealStart = new(0f, -46f, 2f);
-        private static readonly Vector3 WaterRevealEnd = new(0f, -4f, 2f);
+        // The submerged position comes from wherever "water" is placed in
+        // the scene, captured once the first time it's resolved - so tuning
+        // its dive depth only means moving it there, no hardcoded copy to
+        // keep in sync. Only the risen height is a pure animation choice
+        // with no scene counterpart.
+        private const float WaterRisenY = -4f;
 
         private GameObject overlay;
         private GameObject confirmation;
@@ -620,6 +624,7 @@ namespace Wake.UI
         private LobbyBackdropController lobbyBackdrop;
         private RectTransform ingamePanel;
         private Transform water;
+        private Vector3? waterHome;
         private LightShaftEffect lightShaft;
         private Coroutine revealRoutine;
         private int pendingSlot;
@@ -627,6 +632,23 @@ namespace Wake.UI
         private bool pendingDelete;
         private readonly TMP_Text[] slotLabels = new TMP_Text[3];
         private readonly Button[] deleteButtons = new Button[3];
+
+        private Vector3 WaterHome => waterHome ?? Vector3.zero;
+
+        private Vector3 WaterRisen => new(WaterHome.x, WaterRisenY, WaterHome.z);
+
+        private Transform ResolveWater()
+        {
+            if (water == null)
+            {
+                water = GameObject.Find("water")?.transform;
+                if (water != null)
+                {
+                    waterHome = water.position;
+                }
+            }
+            return water;
+        }
 
         public void Open()
         {
@@ -737,15 +759,15 @@ namespace Wake.UI
             Vector2 hidden = new Vector2(0f, -travel * PanelTravelExtra);
             Vector2 slotFrom = showing ? hidden : shown;
             Vector2 slotTo = showing ? shown : hidden;
-            Vector3 waterFrom = showing ? WaterRevealStart : WaterRevealEnd;
-            Vector3 waterTo = showing ? WaterRevealEnd : WaterRevealStart;
             Vector2 lobbyShown = Vector2.zero;
             Vector2 lobbyExited = new Vector2(0f, travel * LobbyTravelExtra);
             Vector2 lobbyFrom = showing ? lobbyShown : lobbyExited;
             Vector2 lobbyTo = showing ? lobbyExited : lobbyShown;
 
             contentRect.anchoredPosition = slotFrom;
-            water = water != null ? water : GameObject.Find("water")?.transform;
+            ResolveWater();
+            Vector3 waterFrom = showing ? WaterHome : WaterRisen;
+            Vector3 waterTo = showing ? WaterRisen : WaterHome;
             lightShaft = lightShaft != null
                 ? lightShaft
                 : water?.GetComponentInChildren<LightShaftEffect>(true);
@@ -1107,7 +1129,7 @@ namespace Wake.UI
             Vector2 ingameHidden = new Vector2(0f, travel);
             Vector2 ingameShown = Vector2.zero;
 
-            water = water != null ? water : GameObject.Find("water")?.transform;
+            ResolveWater();
             lightShaft = lightShaft != null
                 ? lightShaft
                 : water?.GetComponentInChildren<LightShaftEffect>(true);
@@ -1129,7 +1151,7 @@ namespace Wake.UI
             yield return MoveRect(
                 contentRect, slotShown, slotHidden, EaseInQuint, RiseDuration);
             Coroutine waterSurface = StartCoroutine(MoveWater(
-                WaterRevealEnd, WaterRevealStart, WaterTrapezoid, DiveDuration, false));
+                WaterRisen, WaterHome, WaterTrapezoid, DiveDuration, false));
             yield return new WaitForSecondsRealtime(LobbyLeadIn);
             Coroutine ingameEnter = ingamePanel != null
                 ? StartCoroutine(MoveRect(
@@ -1153,7 +1175,7 @@ namespace Wake.UI
             contentRect.anchoredPosition = slotHidden;
             if (water != null)
             {
-                water.position = WaterRevealStart;
+                water.position = WaterHome;
             }
             if (lobbyContent != null)
             {
