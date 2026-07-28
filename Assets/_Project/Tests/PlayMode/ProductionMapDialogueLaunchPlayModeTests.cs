@@ -160,7 +160,7 @@ namespace Wake.Tests.PlayMode
             Assert.That(suite.interactable, Is.True);
             Assert.That(
                 suite.GetComponentInChildren<TMP_Text>().text,
-                Does.Contain("P-03"));
+                Does.Contain("이동 가능"));
             Assert.That(
                 RequireLocationButton("LAUNDRY").interactable,
                 Is.False);
@@ -201,20 +201,20 @@ namespace Wake.Tests.PlayMode
 
         private Button RequireSceneButton(string sceneId)
         {
-            GameObject content = RequireObject(
-                "Map/Rooms/Dynamic Location Viewport/" +
-                "Dynamic Location Content");
-            Button[] matches = content
-                .GetComponentsInChildren<Button>(true)
-                .Where(button =>
-                    button.GetComponentInChildren<TMP_Text>()?.text
-                        .Contains(sceneId) == true)
-                .ToArray();
             Assert.That(
-                matches,
-                Has.Length.EqualTo(1),
-                $"{sceneId} 맵 버튼은 정확히 하나여야 합니다.");
-            return matches[0];
+                ProductionSceneCatalog.TryGet(
+                    sceneId,
+                    out ProductionSceneDefinition scene),
+                Is.True,
+                $"{sceneId} 장면 정의가 필요합니다.");
+            CanonicalLocationSpec location =
+                CanonicalLocationCatalog.FindSpec(
+                    scene.NarrativeLocationCode);
+            Assert.That(
+                location,
+                Is.Not.Null,
+                $"{sceneId} 장면의 실제 장소가 필요합니다.");
+            return RequireLocationButton(location.Code);
         }
 
         private Button RequireLocationButton(string locationCode)
