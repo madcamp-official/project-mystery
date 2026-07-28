@@ -93,6 +93,7 @@ namespace Wake.UI
         private IReadOnlyList<Button> choiceButtons;
         private Rect lastSafeArea;
         private Vector2Int lastScreen;
+        private bool presentationDriven;
 
         private bool baselineCaptured;
         private RectBaseline linePanelBaseline;
@@ -156,6 +157,11 @@ namespace Wake.UI
             ConfigureChoices();
         }
 
+        public void SetPresentationDriven(bool value)
+        {
+            presentationDriven = value;
+        }
+
         /// <summary>
         /// Snapshots the current (Inspector/scene-authored) placement of
         /// every element that persists in the scene. This becomes the
@@ -215,18 +221,24 @@ namespace Wake.UI
 
             ApplySafeAreaRoot(safeArea, screenSize);
             Vector2 scale = Vector2.one;
-            ApplyBaseline(linePanel, linePanelBaseline, scale);
-            ApplyBaseline(textPanel, textPanelBaseline, scale);
-            ApplyBaseline(nextButton, nextButtonBaseline, scale);
+            if (!presentationDriven)
+            {
+                ApplyBaseline(linePanel, linePanelBaseline, scale);
+                ApplyBaseline(textPanel, textPanelBaseline, scale);
+                ApplyBaseline(nextButton, nextButtonBaseline, scale);
+            }
             ApplyBaseline(choices, choicesBaseline, scale);
             ApplyBaseline(evidenceBtn, evidenceBtnBaseline, scale);
             ApplyBaseline(mapBtn, mapBtnBaseline, scale);
             ApplyBaseline(settingsBtn, settingsBtnBaseline, scale);
-            ApplyBaseline(
-                lineText != null ? lineText.rectTransform : null,
-                lineTextBaseline,
-                scale);
-            ApplyBaseline(speakerPlate, speakerPlateBaseline, scale);
+            if (!presentationDriven)
+            {
+                ApplyBaseline(
+                    lineText != null ? lineText.rectTransform : null,
+                    lineTextBaseline,
+                    scale);
+                ApplyBaseline(speakerPlate, speakerPlateBaseline, scale);
+            }
             RefreshChoiceLayout();
 
             // Portrait is created fresh in code every run
@@ -235,7 +247,7 @@ namespace Wake.UI
             // parented to Line Panel but sits ABOVE it (positive Y,
             // since pivot/anchor are both 1 = the panel's top edge) so
             // it doesn't overlap the dialogue text inside the panel.
-            if (portrait != null)
+            if (portrait != null && !presentationDriven)
             {
                 portrait.anchorMin = new Vector2(0f, 1f);
                 portrait.anchorMax = new Vector2(0f, 1f);
