@@ -2,6 +2,9 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using TMPro;
+using Wake.Evidence;
 using Wake.Exploration;
 using Wake.UI;
 
@@ -36,6 +39,7 @@ namespace Wake.Editor
             BuildHud(layout);
             BuildDialogue(layout);
             ConfigureDialogueAdvance(canvas);
+            BuildEvidenceRecords(canvas, layout);
             BuildModals(layout);
             BuildLocationOverlays(layout);
 
@@ -305,6 +309,240 @@ namespace Wake.Editor
             control.Initialize(button);
             control.SetSprites(normal, pressed);
             EditorUtility.SetDirty(target.gameObject);
+        }
+
+        private static void BuildEvidenceRecords(
+            RectTransform canvas,
+            RectTransform layout)
+        {
+            RectTransform evidence =
+                canvas.Find("Evidence") as RectTransform;
+            TMP_Text title =
+                evidence?.Find("Text (TMP)")?.GetComponent<TMP_Text>();
+            RectTransform image =
+                evidence?.Find("Image") as RectTransform;
+            RectTransform carousel =
+                evidence?.Find("Evidences") as RectTransform;
+            if (evidence == null ||
+                title == null ||
+                image == null ||
+                carousel == null)
+            {
+                Debug.LogWarning(
+                    "Evidence record authoring requires the existing " +
+                    "Evidence panel, title, image and carousel.");
+                return;
+            }
+
+            Color gold = new(.95f, .65f, .20f, .90f);
+            ConfigureAuthoredRect(
+                image,
+                "evidence.detail-image",
+                new Vector2(.07f, .25f),
+                new Vector2(.39f, .76f),
+                gold);
+            Image detailImage = image.GetComponent<Image>();
+            if (detailImage != null)
+            {
+                detailImage.preserveAspect = true;
+            }
+            ConfigureAuthoredRect(
+                title.rectTransform,
+                "evidence.title",
+                new Vector2(.43f, .72f),
+                new Vector2(.91f, .80f),
+                gold);
+            title.alignment = TextAlignmentOptions.BottomLeft;
+            title.enableAutoSizing = true;
+            title.fontSizeMin = 28f;
+            title.fontSizeMax = 44f;
+
+            TMP_Text acquisition = EnsureEvidenceLabel(
+                evidence,
+                title,
+                "Acquisition Place",
+                "획득 장소",
+                24f);
+            ConfigureAuthoredRect(
+                acquisition.rectTransform,
+                "evidence.acquisition-place",
+                new Vector2(.43f, .65f),
+                new Vector2(.91f, .71f),
+                gold);
+            TMP_Text people = EnsureEvidenceLabel(
+                evidence,
+                title,
+                "Related People",
+                "관련 인물",
+                24f);
+            ConfigureAuthoredRect(
+                people.rectTransform,
+                "evidence.related-people",
+                new Vector2(.43f, .59f),
+                new Vector2(.91f, .65f),
+                gold);
+            TMP_Text reliability = EnsureEvidenceLabel(
+                evidence,
+                title,
+                "Reliability",
+                "기록 상태",
+                21f);
+            ConfigureAuthoredRect(
+                reliability.rectTransform,
+                "evidence.reliability",
+                new Vector2(.43f, .53f),
+                new Vector2(.91f, .59f),
+                gold);
+
+            ConfigureDescriptionViewport(
+                evidence,
+                title,
+                gold);
+            ConfigureAuthoredRect(
+                carousel,
+                "evidence.carousel",
+                new Vector2(.16f, .07f),
+                new Vector2(.84f, .18f),
+                gold);
+
+            RectTransform recordSlots =
+                EnsureRect(layout, "Evidence Record Slots");
+            Stretch(recordSlots);
+            Slot(
+                recordSlots,
+                "Evidence Tabs Slot",
+                "evidence.tabs",
+                new Vector2(.08f, .81f),
+                new Vector2(.42f, .88f),
+                Vector2.zero,
+                gold);
+            Slot(
+                recordSlots,
+                "Evidence People Panel Slot",
+                "evidence.people-panel",
+                new Vector2(.08f, .08f),
+                new Vector2(.92f, .80f),
+                Vector2.zero,
+                gold);
+        }
+
+        private static TMP_Text EnsureEvidenceLabel(
+            RectTransform evidence,
+            TMP_Text template,
+            string name,
+            string placeholder,
+            float fontSize)
+        {
+            TMP_Text label = evidence.Find(name)
+                ?.GetComponent<TMP_Text>();
+            if (label == null)
+            {
+                GameObject clone = Object.Instantiate(
+                    template.gameObject,
+                    evidence);
+                clone.name = name;
+                label = clone.GetComponent<TMP_Text>();
+            }
+            label.text = placeholder;
+            label.fontSize = fontSize;
+            label.enableAutoSizing = false;
+            label.alignment = TextAlignmentOptions.MidlineLeft;
+            label.textWrappingMode = TextWrappingModes.NoWrap;
+            label.overflowMode = TextOverflowModes.Ellipsis;
+            return label;
+        }
+
+        private static void ConfigureDescriptionViewport(
+            RectTransform evidence,
+            TMP_Text titleTemplate,
+            Color color)
+        {
+            RectTransform viewport =
+                evidence.Find("Description Viewport") as RectTransform;
+            if (viewport == null)
+            {
+                GameObject viewportObject = new(
+                    "Description Viewport",
+                    typeof(RectTransform),
+                    typeof(Image),
+                    typeof(RectMask2D),
+                    typeof(ScrollRect));
+                viewport = viewportObject.GetComponent<RectTransform>();
+                viewport.SetParent(evidence, false);
+                Image surface = viewportObject.GetComponent<Image>();
+                surface.color = new Color(0f, 0f, 0f, .08f);
+            }
+            ConfigureAuthoredRect(
+                viewport,
+                "evidence.description-viewport",
+                new Vector2(.43f, .20f),
+                new Vector2(.91f, .52f),
+                color);
+
+            TMP_Text description =
+                viewport.Find("Description")?.GetComponent<TMP_Text>() ??
+                evidence.Find("Description")?.GetComponent<TMP_Text>() ??
+                evidence.Find("Image/Evidence")?.GetComponent<TMP_Text>();
+            if (description == null)
+            {
+                GameObject clone = Object.Instantiate(
+                    titleTemplate.gameObject,
+                    viewport);
+                clone.name = "Description";
+                description = clone.GetComponent<TMP_Text>();
+            }
+            else if (description.transform.parent != viewport)
+            {
+                description.transform.SetParent(viewport, false);
+                description.name = "Description";
+            }
+
+            RectTransform content = description.rectTransform;
+            content.anchorMin = new Vector2(0f, 1f);
+            content.anchorMax = new Vector2(1f, 1f);
+            content.pivot = new Vector2(.5f, 1f);
+            content.anchoredPosition = Vector2.zero;
+            content.sizeDelta = new Vector2(-24f, 0f);
+            RuntimeUiLayoutSlot slot =
+                content.GetComponent<RuntimeUiLayoutSlot>() ??
+                content.gameObject.AddComponent<RuntimeUiLayoutSlot>();
+            slot.Configure("evidence.description", color);
+            description.textWrappingMode = TextWrappingModes.Normal;
+            description.overflowMode = TextOverflowModes.Overflow;
+            description.enableAutoSizing = false;
+            description.fontSize = 28f;
+            description.alignment = TextAlignmentOptions.TopLeft;
+            ContentSizeFitter fitter =
+                content.GetComponent<ContentSizeFitter>() ??
+                content.gameObject.AddComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            ScrollRect scroll = viewport.GetComponent<ScrollRect>();
+            scroll.viewport = viewport;
+            scroll.content = content;
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 35f;
+        }
+
+        private static void ConfigureAuthoredRect(
+            RectTransform rect,
+            string id,
+            Vector2 min,
+            Vector2 max,
+            Color color)
+        {
+            rect.anchorMin = min;
+            rect.anchorMax = max;
+            rect.pivot = new Vector2(.5f, .5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = Vector2.zero;
+            RuntimeUiLayoutSlot slot =
+                rect.GetComponent<RuntimeUiLayoutSlot>() ??
+                rect.gameObject.AddComponent<RuntimeUiLayoutSlot>();
+            slot.Configure(id, color);
         }
 
         private static void BuildModals(RectTransform layout)
