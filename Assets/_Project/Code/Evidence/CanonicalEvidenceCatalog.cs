@@ -97,7 +97,7 @@ namespace Wake.Evidence
             CreateInteraction("C-05", "exit", true, "d2_01_17"),
             Create("C-06", "forensic", true, "d6_03_05"),
             Create("C-07", "forensic", true, "d2_02_14"),
-            Create("C-08", "timeline", false, "d2_04_06", "d2_04_14"),
+            CreateInteraction("C-08", "timeline", false, "d2_04_14"),
             Create("C-09", "transport", false, "d6_01_10"),
             Create("C-10", "transport", true, "d6_04_10"),
             Create("C-11", "medical", true, "d2_03_07"),

@@ -76,7 +76,7 @@ namespace Wake.Evidence
                         continue;
                     }
 
-                    if (entry.GrantMode == CanonicalEvidenceGrantMode.DialogueLine)
+                    if (entry.GrantMode != CanonicalEvidenceGrantMode.DialogueEffect)
                     {
                         continue;
                     }

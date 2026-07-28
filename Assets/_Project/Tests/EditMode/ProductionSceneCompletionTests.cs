@@ -52,6 +52,7 @@ namespace Wake.Tests
                 {
                     "D2-01",
                     "D2-02",
+                    "D2-04",
                     "D4-04",
                     "D6-02",
                     "D6-05",
@@ -63,7 +64,7 @@ namespace Wake.Tests
                     .Select(item => item.InteractionId)
                     .Distinct()
                     .Count(),
-                Is.EqualTo(7));
+                Is.EqualTo(8));
         }
 
         [Test]

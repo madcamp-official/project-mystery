@@ -64,6 +64,7 @@ namespace Wake.Narrative
     {
         public const string ExitInspectionInteraction = "exit_inspection";
         public const string BloodPatternInteraction = "blood_pattern";
+        public const string CameraBlindSpotInteraction = "camera_blind_spot";
         public const string MarcusInterrogationInteraction = "marcus_interrogation";
         public const string CargoRailInteraction = "cargo_rail_branch";
         public const string TimelineInteraction = "timeline_12_cards";
@@ -74,6 +75,7 @@ namespace Wake.Narrative
         {
             R("D2-01", ExitInspectionInteraction, "D2-02"),
             R("D2-02", BloodPatternInteraction, "D2-03"),
+            R("D2-04", CameraBlindSpotInteraction, "D2-05"),
             R("D4-04", MarcusInterrogationInteraction, "D5-01"),
             R("D6-02", CargoRailInteraction, "D6-03"),
             R("D6-05", TimelineInteraction, "D7-01"),
