@@ -30,10 +30,26 @@ namespace Wake.Tests.PlayMode
             RectTransform logoRect = Canvas.Find(
                 "StartScene/Title Presentation/Under the Horizon Logo")
                 as RectTransform;
+            RectTransform footer = Canvas.Find(
+                "StartScene/Title Presentation/Title Footer")
+                as RectTransform;
+            TMP_Text version = footer.Find("Version")
+                .GetComponent<TMP_Text>();
+            TMP_Text copyright = footer.Find("Copyright")
+                .GetComponent<TMP_Text>();
             AssertResponsiveLayout(menuRect);
             AssertResponsiveLayout(logoRect);
+            AssertResponsiveLayout(footer);
             AssertInsideCanvas(menuRect);
             AssertInsideCanvas(logoRect);
+            AssertInsideCanvas(footer);
+            Assert.That(version.alignment, Is.EqualTo(
+                TextAlignmentOptions.Right));
+            Assert.That(copyright.alignment, Is.EqualTo(
+                TextAlignmentOptions.Right));
+            Assert.That(
+                version.transform.GetSiblingIndex(),
+                Is.LessThan(copyright.transform.GetSiblingIndex()));
             Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Start));
             Assert.That(
                 Ui.ActiveSystemScreen,

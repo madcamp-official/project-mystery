@@ -226,8 +226,11 @@ namespace Wake.Editor
                 TMP_FontAsset font = catalog.Resolve(role);
                 if (font != null)
                 {
+                    // Keep the bundled source font available at runtime so
+                    // newly introduced Korean syllables can be added without
+                    // rebuilding every static atlas by hand.
                     font.atlasPopulationMode =
-                        AtlasPopulationMode.Static;
+                        AtlasPopulationMode.Dynamic;
                     EditorUtility.SetDirty(font);
                 }
             }

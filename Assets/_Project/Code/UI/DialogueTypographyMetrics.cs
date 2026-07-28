@@ -5,18 +5,18 @@ namespace Wake.UI
 {
     public static class DialogueTypographyMetrics
     {
-        public const float LineMinimum = 52f;
-        public const float LineMaximum = 64f;
-        public const float ChoiceMinimum = 48f;
-        public const float ChoiceMaximum = 58f;
-        public const float SpeakerMinimum = 44f;
-        public const float SpeakerMaximum = 52f;
+        public const float LineMinimum = 32f;
+        public const float LineMaximum = 56f;
+        public const float ChoiceMinimum = 34f;
+        public const float ChoiceMaximum = 48f;
+        public const float SpeakerMinimum = 36f;
+        public const float SpeakerMaximum = 46f;
 
         // TMP adds these values to each face's native line metric. With the
         // imported Korean faces this produces approximately 140-150% leading.
-        public const float BodyLineSpacing = 12f;
-        public const float ChoiceLineSpacing = 10f;
-        public const float HeadingLineSpacing = 6f;
+        public const float BodyLineSpacing = 8f;
+        public const float ChoiceLineSpacing = 7f;
+        public const float HeadingLineSpacing = 4f;
 
         public static float CalculateCanvasScale(Vector2 screenSize)
         {

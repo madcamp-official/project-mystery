@@ -32,7 +32,9 @@ namespace Wake.Core
                     locationGraph.StartingLocation,
                     out _))
             {
-                CreateSceneDirector()?.StartNewGame();
+                GameStateManager.Instance?.ClearDialogueCheckpoint();
+                LocationLoader.Instance.PrepareNarrativeScene(
+                    ProductionSceneDirector.OpeningSceneId);
             }
         }
 
@@ -69,10 +71,25 @@ namespace Wake.Core
 
             TryLoadLocationWithStartingFallback(target);
 
-            bool resumed = director?.ResumeGame() ?? false;
-            if (resumed)
+            bool hasDialogueCheckpoint =
+                state?.DialogueCheckpoint != null;
+            bool resumed;
+            if (hasDialogueCheckpoint)
             {
-                AlignLocationWithActiveStoryScene();
+                resumed = director?.ResumeGame() ?? false;
+                if (resumed)
+                {
+                    AlignLocationWithActiveStoryScene();
+                }
+            }
+            else
+            {
+                resumed = !string.IsNullOrWhiteSpace(storySceneId);
+                if (resumed)
+                {
+                    LocationLoader.Instance.PrepareNarrativeScene(
+                        storySceneId);
+                }
             }
             if (!resumed && !string.IsNullOrEmpty(state?.FinalEndingId))
             {

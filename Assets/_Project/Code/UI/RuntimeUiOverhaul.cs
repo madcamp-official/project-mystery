@@ -309,10 +309,13 @@ namespace Wake.UI
         private void Start()
         {
             Build();
+            ApplyLogoLayout();
         }
 
         private void OnEnable()
         {
+            Build();
+            ApplyLogoLayout();
             if (presentation != null)
             {
                 presentation.SetActive(true);
@@ -321,8 +324,14 @@ namespace Wake.UI
 
         private void Build()
         {
+            if (presentation == null)
+            {
+                presentation =
+                    transform.Find("Title Presentation")?.gameObject;
+            }
             if (presentation != null)
             {
+                ApplyLogoLayout();
                 return;
             }
 
@@ -430,14 +439,35 @@ namespace Wake.UI
                 typeof(Image));
             logoObject.transform.SetParent(root, false);
             RectTransform logoRect = logoObject.GetComponent<RectTransform>();
-            RuntimeUiLayoutRegistry.CopyWorldLayout(
-                logoRect,
-                ScreenRegionIds.ContextTopLeft);
+            ApplyLogoLayout(logoRect);
             Image logo = logoObject.GetComponent<Image>();
             logo.sprite =
                 Resources.Load<Sprite>("UiOverhaul/logo_transparent");
             logo.preserveAspect = true;
             logo.raycastTarget = false;
+        }
+
+        private void ApplyLogoLayout()
+        {
+            RectTransform logoRect = presentation?.transform.Find(
+                    "Under the Horizon Logo")
+                as RectTransform;
+            ApplyLogoLayout(logoRect);
+        }
+
+        private static void ApplyLogoLayout(RectTransform logoRect)
+        {
+            if (logoRect == null)
+                return;
+
+            // Exactly twice the original 24% x 14% title-safe slot.
+            // The right edge stops at screen center so it cannot cover the
+            // character composition, and it remains well above the menu.
+            logoRect.anchorMin = new Vector2(0.00f, 0.30f);
+            logoRect.anchorMax = new Vector2(0.50f, 1.00f);
+            logoRect.offsetMin = Vector2.zero;
+            logoRect.offsetMax = Vector2.zero;
+            logoRect.localScale = Vector3.one;
         }
 
         private static void CreateMenu(
@@ -521,35 +551,49 @@ namespace Wake.UI
 
         private static void CreateFooter(RectTransform root)
         {
-            TMP_Text copyright = SaveSlotSelectionController.MakeText(
-                root,
-                "© MAD CAMP · UNDER THE HORIZON",
-                18f,
-                Vector2.zero,
-                Vector2.zero);
-            copyright.name = "Copyright";
+            GameObject footerObject = new(
+                "Title Footer",
+                typeof(RectTransform),
+                typeof(VerticalLayoutGroup));
+            footerObject.transform.SetParent(root, false);
+            RectTransform footer =
+                footerObject.GetComponent<RectTransform>();
             RuntimeUiLayoutRegistry.CopyWorldLayout(
-                copyright.rectTransform,
-                ScreenRegionIds.ReadingBottom);
-            copyright.alignment = TextAlignmentOptions.BottomLeft;
-            UiVisualThemeService.ApplyText(
-                copyright,
-                UiTextStyle.Caption);
+                footer,
+                ScreenRegionIds.PrimaryBottomRight);
+            VerticalLayoutGroup layout =
+                footerObject.GetComponent<VerticalLayoutGroup>();
+            layout.spacing =
+                UiVisualThemeService.Resolve(UiSpacingToken.ExtraSmall);
+            layout.childAlignment = TextAnchor.LowerRight;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
 
             TMP_Text version = SaveSlotSelectionController.MakeText(
-                root,
+                footer,
                 $"버전 {Application.version}",
                 18f,
                 Vector2.zero,
                 Vector2.zero);
             version.name = "Version";
-            RuntimeUiLayoutRegistry.CopyWorldLayout(
-                version.rectTransform,
-                ScreenRegionIds.PrimaryBottomRight);
-            version.alignment = TextAlignmentOptions.BottomRight;
+            version.alignment = TextAlignmentOptions.Right;
             UiVisualThemeService.ApplyText(
                 version,
                 UiTextStyle.Technical);
+
+            TMP_Text copyright = SaveSlotSelectionController.MakeText(
+                footer,
+                "© MAD CAMP · UNDER THE HORIZON",
+                18f,
+                Vector2.zero,
+                Vector2.zero);
+            copyright.name = "Copyright";
+            copyright.alignment = TextAlignmentOptions.Right;
+            UiVisualThemeService.ApplyText(
+                copyright,
+                UiTextStyle.Caption);
         }
 
     }
@@ -562,10 +606,16 @@ namespace Wake.UI
         private const float RiseDuration = RevealDuration - DiveDuration;
         private const float PanelTravelExtra = 2.8f;
         private const float LobbyTravelExtra = 3.5f;
-        private const float LobbyLeadIn = 0.15f;
-        private const float LobbyExitDuration = 1.2f;
-        private static readonly Vector3 WaterRevealStart = new(0f, -48f, 2f);
-        private static readonly Vector3 WaterRevealEnd = new(0f, -4f, 2f);
+        // The title exit and the water dive must read as one motion, so they
+        // start together and share the water's duration/easing exactly.
+        private const float LobbyLeadIn = 0f;
+        private const float LobbyExitDuration = DiveDuration;
+        // The submerged position comes from wherever "water" is placed in
+        // the scene, captured once the first time it's resolved - so tuning
+        // its dive depth only means moving it there, no hardcoded copy to
+        // keep in sync. Only the risen height is a pure animation choice
+        // with no scene counterpart.
+        private const float WaterRisenY = -4f;
 
         private GameObject overlay;
         private GameObject confirmation;
@@ -574,6 +624,7 @@ namespace Wake.UI
         private LobbyBackdropController lobbyBackdrop;
         private RectTransform ingamePanel;
         private Transform water;
+        private Vector3? waterHome;
         private LightShaftEffect lightShaft;
         private Coroutine revealRoutine;
         private int pendingSlot;
@@ -581,6 +632,23 @@ namespace Wake.UI
         private bool pendingDelete;
         private readonly TMP_Text[] slotLabels = new TMP_Text[3];
         private readonly Button[] deleteButtons = new Button[3];
+
+        private Vector3 WaterHome => waterHome ?? Vector3.zero;
+
+        private Vector3 WaterRisen => new(WaterHome.x, WaterRisenY, WaterHome.z);
+
+        private Transform ResolveWater()
+        {
+            if (water == null)
+            {
+                water = GameObject.Find("water")?.transform;
+                if (water != null)
+                {
+                    waterHome = water.position;
+                }
+            }
+            return water;
+        }
 
         public void Open()
         {
@@ -691,15 +759,15 @@ namespace Wake.UI
             Vector2 hidden = new Vector2(0f, -travel * PanelTravelExtra);
             Vector2 slotFrom = showing ? hidden : shown;
             Vector2 slotTo = showing ? shown : hidden;
-            Vector3 waterFrom = showing ? WaterRevealStart : WaterRevealEnd;
-            Vector3 waterTo = showing ? WaterRevealEnd : WaterRevealStart;
             Vector2 lobbyShown = Vector2.zero;
             Vector2 lobbyExited = new Vector2(0f, travel * LobbyTravelExtra);
             Vector2 lobbyFrom = showing ? lobbyShown : lobbyExited;
             Vector2 lobbyTo = showing ? lobbyExited : lobbyShown;
 
             contentRect.anchoredPosition = slotFrom;
-            water = water != null ? water : GameObject.Find("water")?.transform;
+            ResolveWater();
+            Vector3 waterFrom = showing ? WaterHome : WaterRisen;
+            Vector3 waterTo = showing ? WaterRisen : WaterHome;
             lightShaft = lightShaft != null
                 ? lightShaft
                 : water?.GetComponentInChildren<LightShaftEffect>(true);
@@ -740,8 +808,7 @@ namespace Wake.UI
                     contentRect, slotFrom, slotTo, EaseInQuint, RiseDuration);
                 Coroutine waterSurface = StartCoroutine(
                     MoveWater(waterFrom, waterTo, WaterTrapezoid, DiveDuration, false));
-                yield return new WaitForSecondsRealtime(
-                    Mathf.Max(0f, DiveDuration - LobbyLeadIn));
+                yield return new WaitForSecondsRealtime(LobbyLeadIn);
                 Coroutine lobbyEnter = StartCoroutine(MoveRect(
                     lobbyContent, lobbyFrom, lobbyTo, WaterTrapezoid, LobbyExitDuration));
                 yield return waterSurface;
@@ -1062,7 +1129,7 @@ namespace Wake.UI
             Vector2 ingameHidden = new Vector2(0f, travel);
             Vector2 ingameShown = Vector2.zero;
 
-            water = water != null ? water : GameObject.Find("water")?.transform;
+            ResolveWater();
             lightShaft = lightShaft != null
                 ? lightShaft
                 : water?.GetComponentInChildren<LightShaftEffect>(true);
@@ -1084,9 +1151,8 @@ namespace Wake.UI
             yield return MoveRect(
                 contentRect, slotShown, slotHidden, EaseInQuint, RiseDuration);
             Coroutine waterSurface = StartCoroutine(MoveWater(
-                WaterRevealEnd, WaterRevealStart, WaterTrapezoid, DiveDuration, false));
-            yield return new WaitForSecondsRealtime(
-                Mathf.Max(0f, DiveDuration - LobbyLeadIn));
+                WaterRisen, WaterHome, WaterTrapezoid, DiveDuration, false));
+            yield return new WaitForSecondsRealtime(LobbyLeadIn);
             Coroutine ingameEnter = ingamePanel != null
                 ? StartCoroutine(MoveRect(
                     ingamePanel, ingameHidden, ingameShown, WaterTrapezoid, LobbyExitDuration))
@@ -1109,7 +1175,7 @@ namespace Wake.UI
             contentRect.anchoredPosition = slotHidden;
             if (water != null)
             {
-                water.position = WaterRevealStart;
+                water.position = WaterHome;
             }
             if (lobbyContent != null)
             {

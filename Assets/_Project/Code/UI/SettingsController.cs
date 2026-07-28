@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Wake.Core;
 
 namespace Wake.UI
 {
@@ -30,8 +31,14 @@ namespace Wake.UI
 
             closeButton.onClick.AddListener(() => UIManager.Instance.CloseSettings());
 
+            RefreshFromAudioManager();
             musicSlider.onValueChanged.AddListener(OnMusicChanged);
             sfxSlider.onValueChanged.AddListener(OnSfxChanged);
+        }
+
+        private void OnEnable()
+        {
+            RefreshFromAudioManager();
         }
 
         internal static void FitPopupInsideCanvas(
@@ -67,12 +74,22 @@ namespace Wake.UI
 
         private void OnMusicChanged(float value)
         {
-            Debug.Log($"Music volume set to {value:0.00}");
+            AudioManager.Instance?.SetMusicVolume(value);
         }
 
         private void OnSfxChanged(float value)
         {
-            Debug.Log($"SFX volume set to {value:0.00}");
+            AudioManager.Instance?.SetSfxVolume(value);
+        }
+
+        public void RefreshFromAudioManager()
+        {
+            AudioManager audio = AudioManager.Instance;
+            if (audio == null)
+                return;
+
+            musicSlider?.SetValueWithoutNotify(audio.MusicVolume);
+            sfxSlider?.SetValueWithoutNotify(audio.SfxVolume);
         }
     }
 }

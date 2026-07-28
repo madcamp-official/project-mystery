@@ -96,6 +96,7 @@ namespace Wake.Core
         public string finalEndingId = string.Empty;
         public string currentLocationCode = string.Empty;
         public ProductionDialogueCheckpoint dialogueCheckpoint;
+        public bool awaitingSceneTransition;
     }
 
     public class GameStateManager : MonoBehaviour
@@ -153,6 +154,7 @@ namespace Wake.Core
         public string CurrentLocationCode => data.currentLocationCode;
         public ProductionDialogueCheckpoint DialogueCheckpoint =>
             data.dialogueCheckpoint?.Copy();
+        public bool IsAwaitingSceneTransition => data.awaitingSceneTransition;
 
         public event Action StateChanged;
         public event Action<string> FeedbackRequested;
@@ -349,19 +351,21 @@ namespace Wake.Core
                 awaitingChoice = awaitingChoice,
                 pendingInteractionId = NormalizeObjectiveId(pendingInteractionId)
             };
+            data.awaitingSceneTransition = false;
             SaveAndNotify();
             return true;
         }
 
         public void ClearDialogueCheckpoint()
         {
-            if (data.dialogueCheckpoint == null)
-            {
-                return;
-            }
-
+            bool hadCheckpoint = data.dialogueCheckpoint != null;
+            bool hadTransitionFlag = data.awaitingSceneTransition;
             data.dialogueCheckpoint = null;
-            SaveAndNotify();
+            data.awaitingSceneTransition = false;
+            if (hadCheckpoint || hadTransitionFlag)
+            {
+                SaveAndNotify();
+            }
         }
 
         public bool ClearDialogueCheckpoint(
@@ -379,6 +383,7 @@ namespace Wake.Core
             }
 
             data.dialogueCheckpoint = null;
+            data.awaitingSceneTransition = true;
             SaveAndNotify();
             return true;
         }
@@ -423,6 +428,7 @@ namespace Wake.Core
             if (checkpointCleared)
             {
                 data.dialogueCheckpoint = null;
+                data.awaitingSceneTransition = true;
             }
 
             SaveAndNotify();

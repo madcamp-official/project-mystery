@@ -105,8 +105,13 @@ namespace Wake.UI
         private TMP_Text titleText;
         private TMP_Text progressText;
         private TMP_Text accessibilityText;
+        private GameObject detailPanel;
+        private TMP_Text detailListText;
         private InvestigationObjectiveTracker tracker;
         private GameStateManager state;
+        private bool hasRenderableObjective;
+        private bool detailsExpanded;
+        private string renderedObjectiveId = string.Empty;
 
         public ObjectiveHudViewModel CurrentViewModel { get; private set; }
         public ProductionObjectiveViewModel CurrentProductionViewModel
@@ -124,6 +129,15 @@ namespace Wake.UI
         private void OnDisable()
         {
             UnbindState();
+        }
+
+        private void LateUpdate()
+        {
+            if (state != GameStateManager.Instance)
+            {
+                BindState();
+            }
+            UpdateHudVisibility();
         }
 
         public void Refresh()
@@ -154,7 +168,8 @@ namespace Wake.UI
             progressText.text =
                 $"{current.ProgressLabel} · {CurrentViewModel.Summary}";
             accessibilityText.text = current.AccessibilityLabel;
-            root.SetActive(true);
+            hasRenderableObjective = true;
+            UpdateHudVisibility();
         }
 
         private void BindState()
@@ -255,11 +270,26 @@ namespace Wake.UI
             rect.pivot = new Vector2(0.5f, 1f);
             rect.anchoredPosition = new Vector2(0f, -180f);
             rect.sizeDelta = new Vector2(660f, 92f);
-            RuntimeUiLayoutRegistry.CopyLayout(rect, "hud.objective");
+            if (!RuntimeUiLayoutRegistry.CopyWorldLayout(
+                    rect,
+                    ScreenRegionIds.ObjectiveTop))
+            {
+                rect.anchorMin = new Vector2(0f, 1f);
+                rect.anchorMax = new Vector2(0f, 1f);
+                rect.pivot = new Vector2(0f, 1f);
+                rect.anchoredPosition = new Vector2(32f, -32f);
+                rect.sizeDelta = new Vector2(660f, 92f);
+            }
 
             Image background = root.GetComponent<Image>();
             background.color = PanelColor;
-            background.raycastTarget = false;
+            background.raycastTarget = true;
+            Button toggle = root.GetComponent<Button>() ??
+                            root.AddComponent<Button>();
+            toggle.targetGraphic = background;
+            toggle.transition = Selectable.Transition.None;
+            toggle.onClick.RemoveAllListeners();
+            toggle.onClick.AddListener(ToggleDetails);
 
             stateIcon = EnsureText(
                 root.transform,
@@ -272,25 +302,65 @@ namespace Wake.UI
                 root.transform,
                 "Title",
                 new Vector2(0.12f, 0.42f),
-                new Vector2(0.76f, 1f),
+                new Vector2(0.70f, 1f),
                 24f,
                 TextAlignmentOptions.Left);
             progressText = EnsureText(
                 root.transform,
                 "Progress",
-                new Vector2(0.76f, 0f),
+                new Vector2(0.70f, 0f),
                 new Vector2(1f, 1f),
-                20f,
+                17f,
                 TextAlignmentOptions.Center);
             accessibilityText = EnsureText(
                 root.transform,
                 "Accessibility",
                 new Vector2(0.12f, 0f),
-                new Vector2(0.76f, 0.42f),
+                new Vector2(0.70f, 0.42f),
                 16f,
                 TextAlignmentOptions.Left);
             accessibilityText.color = new Color(0.82f, 0.84f, 0.86f, 1f);
+            BuildDetailPanel();
             ApplyKoreanFont();
+        }
+
+        private void BuildDetailPanel()
+        {
+            Transform existing = root.transform.Find("Objective Details");
+            detailPanel = existing != null
+                ? existing.gameObject
+                : new GameObject(
+                    "Objective Details",
+                    typeof(RectTransform),
+                    typeof(CanvasRenderer),
+                    typeof(Image));
+            if (existing == null)
+            {
+                detailPanel.transform.SetParent(root.transform, false);
+            }
+
+            RectTransform panelRect =
+                detailPanel.GetComponent<RectTransform>();
+            panelRect.anchorMin = new Vector2(0f, 0f);
+            panelRect.anchorMax = new Vector2(1f, 0f);
+            panelRect.pivot = new Vector2(0.5f, 1f);
+            panelRect.anchoredPosition = new Vector2(0f, -8f);
+            panelRect.sizeDelta = new Vector2(0f, 156f);
+            Image panelBackground = detailPanel.GetComponent<Image>();
+            panelBackground.color =
+                new Color(PanelColor.r, PanelColor.g, PanelColor.b, 0.97f);
+            panelBackground.raycastTarget = false;
+
+            detailListText = EnsureText(
+                detailPanel.transform,
+                "List",
+                Vector2.zero,
+                Vector2.one,
+                18f,
+                TextAlignmentOptions.TopLeft);
+            detailListText.textWrappingMode = TextWrappingModes.Normal;
+            detailListText.lineSpacing = 8f;
+            detailPanel.SetActive(false);
         }
 
         private static TMP_Text EnsureText(
@@ -348,40 +418,100 @@ namespace Wake.UI
                 return;
             }
 
-            stateIcon.text = "!";
-            stateIcon.color = Gold;
-            titleText.text = "현재 조사 목표가 없습니다.";
-            progressText.text = "0/0";
-            accessibilityText.text = "조사 목표 없음";
+            hasRenderableObjective = false;
+            root.SetActive(false);
         }
 
         private void RenderProduction()
         {
             CurrentProductionViewModel =
                 ProductionObjectiveViewModel.Resolve(state);
-            ProductionObjectiveItem? selected =
-                CurrentProductionViewModel.Current ??
-                CurrentProductionViewModel.Next;
-            ProductionObjectiveItem item = selected ??
-                CurrentProductionViewModel.Items[
-                    CurrentProductionViewModel.Items.Count - 1];
-            bool pending =
-                item.Status == ProductionObjectiveStatus.InteractionPending;
-            stateIcon.text = item.StateIcon;
-            stateIcon.color = pending ? Gold :
-                item.Status == ProductionObjectiveStatus.Completed
-                    ? Complete
-                    : Color.white;
-            titleText.text = $"{item.StateLabel} · {item.Definition.Title}";
-            progressText.text =
-                CurrentProductionViewModel.Summary;
-            string nextLabel = CurrentProductionViewModel.Next.HasValue
-                ? " · 다음: " +
-                  CurrentProductionViewModel.Next.Value.Definition.Title
-                : string.Empty;
-            accessibilityText.text =
-                $"{item.Definition.Description} · {item.Definition.ScheduleLabel}{nextLabel}";
-            root.SetActive(true);
+            if (root == null ||
+                !CurrentProductionViewModel.Presentation.HasValue)
+            {
+                RenderEmpty();
+                return;
+            }
+
+            ProductionObjectivePresentation presentation =
+                CurrentProductionViewModel.Presentation.Value;
+            if (!string.Equals(
+                    renderedObjectiveId,
+                    presentation.Definition.ObjectiveId,
+                    StringComparison.Ordinal))
+            {
+                renderedObjectiveId =
+                    presentation.Definition.ObjectiveId;
+                detailsExpanded = false;
+            }
+            stateIcon.text = presentation.StateIcon;
+            stateIcon.color = Gold;
+            titleText.text = presentation.DisplayText;
+            accessibilityText.text = presentation.DetailText;
+            detailListText.text = "세부 목표\n" +
+                string.Join(
+                    "\n",
+                    presentation.Definition.Steps
+                        .Take(4)
+                        .Select(step => $"• {step}"));
+            UpdateDetailsPresentation(presentation.ActionLabel);
+            hasRenderableObjective = true;
+            UpdateHudVisibility();
+        }
+
+        private void ToggleDetails()
+        {
+            if (!hasRenderableObjective)
+            {
+                return;
+            }
+
+            detailsExpanded = !detailsExpanded;
+            string actionLabel =
+                CurrentProductionViewModel?.Presentation?.ActionLabel ??
+                "확인";
+            UpdateDetailsPresentation(actionLabel);
+        }
+
+        private void UpdateDetailsPresentation(string actionLabel)
+        {
+            if (detailPanel != null)
+            {
+                detailPanel.SetActive(detailsExpanded);
+            }
+            if (progressText != null)
+            {
+                progressText.text = detailsExpanded
+                    ? $"{actionLabel} · 접기 ▴"
+                    : $"다음 목표 · {actionLabel}\n세부 목표 ▾";
+            }
+        }
+
+        private void UpdateHudVisibility()
+        {
+            if (root == null)
+            {
+                return;
+            }
+
+            UIManager ui = UIManager.Instance;
+            GameFlow flow = GameFlow.Instance;
+            Wake.Exploration.LocationLoader locations =
+                Wake.Exploration.LocationLoader.Instance;
+            bool visible =
+                hasRenderableObjective &&
+                ui != null &&
+                ui.ActivePanel == UiPrimaryPanel.Ingame &&
+                ui.ActiveSystemScreen == SystemScreenState.None &&
+                flow != null &&
+                flow.HasActiveSession &&
+                locations != null &&
+                locations.CurrentLocation != null &&
+                locations.IsPresentationVisible;
+            if (root.activeSelf != visible)
+            {
+                root.SetActive(visible);
+            }
         }
     }
 }
