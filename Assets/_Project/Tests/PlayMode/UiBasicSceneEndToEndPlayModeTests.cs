@@ -206,11 +206,20 @@ namespace Wake.Tests.PlayMode
                 "Map/Rooms/Dynamic Location Viewport/" +
                 "Dynamic Location Content");
             Assert.That(content, Is.Not.Null);
-            Button[] candidates = content.GetComponentsInChildren<Button>(true)
-                .Where(button =>
-                    button.GetComponentInChildren<TMP_Text>()?.text
-                        .Contains(sceneId) == true)
-                .ToArray();
+            Assert.That(
+                ProductionSceneCatalog.TryGet(
+                    sceneId,
+                    out ProductionSceneDefinition scene),
+                Is.True);
+            CanonicalLocationSpec location =
+                CanonicalLocationCatalog.FindSpec(
+                    scene.NarrativeLocationCode);
+            Assert.That(location, Is.Not.Null);
+            Transform node = content.Find(
+                $"Map Node {location.Code}");
+            Button[] candidates = node != null
+                ? node.GetComponents<Button>()
+                : System.Array.Empty<Button>();
             Assert.That(candidates, Has.Length.EqualTo(1),
                 $"{sceneId} 맵 항목은 하나여야 합니다.");
             Assert.That(candidates[0].interactable, Is.True,
