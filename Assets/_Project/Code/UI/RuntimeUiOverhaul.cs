@@ -735,7 +735,7 @@ namespace Wake.UI
             if (showing)
             {
                 Coroutine lobbyExit =
-                    StartCoroutine(LobbyOnly(EaseOutQuint, LobbyExitDuration));
+                    StartCoroutine(LobbyOnly(WaterTrapezoid, LobbyExitDuration));
                 yield return new WaitForSecondsRealtime(LobbyLeadIn);
                 yield return WaterStage(WaterTrapezoid, DiveDuration, true);
                 yield return lobbyExit;
