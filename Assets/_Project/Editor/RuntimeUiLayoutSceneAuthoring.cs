@@ -333,13 +333,18 @@ namespace Wake.Editor
                     "Evidence panel, title, image and carousel.");
                 return;
             }
+            Transform obsoleteTurn = evidence.Find("Turn (3)");
+            if (obsoleteTurn != null)
+            {
+                Object.DestroyImmediate(obsoleteTurn.gameObject);
+            }
 
             Color gold = new(.95f, .65f, .20f, .90f);
             ConfigureAuthoredRect(
                 image,
                 "evidence.detail-image",
-                new Vector2(.07f, .25f),
-                new Vector2(.39f, .76f),
+                new Vector2(.07f, .27f),
+                new Vector2(.43f, .76f),
                 gold);
             Image detailImage = image.GetComponent<Image>();
             if (detailImage != null)
@@ -349,8 +354,8 @@ namespace Wake.Editor
             ConfigureAuthoredRect(
                 title.rectTransform,
                 "evidence.title",
-                new Vector2(.43f, .72f),
-                new Vector2(.91f, .80f),
+                new Vector2(.48f, .70f),
+                new Vector2(.93f, .80f),
                 gold);
             title.alignment = TextAlignmentOptions.BottomLeft;
             title.enableAutoSizing = true;
@@ -362,36 +367,36 @@ namespace Wake.Editor
                 title,
                 "Acquisition Place",
                 "획득 장소",
-                24f);
+                28f);
             ConfigureAuthoredRect(
                 acquisition.rectTransform,
                 "evidence.acquisition-place",
-                new Vector2(.43f, .65f),
-                new Vector2(.91f, .71f),
+                new Vector2(.48f, .63f),
+                new Vector2(.93f, .69f),
                 gold);
             TMP_Text people = EnsureEvidenceLabel(
                 evidence,
                 title,
                 "Related People",
                 "관련 인물",
-                24f);
+                28f);
             ConfigureAuthoredRect(
                 people.rectTransform,
                 "evidence.related-people",
-                new Vector2(.43f, .59f),
-                new Vector2(.91f, .65f),
+                new Vector2(.48f, .57f),
+                new Vector2(.93f, .63f),
                 gold);
             TMP_Text reliability = EnsureEvidenceLabel(
                 evidence,
                 title,
                 "Reliability",
                 "기록 상태",
-                21f);
+                25f);
             ConfigureAuthoredRect(
                 reliability.rectTransform,
                 "evidence.reliability",
-                new Vector2(.43f, .53f),
-                new Vector2(.91f, .59f),
+                new Vector2(.48f, .51f),
+                new Vector2(.93f, .57f),
                 gold);
 
             ConfigureDescriptionViewport(
@@ -401,9 +406,10 @@ namespace Wake.Editor
             ConfigureAuthoredRect(
                 carousel,
                 "evidence.carousel",
-                new Vector2(.16f, .07f),
-                new Vector2(.84f, .18f),
+                new Vector2(.38f, .06f),
+                new Vector2(.62f, .17f),
                 gold);
+            ConfigureEvidenceControls(evidence, carousel, gold);
 
             RectTransform recordSlots =
                 EnsureRect(layout, "Evidence Record Slots");
@@ -475,8 +481,8 @@ namespace Wake.Editor
             ConfigureAuthoredRect(
                 viewport,
                 "evidence.description-viewport",
-                new Vector2(.43f, .20f),
-                new Vector2(.91f, .52f),
+                new Vector2(.48f, .27f),
+                new Vector2(.93f, .50f),
                 color);
 
             TMP_Text description =
@@ -510,7 +516,7 @@ namespace Wake.Editor
             description.textWrappingMode = TextWrappingModes.Normal;
             description.overflowMode = TextOverflowModes.Overflow;
             description.enableAutoSizing = false;
-            description.fontSize = 28f;
+            description.fontSize = 34f;
             description.alignment = TextAlignmentOptions.TopLeft;
             ContentSizeFitter fitter =
                 content.GetComponent<ContentSizeFitter>() ??
@@ -525,6 +531,207 @@ namespace Wake.Editor
             scroll.vertical = true;
             scroll.movementType = ScrollRect.MovementType.Clamped;
             scroll.scrollSensitivity = 35f;
+        }
+
+        private static void ConfigureEvidenceControls(
+            RectTransform evidence,
+            RectTransform carousel,
+            Color color)
+        {
+            RectTransform compare =
+                RebuildEvidenceCompareButton(evidence);
+            RectTransform template =
+                carousel.Find("Evedence") as RectTransform;
+            if (template != null)
+            {
+                template.sizeDelta = new Vector2(300f, 126f);
+                Image card = template.GetComponent<Image>();
+                if (card != null)
+                {
+                    card.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(
+                        "Assets/_Project/Art/UI/Cards/" +
+                        "ui_card_evidence.png");
+                    card.type = Image.Type.Sliced;
+                }
+                Button cardButton = template.GetComponent<Button>();
+                Sprite selectedCard =
+                    AssetDatabase.LoadAssetAtPath<Sprite>(
+                        "Assets/_Project/Art/UI/Cards/" +
+                        "ui_card_evidence_selected.png");
+                if (cardButton != null && selectedCard != null)
+                {
+                    cardButton.transition =
+                        Selectable.Transition.SpriteSwap;
+                    SpriteState state = cardButton.spriteState;
+                    state.highlightedSprite = selectedCard;
+                    state.pressedSprite = selectedCard;
+                    state.selectedSprite = selectedCard;
+                    cardButton.spriteState = state;
+                }
+                TMP_Text label =
+                    template.GetComponentInChildren<TMP_Text>(true);
+                if (label != null)
+                {
+                    label.rectTransform.anchorMin = Vector2.zero;
+                    label.rectTransform.anchorMax = Vector2.one;
+                    label.rectTransform.anchoredPosition = Vector2.zero;
+                    label.rectTransform.offsetMin =
+                        new Vector2(18f, 12f);
+                    label.rectTransform.offsetMax =
+                        new Vector2(-18f, -12f);
+                    label.alignment = TextAlignmentOptions.Center;
+                    label.textWrappingMode = TextWrappingModes.Normal;
+                    label.overflowMode = TextOverflowModes.Ellipsis;
+                    label.enableAutoSizing = true;
+                    label.fontSizeMin = 24f;
+                    label.fontSizeMax = 34f;
+                    label.maxVisibleLines = 2;
+                }
+            }
+
+            ConfigureEvidenceButton(
+                evidence.Find("Back Btn") as RectTransform,
+                "evidence.back",
+                new Vector2(.07f, .06f),
+                new Vector2(.21f, .15f),
+                "돌아가기",
+                "ui_btn_back.png",
+                color);
+            ConfigureEvidenceButton(
+                evidence.Find("Next (1)") as RectTransform,
+                "evidence.previous-record",
+                new Vector2(.23f, .06f),
+                new Vector2(.36f, .15f),
+                "이전 기록",
+                "ui_btn_standard_normal.png",
+                color);
+            ConfigureEvidenceButton(
+                evidence.Find("Next") as RectTransform,
+                "evidence.next-record",
+                new Vector2(.64f, .06f),
+                new Vector2(.77f, .15f),
+                "다음 기록",
+                "ui_btn_standard_normal.png",
+                color);
+            ConfigureEvidenceButton(
+                compare,
+                "evidence.compare",
+                new Vector2(.79f, .06f),
+                new Vector2(.93f, .15f),
+                "기록 비교",
+                "ui_btn_standard_normal.png",
+                color);
+            ConfigureEvidenceIconButton(
+                evidence.Find("Turn") as RectTransform,
+                "evidence.view-previous",
+                new Vector2(.075f, .46f),
+                new Vector2(.11f, .57f),
+                color);
+            ConfigureEvidenceIconButton(
+                evidence.Find("Turn (1)") as RectTransform,
+                "evidence.view-next",
+                new Vector2(.39f, .46f),
+                new Vector2(.425f, .57f),
+                color);
+        }
+
+        private static RectTransform RebuildEvidenceCompareButton(
+            RectTransform evidence)
+        {
+            RectTransform source =
+                evidence.Find("Next") as RectTransform;
+            RectTransform existing =
+                evidence.Find("Turn (2)") as RectTransform;
+            if (source == null)
+            {
+                return existing;
+            }
+            if (existing != null)
+            {
+                Object.DestroyImmediate(existing.gameObject);
+            }
+            GameObject clone = Object.Instantiate(
+                source.gameObject,
+                evidence);
+            clone.name = "Turn (2)";
+            clone.transform.SetAsLastSibling();
+            return clone.GetComponent<RectTransform>();
+        }
+
+        private static void ConfigureEvidenceButton(
+            RectTransform rect,
+            string id,
+            Vector2 min,
+            Vector2 max,
+            string text,
+            string spriteName,
+            Color color)
+        {
+            if (rect == null)
+            {
+                return;
+            }
+            ConfigureAuthoredRect(rect, id, min, max, color);
+            Image image = rect.GetComponent<Image>();
+            Button button = rect.GetComponent<Button>();
+            Sprite normal = AssetDatabase.LoadAssetAtPath<Sprite>(
+                "Assets/_Project/Art/UI/Buttons/" + spriteName);
+            string pressedName = spriteName.Contains("primary")
+                ? "ui_btn_primary_pressed.png"
+                : "ui_btn_standard_pressed.png";
+            Sprite pressed = AssetDatabase.LoadAssetAtPath<Sprite>(
+                "Assets/_Project/Art/UI/Buttons/" + pressedName);
+            if (image != null && normal != null)
+            {
+                image.sprite = normal;
+                image.type = Image.Type.Sliced;
+            }
+            if (button != null && pressed != null)
+            {
+                button.transition = Selectable.Transition.SpriteSwap;
+                SpriteState state = button.spriteState;
+                state.pressedSprite = pressed;
+                state.selectedSprite = normal;
+                state.highlightedSprite = normal;
+                button.spriteState = state;
+            }
+            TMP_Text label =
+                rect.GetComponentInChildren<TMP_Text>(true);
+            if (label != null)
+            {
+                label.text = text;
+                label.alignment = TextAlignmentOptions.Center;
+                label.enableAutoSizing = true;
+                label.fontSizeMin = 20f;
+                label.fontSizeMax = 30f;
+                label.textWrappingMode = TextWrappingModes.NoWrap;
+                label.overflowMode = TextOverflowModes.Ellipsis;
+            }
+        }
+
+        private static void ConfigureEvidenceIconButton(
+            RectTransform rect,
+            string id,
+            Vector2 min,
+            Vector2 max,
+            Color color)
+        {
+            if (rect == null)
+            {
+                return;
+            }
+            ConfigureAuthoredRect(rect, id, min, max, color);
+            TMP_Text label =
+                rect.GetComponentInChildren<TMP_Text>(true);
+            if (label != null)
+            {
+                label.text = string.Empty;
+            }
+            Image image = rect.GetComponent<Image>();
+            if (image != null)
+            {
+                image.preserveAspect = true;
+            }
         }
 
         private static void ConfigureAuthoredRect(

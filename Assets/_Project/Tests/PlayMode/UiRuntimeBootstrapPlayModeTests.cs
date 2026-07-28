@@ -122,6 +122,46 @@ namespace Wake.Tests.PlayMode
                 Is.EqualTo(TextOverflowModes.Overflow));
             Assert.That(scroll.vertical, Is.True);
             Assert.That(scroll.content, Is.SameAs(description.rectTransform));
+            Assert.That(
+                RequireObject("Evidence/Turn").activeSelf,
+                Is.False,
+                "Single-view evidence must not show a rotate control.");
+            Assert.That(
+                RequireObject("Evidence/Turn (1)").activeSelf,
+                Is.False,
+                "Single-view evidence must not show a rotate control.");
+            Assert.That(
+                RequireObject("Evidence").transform.Find("Turn (3)"),
+                Is.Null,
+                "The obsolete legacy Turn button must not be authored.");
+
+            RectTransform next =
+                RequireComponent<RectTransform>("Evidence/Next");
+            RectTransform compare =
+                RequireComponent<RectTransform>("Evidence/Turn (2)");
+            Assert.That(next.rect.width, Is.GreaterThan(240f));
+            Assert.That(compare.rect.width, Is.GreaterThan(240f));
+            Bounds descriptionBounds =
+                RectTransformUtility.CalculateRelativeRectTransformBounds(
+                    Canvas.transform,
+                    scroll.transform);
+            Bounds compareBounds =
+                RectTransformUtility.CalculateRelativeRectTransformBounds(
+                    Canvas.transform,
+                    compare);
+            Assert.That(
+                descriptionBounds.Intersects(compareBounds),
+                Is.False,
+                "Record comparison must not cover the description.");
+
+            TMP_Text carouselLabel =
+                RequireObject("Evidence/Evidences")
+                    .GetComponentsInChildren<TMP_Text>(false)
+                    .First();
+            Assert.That(carouselLabel.maxVisibleLines, Is.EqualTo(2));
+            Assert.That(
+                carouselLabel.overflowMode,
+                Is.EqualTo(TextOverflowModes.Ellipsis));
             AssertNoRuntimeErrors("조사 기록 상세 화면");
         }
 
