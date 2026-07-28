@@ -562,9 +562,11 @@ namespace Wake.UI
         private const float RiseDuration = RevealDuration - DiveDuration;
         private const float PanelTravelExtra = 2.8f;
         private const float LobbyTravelExtra = 3.5f;
-        private const float LobbyLeadIn = 0.15f;
-        private const float LobbyExitDuration = 1.2f;
-        private static readonly Vector3 WaterRevealStart = new(0f, -48f, 2f);
+        // The title exit and the water dive must read as one motion, so they
+        // start together and share the water's duration/easing exactly.
+        private const float LobbyLeadIn = 0f;
+        private const float LobbyExitDuration = DiveDuration;
+        private static readonly Vector3 WaterRevealStart = new(0f, -46f, 2f);
         private static readonly Vector3 WaterRevealEnd = new(0f, -4f, 2f);
 
         private GameObject overlay;
@@ -740,8 +742,7 @@ namespace Wake.UI
                     contentRect, slotFrom, slotTo, EaseInQuint, RiseDuration);
                 Coroutine waterSurface = StartCoroutine(
                     MoveWater(waterFrom, waterTo, WaterTrapezoid, DiveDuration, false));
-                yield return new WaitForSecondsRealtime(
-                    Mathf.Max(0f, DiveDuration - LobbyLeadIn));
+                yield return new WaitForSecondsRealtime(LobbyLeadIn);
                 Coroutine lobbyEnter = StartCoroutine(MoveRect(
                     lobbyContent, lobbyFrom, lobbyTo, WaterTrapezoid, LobbyExitDuration));
                 yield return waterSurface;
@@ -1085,8 +1086,7 @@ namespace Wake.UI
                 contentRect, slotShown, slotHidden, EaseInQuint, RiseDuration);
             Coroutine waterSurface = StartCoroutine(MoveWater(
                 WaterRevealEnd, WaterRevealStart, WaterTrapezoid, DiveDuration, false));
-            yield return new WaitForSecondsRealtime(
-                Mathf.Max(0f, DiveDuration - LobbyLeadIn));
+            yield return new WaitForSecondsRealtime(LobbyLeadIn);
             Coroutine ingameEnter = ingamePanel != null
                 ? StartCoroutine(MoveRect(
                     ingamePanel, ingameHidden, ingameShown, WaterTrapezoid, LobbyExitDuration))

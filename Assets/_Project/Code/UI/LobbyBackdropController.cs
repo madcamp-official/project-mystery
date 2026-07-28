@@ -122,7 +122,7 @@ namespace Wake.UI
                     $"Bubble {i}", typeof(RectTransform), typeof(Image));
                 bubbleObject.transform.SetParent(bubbleLayer, false);
                 RectTransform rect = bubbleObject.GetComponent<RectTransform>();
-                float size = Random.Range(6f, 22f);
+                float size = Random.Range(12f, 40f);
                 rect.sizeDelta = new Vector2(size, size);
                 rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0f);
                 rect.pivot = new Vector2(0.5f, 0.5f);
