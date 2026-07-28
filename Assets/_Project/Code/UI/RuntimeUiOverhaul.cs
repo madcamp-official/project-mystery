@@ -553,6 +553,8 @@ namespace Wake.UI
         private const float RiseDuration = RevealDuration - DiveDuration;
         private const float PanelTravelExtra = 2.8f;
         private const float LobbyTravelExtra = 3.5f;
+        private const float LobbyLeadIn = 0.15f;
+        private const float LobbyExitDuration = 1.2f;
         private static readonly Vector3 WaterRevealStart = new(0f, -48f, 2f);
         private static readonly Vector3 WaterRevealEnd = new(0f, -4f, 2f);
 
@@ -601,6 +603,32 @@ namespace Wake.UI
         private static float EaseOutCubic(float t) => 1f - Mathf.Pow(1f - t, 3f);
 
         private static float EaseOutQuint(float t) => 1f - Mathf.Pow(1f - t, 5f);
+
+        // Trapezoidal velocity profile: slow ramp-up, hard accel into a
+        // brief peak-speed cruise, then decel to a full stop.
+        private static float WaterTrapezoid(float t)
+        {
+            const float accel = 0.3f;
+            const float hold = 0.3f;
+            const float decel = 1f - accel - hold;
+            float vMax = 1f / (0.5f * accel + hold + 0.5f * decel);
+
+            if (t < accel)
+            {
+                return 0.5f * vMax * (t * t) / accel;
+            }
+            if (t < accel + hold)
+            {
+                float pAccel = 0.5f * vMax * accel;
+                return pAccel + vMax * (t - accel);
+            }
+            {
+                float pAccel = 0.5f * vMax * accel;
+                float pHold = pAccel + vMax * hold;
+                float t2 = t - accel - hold;
+                return pHold + vMax * t2 - vMax * (t2 * t2) / (2f * decel);
+            }
+        }
 
         private static IEnumerator RunSegment(
             float duration, Func<float, float> ease, Action<float> apply)
@@ -669,6 +697,27 @@ namespace Wake.UI
                 });
             }
 
+            IEnumerator LobbyOnly(Func<float, float> ease, float duration)
+            {
+                return RunSegment(duration, ease, t =>
+                {
+                    if (lobbyContent != null)
+                    {
+                        lobbyContent.anchoredPosition =
+                            Vector2.LerpUnclamped(lobbyFrom, lobbyTo, t);
+                    }
+                });
+            }
+
+            IEnumerator SlotOnly(Func<float, float> ease, float duration)
+            {
+                return RunSegment(duration, ease, t =>
+                {
+                    contentRect.anchoredPosition =
+                        Vector2.LerpUnclamped(slotFrom, slotTo, t);
+                });
+            }
+
             IEnumerator WaterStage(
                 Func<float, float> ease, float duration, bool intensityRising)
             {
@@ -685,9 +734,12 @@ namespace Wake.UI
 
             if (showing)
             {
-                Coroutine dive = StartCoroutine(WaterStage(EaseInCubic, DiveDuration, true));
-                yield return PanelStage(EaseOutQuint, RiseDuration);
-                yield return dive;
+                Coroutine lobbyExit =
+                    StartCoroutine(LobbyOnly(EaseOutQuint, LobbyExitDuration));
+                yield return new WaitForSecondsRealtime(LobbyLeadIn);
+                yield return WaterStage(WaterTrapezoid, DiveDuration, true);
+                yield return lobbyExit;
+                yield return SlotOnly(EaseOutQuint, RiseDuration);
             }
             else
             {
