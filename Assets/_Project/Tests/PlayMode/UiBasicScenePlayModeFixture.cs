@@ -82,7 +82,8 @@ namespace Wake.Tests.PlayMode
             AssertNoRuntimeErrors("저장 데이터 유지 후 씬 재로드");
         }
 
-        protected IEnumerator StartNewGameFromVisibleButton()
+        protected IEnumerator StartNewGameFromVisibleButton(
+            bool startOpeningDialogue = true)
         {
             Button startButton = RequireObject(
                     "StartScene/Title Presentation")
@@ -105,6 +106,29 @@ namespace Wake.Tests.PlayMode
                     "StartScene/Save Slot Selection/Start Confirmation/Confirm")
                 .GetComponent<Button>();
             yield return InvokeAndSettle(confirm);
+
+            float deadline = Time.realtimeSinceStartup + 8f;
+            while (Ui.ActivePanel != UiPrimaryPanel.Ingame &&
+                   Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+            Assert.That(
+                Ui.ActivePanel,
+                Is.EqualTo(UiPrimaryPanel.Ingame),
+                "저장 슬롯 전환 제한 시간 안에 탐색 화면이 열려야 합니다.");
+
+            if (!startOpeningDialogue)
+            {
+                yield break;
+            }
+
+            Button daniel = Object.FindObjectsByType<Button>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None)
+                .First(button =>
+                    button.name.StartsWith("AmbientCharacter_DANIEL"));
+            yield return InvokeAndSettle(daniel);
         }
 
         protected IEnumerator ContinueFromVisibleButton()

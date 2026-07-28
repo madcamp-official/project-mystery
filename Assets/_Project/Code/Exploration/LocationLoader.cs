@@ -116,6 +116,7 @@ namespace Wake.Exploration
         {
             NarrativeSceneContext =
                 sceneId?.Trim().ToUpperInvariant() ?? string.Empty;
+            RefreshInteractionOverlays();
         }
 
         private void RefreshInteractionOverlays()
