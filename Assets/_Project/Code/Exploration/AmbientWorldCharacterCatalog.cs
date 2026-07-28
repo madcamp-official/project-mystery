@@ -58,51 +58,43 @@ namespace Wake.Exploration
 
     public static class AmbientWorldCharacterCatalog
     {
-        private const string AtlasA =
-            "AmbientCharacters/world_atlas_crew_passengers_ab";
-        private const string AtlasB =
-            "AmbientCharacters/world_atlas_passengers_cdef";
-        private const string PublicSpecialists =
-            "AmbientCharacters/world_atlas_public_specialists";
-        private const string OperationsSpecialists =
-            "AmbientCharacters/world_atlas_operations_specialists";
-        private const string ServiceSpecialists =
-            "AmbientCharacters/world_atlas_service_specialists";
-
         private static readonly IReadOnlyDictionary<string, AmbientWorldCharacterAsset>
             Assets = new Dictionary<string, AmbientWorldCharacterAsset>(
                 StringComparer.OrdinalIgnoreCase)
             {
-                ["CREW_ATTENDANT"] = A(0),
-                ["CREW_ENGINEER"] = A(1),
-                ["CREW_SECURITY"] = A(2),
-                ["PASSENGER_A"] = A(3),
-                ["PASSENGER_B"] = A(4),
-                ["PASSENGER_C"] = B(0),
-                ["PASSENGER_D"] = B(1),
-                ["PASSENGER_E"] = B(2),
-                ["PASSENGER_F"] = B(3),
-                ["DOCK_PORTER"] = Specialist(PublicSpecialists, 0),
-                ["VIP_HOST"] = Specialist(PublicSpecialists, 1),
-                ["BALLROOM_MUSICIAN"] = Specialist(PublicSpecialists, 2),
-                ["DINING_SOMMELIER"] = Specialist(PublicSpecialists, 3),
-                ["ATRIUM_GUIDE"] = Specialist(PublicSpecialists, 4),
-                ["SECURITY_OPERATOR"] =
-                    Specialist(OperationsSpecialists, 0),
-                ["RAIL_TECHNICIAN"] =
-                    Specialist(OperationsSpecialists, 1),
-                ["SHIP_MEDIC"] = Specialist(OperationsSpecialists, 2),
-                ["BALLAST_CONTROLLER"] =
-                    Specialist(OperationsSpecialists, 3),
-                ["CHIEF_ENGINEER"] =
-                    Specialist(OperationsSpecialists, 4),
-                ["SUITE_STEWARD"] = Specialist(ServiceSpecialists, 0),
-                ["ARCHIVIST"] = Specialist(ServiceSpecialists, 1),
-                ["LAUNDRY_SUPERVISOR"] =
-                    Specialist(ServiceSpecialists, 2),
-                ["ROBOTICS_TECH"] = Specialist(ServiceSpecialists, 3),
-                ["WORKSHOP_MACHINIST"] =
-                    Specialist(ServiceSpecialists, 4),
+                ["CREW_ATTENDANT"] = ExpressionFigure(
+                    "crew_attendant", 0.6483f, 0.1309f, 0.0270f),
+                ["CREW_ENGINEER"] = ExpressionFigure(
+                    "crew_engineer", 0.6255f, 0.0416f, 0.0391f),
+                ["CREW_SECURITY"] = ExpressionFigure(
+                    "crew_security", 0.7500f, 0.0442f, 0.0262f),
+                ["PASSENGER_A"] = ExpressionFigure(
+                    "passenger_a", 0.6255f, 0.0000f, 0.0328f),
+                ["PASSENGER_B"] = ExpressionFigure(
+                    "passenger_b", 0.7500f, 0.0000f, 0.0166f),
+                ["PASSENGER_C"] = ExpressionFigure(
+                    "passenger_c", 0.6255f, 0.0277f, 0.0214f),
+                ["PASSENGER_D"] = ExpressionFigure(
+                    "passenger_d", 0.7500f, 0.0470f, 0.0193f),
+                ["PASSENGER_E"] = ExpressionFigure(
+                    "passenger_e", 0.6255f, 0.0328f, 0.0227f),
+                ["PASSENGER_F"] = ExpressionFigure(
+                    "passenger_f", 0.7500f, 0.0055f, 0.0276f),
+                ["DOCK_PORTER"] = Specialist("dock_porter"),
+                ["VIP_HOST"] = Specialist("VIP_host"),
+                ["BALLROOM_MUSICIAN"] = Specialist("ballroom_musician"),
+                ["DINING_SOMMELIER"] = Specialist("dining_sommelier"),
+                ["ATRIUM_GUIDE"] = Specialist("atrium_guide"),
+                ["SECURITY_OPERATOR"] = Specialist("security_operator"),
+                ["RAIL_TECHNICIAN"] = Specialist("rail_technician"),
+                ["SHIP_MEDIC"] = Specialist("ship_medic"),
+                ["BALLAST_CONTROLLER"] = Specialist("ballast_controller"),
+                ["CHIEF_ENGINEER"] = Specialist("chief_engineer"),
+                ["SUITE_STEWARD"] = Specialist("suite_steward"),
+                ["ARCHIVIST"] = Specialist("archivist"),
+                ["LAUNDRY_SUPERVISOR"] = Specialist("suite_steward"),
+                ["ROBOTICS_TECH"] = Specialist("robotics_tech"),
+                ["WORKSHOP_MACHINIST"] = Specialist("chief_engineer"),
                 ["ADRIAN"] = Main(
                     "adrian_vale", .706f, .098f, .025f),
                 ["CLAIRE"] = Main(
@@ -188,48 +180,28 @@ namespace Wake.Exploration
                 mirror: safeIndex % 2 == 0);
         }
 
-        private static AmbientWorldCharacterAsset A(int column)
+        private static AmbientWorldCharacterAsset ExpressionFigure(
+            string resourceName,
+            float aspectRatio,
+            float bottomMargin,
+            float topMargin)
         {
-            const float width = 0.2f;
-            float[] bottomMargins =
-                { 0.1229f, 0.1387f, 0.1048f, 0.1251f, 0.0800f };
-            float[] topMargins =
-                { 0.0586f, 0.0857f, 0.0496f, 0.0958f, 0.0609f };
             return new AmbientWorldCharacterAsset(
-                AtlasA,
-                new Rect(column * width, 0f, width, 1f),
-                0.4f,
-                bottomMargins[column],
-                topMargins[column]);
+                $"AmbientCharacters/{resourceName}_expressions",
+                new Rect(0f, 0f, 0.25f, 1f),
+                aspectRatio,
+                bottomMargin,
+                topMargin);
         }
 
-        private static AmbientWorldCharacterAsset B(int column)
+        private static AmbientWorldCharacterAsset Specialist(string resourceName)
         {
-            const float width = 0.25f;
-            float[] bottomMargins =
-                { 0.0000f, 0.0688f, 0.0575f, 0.0609f };
-            float[] topMargins =
-                { 0.0304f, 0.0361f, 0.0406f, 0.0428f };
             return new AmbientWorldCharacterAsset(
-                AtlasB,
-                new Rect(column * width, 0f, width, 1f),
-                0.5f,
-                bottomMargins[column],
-                topMargins[column]);
-        }
-
-        private static AmbientWorldCharacterAsset Specialist(
-            string atlas,
-            int column)
-        {
-            const float width = 0.2f;
-            Vector2 visibleMargins = VisibleMargins(atlas, column);
-            return new AmbientWorldCharacterAsset(
-                atlas,
-                new Rect(column * width, 0f, width, 1f),
-                0.4f,
-                visibleMargins.x,
-                visibleMargins.y);
+                $"AmbientCharacters/{resourceName}",
+                new Rect(0f, 0f, 1f, 1f),
+                0.7f,
+                0.02f,
+                0.02f);
         }
 
         private static AmbientWorldCharacterAsset Main(
@@ -246,19 +218,5 @@ namespace Wake.Exploration
                 topMargin);
         }
 
-        private static Vector2 VisibleMargins(string atlas, int column)
-        {
-            float[] bottom = atlas == PublicSpecialists
-                ? new[] { .1094f, .1105f, .1026f, .1060f, .1127f }
-                : atlas == OperationsSpecialists
-                    ? new[] { .1330f, .1319f, .1206f, .1229f, .1184f }
-                    : new[] { .0992f, .1094f, .1094f, .1003f, .0936f };
-            float[] top = atlas == PublicSpecialists
-                ? new[] { .0902f, .0992f, .0710f, .0913f, .1037f }
-                : atlas == OperationsSpecialists
-                    ? new[] { .0902f, .0924f, .1184f, .0879f, .0800f }
-                    : new[] { .0710f, .0958f, .0643f, .0496f, .0586f };
-            return new Vector2(bottom[column], top[column]);
-        }
     }
 }

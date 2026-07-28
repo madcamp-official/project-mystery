@@ -47,7 +47,9 @@ namespace Wake.UI
             RuntimeUiLayoutRegistry.CopyLayout(rect, "hud.toast");
 
             Image background = toastRoot.GetComponent<Image>();
-            background.color = new Color(0f, 0f, 0f, 0.75f);
+            UiVisualThemeService.ApplySurface(
+                background,
+                UiSurfaceStyle.Toast);
 
             GameObject textObject = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
             textObject.transform.SetParent(toastRoot.transform, false);
@@ -59,9 +61,9 @@ namespace Wake.UI
 
             toastText = textObject.GetComponent<TextMeshProUGUI>();
             toastText.alignment = TextAlignmentOptions.Center;
-            toastText.color = Color.white;
-            toastText.fontSize = 22;
-            TypographyService.Apply(toastText, TypographyRole.Body);
+            UiVisualThemeService.ApplyText(
+                toastText,
+                UiTextStyle.Body);
 
             toastRoot.SetActive(false);
         }
@@ -101,7 +103,11 @@ namespace Wake.UI
             {
                 (string message, ToastTypographyStyle style) = pendingToasts.Dequeue();
                 toastText.text = message;
-                TypographyService.Apply(toastText, ResolveRole(style));
+                UiVisualThemeService.ApplyText(
+                    toastText,
+                    style == ToastTypographyStyle.Alert
+                        ? UiTextStyle.Alert
+                        : UiTextStyle.Body);
                 toastRoot.SetActive(true);
                 yield return new WaitForSeconds(displaySeconds);
                 toastRoot.SetActive(false);

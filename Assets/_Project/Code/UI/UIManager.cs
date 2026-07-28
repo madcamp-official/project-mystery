@@ -38,12 +38,19 @@ namespace Wake.UI
         private GameObject statusHud;
         private GameObject continueButton;
         private SaveSlotSelectionController saveSlotSelection;
+        private SystemScreenFlowController systemScreens;
+        private ExplorationNavigationController explorationNavigation;
+        private bool hasShownBoot;
         private readonly List<IRuntimeModalController> runtimeModals = new();
 
         public bool IsInitialized { get; private set; }
         public UiPrimaryPanel ActivePanel { get; private set; }
         public bool IsSettingsOpen =>
             settingsPopup != null && settingsPopup.activeSelf;
+        public SystemScreenState ActiveSystemScreen =>
+            systemScreens != null
+                ? systemScreens.ActiveState
+                : SystemScreenState.None;
         public int RuntimeModalControllerCount => runtimeModals.Count;
         public int OpenRuntimeModalCount
         {
@@ -142,6 +149,7 @@ namespace Wake.UI
                 canvas.Find("StartScene/Continue Btn"));
             SetStartButtonLabel(canvas.Find("StartScene/Start Game Btn"));
             continueButton.SetActive(false);
+            SetLegacyExplorationNavigationVisible(canvas, false);
 
             bool firstInitialization = !IsInitialized;
             IsInitialized = true;
@@ -183,10 +191,16 @@ namespace Wake.UI
             EnsureComponent<TitleScreenPresentationController>(startScenePanel);
             saveSlotSelection =
                 EnsureComponent<SaveSlotSelectionController>(startScenePanel);
-            if (statusHud != null)
-            {
-                EnsureComponent<ObjectiveMapHUDController>(statusHud);
-            }
+            systemScreens =
+                EnsureComponent<SystemScreenFlowController>(gameObject);
+            systemScreens.Configure(
+                this,
+                GameObject.Find("Canvas").transform as RectTransform,
+                statusHud);
+            explorationNavigation =
+                EnsureComponent<ExplorationNavigationController>(gameObject);
+            explorationNavigation.Configure(this);
+            statusHud?.SetActive(false);
         }
 
         private void RegisterModal(IRuntimeModalController modal)
@@ -251,7 +265,26 @@ namespace Wake.UI
 
         private void OpenSaveSlots()
         {
+            systemScreens?.SetPassiveState(SystemScreenState.SaveSlots);
             saveSlotSelection?.Open();
+        }
+
+        private static void SetLegacyExplorationNavigationVisible(
+            Transform canvas,
+            bool visible)
+        {
+            string[] paths =
+            {
+                "Ingame/Map Btn",
+                "Ingame/Evidence Btn",
+                "Ingame/Settings Btn"
+            };
+            foreach (string path in paths)
+            {
+                Transform target = canvas?.Find(path);
+                if (target != null)
+                    target.gameObject.SetActive(visible);
+            }
         }
 
         public void StartNewGameInSlot(int slot)
@@ -260,6 +293,7 @@ namespace Wake.UI
             GameFlow.Instance?.ResetSession();
             GameStateManager.Instance?.StartNewGame();
             EvidenceInventory.Instance?.Clear();
+            systemScreens?.SetPassiveState(SystemScreenState.None);
             ShowIngame();
             GameFlow.Instance?.BeginGame();
         }
@@ -267,6 +301,7 @@ namespace Wake.UI
         public void ContinueGameInSlot(int slot)
         {
             GameStateManager.Instance?.SelectSaveSlot(slot);
+            systemScreens?.SetPassiveState(SystemScreenState.None);
             ShowIngame();
             GameFlow.Instance?.ResumeGame();
         }
@@ -286,6 +321,12 @@ namespace Wake.UI
             EvidenceInventory.Instance?.Clear();
             continueButton?.SetActive(false);
             SetActivePanel(startScenePanel, UiPrimaryPanel.Start);
+            systemScreens?.SetPassiveState(SystemScreenState.Title);
+            if (!hasShownBoot && systemScreens != null)
+            {
+                hasShownBoot = true;
+                StartCoroutine(systemScreens.ShowBootOnce());
+            }
         }
 
         public void ShowIngame()
@@ -319,18 +360,125 @@ namespace Wake.UI
             }
 
             CloseRuntimeModals();
+            systemScreens?.Close();
+            systemScreens?.OnSettingsOpened();
             SetPrimaryInteraction(false);
+            if (statusHud != null)
+            {
+                statusHud.SetActive(false);
+            }
             settingsPopup.transform.SetAsLastSibling();
             settingsPopup.SetActive(true);
         }
 
         public void CloseSettings()
         {
+            bool wasOpen =
+                settingsPopup != null && settingsPopup.activeSelf;
             if (settingsPopup != null)
             {
                 settingsPopup.SetActive(false);
             }
+            if (wasOpen)
+            {
+                systemScreens?.OnSettingsClosed();
+            }
+            statusHud?.SetActive(false);
+            explorationNavigation?.SetInteractionEnabled(true);
             SetPrimaryInteraction(true);
+        }
+
+        public void OpenPause()
+        {
+            if (!IsInitialized || ActivePanel == UiPrimaryPanel.Start)
+                return;
+
+            CloseRuntimeModals();
+            systemScreens?.OpenPause();
+        }
+
+        public void ShowCredits()
+        {
+            if (!IsInitialized)
+                return;
+
+            CloseSettings();
+            systemScreens?.ShowCredits();
+        }
+
+        public void ShowTutorial(
+            string title,
+            string body,
+            UnityAction completed = null)
+        {
+            if (!IsInitialized)
+                return;
+
+            systemScreens?.ShowTutorial(
+                title,
+                body,
+                completed == null ? null : completed.Invoke);
+        }
+
+        public void ShowLoading(string context, string title)
+        {
+            if (!IsInitialized)
+                return;
+
+            systemScreens?.ShowLoading(context, title);
+        }
+
+        public void ShowChapterTransition(
+            string context,
+            string title,
+            string summary,
+            UnityAction completed = null)
+        {
+            if (!IsInitialized)
+                return;
+
+            systemScreens?.ShowChapterTransition(
+                context,
+                title,
+                summary,
+                completed == null ? null : completed.Invoke);
+        }
+
+        public void RequestQuit()
+        {
+            systemScreens?.RequestConfirmation(
+                "게임 종료",
+                "게임을 종료하시겠습니까?",
+                TitleScreenPresentationController.QuitGame);
+        }
+
+        public void RequestReturnToTitle()
+        {
+            systemScreens?.RequestConfirmation(
+                "타이틀로 이동",
+                "현재 화면을 닫고 타이틀로 이동하시겠습니까?",
+                ShowStartScene);
+        }
+
+        public void RequestConfirmation(
+            string title,
+            string body,
+            UnityAction confirmed,
+            UnityAction cancelled = null)
+        {
+            if (!IsInitialized)
+                return;
+
+            systemScreens?.RequestConfirmation(
+                title,
+                body,
+                confirmed == null ? null : confirmed.Invoke,
+                cancelled == null ? null : cancelled.Invoke);
+        }
+
+        public void SetSystemScreenState(SystemScreenState state)
+        {
+            systemScreens?.SetPassiveState(state);
         }
 
         private void SetActivePanel(
@@ -342,6 +490,7 @@ namespace Wake.UI
                 return;
             }
 
+            systemScreens?.Close();
             CloseRuntimeModals();
             CloseSettings();
             startScenePanel.SetActive(panel == startScenePanel);
@@ -351,11 +500,16 @@ namespace Wake.UI
             ActivePanel = panelKind;
             LocationLoader.Instance?.SetPresentationVisible(
                 panel != startScenePanel);
-            if (statusHud != null)
-            {
-                statusHud.SetActive(panel != startScenePanel);
-            }
+            statusHud?.SetActive(false);
+            explorationNavigation?.Refresh();
             SetPrimaryInteraction(true);
+        }
+
+        internal void SetSystemScreenOverlayActive(bool active)
+        {
+            SetPrimaryInteraction(!active);
+            statusHud?.SetActive(false);
+            explorationNavigation?.SetInteractionEnabled(!active);
         }
 
         private void CloseRuntimeModals()
@@ -380,7 +534,8 @@ namespace Wake.UI
                 _ => null
             };
             SetInputState(primary, enabled);
-            SetInputState(statusHud, enabled);
+            SetInputState(statusHud, false);
+            explorationNavigation?.SetInteractionEnabled(enabled);
         }
 
         private static void SetInputState(

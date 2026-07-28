@@ -1,6 +1,6 @@
 line_id,scene_id,order,beat,line_type,speaker,text_ko,emotion,condition,choice_id,next_or_effect,stage_direction,voice_required,branch_group,implementation_note
 P-01_001,P-01,1,opening,narration,NARRATION,엘리시움 호는 항구의 유리 지붕 너머에서 지나치게 새것처럼 빛나고 있었다.,observe,,,,PORT,N,,
-P-01_002,P-01,2,opening,narration,NARRATION,"다니엘 머서는 탑승 줄에서 한 걸음 떨어져 있었다. 검은 코트 소매는 구겨져 있었고, 오른손은 주머니 속 진동을 계속 확인했다.",observe,,,,PORT,N,,
+P-01_002,P-01,2,opening,narration,NARRATION,"다니엘 머서는 탑승 줄에서 한 걸음 떨어져 있었다. 청록색 옷깃은 구겨져 있었고, 오른손은 주머니 속 진동을 계속 확인했다.",observe,,,,PORT,N,,
 P-01_003,P-01,3,inspection,narration,NARRATION,[조사: 구겨진 초대장],observe,,,,PORT,N,,
 P-01_004,P-01,4,inspection,inspection,ADRIAN,종이는 두 번 접혔다가 급히 펴졌다. 리처드의 전자서명은 선명하지만 발송 코드가 초대장 본문과 다른 서체다.,focused,,,,PORT,Y,,
 P-01_005,P-01,5,evidence,system,SYSTEM,단서 획득: C-01 다니엘의 초대장,system,,,evidence:C-01,UI,N,,

@@ -84,7 +84,7 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator NavigationIcons_HaveNoTextLabels()
+        public IEnumerator ExplorationNavigation_UsesNaturalLanguageLabels()
         {
             TMP_Text startSettings = RequireObject("StartScene/Settings Btn")
                 .GetComponentInChildren<TMP_Text>(true);
@@ -96,76 +96,59 @@ namespace Wake.Tests.PlayMode
 
             yield return StartNewGameFromVisibleButton();
 
-            string[] iconButtonPaths =
+            Assert.That(
+                RequireObject("Status HUD").activeSelf,
+                Is.False,
+                "숫자 상태 HUD는 탐색 중에도 화면에 표시하지 않습니다.");
+            string[] navigationButtonPaths =
             {
-                "Ingame/Evidence Btn",
-                "Ingame/Map Btn",
-                "Ingame/Settings Btn"
+                "Exploration Global Navigation/Global Navigation/지도 버튼",
+                "Exploration Global Navigation/Global Navigation/조사 기록 버튼",
+                "Exploration Global Navigation/Global Navigation/일시정지 버튼"
             };
-            foreach (string path in iconButtonPaths)
+            foreach (string path in navigationButtonPaths)
             {
                 TMP_Text label = RequireObject(path)
                     .GetComponentInChildren<TMP_Text>(true);
-                Assert.That(
-                    label,
-                    Is.Not.Null,
-                    $"{path} should preserve its existing text component.");
-                Assert.That(
-                    label.text,
-                    Is.Empty,
-                    $"{path} should render only its icon.");
+                Assert.That(label, Is.Not.Null);
+                Assert.That(label.text, Is.Not.Empty);
             }
+            Assert.That(RequireObject("Ingame/Map Btn").activeSelf, Is.False);
+            Assert.That(
+                RequireObject("Ingame/Evidence Btn").activeSelf,
+                Is.False);
+            Assert.That(
+                RequireObject("Ingame/Settings Btn").activeSelf,
+                Is.False);
         }
 
         [UnityTest]
-        public IEnumerator NavigationIcons_RemainInsideTheGameplayViewport()
+        public IEnumerator ExplorationNavigation_UsesAuthoredTopRegions()
         {
             yield return StartNewGameFromVisibleButton();
 
-            RectTransform ingame =
-                RequireObject("Ingame").GetComponent<RectTransform>();
-            RectTransform canvas = ingame.parent as RectTransform;
-            RectTransform statusHud =
-                RequireObject("Status HUD").GetComponent<RectTransform>();
-            Bounds statusBounds =
+            RectTransform canvas = Canvas as RectTransform;
+            RectTransform navigation =
+                RequireObject(
+                    "Exploration Global Navigation/Global Navigation")
+                .GetComponent<RectTransform>();
+            Bounds navigationBounds =
                 RectTransformUtility.CalculateRelativeRectTransformBounds(
                     canvas,
-                    statusHud);
-            string[] paths =
-            {
-                "Ingame/Evidence Btn",
-                "Ingame/Map Btn",
-                "Ingame/Settings Btn"
-            };
-            foreach (string path in paths)
-            {
-                RectTransform button =
-                    RequireObject(path).GetComponent<RectTransform>();
-                Bounds bounds =
-                    RectTransformUtility.CalculateRelativeRectTransformBounds(
-                        ingame,
-                        button);
-                Assert.That(
-                    bounds.min.x,
-                    Is.GreaterThanOrEqualTo(ingame.rect.xMin),
-                    $"{path} must not be placed beyond the left edge.");
-                Assert.That(
-                    bounds.max.x,
-                    Is.LessThanOrEqualTo(ingame.rect.xMax),
-                    $"{path} must not be placed beyond the right edge.");
-                Assert.That(
-                    button.anchoredPosition.y,
-                    Is.LessThanOrEqualTo(-400f),
-                    $"{path} must remain below the status HUD.");
-                Bounds canvasBounds =
-                    RectTransformUtility.CalculateRelativeRectTransformBounds(
-                        canvas,
-                        button);
-                Assert.That(
-                    canvasBounds.max.y,
-                    Is.LessThan(statusBounds.min.y),
-                    $"{path} must not overlap the status HUD.");
-            }
+                    navigation);
+            Assert.That(navigationBounds.max.x, Is.LessThanOrEqualTo(
+                canvas.rect.xMax + 1f));
+            Assert.That(navigationBounds.max.y, Is.LessThanOrEqualTo(
+                canvas.rect.yMax + 1f));
+            Assert.That(navigationBounds.center.x, Is.GreaterThan(0f));
+            Assert.That(navigationBounds.center.y, Is.GreaterThan(0f));
+
+            TMP_Text objective = RequireObject(
+                    "Exploration Global Navigation/Exploration Objective/" +
+                    "Current Objective")
+                .GetComponent<TMP_Text>();
+            Assert.That(objective.text, Is.Not.Empty);
+            Assert.That(objective.text, Does.Not.Contain("/41"));
         }
 
         [UnityTest]
@@ -375,17 +358,23 @@ namespace Wake.Tests.PlayMode
         public IEnumerator PrimaryButtons_RoundTripWithoutOrphanModal()
         {
             yield return StartNewGameFromVisibleButton();
+            Dialogue.CancelActiveDialogue();
+            yield return null;
             AssertOnlyPanel(UiPrimaryPanel.Ingame);
 
             yield return InvokeAndSettle(
-                RequireComponent<Button>("Ingame/Map Btn"));
+                RequireComponent<Button>(
+                    "Exploration Global Navigation/Global Navigation/" +
+                    "지도 버튼"));
             AssertOnlyPanel(UiPrimaryPanel.Map);
             yield return InvokeAndSettle(
                 RequireComponent<Button>("Map/Back Btn"));
             AssertOnlyPanel(UiPrimaryPanel.Ingame);
 
             yield return InvokeAndSettle(
-                RequireComponent<Button>("Ingame/Evidence Btn"));
+                RequireComponent<Button>(
+                    "Exploration Global Navigation/Global Navigation/" +
+                    "조사 기록 버튼"));
             AssertOnlyPanel(UiPrimaryPanel.Evidence);
             Assert.That(Ui.OpenRuntimeModalCount, Is.Zero);
             Assert.That(
@@ -459,8 +448,11 @@ namespace Wake.Tests.PlayMode
             Assert.That(Ui.IsSettingsOpen, Is.False);
             Assert.That(evidenceInput.interactable, Is.True);
             Assert.That(evidenceInput.blocksRaycasts, Is.True);
-            Assert.That(hudInput.interactable, Is.True);
-            Assert.That(hudInput.blocksRaycasts, Is.True);
+            Assert.That(hudInput.interactable, Is.False);
+            Assert.That(hudInput.blocksRaycasts, Is.False);
+            Assert.That(
+                RequireObject("Status HUD").activeSelf,
+                Is.False);
             AssertNoRuntimeErrors("설정 모달 입력 복구");
         }
 

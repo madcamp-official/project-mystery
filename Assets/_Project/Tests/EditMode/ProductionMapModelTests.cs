@@ -23,16 +23,28 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void ViewModel_ContainsAllTwentyFiveCanonicalLocations()
+        public void ViewModel_ContainsOnlyNineteenStoryRelevantLocations()
         {
             ProductionMapViewModel model =
                 ProductionMapViewModel.Create(graph, null, 15);
 
-            Assert.That(model.Entries, Has.Count.EqualTo(25));
+            Assert.That(model.Entries, Has.Count.EqualTo(19));
             Assert.That(model.Entries.Select(entry => entry.Spec.Code), Is.Unique);
             Assert.That(
                 model.Entries.Select(entry => entry.Location).All(item => item != null),
                 Is.True);
+            Assert.That(
+                model.Entries.All(entry =>
+                    CanonicalLocationCatalog.IsStoryRelevant(entry.Spec.Code)),
+                Is.True);
+            Assert.That(
+                model.Entries.Select(entry => entry.Spec.Code),
+                Does.Not.Contain("LAUNDRY")
+                    .And.Not.Contain("SERVICE_HUB")
+                    .And.Not.Contain("STABILIZERS")
+                    .And.Not.Contain("BALLAST_TANKS")
+                    .And.Not.Contain("GENERATOR")
+                    .And.Not.Contain("WORKSHOP"));
         }
 
         [Test]
@@ -73,7 +85,7 @@ namespace Wake.Tests
                 Is.EqualTo(SceneAccessDenialReason.SceneNotUnlocked));
             Assert.That(
                 gangway.StatusLabel,
-                Is.EqualTo("P-02 · 선행 장면 필요"));
+                Is.EqualTo("선행 장면 필요"));
         }
 
         [Test]
@@ -89,19 +101,10 @@ namespace Wake.Tests
                 afterPort.Entries.Single(
                     entry => entry.Spec.Code == "GANGWAY").Status,
                 Is.EqualTo(ProductionMapEntryStatus.Available));
-            ProductionMapEntry laundryBeforeBoarding =
-                afterPort.Entries.Single(
-                    entry => entry.Spec.Code == "LAUNDRY");
             Assert.That(
-                laundryBeforeBoarding.Status,
-                Is.EqualTo(ProductionMapEntryStatus.Locked));
-            Assert.That(
-                laundryBeforeBoarding.DenialReason,
-                Is.EqualTo(
-                    SceneAccessDenialReason.BoardingSequenceIncomplete));
-            Assert.That(
-                laundryBeforeBoarding.StatusLabel,
-                Is.EqualTo("승선 완료 후 이동 가능"));
+                afterPort.Entries.Any(
+                    entry => entry.Spec.Code == "LAUNDRY"),
+                Is.False);
 
             ProductionMapViewModel afterGangway =
                 ProductionMapViewModel.Create(
@@ -115,9 +118,9 @@ namespace Wake.Tests
                     entry => entry.Spec.Code == "RICHARD_SUITE").Status,
                 Is.EqualTo(ProductionMapEntryStatus.Available));
             Assert.That(
-                afterGangway.Entries.Single(
-                    entry => entry.Spec.Code == "LAUNDRY").Status,
-                Is.EqualTo(ProductionMapEntryStatus.Locked));
+                afterGangway.Entries.Any(
+                    entry => entry.Spec.Code == "LAUNDRY"),
+                Is.False);
 
             ProductionMapViewModel afterBoarding =
                 ProductionMapViewModel.Create(
@@ -125,9 +128,9 @@ namespace Wake.Tests
                     new[] { "P-01", "P-02", "P-03" },
                     15);
             Assert.That(
-                afterBoarding.Entries.Single(
-                    entry => entry.Spec.Code == "LAUNDRY").Status,
-                Is.EqualTo(ProductionMapEntryStatus.LocationOnly));
+                afterBoarding.Entries.Any(
+                    entry => entry.Spec.Code == "LAUNDRY"),
+                Is.False);
         }
 
         [Test]
@@ -212,7 +215,7 @@ namespace Wake.Tests
             Rect safeArea = new(0f, 0f, width, 900f);
 
             ProductionMapLayout layout =
-                ProductionMapLayoutCalculator.Calculate(25, width, safeArea);
+                ProductionMapLayoutCalculator.Calculate(19, width, safeArea);
 
             Assert.That(layout.Columns, Is.EqualTo(expectedColumns));
             Assert.That(layout.CellSize.x, Is.GreaterThanOrEqualTo(280f));
@@ -220,7 +223,10 @@ namespace Wake.Tests
                 layout.CellSize.x * layout.Columns +
                 12f * (layout.Columns - 1),
                 Is.LessThanOrEqualTo(safeArea.width - 31.99f));
-            Assert.That(layout.ContentHeight, Is.GreaterThan(900f));
+            int rows = Mathf.CeilToInt(19f / expectedColumns);
+            float expectedHeight =
+                32f + rows * 112f + Mathf.Max(0, rows - 1) * 12f;
+            Assert.That(layout.ContentHeight, Is.EqualTo(expectedHeight));
         }
 
         [Test]
@@ -229,7 +235,7 @@ namespace Wake.Tests
             Rect safeArea = new(120f, 0f, 680f, 900f);
 
             ProductionMapLayout layout =
-                ProductionMapLayoutCalculator.Calculate(25, 1400f, safeArea);
+                ProductionMapLayoutCalculator.Calculate(19, 1400f, safeArea);
 
             Assert.That(layout.Columns, Is.EqualTo(1));
             Assert.That(layout.CellSize.x, Is.EqualTo(648f).Within(0.01f));

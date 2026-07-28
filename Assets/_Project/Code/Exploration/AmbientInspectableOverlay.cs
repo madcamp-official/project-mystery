@@ -118,12 +118,15 @@ namespace Wake.Exploration
                 button.colors = AmbientInteractionPresentation.HotspotColors();
                 button.onClick.AddListener(() =>
                     AmbientInspectablePopup.Show(spec));
-                CreateHotspotLabel(target.transform, spec.Title);
+                TMP_Text label =
+                    CreateHotspotLabel(target.transform, spec.Title);
+                target.AddComponent<ExplorationHotspotFeedback>()
+                    .Configure(spec.Title, label);
                 spawned.Add(target);
             }
         }
 
-        private static void CreateHotspotLabel(
+        private static TMP_Text CreateHotspotLabel(
             Transform parent,
             string title)
         {
@@ -146,6 +149,7 @@ namespace Wake.Exploration
             label.alignment = TextAlignmentOptions.Center;
             label.color = new Color32(226, 238, 224, 235);
             label.raycastTarget = false;
+            return label;
         }
 
         private void Clear()

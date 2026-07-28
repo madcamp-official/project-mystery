@@ -64,13 +64,6 @@ namespace Wake.Narrative
 
         private static readonly Rect StandardFallback =
             new(0.46f, 0f, 0.54f, 1f);
-        private const string PublicSpecialists =
-            "AmbientCharacters/world_atlas_public_specialists";
-        private const string OperationsSpecialists =
-            "AmbientCharacters/world_atlas_operations_specialists";
-        private const string ServiceSpecialists =
-            "AmbientCharacters/world_atlas_service_specialists";
-
         private static readonly DialoguePortraitDefinition[] Entries =
         {
             D("ADRIAN", "아드리안 베일", "adrian_vale"),
@@ -87,47 +80,47 @@ namespace Wake.Narrative
                 new Rect(0.70f, 0f, 0.30f, 1f)),
             D("OWEN", "오언 프라이스", "owen_price"),
             D("PASSENGER_A", "승객", "passenger_a",
-                "AmbientCharacters/passenger_a"),
+                "AmbientCharacters/passenger_a_expressions"),
             D("PASSENGER_B", "승객", "passenger_b",
-                "AmbientCharacters/passenger_b"),
+                "AmbientCharacters/passenger_b_expressions"),
             D("PASSENGER_C", "승객", "passenger_c",
-                "AmbientCharacters/passenger_c"),
+                "AmbientCharacters/passenger_c_expressions"),
             D("PASSENGER_D", "승객", "passenger_d",
-                "AmbientCharacters/passenger_d"),
+                "AmbientCharacters/passenger_d_expressions"),
             D("PASSENGER_E", "승객", "passenger_e",
-                "AmbientCharacters/passenger_e"),
+                "AmbientCharacters/passenger_e_expressions"),
             D("PASSENGER_F", "승객", "passenger_f",
-                "AmbientCharacters/passenger_f"),
+                "AmbientCharacters/passenger_f_expressions"),
             D("CREW_ATTENDANT", "객실 승무원", "crew_attendant",
-                "AmbientCharacters/crew_attendant"),
+                "AmbientCharacters/crew_attendant_expressions"),
             D("CREW_ENGINEER", "기관 승무원", "crew_engineer",
-                "AmbientCharacters/crew_engineer"),
+                "AmbientCharacters/crew_engineer_expressions"),
             D("CREW_SECURITY", "보안 승무원", "crew_security",
-                "AmbientCharacters/crew_security"),
-            W("DOCK_PORTER", "항만 운반원", PublicSpecialists, 0),
-            W("VIP_HOST", "VIP 라운지 매니저", PublicSpecialists, 1),
+                "AmbientCharacters/crew_security_expressions"),
+            W("DOCK_PORTER", "항만 운반원", "dock_porter"),
+            W("VIP_HOST", "VIP 라운지 매니저", "VIP_host"),
             W("BALLROOM_MUSICIAN", "무도회장 바이올리니스트",
-                PublicSpecialists, 2),
+                "ballroom_musician"),
             W("DINING_SOMMELIER", "식당 소믈리에",
-                PublicSpecialists, 3),
-            W("ATRIUM_GUIDE", "중앙 홀 안내원", PublicSpecialists, 4),
+                "dining_sommelier"),
+            W("ATRIUM_GUIDE", "중앙 홀 안내원", "atrium_guide"),
             W("SECURITY_OPERATOR", "보안 관제원",
-                OperationsSpecialists, 0),
+                "security_operator"),
             W("RAIL_TECHNICIAN", "서비스 레일 기술자",
-                OperationsSpecialists, 1),
-            W("SHIP_MEDIC", "선내 의무관", OperationsSpecialists, 2),
+                "rail_technician"),
+            W("SHIP_MEDIC", "선내 의무관", "ship_medic"),
             W("BALLAST_CONTROLLER", "밸러스트 제어원",
-                OperationsSpecialists, 3),
+                "ballast_controller"),
             W("CHIEF_ENGINEER", "수석 기관사",
-                OperationsSpecialists, 4),
+                "chief_engineer"),
             W("SUITE_STEWARD", "스위트 전담 승무원",
-                ServiceSpecialists, 0),
-            W("ARCHIVIST", "선박 기록 보관관", ServiceSpecialists, 1),
+                "suite_steward"),
+            W("ARCHIVIST", "선박 기록 보관관", "archivist"),
             W("LAUNDRY_SUPERVISOR", "세탁실 감독관",
-                ServiceSpecialists, 2),
-            W("ROBOTICS_TECH", "로봇 정비사", ServiceSpecialists, 3),
+                "suite_steward"),
+            W("ROBOTICS_TECH", "로봇 정비사", "robotics_tech"),
             W("WORKSHOP_MACHINIST", "공작실 기계공",
-                ServiceSpecialists, 4)
+                "chief_engineer")
         };
 
         private static readonly IReadOnlyDictionary<string, DialoguePortraitDefinition>
@@ -222,7 +215,11 @@ namespace Wake.Narrative
                 return default;
             }
 
-            Rect crop = definition.FallbackCrop;
+            Rect crop = definition.FallbackTexture.EndsWith(
+                "_expressions",
+                StringComparison.OrdinalIgnoreCase)
+                ? SpecialistExpressionCrop(emotion)
+                : definition.FallbackCrop;
             return new DialoguePortraitAsset(
                 true,
                 fallback,
@@ -254,15 +251,27 @@ namespace Wake.Narrative
             if (fallback == null)
                 return default;
 
-            Rect uv = fallbackPath.Contains(
-                "world_atlas_",
-                StringComparison.OrdinalIgnoreCase)
-                ? new Rect(
+            Rect uv;
+            if (fallbackPath.EndsWith(
+                    "_expressions",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                uv = new Rect(0f, 0f, 0.25f, 1f);
+            }
+            else if (fallbackPath.Contains(
+                         "world_atlas_",
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                uv = new Rect(
                     definition.FallbackCrop.x,
                     0f,
                     definition.FallbackCrop.width,
-                    1f)
-                : new Rect(0f, 0f, 1f, 1f);
+                    1f);
+            }
+            else
+            {
+                uv = new Rect(0f, 0f, 1f, 1f);
+            }
             return FullFigure(fallback, uv);
         }
 
@@ -291,20 +300,25 @@ namespace Wake.Narrative
         private static DialoguePortraitDefinition W(
             string id,
             string displayName,
-            string atlas,
-            int column)
+            string resourceName)
         {
-            const float cellWidth = 0.2f;
             return D(
                 id,
                 displayName,
                 id.ToLowerInvariant(),
-                atlas,
-                new Rect(
-                    column * cellWidth,
-                    0.38f,
-                    cellWidth,
-                    0.62f));
+                $"AmbientCharacters/{resourceName}_expressions",
+                new Rect(0.25f, 0f, 0.25f, 1f));
+        }
+
+        private static Rect SpecialistExpressionCrop(PortraitEmotion emotion)
+        {
+            int column = emotion switch
+            {
+                PortraitEmotion.Concerned => 2,
+                PortraitEmotion.Angry => 3,
+                _ => 1
+            };
+            return new Rect(column * 0.25f, 0f, 0.25f, 1f);
         }
 
         private static DialoguePortraitAsset FullFigure(

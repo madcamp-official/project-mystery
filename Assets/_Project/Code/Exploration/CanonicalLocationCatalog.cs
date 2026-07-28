@@ -88,8 +88,20 @@ namespace Wake.Exploration
         };
 
         public static IReadOnlyList<CanonicalLocationSpec> All => Definitions;
+        public static IReadOnlyList<CanonicalLocationSpec> StoryRelevant =>
+            Definitions
+                .Where(spec => ProductionSceneCatalog.All.Any(scene =>
+                    FindSpec(scene.NarrativeLocationCode)?.Code == spec.Code))
+                .ToArray();
         public static IReadOnlyCollection<string> UnresolvedCodes =>
             Array.Empty<string>();
+
+        public static bool IsStoryRelevant(string code)
+        {
+            CanonicalLocationSpec spec = FindSpec(code);
+            return spec != null && ProductionSceneCatalog.All.Any(scene =>
+                FindSpec(scene.NarrativeLocationCode)?.Code == spec.Code);
+        }
 
         public static CanonicalLocationSpec FindSpec(string code)
         {

@@ -27,10 +27,25 @@ namespace Wake.UI
             }
         }
 
-        public void OnPointerEnter(PointerEventData _) => Apply(1.055f, 1.16f);
+        public void OnPointerEnter(PointerEventData _)
+        {
+            UiInteractionToken token = UiVisualThemeService.Interaction;
+            Apply(token.HoverScale, token.HoverBrightness);
+        }
+
         public void OnPointerExit(PointerEventData _) => Apply(1f, 1f);
-        public void OnPointerDown(PointerEventData _) => Apply(0.98f, 1.08f);
-        public void OnPointerUp(PointerEventData _) => Apply(1.055f, 1.16f);
+
+        public void OnPointerDown(PointerEventData _)
+        {
+            UiInteractionToken token = UiVisualThemeService.Interaction;
+            Apply(token.PressedScale, token.PressedBrightness);
+        }
+
+        public void OnPointerUp(PointerEventData _)
+        {
+            UiInteractionToken token = UiVisualThemeService.Interaction;
+            Apply(token.HoverScale, token.HoverBrightness);
+        }
 
         private void Apply(float scale, float brightness)
         {
@@ -287,9 +302,7 @@ namespace Wake.UI
         private GameObject presentation;
 
         private static readonly Color Ink = new(0.018f, 0.025f, 0.052f, 0.97f);
-        private static readonly Color Purple = new(0.19f, 0.12f, 0.29f, 0.98f);
         private static readonly Color Gold = new(0.79f, 0.60f, 0.29f, 1f);
-        private static readonly Color Ivory = new(0.94f, 0.89f, 0.78f, 1f);
 
         private void Start()
         {
@@ -352,6 +365,7 @@ namespace Wake.UI
             CreateBorder(root);
             CreateLogo(root);
             CreateMenu(root, originalStart, originalSettings);
+            CreateFooter(root);
             presentation.AddComponent<UiPanelEntranceAnimator>();
         }
 
@@ -378,11 +392,9 @@ namespace Wake.UI
             GameObject shade = SaveSlotSelectionController.Panel(
                 root, "Left Readability Shade", Color.clear);
             RectTransform rect = shade.GetComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = new Vector2(0.47f, 1f);
-            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            SaveSlotSelectionController.Stretch(rect);
             Image image = shade.GetComponent<Image>();
-            image.color = new Color(0.005f, 0.008f, 0.025f, 0.34f);
+            image.color = new Color(0.005f, 0.008f, 0.025f, 0.22f);
             image.raycastTarget = false;
         }
 
@@ -391,9 +403,7 @@ namespace Wake.UI
             GameObject border = SaveSlotSelectionController.Panel(
                 root, "Nautical Border", Color.clear);
             RectTransform rect = border.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.012f, 0.022f);
-            rect.anchorMax = new Vector2(0.988f, 0.978f);
-            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            SaveSlotSelectionController.Stretch(rect);
             Image image = border.GetComponent<Image>();
             image.color = Color.clear;
             image.raycastTarget = false;
@@ -410,8 +420,9 @@ namespace Wake.UI
                 typeof(Image));
             logoObject.transform.SetParent(root, false);
             RectTransform logoRect = logoObject.GetComponent<RectTransform>();
-            logoRect.anchorMin = logoRect.anchorMax = new Vector2(0.225f, 0.75f);
-            logoRect.sizeDelta = new Vector2(560f, 315f);
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
+                logoRect,
+                ScreenRegionIds.ContextTopLeft);
             Image logo = logoObject.GetComponent<Image>();
             logo.sprite =
                 Resources.Load<Sprite>("UiOverhaul/logo_transparent");
@@ -424,38 +435,111 @@ namespace Wake.UI
             Button originalStart,
             Button originalSettings)
         {
+            GameObject menuObject = new(
+                "Title Menu",
+                typeof(RectTransform),
+                typeof(VerticalLayoutGroup));
+            menuObject.transform.SetParent(root, false);
+            RectTransform menu = menuObject.GetComponent<RectTransform>();
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
+                menu,
+                ScreenRegionIds.ToolsBottomLeft);
+            VerticalLayoutGroup layout =
+                menuObject.GetComponent<VerticalLayoutGroup>();
+            layout.spacing =
+                UiVisualThemeService.Resolve(UiSpacingToken.Small);
+            layout.padding = new RectOffset(0, 0, 0, 0);
+            layout.childAlignment = TextAnchor.MiddleCenter;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
             Button start = CreateTitleButton(
-                root, "시작하기", new Vector2(-525f, 25f), true);
+                menu, "시작하기", "시작", UiButtonStyle.Primary);
             start.onClick.AddListener(() => originalStart?.onClick.Invoke());
 
             Button settings = CreateTitleButton(
-                root, "환경 설정", new Vector2(-525f, -65f), false);
+                menu, "설정", "설정", UiButtonStyle.Secondary);
             settings.onClick.AddListener(() => originalSettings?.onClick.Invoke());
 
+            Button credits = CreateTitleButton(
+                menu, "크레딧", "크레딧", UiButtonStyle.Secondary);
+            credits.onClick.AddListener(
+                () => UIManager.Instance?.ShowCredits());
+
             Button quit = CreateTitleButton(
-                root, "게임 종료", new Vector2(-525f, -155f), false);
-            quit.onClick.AddListener(Application.Quit);
+                menu, "종료", "종료", UiButtonStyle.Danger);
+            quit.gameObject.name = "Quit Game Button";
+            quit.onClick.AddListener(
+                () => UIManager.Instance?.RequestQuit());
+        }
+
+        public static void QuitGame()
+        {
+#if UNITY_EDITOR
+            System.Type editorApplication = System.Type.GetType(
+                "UnityEditor.EditorApplication, UnityEditor");
+            editorApplication?.GetProperty("isPlaying")?.SetValue(null, false);
+#else
+            Application.Quit();
+#endif
         }
 
         private static Button CreateTitleButton(
-            RectTransform root,
+            RectTransform parent,
+            string name,
             string label,
-            Vector2 position,
-            bool primary)
+            UiButtonStyle style)
         {
             Button button = SaveSlotSelectionController.MakeButton(
-                root, label, position, new Vector2(410f, 68f));
-            button.image.color = primary ? Purple : new Color(
-                Ivory.r, Ivory.g, Ivory.b, 0.96f);
+                parent, name, Vector2.zero, Vector2.zero);
+            LayoutElement element =
+                button.gameObject.AddComponent<LayoutElement>();
+            element.preferredHeight = 52f;
+            element.minHeight = 44f;
             TMP_Text text = SaveSlotSelectionController.MakeText(
                 button.transform as RectTransform,
                 label,
-                29f,
+                26f,
                 Vector2.zero,
-                new Vector2(350f, 54f));
-            text.color = primary ? Ivory : Ink;
-            text.fontStyle = FontStyles.Bold;
+                Vector2.zero);
+            SaveSlotSelectionController.Stretch(text.rectTransform);
+            UiVisualThemeService.ApplyButton(button, style);
             return button;
+        }
+
+        private static void CreateFooter(RectTransform root)
+        {
+            TMP_Text copyright = SaveSlotSelectionController.MakeText(
+                root,
+                "© MAD CAMP · UNDER THE HORIZON",
+                18f,
+                Vector2.zero,
+                Vector2.zero);
+            copyright.name = "Copyright";
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
+                copyright.rectTransform,
+                ScreenRegionIds.ReadingBottom);
+            copyright.alignment = TextAlignmentOptions.BottomLeft;
+            UiVisualThemeService.ApplyText(
+                copyright,
+                UiTextStyle.Caption);
+
+            TMP_Text version = SaveSlotSelectionController.MakeText(
+                root,
+                $"버전 {Application.version}",
+                18f,
+                Vector2.zero,
+                Vector2.zero);
+            version.name = "Version";
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
+                version.rectTransform,
+                ScreenRegionIds.PrimaryBottomRight);
+            version.alignment = TextAlignmentOptions.BottomRight;
+            UiVisualThemeService.ApplyText(
+                version,
+                UiTextStyle.Technical);
         }
 
     }
@@ -476,7 +560,9 @@ namespace Wake.UI
         private Coroutine revealRoutine;
         private int pendingSlot;
         private bool pendingContinue;
+        private bool pendingDelete;
         private readonly TMP_Text[] slotLabels = new TMP_Text[3];
+        private readonly Button[] deleteButtons = new Button[3];
 
         public void Open()
         {
@@ -592,60 +678,197 @@ namespace Wake.UI
             overlay = Panel(
                 transform,
                 "Save Slot Selection",
-                new Color32(5, 9, 23, 248));
+                UiVisualThemeService.Resolve(UiColorToken.Canvas));
             RectTransform root = overlay.GetComponent<RectTransform>();
             Stretch(root);
             contentRect = root;
             GameObject frame = Panel(
-                root, "Slot Frame", new Color32(10, 16, 35, 238));
+                root,
+                "Slot Frame",
+                UiVisualThemeService.Resolve(UiColorToken.Surface));
             RectTransform frameRect = frame.GetComponent<RectTransform>();
-            frameRect.anchorMin = new Vector2(.08f, .12f);
-            frameRect.anchorMax = new Vector2(.92f, .88f);
-            frameRect.offsetMin = frameRect.offsetMax = Vector2.zero;
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
+                frameRect,
+                ScreenRegionIds.ContentCenter);
             frame.AddComponent<Outline>().effectColor =
-                new Color32(194, 149, 72, 255);
-            MakeText(
+                UiVisualThemeService.Resolve(UiColorToken.Brass);
+            HorizontalLayoutGroup cards =
+                frame.AddComponent<HorizontalLayoutGroup>();
+            cards.spacing =
+                UiVisualThemeService.Resolve(UiSpacingToken.Medium);
+            int padding = Mathf.RoundToInt(
+                UiVisualThemeService.Resolve(UiSpacingToken.Large));
+            cards.padding =
+                new RectOffset(padding, padding, padding, padding);
+            cards.childAlignment = TextAnchor.MiddleCenter;
+            cards.childControlWidth = true;
+            cards.childControlHeight = true;
+            cards.childForceExpandWidth = true;
+            cards.childForceExpandHeight = true;
+
+            TMP_Text heading = MakeText(
                 root,
                 "항해 기록 선택",
                 46,
-                new Vector2(0, 380),
-                new Vector2(700, 70));
+                Vector2.zero,
+                Vector2.zero);
+            heading.name = "Title";
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
+                heading.rectTransform,
+                ScreenRegionIds.ObjectiveTop);
+            UiVisualThemeService.ApplyText(
+                heading,
+                UiTextStyle.Display);
             TMP_Text guide = MakeText(
                 root,
                 "저장된 기록은 이어서, 빈 기록은 처음부터 시작합니다.",
                 21,
-                new Vector2(0, 320),
-                new Vector2(760, 45));
-            guide.color = new Color32(196, 183, 159, 255);
+                Vector2.zero,
+                Vector2.zero);
+            guide.name = "Guide";
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
+                guide.rectTransform,
+                ScreenRegionIds.ReadingBottom);
+            UiVisualThemeService.ApplyText(
+                guide,
+                UiTextStyle.Body);
 
             for (int index = 0; index < 3; index++)
             {
                 int slot = index + 1;
+                GameObject card = new(
+                    $"Slot Card {slot}",
+                    typeof(RectTransform),
+                    typeof(VerticalLayoutGroup),
+                    typeof(LayoutElement));
+                card.transform.SetParent(frameRect, false);
+                LayoutElement cardElement =
+                    card.GetComponent<LayoutElement>();
+                cardElement.minWidth = 220f;
+                cardElement.flexibleWidth = 1f;
+                VerticalLayoutGroup cardLayout =
+                    card.GetComponent<VerticalLayoutGroup>();
+                cardLayout.spacing =
+                    UiVisualThemeService.Resolve(UiSpacingToken.Small);
+                cardLayout.childAlignment = TextAnchor.MiddleCenter;
+                cardLayout.childControlWidth = true;
+                cardLayout.childControlHeight = true;
+                cardLayout.childForceExpandWidth = true;
+                cardLayout.childForceExpandHeight = false;
+
                 Button button = MakeButton(
-                    root, $"Save Slot {slot}",
-                    new Vector2((index - 1) * 410f, 25f),
-                    new Vector2(350f, 390f));
+                    card.transform as RectTransform,
+                    $"Save Slot {slot}",
+                    Vector2.zero,
+                    Vector2.zero);
+                LayoutElement element =
+                    button.gameObject.AddComponent<LayoutElement>();
+                element.minHeight = 190f;
+                element.flexibleHeight = 1f;
                 slotLabels[index] = MakeText(
                     button.transform as RectTransform, string.Empty, 25,
-                    Vector2.zero, new Vector2(300f, 310f));
+                    Vector2.zero, Vector2.zero);
+                Stretch(slotLabels[index].rectTransform);
+                UiVisualThemeService.ApplyButton(
+                    button,
+                    UiButtonStyle.Secondary);
                 button.onClick.AddListener(() => Ask(slot));
+
+                Button delete = MakeButton(
+                    card.transform as RectTransform,
+                    $"Delete Slot {slot}",
+                    Vector2.zero,
+                    Vector2.zero);
+                LayoutElement deleteElement =
+                    delete.gameObject.AddComponent<LayoutElement>();
+                deleteElement.preferredHeight = 52f;
+                deleteElement.minHeight = 46f;
+                TMP_Text deleteLabel = MakeText(
+                    delete.transform as RectTransform,
+                    "삭제",
+                    21f,
+                    Vector2.zero,
+                    Vector2.zero);
+                Stretch(deleteLabel.rectTransform);
+                UiVisualThemeService.ApplyButton(
+                    delete,
+                    UiButtonStyle.Danger);
+                delete.onClick.AddListener(() => AskDelete(slot));
+                deleteButtons[index] = delete;
             }
             Button close = MakeButton(
-                root, "닫기", new Vector2(0, -385), new Vector2(230, 62));
-            MakeText(close.transform as RectTransform, "돌아가기", 24, Vector2.zero, new Vector2(180, 48));
+                root, "닫기", Vector2.zero, Vector2.zero);
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
+                close.transform as RectTransform,
+                ScreenRegionIds.ToolsBottomLeft);
+            TMP_Text closeLabel = MakeText(
+                close.transform as RectTransform,
+                "돌아가기",
+                24,
+                Vector2.zero,
+                Vector2.zero);
+            Stretch(closeLabel.rectTransform);
+            UiVisualThemeService.ApplyButton(
+                close,
+                UiButtonStyle.Secondary);
             close.onClick.AddListener(Close);
 
-            confirmation = Panel(root, "Start Confirmation", new Color32(4, 10, 21, 252));
+            confirmation = Panel(
+                root,
+                "Start Confirmation",
+                UiVisualThemeService.Resolve(UiColorToken.SurfaceOverlay));
             RectTransform confirmRect = confirmation.GetComponent<RectTransform>();
-            confirmRect.anchorMin = confirmRect.anchorMax = new Vector2(.5f, .5f);
-            confirmRect.sizeDelta = new Vector2(650f, 330f);
-            TMP_Text message = MakeText(confirmRect, string.Empty, 28, new Vector2(0, 55), new Vector2(560, 130));
+            Stretch(confirmRect);
+            TMP_Text message = MakeText(
+                confirmRect,
+                string.Empty,
+                28,
+                Vector2.zero,
+                Vector2.zero);
             message.name = "Message";
-            Button yes = MakeButton(confirmRect, "Confirm", new Vector2(-135, -95), new Vector2(220, 58));
-            MakeText(yes.transform as RectTransform, "확인", 24, Vector2.zero, new Vector2(180, 48));
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
+                message.rectTransform,
+                ScreenRegionIds.ContentCenter);
+            UiVisualThemeService.ApplyText(
+                message,
+                UiTextStyle.BodyLarge);
+            Button yes = MakeButton(
+                confirmRect,
+                "Confirm",
+                Vector2.zero,
+                Vector2.zero);
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
+                yes.transform as RectTransform,
+                ScreenRegionIds.PrimaryBottomRight);
+            TMP_Text yesLabel = MakeText(
+                yes.transform as RectTransform,
+                "확인",
+                24,
+                Vector2.zero,
+                Vector2.zero);
+            Stretch(yesLabel.rectTransform);
+            UiVisualThemeService.ApplyButton(
+                yes,
+                UiButtonStyle.Primary);
             yes.onClick.AddListener(Confirm);
-            Button no = MakeButton(confirmRect, "Cancel", new Vector2(135, -95), new Vector2(220, 58));
-            MakeText(no.transform as RectTransform, "취소", 24, Vector2.zero, new Vector2(180, 48));
+            Button no = MakeButton(
+                confirmRect,
+                "Cancel",
+                Vector2.zero,
+                Vector2.zero);
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
+                no.transform as RectTransform,
+                ScreenRegionIds.ToolsBottomLeft);
+            TMP_Text noLabel = MakeText(
+                no.transform as RectTransform,
+                "취소",
+                24,
+                Vector2.zero,
+                Vector2.zero);
+            Stretch(noLabel.rectTransform);
+            UiVisualThemeService.ApplyButton(
+                no,
+                UiButtonStyle.Secondary);
             no.onClick.AddListener(() => confirmation.SetActive(false));
             confirmation.SetActive(false);
             overlay.SetActive(false);
@@ -664,8 +887,9 @@ namespace Wake.UI
                         ? new Color32(51, 34, 78, 252)
                         : new Color32(18, 31, 52, 252);
                 }
+                deleteButtons[index].gameObject.SetActive(occupied);
                 slotLabels[index].text =
-                    $"—  SLOT {index + 1}  —\n\n" +
+                    $"항해 기록 {index + 1}\n\n" +
                     (occupied
                         ? "저장된 수사 기록\n\n이어하기"
                         : "비어 있는 기록\n\n새로하기");
@@ -676,6 +900,7 @@ namespace Wake.UI
         {
             pendingSlot = slot;
             pendingContinue = GameStateManager.HasSaveDataInSlot(slot);
+            pendingDelete = false;
             confirmation.transform.Find("Message").GetComponent<TMP_Text>().text =
                 pendingContinue
                     ? $"{slot}번 슬롯의 수사를 이어하시겠습니까?"
@@ -684,9 +909,29 @@ namespace Wake.UI
             confirmation.transform.SetAsLastSibling();
         }
 
+        private void AskDelete(int slot)
+        {
+            pendingSlot = slot;
+            pendingContinue = false;
+            pendingDelete = true;
+            confirmation.transform.Find("Message").GetComponent<TMP_Text>().text =
+                $"{slot}번 슬롯의 저장 기록을 삭제하시겠습니까?\n" +
+                "삭제한 기록은 복구할 수 없습니다.";
+            confirmation.SetActive(true);
+            confirmation.transform.SetAsLastSibling();
+        }
+
         private void Confirm()
         {
             confirmation.SetActive(false);
+            if (pendingDelete)
+            {
+                GameStateManager.DeleteSaveSlot(pendingSlot);
+                pendingDelete = false;
+                Refresh();
+                return;
+            }
+
             overlay.SetActive(false);
             if (pendingContinue)
             {
@@ -696,6 +941,14 @@ namespace Wake.UI
             {
                 UIManager.Instance?.StartNewGameInSlot(pendingSlot);
             }
+        }
+
+        private void Close()
+        {
+            confirmation.SetActive(false);
+            overlay.SetActive(false);
+            UIManager.Instance?.SetSystemScreenState(
+                SystemScreenState.Title);
         }
 
         internal static GameObject Panel(Transform parent, string name, Color color)
