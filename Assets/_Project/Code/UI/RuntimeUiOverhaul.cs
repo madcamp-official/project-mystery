@@ -547,8 +547,18 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class SaveSlotSelectionController : MonoBehaviour
     {
+        private const float RevealDuration = 1.6f;
+        private static readonly Vector3 WaterRevealStart = new(0f, -17f, 2f);
+        private static readonly Vector3 WaterRevealEnd = new(0f, -4f, 2f);
+
         private GameObject overlay;
         private GameObject confirmation;
+        private RectTransform contentRect;
+        private RectTransform lobbyContent;
+        private RectTransform ingamePanel;
+        private Transform water;
+        private LightShaftEffect lightShaft;
+        private Coroutine revealRoutine;
         private int pendingSlot;
         private bool pendingContinue;
         private bool pendingDelete;
@@ -561,6 +571,106 @@ namespace Wake.UI
             Refresh();
             overlay.SetActive(true);
             confirmation.SetActive(false);
+            PlayTransition(showing: true);
+        }
+
+        private void Close()
+        {
+            confirmation.SetActive(false);
+            PlayTransition(showing: false);
+            UIManager.Instance?.SetSystemScreenState(
+                SystemScreenState.Title);
+        }
+
+        private void PlayTransition(bool showing)
+        {
+            if (revealRoutine != null)
+            {
+                StopCoroutine(revealRoutine);
+            }
+            revealRoutine = StartCoroutine(TransitionRoutine(showing));
+        }
+
+        private IEnumerator TransitionRoutine(bool showing)
+        {
+            float travel = ((RectTransform)transform).rect.height;
+            Vector2 shown = Vector2.zero;
+            Vector2 hidden = new Vector2(0f, -travel);
+            Vector2 from = showing ? hidden : shown;
+            Vector2 to = showing ? shown : hidden;
+            Vector3 waterFrom = showing ? WaterRevealStart : WaterRevealEnd;
+            Vector3 waterTo = showing ? WaterRevealEnd : WaterRevealStart;
+            Vector2 lobbyShown = Vector2.zero;
+            Vector2 lobbyExited = new Vector2(0f, travel);
+            Vector2 lobbyFrom = showing ? lobbyShown : lobbyExited;
+            Vector2 lobbyTo = showing ? lobbyExited : lobbyShown;
+
+            contentRect.anchoredPosition = from;
+            water = water != null ? water : GameObject.Find("water")?.transform;
+            lightShaft = lightShaft != null
+                ? lightShaft
+                : water?.GetComponentInChildren<LightShaftEffect>(true);
+            if (lightShaft != null && !lightShaft.gameObject.activeSelf)
+            {
+                lightShaft.gameObject.SetActive(true);
+            }
+            lobbyContent = lobbyContent != null
+                ? lobbyContent
+                : transform.Find("Title Presentation") as RectTransform;
+            if (water != null)
+            {
+                water.position = waterFrom;
+            }
+            lightShaft?.SetIntensity(showing ? 0f : 1f);
+            if (lobbyContent != null)
+            {
+                lobbyContent.anchoredPosition = lobbyFrom;
+            }
+
+            float elapsed = 0f;
+            while (elapsed < RevealDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.SmoothStep(0f, 1f, elapsed / RevealDuration);
+                contentRect.anchoredPosition =
+                    Vector2.LerpUnclamped(from, to, t);
+                if (water != null)
+                {
+                    water.position = Vector3.LerpUnclamped(waterFrom, waterTo, t);
+                }
+                if (lobbyContent != null)
+                {
+                    lobbyContent.anchoredPosition =
+                        Vector2.LerpUnclamped(lobbyFrom, lobbyTo, t);
+                }
+                lightShaft?.SetIntensity(showing ? t : 1f - t);
+                yield return null;
+            }
+
+            contentRect.anchoredPosition = to;
+            if (water != null)
+            {
+                water.position = waterTo;
+            }
+            if (lobbyContent != null)
+            {
+                lobbyContent.anchoredPosition = lobbyTo;
+            }
+            lightShaft?.SetIntensity(showing ? 1f : 0f);
+            if (!showing)
+            {
+                overlay.SetActive(false);
+            }
+            revealRoutine = null;
+        }
+
+        private void OnDisable()
+        {
+            if (revealRoutine != null)
+            {
+                StopCoroutine(revealRoutine);
+                revealRoutine = null;
+            }
         }
 
         private void EnsureBuilt()
@@ -575,6 +685,7 @@ namespace Wake.UI
                 UiVisualThemeService.Resolve(UiColorToken.Canvas));
             RectTransform root = overlay.GetComponent<RectTransform>();
             Stretch(root);
+            contentRect = root;
             GameObject frame = Panel(
                 root,
                 "Slot Frame",
@@ -825,23 +936,60 @@ namespace Wake.UI
                 return;
             }
 
-            overlay.SetActive(false);
-            if (pendingContinue)
+            if (revealRoutine != null)
             {
-                UIManager.Instance?.ContinueGameInSlot(pendingSlot);
+                StopCoroutine(revealRoutine);
+            }
+            revealRoutine = StartCoroutine(
+                EnterGameRoutine(pendingSlot, pendingContinue));
+        }
+
+        private IEnumerator EnterGameRoutine(int slot, bool continuing)
+        {
+            ingamePanel = ingamePanel != null
+                ? ingamePanel
+                : GameObject.Find("Canvas")?.transform.Find("Ingame")
+                    as RectTransform;
+
+            float travel = ((RectTransform)transform).rect.height;
+            Vector2 ingameHidden = new Vector2(0f, -travel);
+            Vector2 ingameShown = Vector2.zero;
+
+            if (ingamePanel != null)
+            {
+                ingamePanel.gameObject.SetActive(true);
+                ingamePanel.anchoredPosition = ingameHidden;
+            }
+
+            Coroutine exitRoutine = StartCoroutine(TransitionRoutine(showing: false));
+
+            float elapsed = 0f;
+            while (elapsed < RevealDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.SmoothStep(0f, 1f, elapsed / RevealDuration);
+                if (ingamePanel != null)
+                {
+                    ingamePanel.anchoredPosition =
+                        Vector2.LerpUnclamped(ingameHidden, ingameShown, t);
+                }
+                yield return null;
+            }
+            if (ingamePanel != null)
+            {
+                ingamePanel.anchoredPosition = ingameShown;
+            }
+            yield return exitRoutine;
+
+            revealRoutine = null;
+            if (continuing)
+            {
+                UIManager.Instance?.ContinueGameInSlot(slot);
             }
             else
             {
-                UIManager.Instance?.StartNewGameInSlot(pendingSlot);
+                UIManager.Instance?.StartNewGameInSlot(slot);
             }
-        }
-
-        private void Close()
-        {
-            confirmation.SetActive(false);
-            overlay.SetActive(false);
-            UIManager.Instance?.SetSystemScreenState(
-                SystemScreenState.Title);
         }
 
         internal static GameObject Panel(Transform parent, string name, Color color)
