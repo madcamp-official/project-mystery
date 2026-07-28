@@ -88,6 +88,44 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator EvidenceRecord_UsesAuthoredMetadataAndScrollViewport()
+        {
+            Assert.That(
+                EvidenceInventory.Instance.TryAddById("C-01"),
+                Is.True);
+
+            Ui.ShowEvidence();
+            yield return null;
+
+            TMP_Text title =
+                RequireComponent<TMP_Text>("Evidence/Text (TMP)");
+            TMP_Text acquisition =
+                RequireComponent<TMP_Text>("Evidence/Acquisition Place");
+            TMP_Text relatedPeople =
+                RequireComponent<TMP_Text>("Evidence/Related People");
+            TMP_Text reliability =
+                RequireComponent<TMP_Text>("Evidence/Reliability");
+            TMP_Text description =
+                RequireComponent<TMP_Text>(
+                    "Evidence/Description Viewport/Description");
+            ScrollRect scroll =
+                RequireComponent<ScrollRect>(
+                    "Evidence/Description Viewport");
+
+            Assert.That(title.text, Is.Not.Empty);
+            Assert.That(title.text, Does.Not.Contain("C-"));
+            Assert.That(acquisition.text, Does.Contain("획득 장소"));
+            Assert.That(relatedPeople.text, Does.Contain("관련 인물"));
+            Assert.That(reliability.text, Is.Not.Empty);
+            Assert.That(
+                description.overflowMode,
+                Is.EqualTo(TextOverflowModes.Overflow));
+            Assert.That(scroll.vertical, Is.True);
+            Assert.That(scroll.content, Is.SameAs(description.rectTransform));
+            AssertNoRuntimeErrors("조사 기록 상세 화면");
+        }
+
+        [UnityTest]
         public IEnumerator NewGame_ShowsNaturalLanguageObjectiveHud()
         {
             yield return StartNewGameFromVisibleButton(
