@@ -135,6 +135,13 @@ namespace Wake.UI
 
         public bool Open(string puzzleId)
         {
+            if (ProductionPuzzleDefinition.Normalize(puzzleId) ==
+                ProductionPuzzleCatalog.BloodPattern)
+            {
+                return FindFirstObjectByType<BloodDirectionPuzzleUIController>()
+                    ?.Open() ?? false;
+            }
+
             GameStateManager state = GameStateManager.Instance;
             if (!ProductionPuzzleCatalog.TryGet(puzzleId, out var definition) ||
                 !ProductionSceneCompletionGate.CanStartInteraction(

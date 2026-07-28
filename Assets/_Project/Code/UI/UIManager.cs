@@ -160,6 +160,8 @@ namespace Wake.UI
                 ingamePanel));
             RegisterModal(EnsureComponent<ProductionPuzzleUIController>(
                 ingamePanel));
+            RegisterModal(EnsureComponent<BloodDirectionPuzzleUIController>(
+                ingamePanel));
             RegisterModal(EnsureComponent<FinalAccusationUIController>(
                 ingamePanel));
             RegisterModal(EnsureComponent<MarcusInterrogationUIController>(
