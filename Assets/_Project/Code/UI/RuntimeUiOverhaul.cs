@@ -598,11 +598,9 @@ namespace Wake.UI
             revealRoutine = StartCoroutine(TransitionRoutine(showing));
         }
 
-        private static float EaseInCubic(float t) => t * t * t;
-
-        private static float EaseOutCubic(float t) => 1f - Mathf.Pow(1f - t, 3f);
-
         private static float EaseOutQuint(float t) => 1f - Mathf.Pow(1f - t, 5f);
+
+        private static float EaseInQuint(float t) => t * t * t * t * t;
 
         // Trapezoidal velocity profile: slow ramp-up, hard accel into a
         // brief peak-speed cruise, then decel to a full stop.
@@ -643,10 +641,37 @@ namespace Wake.UI
             apply(1f);
         }
 
-        // Two-stage motion: submerging accelerates into the dive (ease-in),
-        // then the save slot panel decelerates as it settles into view
-        // (ease-out). Closing plays the same two stages in reverse order
-        // so the panel dives out first and the water settles back last.
+        private IEnumerator MoveRect(
+            RectTransform rect, Vector2 from, Vector2 to,
+            Func<float, float> ease, float duration)
+        {
+            return RunSegment(duration, ease, t =>
+            {
+                if (rect != null)
+                {
+                    rect.anchoredPosition = Vector2.LerpUnclamped(from, to, t);
+                }
+            });
+        }
+
+        private IEnumerator MoveWater(
+            Vector3 from, Vector3 to, Func<float, float> ease,
+            float duration, bool intensityRising)
+        {
+            return RunSegment(duration, ease, t =>
+            {
+                if (water != null)
+                {
+                    water.position = Vector3.LerpUnclamped(from, to, t);
+                }
+                lightShaft?.SetIntensity(intensityRising ? t : 1f - t);
+            });
+        }
+
+        // Symmetric three-stage motion in both directions: opening plays
+        // lobby-exit -> water dive -> slot-rise; closing plays the exact
+        // mirror, slot-exit -> water-surface -> lobby-return, so the two
+        // directions read as the same fall replayed backwards.
         private IEnumerator TransitionRoutine(bool showing)
         {
             float travel = ((RectTransform)transform).rect.height;
@@ -683,68 +708,28 @@ namespace Wake.UI
                 lobbyContent.anchoredPosition = lobbyFrom;
             }
 
-            IEnumerator PanelStage(Func<float, float> ease, float duration)
-            {
-                return RunSegment(duration, ease, t =>
-                {
-                    contentRect.anchoredPosition =
-                        Vector2.LerpUnclamped(slotFrom, slotTo, t);
-                    if (lobbyContent != null)
-                    {
-                        lobbyContent.anchoredPosition =
-                            Vector2.LerpUnclamped(lobbyFrom, lobbyTo, t);
-                    }
-                });
-            }
-
-            IEnumerator LobbyOnly(Func<float, float> ease, float duration)
-            {
-                return RunSegment(duration, ease, t =>
-                {
-                    if (lobbyContent != null)
-                    {
-                        lobbyContent.anchoredPosition =
-                            Vector2.LerpUnclamped(lobbyFrom, lobbyTo, t);
-                    }
-                });
-            }
-
-            IEnumerator SlotOnly(Func<float, float> ease, float duration)
-            {
-                return RunSegment(duration, ease, t =>
-                {
-                    contentRect.anchoredPosition =
-                        Vector2.LerpUnclamped(slotFrom, slotTo, t);
-                });
-            }
-
-            IEnumerator WaterStage(
-                Func<float, float> ease, float duration, bool intensityRising)
-            {
-                return RunSegment(duration, ease, t =>
-                {
-                    if (water != null)
-                    {
-                        water.position =
-                            Vector3.LerpUnclamped(waterFrom, waterTo, t);
-                    }
-                    lightShaft?.SetIntensity(intensityRising ? t : 1f - t);
-                });
-            }
-
             if (showing)
             {
-                Coroutine lobbyExit =
-                    StartCoroutine(LobbyOnly(WaterTrapezoid, LobbyExitDuration));
+                Coroutine lobbyExit = StartCoroutine(MoveRect(
+                    lobbyContent, lobbyFrom, lobbyTo, WaterTrapezoid, LobbyExitDuration));
                 yield return new WaitForSecondsRealtime(LobbyLeadIn);
-                yield return WaterStage(WaterTrapezoid, DiveDuration, true);
+                yield return MoveWater(waterFrom, waterTo, WaterTrapezoid, DiveDuration, true);
                 yield return lobbyExit;
-                yield return SlotOnly(EaseOutQuint, RiseDuration);
+                yield return MoveRect(
+                    contentRect, slotFrom, slotTo, EaseOutQuint, RiseDuration);
             }
             else
             {
-                yield return PanelStage(EaseInCubic, DiveDuration);
-                yield return WaterStage(EaseOutCubic, RiseDuration, false);
+                yield return MoveRect(
+                    contentRect, slotFrom, slotTo, EaseInQuint, RiseDuration);
+                Coroutine waterSurface = StartCoroutine(
+                    MoveWater(waterFrom, waterTo, WaterTrapezoid, DiveDuration, false));
+                yield return new WaitForSecondsRealtime(
+                    Mathf.Max(0f, DiveDuration - LobbyLeadIn));
+                Coroutine lobbyEnter = StartCoroutine(MoveRect(
+                    lobbyContent, lobbyFrom, lobbyTo, WaterTrapezoid, LobbyExitDuration));
+                yield return waterSurface;
+                yield return lobbyEnter;
             }
 
             contentRect.anchoredPosition = slotTo;
@@ -1044,6 +1029,9 @@ namespace Wake.UI
                 EnterGameRoutine(pendingSlot, pendingContinue));
         }
 
+        // Mirrors TransitionRoutine's closing half exactly, except the
+        // panel that rises into view at the end is Ingame instead of the
+        // lobby - same slot-exit -> water-surface -> tail-entrance shape.
         private IEnumerator EnterGameRoutine(int slot, bool continuing)
         {
             ingamePanel = ingamePanel != null
@@ -1052,8 +1040,15 @@ namespace Wake.UI
                     as RectTransform;
 
             float travel = ((RectTransform)transform).rect.height;
+            Vector2 slotShown = Vector2.zero;
+            Vector2 slotHidden = new Vector2(0f, -travel * PanelTravelExtra);
             Vector2 ingameHidden = new Vector2(0f, -travel);
             Vector2 ingameShown = Vector2.zero;
+
+            water = water != null ? water : GameObject.Find("water")?.transform;
+            lightShaft = lightShaft != null
+                ? lightShaft
+                : water?.GetComponentInChildren<LightShaftEffect>(true);
 
             if (ingamePanel != null)
             {
@@ -1061,25 +1056,29 @@ namespace Wake.UI
                 ingamePanel.anchoredPosition = ingameHidden;
             }
 
-            Coroutine exitRoutine = StartCoroutine(TransitionRoutine(showing: false));
+            yield return MoveRect(
+                contentRect, slotShown, slotHidden, EaseInQuint, RiseDuration);
+            Coroutine waterSurface = StartCoroutine(MoveWater(
+                WaterRevealEnd, WaterRevealStart, WaterTrapezoid, DiveDuration, false));
+            yield return new WaitForSecondsRealtime(
+                Mathf.Max(0f, DiveDuration - LobbyLeadIn));
+            Coroutine ingameEnter = ingamePanel != null
+                ? StartCoroutine(MoveRect(
+                    ingamePanel, ingameHidden, ingameShown, WaterTrapezoid, LobbyExitDuration))
+                : null;
+            yield return waterSurface;
+            if (ingameEnter != null)
+            {
+                yield return ingameEnter;
+            }
 
-            float elapsed = 0f;
-            while (elapsed < RevealDuration)
+            contentRect.anchoredPosition = slotHidden;
+            if (water != null)
             {
-                elapsed += Time.unscaledDeltaTime;
-                float t = Mathf.SmoothStep(0f, 1f, elapsed / RevealDuration);
-                if (ingamePanel != null)
-                {
-                    ingamePanel.anchoredPosition =
-                        Vector2.LerpUnclamped(ingameHidden, ingameShown, t);
-                }
-                yield return null;
+                water.position = WaterRevealStart;
             }
-            if (ingamePanel != null)
-            {
-                ingamePanel.anchoredPosition = ingameShown;
-            }
-            yield return exitRoutine;
+            lightShaft?.SetIntensity(0f);
+            overlay.SetActive(false);
 
             revealRoutine = null;
             if (continuing)
