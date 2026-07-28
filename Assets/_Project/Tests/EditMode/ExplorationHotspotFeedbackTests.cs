@@ -90,6 +90,29 @@ namespace Wake.Tests
             }
         }
 
+        [Test]
+        public void Feedback_ResetTransientStateClearsClickFocusResidue()
+        {
+            GameObject root = CreateFeedbackTarget(
+                out ExplorationHotspotFeedback feedback,
+                out TMP_Text label);
+            try
+            {
+                feedback.Configure("Talk", label);
+                feedback.OnPointerEnter(null);
+                feedback.OnSelect(null);
+                Assert.That(feedback.IsIndicatorVisible, Is.True);
+
+                feedback.ResetTransientState();
+
+                Assert.That(feedback.IsIndicatorVisible, Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
         private static GameObject CreateFeedbackTarget(
             out ExplorationHotspotFeedback feedback,
             out TMP_Text label)

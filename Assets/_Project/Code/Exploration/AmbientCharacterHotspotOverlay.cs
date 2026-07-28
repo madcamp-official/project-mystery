@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Wake.Narrative;
 using Wake.UI;
@@ -339,6 +340,18 @@ namespace Wake.Exploration
             {
                 view?.Target?.SetActive(visible);
                 view?.GroundShadowObject?.SetActive(visible);
+                if (!visible || view?.Target == null)
+                    continue;
+
+                view.Target
+                    .GetComponent<ExplorationHotspotFeedback>()
+                    ?.ResetTransientState();
+                if (EventSystem.current != null &&
+                    EventSystem.current.currentSelectedGameObject ==
+                    view.Target)
+                {
+                    EventSystem.current.SetSelectedGameObject(null);
+                }
             }
         }
 

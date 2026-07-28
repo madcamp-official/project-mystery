@@ -179,15 +179,18 @@ namespace Wake.Tests.PlayMode
             RawImage portrait =
                 RequireComponent<RawImage>(
                     "Ingame/Speaker Portrait");
-            GameObject mapNavigation =
+            GameObject legacyMapNavigation =
                 RequireObject("Ingame/Map Btn");
+            GameObject globalNavigation =
+                RequireObject("Exploration Global Navigation");
             Assert.That(portrait.texture, Is.Not.Null);
             Assert.That(portrait.uvRect.y, Is.Zero.Within(0.001f));
             Assert.That(portrait.uvRect.height, Is.EqualTo(1f).Within(0.001f));
             Assert.That(
-                mapNavigation.activeSelf,
+                globalNavigation.activeSelf,
                 Is.False,
                 "Navigation controls must hide while dialogue is active.");
+            Assert.That(legacyMapNavigation.activeSelf, Is.False);
 
             string presented = line.text;
             int guard = 0;
@@ -217,9 +220,13 @@ namespace Wake.Tests.PlayMode
             dialogue.CancelActiveDialogue();
             yield return null;
             Assert.That(
-                mapNavigation.activeSelf,
+                globalNavigation.activeSelf,
                 Is.True,
                 "Navigation controls must return after dialogue ends.");
+            Assert.That(
+                legacyMapNavigation.activeSelf,
+                Is.False,
+                "Legacy navigation must stay hidden after dialogue ends.");
         }
 
         [UnityTest]
@@ -433,6 +440,21 @@ namespace Wake.Tests.PlayMode
             Assert.That(
                 RequireObject("Settings Popup").transform.GetSiblingIndex(),
                 Is.EqualTo(Canvas.childCount - 1));
+            Assert.That(
+                RequireObject("Settings Popup/Settings/Credit").activeSelf,
+                Is.False);
+            AssertInsideSafeArea(
+                RequireComponent<RectTransform>(
+                    "Settings Popup/Settings"),
+                "설정 패널");
+            AssertInsideSafeArea(
+                RequireComponent<RectTransform>(
+                    "Settings Popup/Close"),
+                "설정 닫기");
+            AssertInsideSafeArea(
+                RequireComponent<RectTransform>(
+                    "Settings Popup/Exit Btn"),
+                "게임 종료");
 
             CanvasGroup evidenceInput =
                 RequireObject("Evidence").GetComponent<CanvasGroup>();

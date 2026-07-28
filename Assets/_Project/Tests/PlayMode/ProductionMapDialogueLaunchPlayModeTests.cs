@@ -28,7 +28,7 @@ namespace Wake.Tests.PlayMode
             Assert.That(gangway.interactable, Is.True);
             Assert.That(
                 gangway.GetComponentInChildren<TMP_Text>().text,
-                Does.Contain("이동 가능"));
+                Is.EqualTo("승선 통로"));
 
             yield return InvokeAndSettle(gangway);
 
@@ -56,7 +56,11 @@ namespace Wake.Tests.PlayMode
                 .First();
             TMP_Text rendered =
                 RequireText("Ingame/Line Panel/Panel/line");
-            Assert.That(rendered.text, Is.EqualTo(expected.TextKo));
+            Assert.That(rendered.text, Is.Not.Empty);
+            Assert.That(
+                expected.TextKo,
+                Does.StartWith(rendered.text),
+                "첫 대사 페이지는 CSV 원문 앞부분과 일치해야 합니다.");
             AssertKoreanTextIsIntact(rendered.text);
             AssertNoRuntimeErrors("맵에서 P-02 대화 시작");
         }
@@ -72,7 +76,7 @@ namespace Wake.Tests.PlayMode
             Assert.That(gangway.interactable, Is.False);
             Assert.That(
                 gangway.GetComponentInChildren<TMP_Text>().text,
-                Does.Contain("선행 장면 필요"));
+                Is.EqualTo("승선 통로"));
 
             SceneTravelResult result = map.TryTravelToScene("P-02");
             yield return null;
@@ -101,7 +105,7 @@ namespace Wake.Tests.PlayMode
             Assert.That(gangway.interactable, Is.True);
             Assert.That(
                 gangway.GetComponentInChildren<TMP_Text>().text,
-                Does.Contain("완료"));
+                Is.EqualTo("승선 통로"));
 
             yield return InvokeAndSettle(gangway);
 
@@ -146,10 +150,7 @@ namespace Wake.Tests.PlayMode
 
             Assert.That(RequireSceneButton("P-02").interactable, Is.True);
             Button laundry = RequireLocationButton("LAUNDRY");
-            Assert.That(laundry.interactable, Is.False);
-            Assert.That(
-                laundry.GetComponentInChildren<TMP_Text>().text,
-                Does.Contain("승선 완료 후 이동 가능"));
+            Assert.That(laundry.gameObject.activeSelf, Is.False);
 
             State.RecordCompletedScene("P-02");
             State.UnlockProductionScene("P-03");
@@ -160,9 +161,9 @@ namespace Wake.Tests.PlayMode
             Assert.That(suite.interactable, Is.True);
             Assert.That(
                 suite.GetComponentInChildren<TMP_Text>().text,
-                Does.Contain("이동 가능"));
+                Is.EqualTo("리처드 스위트룸"));
             Assert.That(
-                RequireLocationButton("LAUNDRY").interactable,
+                RequireLocationButton("LAUNDRY").gameObject.activeSelf,
                 Is.False);
 
             State.RecordCompletedScene("P-03");
@@ -170,10 +171,7 @@ namespace Wake.Tests.PlayMode
             yield return WaitForMap();
 
             laundry = RequireLocationButton("LAUNDRY");
-            Assert.That(laundry.interactable, Is.True);
-            Assert.That(
-                laundry.GetComponentInChildren<TMP_Text>().text,
-                Does.Contain("자유 이동"));
+            Assert.That(laundry.gameObject.activeSelf, Is.False);
             AssertNoRuntimeErrors("프롤로그 순차 이동");
         }
 
