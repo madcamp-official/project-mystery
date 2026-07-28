@@ -192,27 +192,44 @@ namespace Wake.UI
         {
             bool locked =
                 entry.Status == ProductionMapEntryStatus.Locked;
+            bool current = string.Equals(
+                entry.Spec.Code,
+                GameStateManager.Instance?.CurrentLocationCode,
+                StringComparison.OrdinalIgnoreCase);
             node.Root.SetActive(true);
             node.Image.sprite = mapNodeSprite;
             node.Image.type = mapNodeSprite != null
                 ? Image.Type.Sliced
                 : Image.Type.Simple;
-            node.Image.color = locked
+            node.Image.color = current
+                ? UiVisualThemeService.Resolve(UiColorToken.Cream)
+                : locked
                 ? UiVisualThemeService.Resolve(UiColorToken.Disabled)
                 : entry.Status == ProductionMapEntryStatus.Completed
                     ? UiVisualThemeService.Resolve(UiColorToken.Success)
                     : UiVisualThemeService.Resolve(UiColorToken.Brass);
-            node.Outline.effectColor = locked
+            node.Outline.effectColor = current
+                ? UiVisualThemeService.Resolve(UiColorToken.Brass)
+                : locked
                 ? UiVisualThemeService.Resolve(UiColorToken.SurfaceOverlay)
                 : UiVisualThemeService.Resolve(UiColorToken.Focus);
+            node.Outline.effectDistance =
+                current ? new Vector2(5f, -5f) : new Vector2(2f, -2f);
             node.Button.interactable = !locked;
             node.Button.onClick.RemoveAllListeners();
-            node.Button.onClick.AddListener(() => SelectEntry(entry));
+            if (current)
+                node.Button.onClick.AddListener(
+                    () => UIManager.Instance?.ShowIngame());
+            else
+                node.Button.onClick.AddListener(() => SelectEntry(entry));
             node.Label.text =
-                $"{entry.Spec.DisplayName}\n{entry.StatusLabel}";
+                $"{entry.Spec.DisplayName}\n" +
+                (current ? "현재 위치" : entry.StatusLabel);
             node.Label.color = locked
                 ? UiVisualThemeService.Resolve(UiColorToken.TextSecondary)
-                : UiVisualThemeService.Resolve(UiColorToken.TextPrimary);
+                : current
+                    ? UiVisualThemeService.Resolve(UiColorToken.Canvas)
+                    : UiVisualThemeService.Resolve(UiColorToken.TextPrimary);
         }
 
         private void SelectEntry(ProductionMapEntry entry)

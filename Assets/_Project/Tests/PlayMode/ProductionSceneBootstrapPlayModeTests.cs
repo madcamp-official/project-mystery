@@ -221,6 +221,7 @@ namespace Wake.Tests.PlayMode
         public IEnumerator AmbientCharacters_AppearInsideBackgroundAndStayClickable()
         {
             yield return StartNewGameFromVisibleButton();
+            Dialogue.CancelActiveDialogue();
             yield return null;
             UnityEngine.Canvas.ForceUpdateCanvases();
 
@@ -278,10 +279,14 @@ namespace Wake.Tests.PlayMode
                     character.material.shader.name,
                     Is.EqualTo("Wake/UI/Ambient Character Blend"),
                     $"{button.name} must use the background blend shader.");
+                ExplorationHotspotFeedback feedback =
+                    button.GetComponent<ExplorationHotspotFeedback>();
+                Assert.That(feedback, Is.Not.Null);
                 Assert.That(
-                    button.GetComponentInChildren<TMP_Text>(),
-                    Is.Null,
-                    $"{button.name} must not use a separate dialogue box.");
+                    feedback.IsIndicatorVisible,
+                    Is.False,
+                    $"{button.name} label must stay hidden until hover, " +
+                    "focus, or accessibility mode.");
                 AmbientBarkRecord bark = AmbientBarkCatalog
                     .GetAvailable("PORT", State)
                     .FirstOrDefault(item =>
