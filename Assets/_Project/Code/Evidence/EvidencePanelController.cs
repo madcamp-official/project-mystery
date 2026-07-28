@@ -4,10 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using Wake.UI;
 
-// Layout Y reference (Evidence panel is center-anchored on the full canvas):
-// Status HUD bottom edge sits at local y=+89, carousel row at y=-195 -
-// everything between must stay inside that band or it renders under/behind the HUD.
-
 namespace Wake.Evidence
 {
     public class EvidencePanelController : MonoBehaviour
@@ -75,9 +71,14 @@ namespace Wake.Evidence
 
             titleText = evidenceRoot.Find("Text (TMP)").GetComponent<TMP_Text>();
 
-            Transform descriptionTransform = evidenceRoot.Find("Image/Evidence");
-            descriptionTransform.SetParent(evidenceRoot, false);
-            descriptionTransform.name = "Description";
+            Transform descriptionTransform =
+                evidenceRoot.Find("Description") ??
+                evidenceRoot.Find("Image/Evidence");
+            if (descriptionTransform.parent != evidenceRoot)
+            {
+                descriptionTransform.SetParent(evidenceRoot, false);
+                descriptionTransform.name = "Description";
+            }
             detailText = descriptionTransform.GetComponent<TMP_Text>();
             detailText.textWrappingMode = TextWrappingModes.Normal;
             detailText.alignment = TextAlignmentOptions.TopLeft;
@@ -86,15 +87,9 @@ namespace Wake.Evidence
             detailText.fontSizeMax = 28f;
             detailText.overflowMode = TextOverflowModes.Truncate;
 
-            LayoutRects();
-
             nextButton = evidenceRoot.Find("Next").GetComponent<Button>();
             prevButton = evidenceRoot.Find("Next (1)").GetComponent<Button>();
             backButton = evidenceRoot.Find("Back Btn").GetComponent<Button>();
-            SetRect(
-                backButton.GetComponent<RectTransform>(),
-                new Vector2(790f, -455f),
-                new Vector2(190f, 62f));
             turnLeftButton = evidenceRoot.Find("Turn").GetComponent<Button>();
             turnRightButton = evidenceRoot.Find("Turn (1)").GetComponent<Button>();
             theoryBoardButton =
@@ -115,59 +110,8 @@ namespace Wake.Evidence
                 theoryBoardButton.GetComponentInChildren<TMP_Text>(true));
         }
 
-        private void LayoutRects()
-        {
-            RectTransform root = evidenceRoot as RectTransform;
-            root.anchorMin = Vector2.zero;
-            root.anchorMax = Vector2.one;
-            root.offsetMin = root.offsetMax = Vector2.zero;
-            root.localScale = Vector3.one;
-            Image background = evidenceRoot.GetComponent<Image>() ??
-                               evidenceRoot.gameObject.AddComponent<Image>();
-            background.color = new Color32(8, 18, 34, 255);
-            background.raycastTarget = false;
-
-            const float CarouselY = -300f;
-
-            SetRect(
-                detailImage.rectTransform,
-                new Vector2(-360f, 70f),
-                new Vector2(520f, 340f));
-            SetRect(
-                titleText.rectTransform,
-                new Vector2(280f, 185f),
-                new Vector2(650f, 70f));
-            titleText.fontSize = 38f;
-            titleText.alignment = TextAlignmentOptions.TopLeft;
-            titleText.color = new Color32(242, 222, 180, 255);
-
-            SetRect(
-                detailText.rectTransform,
-                new Vector2(280f, -30f),
-                new Vector2(650f, 340f));
-            detailText.color = new Color32(222, 211, 190, 255);
-
-            SetRect(
-                carouselContainer.GetComponent<RectTransform>(),
-                new Vector2(0f, CarouselY),
-                new Vector2(1260f, 190f));
-
-            RectTransform turnLeftRect = (RectTransform)evidenceRoot.Find("Turn");
-            SetRect(turnLeftRect, new Vector2(-160f, -135f), turnLeftRect.sizeDelta);
-            RectTransform turnRightRect = (RectTransform)evidenceRoot.Find("Turn (1)");
-            SetRect(turnRightRect, new Vector2(-160f, 75f), turnRightRect.sizeDelta);
-
-            RectTransform prevRect = (RectTransform)evidenceRoot.Find("Next (1)");
-            SetRect(prevRect, new Vector2(-720f, CarouselY), prevRect.sizeDelta);
-            RectTransform nextRect = (RectTransform)evidenceRoot.Find("Next");
-            SetRect(nextRect, new Vector2(720f, CarouselY), nextRect.sizeDelta);
-        }
-
         private void ConfigureTheoryBoardButton()
         {
-            theoryBoardButton.gameObject.SetActive(true);
-            RectTransform rect = theoryBoardButton.GetComponent<RectTransform>();
-            SetRect(rect, new Vector2(330f, 110f), new Vector2(180f, 58f));
             TMP_Text label = theoryBoardButton.GetComponentInChildren<TMP_Text>(true);
             if (label != null)
             {
@@ -181,12 +125,6 @@ namespace Wake.Evidence
             evidenceRoot
                 .GetComponent<EvidenceTheoryBoardController>()
                 ?.Open();
-        }
-
-        private static void SetRect(RectTransform rect, Vector2 anchoredPosition, Vector2 sizeDelta)
-        {
-            rect.anchoredPosition = anchoredPosition;
-            rect.sizeDelta = sizeDelta;
         }
 
         public void Refresh()
