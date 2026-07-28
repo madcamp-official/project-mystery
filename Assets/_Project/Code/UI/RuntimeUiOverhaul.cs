@@ -463,8 +463,17 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class SaveSlotSelectionController : MonoBehaviour
     {
+        private const float RevealDuration = 1.6f;
+        private static readonly Vector3 WaterRevealStart = new(0f, -17f, 2f);
+        private static readonly Vector3 WaterRevealEnd = new(0f, -4f, 2f);
+
         private GameObject overlay;
         private GameObject confirmation;
+        private RectTransform contentRect;
+        private RectTransform lobbyContent;
+        private Transform water;
+        private LightShaftEffect lightShaft;
+        private Coroutine revealRoutine;
         private int pendingSlot;
         private bool pendingContinue;
         private readonly TMP_Text[] slotLabels = new TMP_Text[3];
@@ -475,6 +484,103 @@ namespace Wake.UI
             Refresh();
             overlay.SetActive(true);
             confirmation.SetActive(false);
+            PlayTransition(showing: true);
+        }
+
+        private void Close()
+        {
+            PlayTransition(showing: false);
+        }
+
+        private void PlayTransition(bool showing)
+        {
+            if (revealRoutine != null)
+            {
+                StopCoroutine(revealRoutine);
+            }
+            revealRoutine = StartCoroutine(TransitionRoutine(showing));
+        }
+
+        private IEnumerator TransitionRoutine(bool showing)
+        {
+            float travel = ((RectTransform)transform).rect.height;
+            Vector2 shown = Vector2.zero;
+            Vector2 hidden = new Vector2(0f, -travel);
+            Vector2 from = showing ? hidden : shown;
+            Vector2 to = showing ? shown : hidden;
+            Vector3 waterFrom = showing ? WaterRevealStart : WaterRevealEnd;
+            Vector3 waterTo = showing ? WaterRevealEnd : WaterRevealStart;
+            Vector2 lobbyShown = Vector2.zero;
+            Vector2 lobbyExited = new Vector2(0f, travel);
+            Vector2 lobbyFrom = showing ? lobbyShown : lobbyExited;
+            Vector2 lobbyTo = showing ? lobbyExited : lobbyShown;
+
+            contentRect.anchoredPosition = from;
+            water = water != null ? water : GameObject.Find("water")?.transform;
+            lightShaft = lightShaft != null
+                ? lightShaft
+                : water?.GetComponentInChildren<LightShaftEffect>(true);
+            if (lightShaft != null && !lightShaft.gameObject.activeSelf)
+            {
+                lightShaft.gameObject.SetActive(true);
+            }
+            lobbyContent = lobbyContent != null
+                ? lobbyContent
+                : transform.Find("Title Presentation") as RectTransform;
+            if (water != null)
+            {
+                water.position = waterFrom;
+            }
+            lightShaft?.SetIntensity(showing ? 0f : 1f);
+            if (lobbyContent != null)
+            {
+                lobbyContent.anchoredPosition = lobbyFrom;
+            }
+
+            float elapsed = 0f;
+            while (elapsed < RevealDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.SmoothStep(0f, 1f, elapsed / RevealDuration);
+                contentRect.anchoredPosition =
+                    Vector2.LerpUnclamped(from, to, t);
+                if (water != null)
+                {
+                    water.position = Vector3.LerpUnclamped(waterFrom, waterTo, t);
+                }
+                if (lobbyContent != null)
+                {
+                    lobbyContent.anchoredPosition =
+                        Vector2.LerpUnclamped(lobbyFrom, lobbyTo, t);
+                }
+                lightShaft?.SetIntensity(showing ? t : 1f - t);
+                yield return null;
+            }
+
+            contentRect.anchoredPosition = to;
+            if (water != null)
+            {
+                water.position = waterTo;
+            }
+            if (lobbyContent != null)
+            {
+                lobbyContent.anchoredPosition = lobbyTo;
+            }
+            lightShaft?.SetIntensity(showing ? 1f : 0f);
+            if (!showing)
+            {
+                overlay.SetActive(false);
+            }
+            revealRoutine = null;
+        }
+
+        private void OnDisable()
+        {
+            if (revealRoutine != null)
+            {
+                StopCoroutine(revealRoutine);
+                revealRoutine = null;
+            }
         }
 
         private void EnsureBuilt()
@@ -489,6 +595,7 @@ namespace Wake.UI
                 new Color32(5, 9, 23, 248));
             RectTransform root = overlay.GetComponent<RectTransform>();
             Stretch(root);
+            contentRect = root;
             GameObject frame = Panel(
                 root, "Slot Frame", new Color32(10, 16, 35, 238));
             RectTransform frameRect = frame.GetComponent<RectTransform>();
@@ -526,7 +633,7 @@ namespace Wake.UI
             Button close = MakeButton(
                 root, "닫기", new Vector2(0, -385), new Vector2(230, 62));
             MakeText(close.transform as RectTransform, "돌아가기", 24, Vector2.zero, new Vector2(180, 48));
-            close.onClick.AddListener(() => overlay.SetActive(false));
+            close.onClick.AddListener(Close);
 
             confirmation = Panel(root, "Start Confirmation", new Color32(4, 10, 21, 252));
             RectTransform confirmRect = confirmation.GetComponent<RectTransform>();
