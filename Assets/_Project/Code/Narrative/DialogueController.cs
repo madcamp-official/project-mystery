@@ -35,6 +35,7 @@ namespace Wake.Narrative
         private RawImage speakerPortrait;
         private AspectRatioFitter speakerPortraitAspect;
         private Button nextButton;
+        private DialogueAdvanceControl advanceControl;
         private GameObject choicesContainer;
         private Button[] choiceButtons;
         private TMP_Text[] choiceLabels;
@@ -80,6 +81,10 @@ namespace Wake.Narrative
             linePanel = linePanelTransform.gameObject;
             lineText = linePanelTransform.Find("Panel/line").GetComponent<TMP_Text>();
             nextButton = linePanelTransform.Find("Panel/Next").GetComponent<Button>();
+            advanceControl =
+                nextButton.GetComponent<DialogueAdvanceControl>() ??
+                nextButton.gameObject.AddComponent<DialogueAdvanceControl>();
+            advanceControl.Initialize(nextButton);
             speakerText = linePanelTransform.Find("Image/Text (TMP)").GetComponent<TMP_Text>();
             CreatePortrait(linePanelTransform);
 
@@ -150,6 +155,7 @@ namespace Wake.Narrative
             }
             investigationUi.Initialize(canvas);
             linePanel.SetActive(false);
+            advanceControl.SetState(DialogueAdvanceState.Hidden);
         }
 
         private void Update()
@@ -191,10 +197,14 @@ namespace Wake.Narrative
             int totalCharacters = lineText.textInfo.characterCount;
             if (totalCharacters <= 0)
             {
+                advanceControl?.SetState(
+                    DialogueAdvanceState.AdvanceLine);
                 return;
             }
 
             isTypewriterActive = true;
+            advanceControl?.SetState(
+                DialogueAdvanceState.RevealLine);
             if (isNarrationOrSystem && typewriterClip != null)
             {
                 typewriterAudioSource.Play();
@@ -231,6 +241,8 @@ namespace Wake.Narrative
             lineText.maxVisibleCharacters = int.MaxValue;
             isTypewriterActive = false;
             typewriterRoutine = null;
+            advanceControl?.SetState(
+                DialogueAdvanceState.AdvanceLine);
             if (typewriterAudioSource != null && typewriterAudioSource.isPlaying)
             {
                 typewriterAudioSource.Stop();
@@ -342,7 +354,7 @@ namespace Wake.Narrative
             IsBusy = true;
             linePanel.SetActive(true);
             choicesContainer.SetActive(false);
-            nextButton.gameObject.SetActive(true);
+            advanceControl.SetState(DialogueAdvanceState.AdvanceLine);
             speakerText.text = DialoguePortraitCatalog.GetDisplayName(speaker);
             ApplyPresentation(
                 DialoguePresentationPolicy.ForAmbient(
@@ -425,6 +437,7 @@ namespace Wake.Narrative
             linePanel?.SetActive(false);
             investigationUi?.Hide();
             choicesContainer?.SetActive(false);
+            advanceControl?.SetState(DialogueAdvanceState.Hidden);
             speakerPortrait?.gameObject.SetActive(false);
             FindFirstObjectByType<StatusHUDController>()
                 ?.ClearContextCharacter();
@@ -535,7 +548,10 @@ namespace Wake.Narrative
             SaveProductionCheckpoint();
             bool hasChoices = productionFlow.IsAwaitingChoice;
             choicesContainer.SetActive(hasChoices);
-            nextButton.gameObject.SetActive(!hasChoices);
+            advanceControl.SetState(
+                hasChoices
+                    ? DialogueAdvanceState.Hidden
+                    : DialogueAdvanceState.AdvanceLine);
             if (hasChoices)
             {
                 for (int i = 0; i < choiceButtons.Length; i++)
@@ -612,6 +628,7 @@ namespace Wake.Narrative
             StopTypewriter();
             ApplyPresentation(
                 DialoguePresentationPolicy.ForInvestigation());
+            advanceControl?.SetState(DialogueAdvanceState.Hidden);
             linePanel.SetActive(false);
             pendingInvestigationTitle =
                 InvestigationPresentationPolicy.MarkerTitle(marker);
@@ -636,6 +653,7 @@ namespace Wake.Narrative
             StopTypewriter();
             ApplyPresentation(
                 DialoguePresentationPolicy.ForInvestigation());
+            advanceControl?.SetState(DialogueAdvanceState.Hidden);
             linePanel.SetActive(false);
             string title = string.IsNullOrWhiteSpace(
                 pendingInvestigationTitle)
@@ -710,7 +728,10 @@ namespace Wake.Narrative
 
             bool hasBranch = currentNode.Options != null && currentNode.Options.Count > 1;
             choicesContainer.SetActive(hasBranch);
-            nextButton.gameObject.SetActive(!hasBranch);
+            advanceControl.SetState(
+                hasBranch
+                    ? DialogueAdvanceState.Hidden
+                    : DialogueAdvanceState.AdvanceLine);
 
             if (!hasBranch)
             {
@@ -819,6 +840,7 @@ namespace Wake.Narrative
             ambientLineActive = false;
             pendingInvestigationTitle = string.Empty;
             ApplyPresentation(DialoguePresentationPolicy.Hidden);
+            advanceControl?.SetState(DialogueAdvanceState.Hidden);
             investigationUi?.Hide();
             if (linePanel != null)
             {

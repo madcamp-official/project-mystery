@@ -30,6 +30,7 @@ namespace Wake.Editor
 
             BuildHud(layout);
             BuildDialogue(layout);
+            ConfigureDialogueAdvance(canvas);
             BuildModals(layout);
             BuildLocationOverlays(layout);
 
@@ -125,6 +126,32 @@ namespace Wake.Editor
             Slot(dialogue, "Investigation Overlay Slot",
                 "dialogue.investigation",
                 Vector2.zero, Vector2.one, Vector2.zero, magenta);
+        }
+
+        private static void ConfigureDialogueAdvance(RectTransform canvas)
+        {
+            Transform target =
+                canvas.Find("Ingame/Line Panel/Panel/Next");
+            if (target == null ||
+                !target.TryGetComponent(out UnityEngine.UI.Button button))
+            {
+                Debug.LogWarning(
+                    "Dialogue advance button was not found while authoring.");
+                return;
+            }
+
+            const string assetRoot =
+                "Assets/_Project/Art/UI/Dialogue/";
+            Sprite normal = AssetDatabase.LoadAssetAtPath<Sprite>(
+                assetRoot + "ui_btn_dialogue_advance_normal.png");
+            Sprite pressed = AssetDatabase.LoadAssetAtPath<Sprite>(
+                assetRoot + "ui_btn_dialogue_advance_pressed.png");
+            DialogueAdvanceControl control =
+                target.GetComponent<DialogueAdvanceControl>() ??
+                target.gameObject.AddComponent<DialogueAdvanceControl>();
+            control.Initialize(button);
+            control.SetSprites(normal, pressed);
+            EditorUtility.SetDirty(target.gameObject);
         }
 
         private static void BuildModals(RectTransform layout)
