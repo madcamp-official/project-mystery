@@ -438,6 +438,7 @@ namespace Wake.UI
                     ? UiSurfaceStyle.Overlay
                     : UiSurfaceStyle.Canvas);
             Stretch(screen.GetComponent<RectTransform>());
+            screen.AddComponent<UiPanelEntranceAnimator>();
             screen.SetActive(false);
             screens[state] = screen;
             return screen;
@@ -534,6 +535,7 @@ namespace Wake.UI
             RuntimeUiLayoutRegistry.CopyWorldLayout(rect, slotId);
             Button button = buttonObject.AddComponent<Button>();
             button.targetGraphic = buttonObject.GetComponent<Image>();
+            button.onClick.AddListener(PlayClickSfx);
             TMP_Text text = CreateStretchedLabel(
                 buttonObject.transform,
                 label);
@@ -575,6 +577,7 @@ namespace Wake.UI
                 UiSurfaceStyle.RaisedPanel);
             Button button = buttonObject.AddComponent<Button>();
             button.targetGraphic = buttonObject.GetComponent<Image>();
+            button.onClick.AddListener(PlayClickSfx);
             LayoutElement element =
                 buttonObject.AddComponent<LayoutElement>();
             element.preferredHeight = 76f;
@@ -583,6 +586,9 @@ namespace Wake.UI
             UiVisualThemeService.ApplyButton(button, style);
             return button;
         }
+
+        private static void PlayClickSfx() =>
+            AudioManager.Instance?.PlayButtonClick();
 
         private static TMP_Text CreateStretchedLabel(
             Transform parent,
