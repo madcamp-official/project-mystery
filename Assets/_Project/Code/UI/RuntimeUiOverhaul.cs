@@ -548,11 +548,11 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class SaveSlotSelectionController : MonoBehaviour
     {
-        private const float RevealDuration = 4f;
+        private const float RevealDuration = 4.4f;
         private const float DiveDuration = 2.2f;
         private const float RiseDuration = RevealDuration - DiveDuration;
-        private const float PanelTravelExtra = 1.8f;
-        private static readonly Vector3 WaterRevealStart = new(0f, -17f, 2f);
+        private const float PanelTravelExtra = 2.8f;
+        private static readonly Vector3 WaterRevealStart = new(0f, -48f, 2f);
         private static readonly Vector3 WaterRevealEnd = new(0f, -4f, 2f);
 
         private GameObject overlay;
@@ -598,6 +598,8 @@ namespace Wake.UI
         private static float EaseInCubic(float t) => t * t * t;
 
         private static float EaseOutCubic(float t) => 1f - Mathf.Pow(1f - t, 3f);
+
+        private static float EaseOutQuint(float t) => 1f - Mathf.Pow(1f - t, 5f);
 
         private static IEnumerator RunSegment(
             float duration, Func<float, float> ease, Action<float> apply)
@@ -683,7 +685,7 @@ namespace Wake.UI
             if (showing)
             {
                 yield return WaterStage(EaseInCubic, DiveDuration, true);
-                yield return PanelStage(EaseOutCubic, RiseDuration);
+                yield return PanelStage(EaseOutQuint, RiseDuration);
             }
             else
             {
