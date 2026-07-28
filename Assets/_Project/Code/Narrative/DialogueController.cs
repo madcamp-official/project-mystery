@@ -39,6 +39,7 @@ namespace Wake.Narrative
         private Button[] choiceButtons;
         private TMP_Text[] choiceLabels;
         private ResponsiveDialogueLayout responsiveLayout;
+        private DialoguePresentationView presentationView;
         private InvestigationDialogueUIController investigationUi;
 
         private DialogueSet currentSet;
@@ -123,6 +124,22 @@ namespace Wake.Narrative
                 nextButton.GetComponent<RectTransform>(),
                 selectBtn.GetComponent<RectTransform>(),
                 choiceButtons);
+            responsiveLayout.SetPresentationDriven(true);
+            presentationView =
+                canvas.GetComponent<DialoguePresentationView>();
+            if (presentationView == null)
+            {
+                presentationView =
+                    canvas.gameObject.AddComponent<
+                        DialoguePresentationView>();
+            }
+            presentationView.Initialize(
+                linePanelTransform.parent as RectTransform,
+                linePanelTransform as RectTransform,
+                speakerPortrait.GetComponent<RectTransform>(),
+                lineText,
+                speakerText,
+                nextButton.GetComponent<RectTransform>());
             investigationUi =
                 canvas.GetComponent<InvestigationDialogueUIController>();
             if (investigationUi == null)
@@ -888,6 +905,7 @@ namespace Wake.Narrative
                 return;
 
             ActivePresentation = presentation;
+            presentationView?.Apply(presentation);
             PresentationChanged?.Invoke(presentation);
         }
     }

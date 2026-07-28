@@ -117,6 +117,31 @@ namespace Wake.UI
             return true;
         }
 
+        public static bool CopyWorldLayout(
+            RectTransform runtimeRect,
+            string slotId)
+        {
+            if (runtimeRect == null ||
+                runtimeRect.parent is not RectTransform parent ||
+                !TryResolve(slotId, out RectTransform slot))
+            {
+                return false;
+            }
+
+            Bounds bounds =
+                RectTransformUtility.CalculateRelativeRectTransformBounds(
+                    parent,
+                    slot);
+            runtimeRect.anchorMin = Vector2.zero;
+            runtimeRect.anchorMax = Vector2.zero;
+            runtimeRect.pivot = new Vector2(0.5f, 0.5f);
+            runtimeRect.anchoredPosition = bounds.center;
+            runtimeRect.sizeDelta = bounds.size;
+            runtimeRect.localRotation = Quaternion.identity;
+            runtimeRect.localScale = Vector3.one;
+            return true;
+        }
+
         public static bool TryGetNormalizedRect(
             string slotId,
             out Rect normalizedRect)
