@@ -20,6 +20,24 @@ namespace Wake.UI
             "dialogue.focus-portrait-right";
         private const string CompactPortraitSlot =
             "dialogue.compact-portrait";
+        private const string DimSlot = "dialogue.dim";
+        private const string FocusTextLeftSlot =
+            "dialogue.focus-text-left";
+        private const string FocusTextRightSlot =
+            "dialogue.focus-text-right";
+        private const string CompactTextSlot = "dialogue.compact-text";
+        private const string NarrationTextSlot =
+            "dialogue.narration-text";
+        private const string SpeakerNameLeftSlot =
+            "dialogue.speaker-name-left";
+        private const string SpeakerNameRightSlot =
+            "dialogue.speaker-name-right";
+        private const string AdvanceLeftSlot = "dialogue.advance-left";
+        private const string AdvanceRightSlot = "dialogue.advance-right";
+        private const string AdvanceCenterSlot =
+            "dialogue.advance-center";
+        private const string ChoicesLeftSlot = "dialogue.choices-left";
+        private const string ChoicesRightSlot = "dialogue.choices-right";
         private const float PortraitSafeInset = 0.90f;
         private const float PortraitBottomPadding = 0.025f;
 
@@ -74,7 +92,7 @@ namespace Wake.UI
             if (!initialized || !active.IsVisible)
                 return;
 
-            ApplyTextLayout(active.Mode);
+            ApplyTextLayout(active);
             ApplyChoiceLayout();
         }
 
@@ -98,9 +116,9 @@ namespace Wake.UI
 
             string panelSlot = PanelSlotFor(presentation);
             RuntimeUiLayoutRegistry.CopyLayout(linePanel, panelSlot);
-            ApplyTextLayout(presentation.Mode);
-            ApplySpeakerPlate(presentation.ShowSpeakerName);
-            ApplyNextButton();
+            ApplyTextLayout(presentation);
+            ApplySpeakerPlate(presentation);
+            ApplyNextButton(presentation);
             ApplyChoiceLayout();
             ApplyPortrait(presentation);
             lastScreen = new Vector2Int(Screen.width, Screen.height);
@@ -137,6 +155,42 @@ namespace Wake.UI
                 : FocusPortraitRightSlot;
         }
 
+        public static string TextSlotFor(
+            DialoguePresentationSpec presentation) =>
+            presentation.Mode switch
+            {
+                DialoguePresentationMode.Compact => CompactTextSlot,
+                DialoguePresentationMode.Narration => NarrationTextSlot,
+                DialoguePresentationMode.Focus =>
+                    presentation.PortraitSide ==
+                    DialoguePortraitSide.Left
+                        ? FocusTextRightSlot
+                        : FocusTextLeftSlot,
+                _ => string.Empty
+            };
+
+        public static string SpeakerNameSlotFor(
+            DialoguePresentationSpec presentation) =>
+            presentation.PortraitSide == DialoguePortraitSide.Left
+                ? SpeakerNameRightSlot
+                : SpeakerNameLeftSlot;
+
+        public static string AdvanceSlotFor(
+            DialoguePresentationSpec presentation) =>
+            presentation.Mode is DialoguePresentationMode.Compact or
+                DialoguePresentationMode.Narration
+                ? AdvanceCenterSlot
+                : presentation.PortraitSide ==
+                  DialoguePortraitSide.Left
+                    ? AdvanceRightSlot
+                    : AdvanceLeftSlot;
+
+        public static string ChoicesSlotFor(
+            DialoguePresentationSpec presentation) =>
+            presentation.PortraitSide == DialoguePortraitSide.Left
+                ? ChoicesRightSlot
+                : ChoicesLeftSlot;
+
         public static bool ShouldShowHud(
             DialoguePresentationSpec presentation,
             UiPrimaryPanel primaryPanel) =>
@@ -161,10 +215,11 @@ namespace Wake.UI
                 node.transform.SetParent(ingameRoot, false);
 
             RectTransform rect = node.GetComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
+            if (!RuntimeUiLayoutRegistry.CopyWorldLayout(rect, DimSlot))
+            {
+                Debug.LogError(
+                    $"DialoguePresentationView requires '{DimSlot}'.");
+            }
             rect.SetAsFirstSibling();
             Image image = node.GetComponent<Image>();
             image.color = Color.clear;
@@ -211,20 +266,15 @@ namespace Wake.UI
             FitPortraitToSlot(presentation.PortraitHeightRatio);
         }
 
-        private void ApplyTextLayout(DialoguePresentationMode mode)
+        private void ApplyTextLayout(
+            DialoguePresentationSpec presentation)
         {
             if (textRect == null)
                 return;
 
-            bool compact = mode == DialoguePresentationMode.Compact;
-            float textBottom = choicesVisible ? 0.58f : 0.15f;
-            textRect.anchorMin = compact
-                ? new Vector2(0.30f, textBottom)
-                : new Vector2(0.08f, textBottom);
-            textRect.anchorMax = new Vector2(0.91f, 0.86f);
-            textRect.pivot = new Vector2(0f, 0.5f);
-            textRect.anchoredPosition = Vector2.zero;
-            textRect.sizeDelta = Vector2.zero;
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
+                textRect,
+                TextSlotFor(presentation));
 
             if (lineText == null)
                 return;
@@ -237,32 +287,31 @@ namespace Wake.UI
             lineText.margin = new Vector4(8f, 4f, 8f, 4f);
         }
 
-        private void ApplySpeakerPlate(bool visible)
+        private void ApplySpeakerPlate(
+            DialoguePresentationSpec presentation)
         {
             if (speakerPlate == null)
                 return;
 
+            bool visible = presentation.ShowSpeakerName;
             speakerPlate.gameObject.SetActive(visible);
             if (!visible)
                 return;
 
-            speakerPlate.anchorMin = new Vector2(0.06f, 1f);
-            speakerPlate.anchorMax = new Vector2(0.06f, 1f);
-            speakerPlate.pivot = new Vector2(0f, 0f);
-            speakerPlate.anchoredPosition = new Vector2(0f, 12f);
-            speakerPlate.sizeDelta = new Vector2(520f, 108f);
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
+                speakerPlate,
+                SpeakerNameSlotFor(presentation));
         }
 
-        private void ApplyNextButton()
+        private void ApplyNextButton(
+            DialoguePresentationSpec presentation)
         {
             if (nextButton == null)
                 return;
 
-            nextButton.anchorMin = new Vector2(0.94f, 0.12f);
-            nextButton.anchorMax = new Vector2(0.94f, 0.12f);
-            nextButton.pivot = new Vector2(0.5f, 0.5f);
-            nextButton.anchoredPosition = Vector2.zero;
-            nextButton.sizeDelta = new Vector2(88f, 88f);
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
+                nextButton,
+                AdvanceSlotFor(presentation));
         }
 
         private void ApplyChoiceLayout()
@@ -270,14 +319,9 @@ namespace Wake.UI
             if (choices == null)
                 return;
 
-            choices.anchorMin = new Vector2(0.05f, 0.06f);
-            choices.anchorMax = new Vector2(0.95f, 0.06f);
-            choices.pivot = new Vector2(0.5f, 0f);
-            choices.anchoredPosition = Vector2.zero;
-            float height = choices.sizeDelta.y > 0f
-                ? choices.sizeDelta.y
-                : 180f;
-            choices.sizeDelta = new Vector2(0f, height);
+            RuntimeUiLayoutRegistry.CopyWorldLayout(
+                choices,
+                ChoicesSlotFor(active));
         }
 
         private void FitPortraitToSlot(float heightRatio)
@@ -293,7 +337,7 @@ namespace Wake.UI
             float aspect = fitter != null && fitter.aspectRatio > 0f
                 ? fitter.aspectRatio
                 : 0.72f;
-            Vector2 slotSize = portrait.sizeDelta;
+            Vector2 slotSize = portrait.rect.size;
             float maximumHeight =
                 Mathf.Max(
                     1f,
@@ -309,10 +353,14 @@ namespace Wake.UI
                 height = width / aspect;
             }
 
-            portrait.sizeDelta = new Vector2(width, height);
-            portrait.anchoredPosition += new Vector2(
+            Vector2 anchorCenter =
+                (portrait.anchorMin + portrait.anchorMax) * 0.5f;
+            portrait.anchorMin = anchorCenter;
+            portrait.anchorMax = anchorCenter;
+            portrait.anchoredPosition = new Vector2(
                 0f,
                 slotSize.y * PortraitBottomPadding);
+            portrait.sizeDelta = new Vector2(width, height);
             if (fitter != null)
                 fitter.aspectMode = AspectRatioFitter.AspectMode.None;
         }

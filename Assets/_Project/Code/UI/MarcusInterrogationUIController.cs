@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Wake.Core;
 using Wake.Evidence;
@@ -16,6 +17,7 @@ namespace Wake.UI
         MonoBehaviour,
         IRuntimeModalController
     {
+        private static readonly Color Dim = new(0.01f, 0.02f, 0.04f, 0.72f);
         private static readonly Color Panel = new(0.035f, 0.075f, 0.12f, 0.98f);
         private static readonly Color Available = new(0.16f, 0.20f, 0.26f, 1f);
         private static readonly Color Selected = new(0.24f, 0.48f, 0.56f, 1f);
@@ -23,7 +25,7 @@ namespace Wake.UI
 
         private readonly List<Button> questionButtons = new();
         private GameObject root;
-        private TMP_Text remainingText;
+        private TMP_Text relationshipText;
         private TMP_Text statusText;
         private Button yesButton;
         private Button noButton;
@@ -67,10 +69,14 @@ namespace Wake.UI
                 session = null;
                 return false;
             }
+
             selectedQuestionId = null;
-            statusText.text = "질문을 선택한 뒤 Marcus의 답변을 기록하세요.";
+            statusText.text =
+                "확인할 질문을 고른 뒤 마커스의 답변을 기록하세요.";
             root.SetActive(true);
+            root.transform.SetAsLastSibling();
             Refresh();
+            FocusFirstAvailableQuestion();
             return true;
         }
 
@@ -90,8 +96,10 @@ namespace Wake.UI
             }
 
             selectedQuestionId = questionId;
-            statusText.text = "답변을 예 또는 아니오로 기록하세요.";
+            statusText.text = "마커스의 답변을 예 또는 아니요로 기록하세요.";
             Refresh();
+            EventSystem.current?.SetSelectedGameObject(
+                yesButton.gameObject);
             return true;
         }
 
@@ -108,15 +116,19 @@ namespace Wake.UI
             {
                 MarcusQuestionResult.Recorded => "답변을 기록했습니다.",
                 MarcusQuestionResult.AlreadyAsked => "이미 확인한 질문입니다.",
-                MarcusQuestionResult.LimitReached => "질문 횟수를 모두 사용했습니다.",
-                MarcusQuestionResult.SessionCompleted => "이미 종료된 심문입니다.",
-                _ => "등록되지 않은 질문입니다."
+                MarcusQuestionResult.LimitReached =>
+                    "더 이상 질문할 수 없습니다.",
+                MarcusQuestionResult.SessionCompleted =>
+                    "이미 종료된 심문입니다.",
+                _ => "기록할 수 없는 질문입니다."
             };
             if (result == MarcusQuestionResult.Recorded)
             {
                 selectedQuestionId = null;
             }
+
             Refresh();
+            FocusFirstAvailableQuestion();
             return result;
         }
 
@@ -127,7 +139,7 @@ namespace Wake.UI
                 return new MarcusInterrogationCompletion(
                     false,
                     MarcusAuthenticationResult.Unresolved,
-                    "심문 세션을 시작하지 못했습니다.");
+                    "심문을 시작하지 못했습니다.");
             }
 
             MarcusInterrogationCompletion result = session.Complete();
@@ -151,12 +163,19 @@ namespace Wake.UI
                 return;
             }
 
-            remainingText.text =
-                $"남은 질문 {session.RemainingQuestions}/{MarcusInterrogationSession.MaximumQuestions}";
+            int trust = GameStateManager.Instance?.GetTrust("MARCUS") ?? 0;
+            string relationship =
+                InterrogationRelationshipPresentation.ResolveTrust(trust);
+            string questionBudget =
+                InterrogationRelationshipPresentation.ResolveQuestionBudget(
+                    session.RemainingQuestions,
+                    MarcusInterrogationSession.MaximumQuestions);
+            relationshipText.text =
+                $"마커스 · {relationship} · {questionBudget}";
+
             for (int index = 0; index < questionButtons.Count; index++)
             {
-                MarcusQuestionDefinition definition =
-                    session.Definitions[index];
+                MarcusQuestionDefinition definition = session.Definitions[index];
                 Button button = questionButtons[index];
                 MarcusAnswerRecord? record = session.Answers
                     .Cast<MarcusAnswerRecord?>()
@@ -169,8 +188,10 @@ namespace Wake.UI
                     !asked && !session.IsCompleted && session.RemainingQuestions > 0;
                 button.image.color = asked ? Asked : selected ? Selected : Available;
                 button.GetComponentInChildren<TMP_Text>().text = asked
-                    ? $"[질문 완료: {AnswerLabel(record.Value.Answer)}] {definition.Prompt}"
-                    : $"{(selected ? "[선택됨]" : "[질문 가능]")} {definition.Prompt}";
+                    ? $"확인됨 · {definition.Prompt}"
+                    : selected
+                        ? $"선택 · {definition.Prompt}"
+                        : definition.Prompt;
             }
 
             bool canAnswer =
@@ -193,45 +214,49 @@ namespace Wake.UI
                 canvas,
                 typeof(Image));
             RectTransform rootRect = root.GetComponent<RectTransform>();
-            rootRect.anchorMin = new Vector2(0.5f, 0.5f);
-            rootRect.anchorMax = new Vector2(0.5f, 0.5f);
-            rootRect.sizeDelta = new Vector2(1000f, 700f);
-            RuntimeUiLayoutRegistry.CopyLayout(
-                rootRect,
-                "modal.marcus-interrogation");
-            root.GetComponent<Image>().color = Panel;
+            RequireLayout(rootRect, "interrogation.dim");
+            Image dim = root.GetComponent<Image>();
+            dim.color = Dim;
+            dim.raycastTarget = true;
 
-            MakeText(root.transform, "제한 심문: Marcus", 0.88f, 0.98f, 34f);
+            GameObject panel = MakeObject(
+                "Interrogation Panel",
+                root.transform,
+                typeof(Image));
+            RequireLayout(
+                panel.GetComponent<RectTransform>(),
+                "interrogation.panel");
+            panel.GetComponent<Image>().color = Panel;
+
             MakeText(
                 root.transform,
-                "최대 다섯 번의 질문으로 Evelyn의 금고 인증 경로를 확인하세요.",
-                0.80f,
-                0.88f,
-                20f);
-            remainingText = MakeText(
+                "제한 심문 · 마커스",
+                "interrogation.title",
+                34f,
+                TypographyRole.HeadingStrong);
+            MakeText(
+                root.transform,
+                "질문 기회가 제한되어 있습니다. 답변의 모순과 인증 경로를 확인하세요.",
+                "interrogation.guidance",
+                20f,
+                TypographyRole.BodyRegular);
+            relationshipText = MakeText(
                 root.transform,
                 string.Empty,
-                0.73f,
-                0.80f,
-                22f);
+                "interrogation.state",
+                22f,
+                TypographyRole.Heading);
 
             for (int index = 0;
                  index < MarcusInterrogationCatalog.OfficialQuestionCount;
                  index++)
             {
                 int captured = index;
-                MarcusQuestionGridCell cell =
-                    MarcusQuestionGridLayout.Calculate(
-                        index,
-                        MarcusInterrogationCatalog.OfficialQuestionCount);
                 Button button = MakeButton(
                     root.transform,
                     $"Question {index + 1}",
-                    cell.AnchorMin.y,
-                    cell.AnchorMax.y,
-                    string.Empty,
-                    cell.AnchorMin.x,
-                    cell.AnchorMax.x);
+                    $"interrogation.question.{index + 1}",
+                    string.Empty);
                 button.onClick.AddListener(() => SelectQuestionAt(captured));
                 questionButtons.Add(button);
             }
@@ -239,26 +264,33 @@ namespace Wake.UI
             statusText = MakeText(
                 root.transform,
                 string.Empty,
-                0.24f,
-                0.32f,
-                20f);
+                "interrogation.feedback",
+                20f,
+                TypographyRole.Body);
+            Button close = MakeButton(
+                root.transform,
+                "Back",
+                "interrogation.back",
+                "뒤로");
+            close.onClick.AddListener(Close);
             yesButton = MakeButton(
-                root.transform, "Yes", 0.13f, 0.21f, "예", 0.17f, 0.39f);
+                root.transform,
+                "Yes",
+                "interrogation.answer.yes",
+                "예");
             yesButton.onClick.AddListener(() => RecordAnswer(MarcusAnswer.Yes));
             noButton = MakeButton(
-                root.transform, "No", 0.13f, 0.21f, "아니오", 0.42f, 0.64f);
+                root.transform,
+                "No",
+                "interrogation.answer.no",
+                "아니요");
             noButton.onClick.AddListener(() => RecordAnswer(MarcusAnswer.No));
             completeButton = MakeButton(
-                root.transform, "Complete", 0.03f, 0.10f, "심문 종료", 0.56f, 0.79f);
-            completeButton.onClick.AddListener(() => Submit());
-            Button close = MakeButton(
-                root.transform, "Close", 0.03f, 0.10f, "닫기", 0.21f, 0.44f);
-            close.onClick.AddListener(Close);
-            InteractionTypography.Apply(
                 root.transform,
-                remainingText,
-                null,
-                statusText);
+                "Complete",
+                "interrogation.submit",
+                "심문 종료");
+            completeButton.onClick.AddListener(() => Submit());
             root.SetActive(false);
         }
 
@@ -270,6 +302,14 @@ namespace Wake.UI
             {
                 SelectQuestion(session.Definitions[index].Id);
             }
+        }
+
+        private void FocusFirstAvailableQuestion()
+        {
+            Button target = questionButtons.FirstOrDefault(button =>
+                button != null && button.interactable);
+            EventSystem.current?.SetSelectedGameObject(
+                target != null ? target.gameObject : completeButton?.gameObject);
         }
 
         private static GameObject MakeObject(
@@ -289,20 +329,23 @@ namespace Wake.UI
         private static TMP_Text MakeText(
             Transform parent,
             string value,
-            float minY,
-            float maxY,
-            float size)
+            string slotId,
+            float size,
+            TypographyRole role)
         {
-            GameObject target = MakeObject("Label", parent, typeof(TextMeshProUGUI));
-            RectTransform rect = target.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.08f, minY);
-            rect.anchorMax = new Vector2(0.92f, maxY);
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
+            GameObject target = MakeObject(
+                slotId,
+                parent,
+                typeof(TextMeshProUGUI));
+            RequireLayout(target.GetComponent<RectTransform>(), slotId);
             TMP_Text text = target.GetComponent<TMP_Text>();
-            TypographyService.Apply(text, TypographyRole.Body);
+            TypographyService.Apply(text, role);
             text.fontSize = size;
+            text.enableAutoSizing = true;
+            text.fontSizeMin = Mathf.Max(16f, size - 6f);
+            text.fontSizeMax = size;
             text.alignment = TextAlignmentOptions.Center;
+            text.overflowMode = TextOverflowModes.Truncate;
             text.color = Color.white;
             text.text = value;
             return text;
@@ -311,25 +354,49 @@ namespace Wake.UI
         private static Button MakeButton(
             Transform parent,
             string name,
-            float minY,
-            float maxY,
-            string label,
-            float minX,
-            float maxX)
+            string slotId,
+            string label)
         {
-            GameObject target = MakeObject(name, parent, typeof(Image), typeof(Button));
-            RectTransform rect = target.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(minX, minY);
-            rect.anchorMax = new Vector2(maxX, maxY);
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
+            GameObject target = MakeObject(
+                name,
+                parent,
+                typeof(Image),
+                typeof(Button));
+            RequireLayout(target.GetComponent<RectTransform>(), slotId);
             target.GetComponent<Image>().color = Available;
-            TMP_Text text = MakeText(target.transform, label, 0f, 1f, 19f);
+
+            GameObject labelObject = MakeObject(
+                "Label",
+                target.transform,
+                typeof(TextMeshProUGUI));
+            RectTransform labelRect = labelObject.GetComponent<RectTransform>();
+            labelRect.anchorMin = Vector2.zero;
+            labelRect.anchorMax = Vector2.one;
+            labelRect.offsetMin = new Vector2(18f, 8f);
+            labelRect.offsetMax = new Vector2(-18f, -8f);
+            TMP_Text text = labelObject.GetComponent<TMP_Text>();
+            TypographyService.Apply(text, TypographyRole.Body);
+            text.fontSize = 19f;
+            text.enableAutoSizing = true;
+            text.fontSizeMin = 15f;
+            text.fontSizeMax = 19f;
+            text.alignment = TextAlignmentOptions.Center;
+            text.overflowMode = TextOverflowModes.Truncate;
             text.raycastTarget = false;
+            text.color = Color.white;
+            text.text = label;
             return target.GetComponent<Button>();
         }
 
-        private static string AnswerLabel(MarcusAnswer answer) =>
-            answer == MarcusAnswer.Yes ? "예" : "아니오";
+        private static void RequireLayout(
+            RectTransform rect,
+            string slotId)
+        {
+            if (!RuntimeUiLayoutRegistry.CopyWorldLayout(rect, slotId))
+            {
+                Debug.LogError(
+                    $"MarcusInterrogationUIController requires '{slotId}'.");
+            }
+        }
     }
 }

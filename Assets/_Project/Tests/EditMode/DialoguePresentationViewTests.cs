@@ -108,6 +108,69 @@ namespace Wake.Tests
                 Is.Empty);
         }
 
+        [Test]
+        public void LeftPortrait_SelectsRightAuthoredContentSlots()
+        {
+            DialoguePresentationSpec spec =
+                DialoguePresentationPolicy.ForProduction(
+                    new DialogueSpeakerIdentity(
+                        "ADRIAN",
+                        DialogueSpeakerKind.Monologue));
+
+            Assert.That(
+                DialoguePresentationView.TextSlotFor(spec),
+                Is.EqualTo("dialogue.focus-text-right"));
+            Assert.That(
+                DialoguePresentationView.SpeakerNameSlotFor(spec),
+                Is.EqualTo("dialogue.speaker-name-right"));
+            Assert.That(
+                DialoguePresentationView.AdvanceSlotFor(spec),
+                Is.EqualTo("dialogue.advance-right"));
+            Assert.That(
+                DialoguePresentationView.ChoicesSlotFor(spec),
+                Is.EqualTo("dialogue.choices-right"));
+        }
+
+        [Test]
+        public void RightPortrait_SelectsLeftAuthoredContentSlots()
+        {
+            DialoguePresentationSpec spec =
+                DialoguePresentationPolicy.ForProduction(
+                    new DialogueSpeakerIdentity(
+                        "CLAIRE",
+                        DialogueSpeakerKind.Character));
+
+            Assert.That(
+                DialoguePresentationView.TextSlotFor(spec),
+                Is.EqualTo("dialogue.focus-text-left"));
+            Assert.That(
+                DialoguePresentationView.SpeakerNameSlotFor(spec),
+                Is.EqualTo("dialogue.speaker-name-left"));
+            Assert.That(
+                DialoguePresentationView.AdvanceSlotFor(spec),
+                Is.EqualTo("dialogue.advance-left"));
+            Assert.That(
+                DialoguePresentationView.ChoicesSlotFor(spec),
+                Is.EqualTo("dialogue.choices-left"));
+        }
+
+        [Test]
+        public void Narration_SelectsCenterAuthoredContentSlots()
+        {
+            DialoguePresentationSpec spec =
+                DialoguePresentationPolicy.ForProduction(
+                    new DialogueSpeakerIdentity(
+                        string.Empty,
+                        DialogueSpeakerKind.Narration));
+
+            Assert.That(
+                DialoguePresentationView.TextSlotFor(spec),
+                Is.EqualTo("dialogue.narration-text"));
+            Assert.That(
+                DialoguePresentationView.AdvanceSlotFor(spec),
+                Is.EqualTo("dialogue.advance-center"));
+        }
+
         [TestCase(UiPrimaryPanel.None, false)]
         [TestCase(UiPrimaryPanel.Start, false)]
         [TestCase(UiPrimaryPanel.Ingame, true)]
