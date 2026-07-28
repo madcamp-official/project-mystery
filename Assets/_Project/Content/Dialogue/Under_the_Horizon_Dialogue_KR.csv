@@ -40,7 +40,7 @@ P-02_012,P-02,12,inspection,narration,NARRATION,[조사: 전자서명 검증창]
 P-02_013,P-02,13,inspection,inspection,ADRIAN,서명 키는 리처드 개인 키가 맞다. 다만 발송 서버는 회장실이 아니라 비서실 게이트웨이다.,focused,,,,GANGWAY,Y,,
 P-02_014,P-02,14,evidence,system,SYSTEM,단서 획득: C-01 다니엘의 초대장,system,,,evidence:C-01; flag:secretariat_server,UI,N,,
 P-02_015,P-02,15,choice,choice,PLAYER_CHOICE,이블린에게 명단 수정자를 묻기,choice,,P-02_C1,flag:secretariat_authority,UI choice,N,P-02_ASK,
-P-02_016,P-02,16,interrogation,branch_response,ADRIAN,명단의 수정 이니셜이 이·에스입니다. 직접 고치셨습니까?,focused,choice(P-02_C1),,,GANGWAY,Y,P-02_ASK,
+P-02_016,P-02,16,interrogation,branch_response,ADRIAN,명단의 수정 이니셜이 E·S입니다. 직접 고치셨습니까?,focused,choice(P-02_C1),,,GANGWAY,Y,P-02_ASK,
 P-02_017,P-02,17,interrogation,branch_response,EVELYN,네. 탑승 지연을 막기 위한 행정 처리였습니다. 서명이 진짜라면 명단이 늦은 쪽이 문제니까요.,matter_of_fact,choice(P-02_C1),,,GANGWAY,Y,P-02_ASK,
 P-02_018,P-02,18,interrogation,branch_response,ADRIAN,발송 서버도 비서실입니다.,press,choice(P-02_C1),,,GANGWAY,Y,P-02_ASK,
 P-02_019,P-02,19,interrogation,branch_response,EVELYN,회장님 서신 대부분은 제 부서가 발송합니다. 권한과 의도가 같은 것은 아닙니다.,controlled,choice(P-02_C1),,flag:secretariat_authority,GANGWAY,Y,P-02_ASK,
