@@ -379,8 +379,15 @@ namespace Wake.Narrative
                 return;
             }
 
+            int anxiety =
+                Wake.Core.GameStateManager.Instance?.PublicAnxiety ?? 15;
+            PortraitEmotion resolvedEmotion =
+                NpcAnxietyExpressionPolicy.Resolve(
+                    speaker,
+                    emotion,
+                    anxiety);
             DialoguePortraitAsset asset =
-                DialoguePortraitCatalog.ResolveWorldFigure(speaker);
+                DialoguePortraitCatalog.Resolve(speaker, resolvedEmotion);
             if (!asset.Found)
             {
                 Debug.LogWarning($"No portrait texture found for speaker '{speaker}'.");

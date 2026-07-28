@@ -199,6 +199,31 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void SpecialistPortrait_ChangesCropWithAnxietyEmotion()
+        {
+            DialoguePortraitAsset neutral =
+                DialoguePortraitCatalog.Resolve(
+                    "SECURITY_OPERATOR",
+                    PortraitEmotion.Neutral);
+            DialoguePortraitAsset concerned =
+                DialoguePortraitCatalog.Resolve(
+                    "SECURITY_OPERATOR",
+                    PortraitEmotion.Concerned);
+            DialoguePortraitAsset angry =
+                DialoguePortraitCatalog.Resolve(
+                    "SECURITY_OPERATOR",
+                    PortraitEmotion.Angry);
+
+            Assert.That(neutral.Found, Is.True);
+            Assert.That(concerned.Texture, Is.SameAs(neutral.Texture));
+            Assert.That(angry.Texture, Is.SameAs(neutral.Texture));
+            Assert.That(neutral.UvRect.x, Is.EqualTo(0.25f));
+            Assert.That(concerned.UvRect.x, Is.EqualTo(0.50f));
+            Assert.That(angry.UvRect.x, Is.EqualTo(0.75f));
+            Assert.That(neutral.UvRect.width, Is.EqualTo(0.25f));
+        }
+
+        [Test]
         public void EveryAmbientRole_HasAUniqueLocationStageProfile()
         {
             var expectedPairs = AmbientBarkCatalog.All
@@ -262,7 +287,61 @@ namespace Wake.Tests
                 Is.Not.EqualTo(passengerF.FallbackTexture));
             Assert.That(
                 passengerA.FallbackTexture,
-                Is.EqualTo("AmbientCharacters/passenger_a"));
+                Is.EqualTo(
+                    "AmbientCharacters/passenger_a_expressions"));
+        }
+
+        [TestCase("PASSENGER_A")]
+        [TestCase("PASSENGER_F")]
+        [TestCase("CREW_ATTENDANT")]
+        [TestCase("CREW_ENGINEER")]
+        [TestCase("CREW_SECURITY")]
+        public void PassengerAndCrewPortraits_ChangeCropWithEmotion(
+            string characterId)
+        {
+            DialoguePortraitAsset neutral =
+                DialoguePortraitCatalog.Resolve(
+                    characterId,
+                    PortraitEmotion.Neutral);
+            DialoguePortraitAsset concerned =
+                DialoguePortraitCatalog.Resolve(
+                    characterId,
+                    PortraitEmotion.Concerned);
+            DialoguePortraitAsset angry =
+                DialoguePortraitCatalog.Resolve(
+                    characterId,
+                    PortraitEmotion.Angry);
+
+            Assert.That(neutral.Found, Is.True);
+            Assert.That(concerned.Found, Is.True);
+            Assert.That(angry.Found, Is.True);
+            Assert.That(concerned.Texture, Is.SameAs(neutral.Texture));
+            Assert.That(angry.Texture, Is.SameAs(neutral.Texture));
+            Assert.That(neutral.UvRect.x, Is.EqualTo(0.25f));
+            Assert.That(concerned.UvRect.x, Is.EqualTo(0.5f));
+            Assert.That(angry.UvRect.x, Is.EqualTo(0.75f));
+        }
+
+        [TestCase("PASSENGER_A", "passenger_a")]
+        [TestCase("PASSENGER_F", "passenger_f")]
+        [TestCase("CREW_ATTENDANT", "crew_attendant")]
+        [TestCase("CREW_ENGINEER", "crew_engineer")]
+        [TestCase("CREW_SECURITY", "crew_security")]
+        public void PassengerAndCrewWorldFigures_UseExpressionSheetFullBody(
+            string characterId,
+            string resourceName)
+        {
+            Assert.That(
+                AmbientWorldCharacterCatalog.TryGetAsset(
+                    characterId,
+                    out AmbientWorldCharacterAsset asset),
+                Is.True);
+            Assert.That(
+                asset.ResourcePath,
+                Is.EqualTo(
+                    $"AmbientCharacters/{resourceName}_expressions"));
+            Assert.That(asset.UvRect.x, Is.Zero);
+            Assert.That(asset.UvRect.width, Is.EqualTo(0.25f));
         }
 
         [Test]
