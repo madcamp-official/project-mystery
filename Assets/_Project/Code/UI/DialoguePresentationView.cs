@@ -328,11 +328,10 @@ namespace Wake.UI
                 : null;
             locationContextGroup ??= EnsureCanvasGroup(
                 ingameRoot.Find("Narrative Location Context"));
-            if (statusHud != null &&
-                statusHud.gameObject.activeSelf != visible)
-            {
-                statusHud.gameObject.SetActive(visible);
-            }
+            // The numeric gameplay HUD is retained as runtime state only.
+            // Dialogue must never make the retired presentation visible.
+            if (statusHud != null && statusHud.gameObject.activeSelf)
+                statusHud.gameObject.SetActive(false);
             SetGroupVisible(locationContextGroup, visible);
             SetNavigationVisible(visible);
         }
