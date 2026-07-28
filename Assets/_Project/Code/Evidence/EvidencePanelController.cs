@@ -192,10 +192,13 @@ namespace Wake.Evidence
                     background.color = viewModel.Items[i].State switch
                     {
                         EvidencePanelItemState.Collected =>
-                            new Color(0.18f, 0.36f, 0.42f, 1f),
+                            UiVisualThemeService.Resolve(
+                                UiColorToken.Success),
                         EvidencePanelItemState.Unreliable =>
-                            new Color(0.46f, 0.17f, 0.17f, 1f),
-                        _ => new Color(0.12f, 0.14f, 0.17f, 1f)
+                            UiVisualThemeService.Resolve(
+                                UiColorToken.Danger),
+                        _ => UiVisualThemeService.Resolve(
+                            UiColorToken.SurfaceRaised)
                     };
                 }
 
