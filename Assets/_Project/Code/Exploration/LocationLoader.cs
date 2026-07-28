@@ -19,6 +19,7 @@ namespace Wake.Exploration
         public event Action<LocationDefinition> LocationChanged;
         public bool IsPresentationVisible =>
             container != null && container.gameObject.activeSelf;
+        public RectTransform BackgroundRect => backgroundPresenter?.ViewportRect;
 
         private GameObject currentInstance;
         private Transform container;
