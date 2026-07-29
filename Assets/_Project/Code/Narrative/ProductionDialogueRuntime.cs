@@ -490,14 +490,14 @@ namespace Wake.Narrative
                 }
                 Phase = ProductionScenePhase.Completed;
                 if (newlyCompleted &&
-                    ProductionDayBoundaryCatalog.TryGet(
+                    ProductionChapterTransitionCatalog.TryGet(
                         ActiveSceneId,
-                        out ProductionDayBoundary boundary))
+                        out ChapterTransitionRequest transition))
                 {
                     InvestigationEventHub.Publish(
                         InvestigationEventKind.SceneCompleted,
-                        boundary.CompletedSceneId,
-                        boundary.NextSceneId);
+                        transition.CompletedSceneId,
+                        transition.NextSceneId);
                 }
                 return;
             }

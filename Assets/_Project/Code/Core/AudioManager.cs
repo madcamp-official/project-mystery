@@ -35,6 +35,8 @@ namespace Wake.Core
         private AudioSource ambienceSourceB;
         private AudioSource travelFootstepSource;
         private AudioSource waterSplashSource;
+        private AudioSource chapterMusicSource;
+        private AudioSource chapterSfxSource;
         private AudioLowPassFilter musicLowPassA;
         private AudioLowPassFilter musicLowPassB;
         private Coroutine musicFade;
@@ -43,6 +45,11 @@ namespace Wake.Core
         private Coroutine travelFade;
         private Coroutine travelFootstepStop;
         private Coroutine waterSplashStop;
+        private Coroutine chapterAudioSequence;
+        private Coroutine chapterAudioFade;
+        private string chapterMusicKey = string.Empty;
+        private string chapterStingerKey = string.Empty;
+        private bool chapterDeparture;
         private float currentMusicMix = 1f;
         private float currentAmbienceMixA;
         private float currentAmbienceMixB;
@@ -314,6 +321,71 @@ namespace Wake.Core
             pendingTravelFadeInSeconds = 0f;
         }
 
+        public void BeginChapterTransitionAudio(
+            string musicKey,
+            string stingerKey,
+            bool departure)
+        {
+            EnsureRuntimeSources();
+            StopTransitionFades();
+            StopTransitionAudio();
+            chapterMusicKey = musicKey?.Trim() ?? string.Empty;
+            chapterStingerKey = stingerKey?.Trim() ?? string.Empty;
+            chapterDeparture = departure;
+            travelFade = StartCoroutine(FadeCurrentAudioToSilence(.4f));
+            if (departure)
+            {
+                PlayBoatDepartureSequence();
+            }
+            else
+            {
+                chapterAudioSequence = StartCoroutine(
+                    BeginChapterMusicAfter(.4f));
+            }
+        }
+
+        public void EndChapterTransitionAudio(string nextLocationCode)
+        {
+            if (chapterAudioSequence != null)
+            {
+                StopCoroutine(chapterAudioSequence);
+                chapterAudioSequence = null;
+            }
+            if (chapterAudioFade != null)
+                StopCoroutine(chapterAudioFade);
+            if (!string.IsNullOrWhiteSpace(nextLocationCode))
+                PlayLocationTheme(nextLocationCode);
+            chapterAudioFade = StartCoroutine(
+                FadeOutChapterAudio(.5f));
+        }
+
+        public void PlayBoatDepartureSequence()
+        {
+            EnsureRuntimeSources();
+            if (chapterAudioSequence != null)
+                StopCoroutine(chapterAudioSequence);
+            chapterAudioSequence = StartCoroutine(BoatDepartureSequence());
+        }
+
+        public void StopTransitionAudio()
+        {
+            if (chapterAudioSequence != null)
+            {
+                StopCoroutine(chapterAudioSequence);
+                chapterAudioSequence = null;
+            }
+            if (chapterAudioFade != null)
+            {
+                StopCoroutine(chapterAudioFade);
+                chapterAudioFade = null;
+            }
+            StopAndClear(chapterMusicSource);
+            StopAndClear(chapterSfxSource);
+            chapterMusicKey = string.Empty;
+            chapterStingerKey = string.Empty;
+            chapterDeparture = false;
+        }
+
         public void PlayTitleTheme(bool fade = true)
         {
             StopAmbience(fade ? defaultCrossfadeSeconds : 0f);
@@ -388,6 +460,8 @@ namespace Wake.Core
             MusicVolume = Mathf.Clamp01(value);
             if (activeMusicSource != null)
                 activeMusicSource.volume = MusicVolume * currentMusicMix;
+            if (chapterMusicSource != null && chapterMusicSource.isPlaying)
+                chapterMusicSource.volume = MusicVolume * .55f;
             PlayerPrefs.SetFloat(MusicVolumePreference, MusicVolume);
         }
 
@@ -405,6 +479,9 @@ namespace Wake.Core
             if (travelFootstepSource != null)
                 travelFootstepSource.volume =
                     SfxVolume * currentTravelFootstepMix;
+            if (chapterSfxSource != null && chapterSfxSource.isPlaying)
+                chapterSfxSource.volume = SfxVolume *
+                    (chapterDeparture ? .42f : 1f);
             PlayerPrefs.SetFloat(SfxVolumePreference, SfxVolume);
         }
 
@@ -450,10 +527,115 @@ namespace Wake.Core
                     CreateSource("Water Splash", false, sfxSource);
             }
 
+            if (chapterMusicSource == null)
+            {
+                chapterMusicSource =
+                    CreateSource("Chapter Music", true, musicSource);
+            }
+
+            if (chapterSfxSource == null)
+            {
+                chapterSfxSource =
+                    CreateSource("Chapter SFX", false, sfxSource);
+            }
+
             musicLowPassA ??= EnsureLowPass(musicSource);
             musicLowPassB ??= EnsureLowPass(musicSourceB);
 
             activeMusicSource ??= musicSource;
+        }
+
+        private IEnumerator BeginChapterMusicAfter(float delay)
+        {
+            yield return WaitUnscaled(delay);
+            PlayChapterMusic();
+            if (!string.IsNullOrWhiteSpace(chapterStingerKey))
+            {
+                AudioClip stinger = LoadClip(chapterStingerKey);
+                if (stinger != null)
+                    chapterSfxSource.PlayOneShot(stinger, SfxVolume);
+            }
+            chapterAudioSequence = null;
+        }
+
+        private IEnumerator BoatDepartureSequence()
+        {
+            AudioClip engine =
+                LoadClip("SoundEffect/boat_engine_sound");
+            if (engine != null)
+            {
+                chapterSfxSource.Stop();
+                chapterSfxSource.clip = engine;
+                chapterSfxSource.loop = true;
+                chapterSfxSource.volume = SfxVolume * .26f;
+                chapterSfxSource.Play();
+            }
+
+            yield return WaitUnscaled(.7f);
+            AudioClip horn = LoadClip(
+                string.IsNullOrWhiteSpace(chapterStingerKey)
+                    ? "SoundEffect/horn"
+                    : chapterStingerKey);
+            if (horn != null)
+                sfxSource?.PlayOneShot(horn, SfxVolume * .85f);
+
+            yield return WaitUnscaled(1.8f);
+            if (chapterSfxSource != null && chapterSfxSource.isPlaying)
+                chapterSfxSource.volume = SfxVolume * .42f;
+            PlayChapterMusic();
+            chapterAudioSequence = null;
+        }
+
+        private void PlayChapterMusic()
+        {
+            AudioClip clip = LoadClip(chapterMusicKey);
+            if (clip == null || chapterMusicSource == null)
+                return;
+            chapterMusicSource.Stop();
+            chapterMusicSource.clip = clip;
+            chapterMusicSource.loop = true;
+            chapterMusicSource.volume = MusicVolume * .55f;
+            chapterMusicSource.Play();
+        }
+
+        private IEnumerator FadeOutChapterAudio(float duration)
+        {
+            float musicStart = chapterMusicSource != null
+                ? chapterMusicSource.volume
+                : 0f;
+            float sfxStart = chapterSfxSource != null
+                ? chapterSfxSource.volume
+                : 0f;
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float progress = Mathf.Clamp01(elapsed / duration);
+                if (chapterMusicSource != null)
+                    chapterMusicSource.volume =
+                        Mathf.Lerp(musicStart, 0f, progress);
+                if (chapterSfxSource != null)
+                    chapterSfxSource.volume =
+                        Mathf.Lerp(sfxStart, 0f, progress);
+                yield return null;
+            }
+
+            StopAndClear(chapterMusicSource);
+            StopAndClear(chapterSfxSource);
+            chapterMusicKey = string.Empty;
+            chapterStingerKey = string.Empty;
+            chapterDeparture = false;
+            chapterAudioFade = null;
+        }
+
+        private static IEnumerator WaitUnscaled(float duration)
+        {
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                yield return null;
+            }
         }
 
         private static AudioLowPassFilter EnsureLowPass(AudioSource source)

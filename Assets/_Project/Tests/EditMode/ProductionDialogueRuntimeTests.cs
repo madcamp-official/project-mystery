@@ -186,12 +186,13 @@ namespace Wake.Tests
                 Is.EqualTo(new[] { "P-01" }));
         }
 
+        [TestCase("P-03", "P-02", "D1-01")]
         [TestCase("D1-07", "D1-06", "D2-01")]
         [TestCase("D2-06", "D2-03", "D3-01")]
         [TestCase("D3-05", "D3-04", "D4-01")]
         [TestCase("D5-04", "D5-03", "D6-01")]
         [TestCase("D7-04", "D7-03", "D8-01")]
-        public void CompletingDialogueAtDayBoundary_PublishesNextDayScene(
+        public void CompletingDialogueAtChapterBoundary_PublishesNextScene(
             string completedSceneId,
             string prerequisiteSceneId,
             string expectedNextSceneId)

@@ -746,6 +746,18 @@ namespace Wake.UI
         }
 
         public void ShowChapterTransition(
+            ChapterTransitionRequest request,
+            UnityAction completed = null)
+        {
+            if (!IsInitialized)
+                return;
+
+            systemScreens?.ShowChapterTransition(
+                request,
+                completed == null ? null : completed.Invoke);
+        }
+
+        public void ShowChapterTransition(
             string context,
             string title,
             string summary,

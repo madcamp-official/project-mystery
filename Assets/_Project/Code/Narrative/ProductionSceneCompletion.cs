@@ -221,11 +221,11 @@ namespace Wake.Narrative
             GameStateManager state,
             ProductionSceneCompletionRequirement requirement)
         {
-            if (ProductionDayBoundaryCatalog.TryGet(
+            if (ProductionChapterTransitionCatalog.TryGet(
                     requirement.SceneId,
-                    out ProductionDayBoundary boundary))
+                    out ChapterTransitionRequest transition))
             {
-                return boundary.NextSceneId;
+                return transition.NextSceneId;
             }
 
             if (requirement.SceneId != "D8-01")

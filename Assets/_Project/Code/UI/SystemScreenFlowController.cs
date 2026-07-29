@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Wake.Core;
+using Wake.Narrative;
 
 namespace Wake.UI
 {
@@ -43,8 +44,16 @@ namespace Wake.UI
         private TMP_Text chapterContext;
         private TMP_Text chapterTitle;
         private TMP_Text chapterSummary;
+        private TMP_Text chapterVesselName;
         private CanvasGroup chapterCanvasGroup;
+        private Button chapterContinueButton;
+        private RectTransform chapterRouteLine;
+        private RectTransform chapterHorizon;
+        private Image chapterSky;
+        private Image chapterSea;
         private Coroutine chapterFadeRoutine;
+        private ChapterTransitionRequest activeChapterRequest;
+        private bool chapterContinuePending;
         private TMP_Text tutorialTitle;
         private TMP_Text tutorialBody;
         private TMP_Text confirmationTitle;
@@ -104,18 +113,40 @@ namespace Wake.UI
         }
 
         public void ShowChapterTransition(
+            ChapterTransitionRequest request,
+            Action continueAction)
+        {
+            EnsureBuilt();
+            activeChapterRequest = request;
+            chapterContext.text = request.ChapterLabel;
+            chapterTitle.text = request.Title;
+            chapterSummary.text = request.Summary;
+            confirmAction = continueAction;
+            chapterContinuePending = false;
+            ConfigureChapterVisuals(request);
+            Show(SystemScreenState.ChapterTransition);
+            StartChapterPresentation();
+        }
+
+        public void ShowChapterTransition(
             string context,
             string title,
             string summary,
             Action continueAction)
         {
-            EnsureBuilt();
-            chapterContext.text = context ?? string.Empty;
-            chapterTitle.text = title ?? string.Empty;
-            chapterSummary.text = summary ?? string.Empty;
-            confirmAction = continueAction;
-            Show(SystemScreenState.ChapterTransition);
-            StartChapterFade(0f, 1f, null);
+            ShowChapterTransition(
+                new ChapterTransitionRequest(
+                    string.Empty,
+                    string.Empty,
+                    TransitionKind.DayChange,
+                    context,
+                    title,
+                    summary,
+                    string.Empty,
+                    string.Empty,
+                    string.Empty,
+                    2.5f),
+                continueAction);
         }
 
         public void OpenPause()
@@ -330,6 +361,39 @@ namespace Wake.UI
                 CreateScreen(SystemScreenState.ChapterTransition);
             chapterCanvasGroup = screen.AddComponent<CanvasGroup>();
             chapterCanvasGroup.alpha = 0f;
+            chapterSky = CreateChapterLayer(
+                screen.transform,
+                "Chapter Background",
+                new Color(.025f, .055f, .09f, 1f),
+                new Vector2(0f, .42f),
+                Vector2.one);
+            chapterSea = CreateChapterLayer(
+                screen.transform,
+                "Sea",
+                new Color(.02f, .11f, .16f, 1f),
+                Vector2.zero,
+                new Vector2(1f, .48f));
+            Image horizon = CreateChapterLayer(
+                screen.transform,
+                "Horizon Glow",
+                new Color(.64f, .47f, .28f, .32f),
+                new Vector2(0f, .455f),
+                new Vector2(1f, .465f));
+            chapterHorizon = horizon.rectTransform;
+            Image route = CreateChapterLayer(
+                screen.transform,
+                "Route Line",
+                new Color(.82f, .71f, .46f, .75f),
+                new Vector2(.12f, .455f),
+                new Vector2(.88f, .459f));
+            chapterRouteLine = route.rectTransform;
+            chapterVesselName = CreateText(
+                screen.transform,
+                "MV Elysium Nameplate",
+                string.Empty,
+                UiTextStyle.Technical,
+                ScreenRegionIds.ReadingBottom);
+            chapterVesselName.alignment = TextAlignmentOptions.Center;
             chapterContext = CreateText(
                 screen.transform,
                 "Chapter Context",
@@ -348,13 +412,13 @@ namespace Wake.UI
                 string.Empty,
                 UiTextStyle.BodyLarge,
                 ScreenRegionIds.ContentCenter);
-            Button next = CreateButton(
+            chapterContinueButton = CreateButton(
                 screen.transform,
                 "계속",
                 "계속",
                 UiButtonStyle.Primary,
                 ScreenRegionIds.PrimaryBottomRight);
-            next.onClick.AddListener(BeginChapterContinue);
+            chapterContinueButton.onClick.AddListener(BeginChapterContinue);
         }
 
         private void BuildPause()
@@ -538,9 +602,13 @@ namespace Wake.UI
 
         private void BeginChapterContinue()
         {
-            if (chapterFadeRoutine != null)
+            if (chapterContinuePending ||
+                chapterContinueButton == null ||
+                !chapterContinueButton.interactable)
                 return;
 
+            chapterContinuePending = true;
+            chapterContinueButton.interactable = false;
             Action action = confirmAction;
             StartChapterFade(
                 chapterCanvasGroup != null ? chapterCanvasGroup.alpha : 1f,
@@ -573,7 +641,7 @@ namespace Wake.UI
             float to,
             Action completed)
         {
-            const float duration = 0.2f;
+            float duration = ReducedMotionSettings.Enabled ? .25f : .5f;
             chapterCanvasGroup.alpha = from;
             float elapsed = 0f;
             while (elapsed < duration)
@@ -589,6 +657,129 @@ namespace Wake.UI
             chapterCanvasGroup.alpha = to;
             chapterFadeRoutine = null;
             completed?.Invoke();
+        }
+
+        private void StartChapterPresentation()
+        {
+            if (chapterFadeRoutine != null)
+                StopCoroutine(chapterFadeRoutine);
+            chapterFadeRoutine = StartCoroutine(PresentChapter());
+        }
+
+        private IEnumerator PresentChapter()
+        {
+            bool reducedMotion = ReducedMotionSettings.Enabled;
+            float fadeDuration = reducedMotion ? .25f : .55f;
+            float minimumTime = Mathf.Max(
+                fadeDuration,
+                activeChapterRequest.MinimumDisplayTime);
+            chapterCanvasGroup.alpha = 0f;
+            chapterContinueButton.interactable = false;
+            chapterContinueButton.gameObject.SetActive(false);
+            if (chapterRouteLine != null)
+            {
+                chapterRouteLine.pivot = new Vector2(0f, .5f);
+                chapterRouteLine.localScale =
+                    reducedMotion ? Vector3.one : new Vector3(0f, 1f, 1f);
+            }
+
+            float elapsed = 0f;
+            while (elapsed < minimumTime)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                chapterCanvasGroup.alpha = Mathf.Clamp01(
+                    elapsed / fadeDuration);
+                if (!reducedMotion)
+                {
+                    if (chapterRouteLine != null)
+                    {
+                        float routeProgress = Mathf.SmoothStep(
+                            0f,
+                            1f,
+                            Mathf.Clamp01((elapsed - .2f) / 1.15f));
+                        chapterRouteLine.localScale =
+                            new Vector3(routeProgress, 1f, 1f);
+                    }
+                    if (chapterHorizon != null)
+                    {
+                        chapterHorizon.anchoredPosition =
+                            new Vector2(
+                                Mathf.Sin(elapsed * .8f) * 6f,
+                                Mathf.Sin(elapsed * .45f) * 2f);
+                    }
+                }
+                yield return null;
+            }
+
+            chapterCanvasGroup.alpha = 1f;
+            chapterContinueButton.gameObject.SetActive(true);
+            chapterContinueButton.interactable = true;
+            chapterFadeRoutine = null;
+        }
+
+        private void ConfigureChapterVisuals(
+            ChapterTransitionRequest request)
+        {
+            bool departure = request.TransitionKind ==
+                TransitionKind.Departure;
+            bool finale = request.TransitionKind ==
+                TransitionKind.Finale;
+            Color sky = departure
+                ? new Color(.035f, .075f, .12f, 1f)
+                : finale
+                    ? new Color(.075f, .035f, .045f, 1f)
+                    : new Color(.02f, .04f, .075f, 1f);
+            Color sea = departure
+                ? new Color(.025f, .16f, .2f, 1f)
+                : finale
+                    ? new Color(.08f, .045f, .055f, 1f)
+                    : new Color(.018f, .085f, .13f, 1f);
+            float keyTint = BackgroundTint(request.BackgroundKey);
+            chapterSky.color = Color.Lerp(
+                sky,
+                new Color(.11f, .15f, .2f, 1f),
+                keyTint * .2f);
+            chapterSea.color = Color.Lerp(
+                sea,
+                new Color(.025f, .2f, .22f, 1f),
+                keyTint * .16f);
+            chapterVesselName.text = departure
+                ? "MV ELYSIUM  ·  UNDER THE HORIZON"
+                : request.BackgroundKey.Replace('_', ' ').ToUpperInvariant();
+        }
+
+        private static float BackgroundTint(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                return 0f;
+            int total = 0;
+            foreach (char value in key)
+                total = (total + value) % 97;
+            return total / 96f;
+        }
+
+        private static Image CreateChapterLayer(
+            Transform parent,
+            string name,
+            Color color,
+            Vector2 anchorMin,
+            Vector2 anchorMax)
+        {
+            GameObject layer = new(
+                name,
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image));
+            layer.transform.SetParent(parent, false);
+            RectTransform rect = layer.GetComponent<RectTransform>();
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            Image image = layer.GetComponent<Image>();
+            image.color = color;
+            image.raycastTarget = false;
+            return image;
         }
 
         private void CancelAndClose()

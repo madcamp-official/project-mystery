@@ -94,6 +94,51 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void ChapterTransitionCatalog_CoversDepartureAndEveryDayBoundary()
+        {
+            string[] expected =
+            {
+                "P-03>D1-01:Departure",
+                "D1-07>D2-01:DayChange",
+                "D2-06>D3-01:DayChange",
+                "D3-05>D4-01:DayChange",
+                "D4-04>D5-01:DayChange",
+                "D5-04>D6-01:DayChange",
+                "D6-05>D7-01:DayChange",
+                "D7-04>D8-01:Finale"
+            };
+
+            Assert.That(
+                ProductionChapterTransitionCatalog.All.Select(item =>
+                    $"{item.CompletedSceneId}>{item.NextSceneId}:" +
+                    item.TransitionKind),
+                Is.EqualTo(expected));
+            Assert.That(
+                ProductionChapterTransitionCatalog.All,
+                Has.All.Matches<ChapterTransitionRequest>(item =>
+                    !string.IsNullOrWhiteSpace(item.ChapterLabel) &&
+                    !string.IsNullOrWhiteSpace(item.Title) &&
+                    !string.IsNullOrWhiteSpace(item.Summary) &&
+                    !string.IsNullOrWhiteSpace(item.BackgroundKey) &&
+                    !string.IsNullOrWhiteSpace(item.MusicKey) &&
+                    item.MinimumDisplayTime >= 2.5f));
+        }
+
+        [Test]
+        public void DepartureTransition_HasDedicatedPresentationAndAudio()
+        {
+            Assert.That(
+                ProductionChapterTransitionCatalog.TryGet(
+                    "p-03",
+                    out ChapterTransitionRequest departure),
+                Is.True);
+            Assert.That(departure.IsDeparture, Is.True);
+            Assert.That(departure.NextSceneId, Is.EqualTo("D1-01"));
+            Assert.That(departure.ChapterLabel, Is.EqualTo("DAY 1"));
+            Assert.That(departure.StingerKey, Does.EndWith("/horn"));
+        }
+
+        [Test]
         public void Validator_AcceptsTheProductionCsvWithoutDiagnostics()
         {
             Assert.That(

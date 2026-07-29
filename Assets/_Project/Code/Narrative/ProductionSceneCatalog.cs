@@ -178,15 +178,13 @@ namespace Wake.Narrative
     public static class ProductionDayBoundaryCatalog
     {
         private static readonly ProductionDayBoundary[] Entries =
-        {
-            B("D1-07", "D2-01"),
-            B("D2-06", "D3-01"),
-            B("D3-05", "D4-01"),
-            B("D4-04", "D5-01"),
-            B("D5-04", "D6-01"),
-            B("D6-05", "D7-01"),
-            B("D7-04", "D8-01")
-        };
+            ProductionChapterTransitionCatalog.All
+                .Where(item => item.TransitionKind !=
+                    TransitionKind.Departure)
+                .Select(item => B(
+                    item.CompletedSceneId,
+                    item.NextSceneId))
+                .ToArray();
 
         private static readonly IReadOnlyDictionary<string, ProductionDayBoundary>
             ByCompletedScene = Entries.ToDictionary(
