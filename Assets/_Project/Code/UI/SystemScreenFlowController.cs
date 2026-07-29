@@ -42,6 +42,8 @@ namespace Wake.UI
         private TMP_Text chapterContext;
         private TMP_Text chapterTitle;
         private TMP_Text chapterSummary;
+        private CanvasGroup chapterCanvasGroup;
+        private Coroutine chapterFadeRoutine;
         private TMP_Text tutorialTitle;
         private TMP_Text tutorialBody;
         private TMP_Text confirmationTitle;
@@ -104,6 +106,7 @@ namespace Wake.UI
             chapterSummary.text = summary ?? string.Empty;
             confirmAction = continueAction;
             Show(SystemScreenState.ChapterTransition);
+            StartChapterFade(0f, 1f, null);
         }
 
         public void OpenPause()
@@ -151,6 +154,11 @@ namespace Wake.UI
             if (!IsOverlayOpen)
                 return;
 
+            if (chapterFadeRoutine != null)
+            {
+                StopCoroutine(chapterFadeRoutine);
+                chapterFadeRoutine = null;
+            }
             if (activeScreen != null)
             {
                 activeScreen.SetActive(false);
@@ -275,6 +283,8 @@ namespace Wake.UI
         {
             GameObject screen =
                 CreateScreen(SystemScreenState.ChapterTransition);
+            chapterCanvasGroup = screen.AddComponent<CanvasGroup>();
+            chapterCanvasGroup.alpha = 0f;
             chapterContext = CreateText(
                 screen.transform,
                 "Chapter Context",
@@ -299,7 +309,7 @@ namespace Wake.UI
                 "계속",
                 UiButtonStyle.Primary,
                 ScreenRegionIds.PrimaryBottomRight);
-            next.onClick.AddListener(ConfirmAndClose);
+            next.onClick.AddListener(BeginChapterContinue);
         }
 
         private void BuildPause()
@@ -469,6 +479,62 @@ namespace Wake.UI
             Action action = confirmAction;
             Close();
             action?.Invoke();
+        }
+
+        private void BeginChapterContinue()
+        {
+            if (chapterFadeRoutine != null)
+                return;
+
+            Action action = confirmAction;
+            StartChapterFade(
+                chapterCanvasGroup != null ? chapterCanvasGroup.alpha : 1f,
+                0f,
+                () =>
+                {
+                    Close();
+                    action?.Invoke();
+                });
+        }
+
+        private void StartChapterFade(
+            float from,
+            float to,
+            Action completed)
+        {
+            if (chapterCanvasGroup == null)
+            {
+                completed?.Invoke();
+                return;
+            }
+
+            if (chapterFadeRoutine != null)
+                StopCoroutine(chapterFadeRoutine);
+            chapterFadeRoutine = StartCoroutine(
+                FadeChapter(from, to, completed));
+        }
+
+        private IEnumerator FadeChapter(
+            float from,
+            float to,
+            Action completed)
+        {
+            const float duration = 0.2f;
+            chapterCanvasGroup.alpha = from;
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                chapterCanvasGroup.alpha = Mathf.Lerp(
+                    from,
+                    to,
+                    Mathf.Clamp01(elapsed / duration));
+                yield return null;
+            }
+
+            chapterCanvasGroup.alpha = to;
+            chapterFadeRoutine = null;
+            completed?.Invoke();
         }
 
         private void CancelAndClose()

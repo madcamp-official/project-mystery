@@ -28,7 +28,13 @@ namespace Wake.Tests.PlayMode
             ExitInspectionUIController controller = RequireObject("Ingame")
                 .GetComponent<ExitInspectionUIController>();
             Assert.That(controller, Is.Not.Null);
-            Assert.That(controller.IsOpen, Is.True);
+            Assert.That(
+                controller.IsOpen,
+                Is.True,
+                $"restore failed; panel={Ui.ActivePanel}, " +
+                $"checkpoint={State.DialogueCheckpoint?.activeSceneId ?? "<none>"}/" +
+                $"{State.DialogueCheckpoint?.pendingInteractionId ?? "<none>"}, " +
+                $"flow={Flow.HasActiveSession}, dialogue={Dialogue.IsBusy}");
             Assert.That(State.DialogueCheckpoint.pendingInteractionId,
                 Is.EqualTo(ExitInspectionCatalog.SessionId));
             GameObject panel = RequireObject("Exit Inspection");
@@ -82,7 +88,13 @@ namespace Wake.Tests.PlayMode
                 .Where(button => button.name.StartsWith("Inspection "))
                 .ToArray();
             reopen = RequireComponent<Button>("Exit Inspection Resume");
-            Assert.That(controller.IsOpen, Is.True);
+            Assert.That(
+                controller.IsOpen,
+                Is.True,
+                $"restore failed; panel={Ui.ActivePanel}, " +
+                $"checkpoint={State.DialogueCheckpoint?.activeSceneId ?? "<none>"}/" +
+                $"{State.DialogueCheckpoint?.pendingInteractionId ?? "<none>"}, " +
+                $"flow={Flow.HasActiveSession}, dialogue={Dialogue.IsBusy}");
             Assert.That(reopen.gameObject.activeSelf, Is.False);
             Assert.That(controller.StatusMessage, Does.Contain("복원했습니다"));
             Assert.That(controller.Session.HintLevel, Is.EqualTo(1));
@@ -107,6 +119,7 @@ namespace Wake.Tests.PlayMode
                 CanonicalDeductionCatalog.SceneDenial), Is.True);
             Assert.That(new[] { "C-03", "C-04", "C-05" }
                 .All(EvidenceInventory.Instance.Contains), Is.True);
+            yield return StartPreparedProductionSceneFromFocusCharacter("D2-02");
             Assert.That(Dialogue.ActiveProductionSceneId, Is.EqualTo("D2-02"));
             Assert.That(Dialogue.IsBusy, Is.True);
             Assert.That(State.CurrentLocationCode, Is.EqualTo("HORIZON"));

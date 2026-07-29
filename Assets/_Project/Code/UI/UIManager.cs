@@ -7,6 +7,7 @@ using Wake.Core;
 using Wake.Evidence;
 using Wake.Exploration;
 using Wake.Narrative;
+using Wake.Puzzles;
 
 namespace Wake.UI
 {
@@ -189,6 +190,7 @@ namespace Wake.UI
             EnsureComponent<EvidenceNotebookTabsController>(evidencePanel);
             EnsureComponent<RuntimeUiOverhaulController>(gameObject);
             EnsureComponent<EvidenceAcquisitionNoticeController>(gameObject);
+            EnsureComponent<ChapterTransitionPresenter>(gameObject);
             EnsureComponent<TitleScreenPresentationController>(startScenePanel);
             saveSlotSelection =
                 EnsureComponent<SaveSlotSelectionController>(startScenePanel);
@@ -333,6 +335,43 @@ namespace Wake.UI
         public void ShowIngame()
         {
             SetActivePanel(ingamePanel, UiPrimaryPanel.Ingame);
+        }
+
+        public bool ResumePendingInteraction(
+            ProductionDialogueCheckpoint checkpoint)
+        {
+            if (checkpoint == null ||
+                string.IsNullOrWhiteSpace(checkpoint.pendingInteractionId))
+            {
+                return false;
+            }
+
+            string interactionId = checkpoint.pendingInteractionId.Trim();
+            if (interactionId == ExitInspectionCatalog.SessionId)
+                return FindFirstObjectByType<ExitInspectionUIController>()?.Open() == true;
+            if (ProductionPuzzleCatalog.TryGetByScene(
+                    checkpoint.activeSceneId,
+                    out ProductionPuzzleDefinition puzzle) &&
+                interactionId == puzzle.Id)
+            {
+                return FindFirstObjectByType<ProductionPuzzleUIController>()
+                    ?.Open(puzzle.Id) == true;
+            }
+            if (interactionId == CameraBlindSpotSession.SessionId)
+                return FindFirstObjectByType<CameraBlindSpotUIController>()?.Open() == true;
+            if (interactionId == MarcusInterrogationCatalog.SessionId)
+                return FindFirstObjectByType<MarcusInterrogationUIController>()?.Open() == true;
+            if (interactionId == TimelinePuzzleCatalog.PuzzleId)
+                return FindFirstObjectByType<TimelinePuzzleUIController>()?.Open() == true;
+            if (interactionId == OrpheusRecordCatalog.PuzzleId)
+                return FindFirstObjectByType<OrpheusAudioRestorationUIController>()?.Open() == true;
+            if (interactionId == FinalAccusationSession.SessionId)
+            {
+                FindFirstObjectByType<FinalAccusationUIController>()?.Open();
+                return true;
+            }
+
+            return false;
         }
 
         public void ShowMap()
@@ -514,7 +553,7 @@ namespace Wake.UI
             evidencePanel.SetActive(panel == evidencePanel);
             ActivePanel = panelKind;
             LocationLoader.Instance?.SetPresentationVisible(
-                panel != startScenePanel);
+                panelKind == UiPrimaryPanel.Ingame);
             statusHud?.SetActive(false);
             explorationNavigation?.Refresh();
             SetPrimaryInteraction(true);
@@ -525,6 +564,11 @@ namespace Wake.UI
             SetPrimaryInteraction(!active);
             statusHud?.SetActive(false);
             explorationNavigation?.SetInteractionEnabled(!active);
+        }
+
+        internal void SetExplorationNavigationSuppressed(bool suppressed)
+        {
+            explorationNavigation?.SetPresentationSuppressed(suppressed);
         }
 
         private void CloseRuntimeModals()

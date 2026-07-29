@@ -210,6 +210,52 @@ namespace Wake.Tests.PlayMode
             AssertNoRuntimeErrors("일시정지와 확인 모달");
         }
 
+        [UnityTest]
+        public IEnumerator DayBoundary_ShowsChapterTransitionBeforeNextScene()
+        {
+            yield return StartNewGameFromVisibleButton(false);
+            State.RecordCompletedScene("D1-07");
+
+            InvestigationEventHub.Publish(
+                InvestigationEventKind.SceneCompleted,
+                "D1-07",
+                "D2-01");
+            yield return new WaitForSecondsRealtime(0.25f);
+
+            GameObject transition = RequireObject(
+                "System Screen Flow/ChapterTransition");
+            Assert.That(transition.activeInHierarchy, Is.True);
+            Assert.That(
+                Ui.ActiveSystemScreen,
+                Is.EqualTo(SystemScreenState.ChapterTransition));
+            Assert.That(
+                RequireText(
+                    "System Screen Flow/ChapterTransition/Chapter Context")
+                    .text,
+                Does.Contain("DAY 2"));
+            Assert.That(
+                RequireText(
+                    "System Screen Flow/ChapterTransition/Chapter Title")
+                    .text,
+                Is.EqualTo("2일 차"));
+            Assert.That(
+                RequireText(
+                    "System Screen Flow/ChapterTransition/Chapter Summary")
+                    .text,
+                Does.Contain("밀실의 출구 흔적"));
+
+            Button continueButton = RequireComponent<Button>(
+                "System Screen Flow/ChapterTransition/계속");
+            continueButton.onClick.Invoke();
+            yield return new WaitForSecondsRealtime(0.3f);
+
+            Assert.That(transition.activeSelf, Is.False);
+            Assert.That(
+                Ui.ActiveSystemScreen,
+                Is.Not.EqualTo(SystemScreenState.ChapterTransition));
+            AssertNoRuntimeErrors("DAY 경계 챕터 전환");
+        }
+
         private void AssertResponsiveLayout(RectTransform rect)
         {
             Assert.That(rect, Is.Not.Null);

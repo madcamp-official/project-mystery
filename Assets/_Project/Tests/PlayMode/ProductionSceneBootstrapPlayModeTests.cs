@@ -3,6 +3,7 @@ using System.Linq;
 using NUnit.Framework;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
 using Wake.Core;
@@ -206,7 +207,7 @@ namespace Wake.Tests.PlayMode
                 Is.EqualTo(trustBefore + 1),
                 "공식 P-01_C1의 다니엘 신뢰도 +1 효과가 적용되어야 합니다.");
             RawImage portrait = RequireComponent<RawImage>(
-                "Ingame/Line Panel/Speaker Portrait");
+                "Ingame/Speaker Portrait");
             Assert.That(portrait.gameObject.activeInHierarchy, Is.True);
             Assert.That(portrait.texture, Is.Not.Null);
             Assert.That(State.HasCompletedScene(OpeningSceneId), Is.False);
@@ -223,6 +224,14 @@ namespace Wake.Tests.PlayMode
             yield return StartNewGameFromVisibleButton();
             Dialogue.CancelActiveDialogue();
             yield return null;
+            EventSystem.current?.SetSelectedGameObject(null);
+            foreach (ExplorationHotspotFeedback feedback in
+                     Object.FindObjectsByType<ExplorationHotspotFeedback>(
+                         FindObjectsInactive.Include,
+                         FindObjectsSortMode.None))
+            {
+                feedback.ResetTransientState();
+            }
             UnityEngine.Canvas.ForceUpdateCanvases();
 
             Button[] ambientButtons = Object.FindObjectsByType<Button>(
