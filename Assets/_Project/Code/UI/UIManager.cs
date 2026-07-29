@@ -175,6 +175,7 @@ namespace Wake.UI
                 canvas.Find("StartScene/Start Game Btn"));
             FeatureTypography.ApplyMenuAction(
                 canvas.Find("StartScene/Continue Btn"));
+            StyleMapBackButton(canvas);
             SetStartButtonLabel(canvas.Find("StartScene/Start Game Btn"));
             continueButton.SetActive(false);
             SetLegacyExplorationNavigationVisible(canvas, false);
@@ -187,6 +188,50 @@ namespace Wake.UI
             }
 
             return true;
+        }
+
+        private static void StyleMapBackButton(Transform canvas)
+        {
+            Transform target = canvas?.Find("Map/Back Btn");
+            if (target == null)
+                return;
+
+            Button button = target.GetComponent<Button>();
+            Image image = target.GetComponent<Image>();
+            RectTransform rect = target as RectTransform;
+            TMP_Text label =
+                target.GetComponentInChildren<TMP_Text>(true);
+            if (image != null)
+            {
+                image.sprite = null;
+                image.type = Image.Type.Simple;
+                image.material = null;
+            }
+            if (button != null)
+            {
+                button.transition = Selectable.Transition.ColorTint;
+                button.spriteState = default;
+                button.targetGraphic = image;
+            }
+            UiVisualThemeService.ApplyButton(
+                button,
+                UiButtonStyle.Secondary);
+            if (rect != null)
+            {
+                rect.anchorMin = new Vector2(.855f, .905f);
+                rect.anchorMax = new Vector2(.985f, .975f);
+                rect.anchoredPosition = Vector2.zero;
+                rect.sizeDelta = Vector2.zero;
+            }
+            if (label != null)
+            {
+                label.text = "← 돌아가기";
+                UiVisualThemeService.ApplyText(
+                    label,
+                    UiTextStyle.Technical);
+                label.alignment = TextAlignmentOptions.Center;
+            }
+            target.SetAsLastSibling();
         }
 
         private void EnsureRuntimeControllers()
@@ -380,6 +425,7 @@ namespace Wake.UI
             }
             SetActivePanel(mapPanel, UiPrimaryPanel.Map);
             FindFirstObjectByType<MapController>()?.RefreshMap();
+            StyleMapBackButton(mapPanel?.transform.parent);
         }
 
         public void CloseMap()
