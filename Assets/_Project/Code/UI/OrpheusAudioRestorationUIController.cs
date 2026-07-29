@@ -141,7 +141,7 @@ namespace Wake.UI
             playbackText.text =
                 "[대기 중]\n기록 조각을 선택하면 음성 또는 한국어 자막을 재생합니다.";
             statusText.text = "기록 조각을 선택하고 복원 위치를 지정하세요.";
-            root.SetActive(true);
+            RuntimeModalTransition.Open(root);
             Refresh();
             return true;
         }
@@ -149,7 +149,7 @@ namespace Wake.UI
         public void Close()
         {
             audioSource?.Stop();
-            root?.SetActive(false);
+            RuntimeModalTransition.Close(root);
         }
 
         public bool SelectSegment(string lineId)

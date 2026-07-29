@@ -66,15 +66,14 @@ namespace Wake.UI
                 : $"저장된 검사 {session.Step}/3과 힌트 {session.HintLevel}/3을 복원했습니다.";
             reopenButton.gameObject.SetActive(false);
             root.transform.SetAsLastSibling();
-            root.SetActive(true);
+            RuntimeModalTransition.Open(root);
             Refresh();
             return true;
         }
 
         public void Close()
         {
-            root?.SetActive(false);
-            SetReopenVisibility();
+            RuntimeModalTransition.Close(root, SetReopenVisibility);
         }
 
         public ExitInspectionResult Inspect(string inspectionId)

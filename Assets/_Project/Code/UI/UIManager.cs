@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -41,7 +43,11 @@ namespace Wake.UI
         private GameObject continueButton;
         private SaveSlotSelectionController saveSlotSelection;
         private SystemScreenFlowController systemScreens;
+        private UIScreenTransitionCoordinator screenTransitions;
+        private UiTransitionProfile settingsTransitionProfile;
+        private UiTransitionProfile runtimeModalTransitionProfile;
         private ExplorationNavigationController explorationNavigation;
+        private bool suppressRuntimeModalAnimations;
         private bool hasShownBoot;
         private UiPrimaryPanel mapReturnPanel = UiPrimaryPanel.Ingame;
         private readonly List<IRuntimeModalController> runtimeModals = new();
@@ -55,6 +61,8 @@ namespace Wake.UI
                 ? systemScreens.ActiveState
                 : SystemScreenState.None;
         public int RuntimeModalControllerCount => runtimeModals.Count;
+        public bool IsTransitioning =>
+            screenTransitions != null && screenTransitions.IsTransitioning;
         public int OpenRuntimeModalCount
         {
             get
@@ -264,6 +272,10 @@ namespace Wake.UI
             EnsureComponent<RuntimeUiOverhaulController>(gameObject);
             EnsureComponent<EvidenceAcquisitionNoticeController>(gameObject);
             EnsureComponent<ChapterTransitionPresenter>(gameObject);
+            screenTransitions =
+                EnsureComponent<UIScreenTransitionCoordinator>(gameObject);
+            screenTransitions.Configure(
+                GameObject.Find("Canvas").transform as RectTransform);
             EnsureComponent<TitleScreenPresentationController>(startScenePanel);
             saveSlotSelection =
                 EnsureComponent<SaveSlotSelectionController>(startScenePanel);
@@ -416,6 +428,15 @@ namespace Wake.UI
             SetActivePanel(ingamePanel, UiPrimaryPanel.Ingame);
         }
 
+        internal void ShowIngameAfterTransition(Action completed)
+        {
+            SetActivePanel(
+                ingamePanel,
+                UiPrimaryPanel.Ingame,
+                null,
+                completed);
+        }
+
         public bool ResumePendingInteraction(
             ProductionDialogueCheckpoint checkpoint)
         {
@@ -455,6 +476,9 @@ namespace Wake.UI
 
         public void ShowMap()
         {
+            if (IsTransitioning)
+                return;
+
             if (ActivePanel != UiPrimaryPanel.Map)
             {
                 mapReturnPanel =
@@ -462,9 +486,14 @@ namespace Wake.UI
                         ? UiPrimaryPanel.Evidence
                         : UiPrimaryPanel.Ingame;
             }
-            SetActivePanel(mapPanel, UiPrimaryPanel.Map);
-            FindFirstObjectByType<MapController>()?.RefreshMap();
-            StyleMapBackButton(mapPanel?.transform.parent);
+            SetActivePanel(
+                mapPanel,
+                UiPrimaryPanel.Map,
+                () =>
+                {
+                    FindFirstObjectByType<MapController>()?.RefreshMap();
+                    StyleMapBackButton(mapPanel?.transform.parent);
+                });
         }
 
         public void CloseMap()
@@ -477,25 +506,54 @@ namespace Wake.UI
 
         public void ShowEvidence()
         {
-            SetActivePanel(evidencePanel, UiPrimaryPanel.Evidence);
-            EvidencePanelController.Instance?.Refresh();
+            SetActivePanel(
+                evidencePanel,
+                UiPrimaryPanel.Evidence,
+                () => EvidencePanelController.Instance?.Refresh());
         }
 
         public void ShowEvidence(string evidenceId)
         {
-            SetActivePanel(evidencePanel, UiPrimaryPanel.Evidence);
-            EvidencePanelController.Instance?.Refresh(evidenceId);
+            SetActivePanel(
+                evidencePanel,
+                UiPrimaryPanel.Evidence,
+                () => EvidencePanelController.Instance?.Refresh(evidenceId));
+        }
+
+        internal void ShowEvidenceAfterTransition(Action completed)
+        {
+            SetActivePanel(
+                evidencePanel,
+                UiPrimaryPanel.Evidence,
+                () => EvidencePanelController.Instance?.Refresh(),
+                completed);
         }
 
         public void OpenSettings()
         {
-            if (!IsInitialized || settingsPopup == null || IsSettingsOpen)
+            if (!IsInitialized ||
+                settingsPopup == null ||
+                IsSettingsOpen ||
+                IsTransitioning)
             {
                 return;
             }
 
             CloseRuntimeModals();
-            systemScreens?.Close();
+            if (systemScreens != null && systemScreens.IsOverlayOpen)
+            {
+                systemScreens.CloseAnimated(BeginOpenSettings);
+                return;
+            }
+
+            BeginOpenSettings();
+        }
+
+        private void BeginOpenSettings()
+        {
+            if (settingsPopup == null || IsSettingsOpen || IsTransitioning)
+                return;
+
             systemScreens?.OnSettingsOpened();
             SetPrimaryInteraction(false);
             if (statusHud != null)
@@ -503,38 +561,81 @@ namespace Wake.UI
                 statusHud.SetActive(false);
             }
             settingsPopup.transform.SetAsLastSibling();
-            settingsPopup.SetActive(true);
-            FindFirstObjectByType<SettingsController>()
-                ?.RefreshFromAudioManager();
-            Transform credit =
-                settingsPopup.transform.Find("Settings/Credit");
-            if (credit != null)
-                credit.gameObject.SetActive(false);
-            Transform exit =
-                settingsPopup.transform.Find("Exit Btn");
-            if (exit != null)
-                exit.gameObject.SetActive(false);
-            Canvas.ForceUpdateCanvases();
-            SettingsController.FitPopupInsideCanvas(
-                settingsPopup.transform as RectTransform,
-                settingsPopup.transform.parent as RectTransform);
+
+            void ActivateSettings()
+            {
+                settingsPopup.SetActive(true);
+                FindFirstObjectByType<SettingsController>()
+                    ?.RefreshFromAudioManager();
+                Transform credit =
+                    settingsPopup.transform.Find("Settings/Credit");
+                if (credit != null)
+                    credit.gameObject.SetActive(false);
+                Transform exit =
+                    settingsPopup.transform.Find("Exit Btn");
+                if (exit != null)
+                    exit.gameObject.SetActive(false);
+                Canvas.ForceUpdateCanvases();
+                SettingsController.FitPopupInsideCanvas(
+                    settingsPopup.transform as RectTransform,
+                    settingsPopup.transform.parent as RectTransform);
+            }
+
+            settingsTransitionProfile ??= UiTransitionProfile.CreateRuntime(
+                "Runtime Settings Transition",
+                UiTransitionDirection.Right,
+                .22f,
+                .34f,
+                .025f);
+            if (screenTransitions == null ||
+                !screenTransitions.Run(
+                    null,
+                    settingsPopup,
+                    ActivateSettings,
+                    null,
+                    settingsTransitionProfile))
+            {
+                ActivateSettings();
+            }
         }
 
         public void CloseSettings()
         {
+            CloseSettings(null);
+        }
+
+        private void CloseSettings(Action afterClosed)
+        {
             bool wasOpen =
                 settingsPopup != null && settingsPopup.activeSelf;
-            if (settingsPopup != null)
+            if (!wasOpen)
+            {
+                afterClosed?.Invoke();
+                return;
+            }
+            if (IsTransitioning)
+                return;
+
+            void DeactivateSettings()
             {
                 settingsPopup.SetActive(false);
-            }
-            if (wasOpen)
-            {
                 systemScreens?.OnSettingsClosed();
+                statusHud?.SetActive(false);
+                explorationNavigation?.SetInteractionEnabled(true);
+                SetPrimaryInteraction(true);
             }
-            statusHud?.SetActive(false);
-            explorationNavigation?.SetInteractionEnabled(true);
-            SetPrimaryInteraction(true);
+
+            if (screenTransitions == null ||
+                !screenTransitions.Run(
+                    settingsPopup,
+                    null,
+                    DeactivateSettings,
+                    afterClosed,
+                    settingsTransitionProfile))
+            {
+                DeactivateSettings();
+                afterClosed?.Invoke();
+            }
         }
 
         public void OpenPause()
@@ -551,7 +652,11 @@ namespace Wake.UI
             if (!IsInitialized)
                 return;
 
-            CloseSettings();
+            if (IsSettingsOpen)
+            {
+                CloseSettings(() => systemScreens?.ShowCredits());
+                return;
+            }
             systemScreens?.ShowCredits();
         }
 
@@ -632,9 +737,16 @@ namespace Wake.UI
 
         private void SetActivePanel(
             GameObject panel,
-            UiPrimaryPanel panelKind)
+            UiPrimaryPanel panelKind,
+            Action activated = null,
+            Action completed = null)
         {
             if (!IsInitialized || panel == null)
+            {
+                return;
+            }
+            if (screenTransitions != null &&
+                screenTransitions.IsTransitioning)
             {
                 return;
             }
@@ -642,17 +754,65 @@ namespace Wake.UI
             systemScreens?.Close();
             CloseRuntimeModals();
             CloseSettings();
-            startScenePanel.SetActive(panel == startScenePanel);
-            ingamePanel.SetActive(panel == ingamePanel);
-            mapPanel.SetActive(panel == mapPanel);
-            evidencePanel.SetActive(panel == evidencePanel);
-            ActivePanel = panelKind;
-            LocationLoader.Instance?.SetPresentationVisible(
-                panelKind == UiPrimaryPanel.Ingame);
-            statusHud?.SetActive(false);
-            explorationNavigation?.Refresh();
-            SetPrimaryInteraction(true);
+            GameObject outgoing = ResolvePanel(ActivePanel);
+            bool hasDedicatedTransition =
+                ActivePanel != UiPrimaryPanel.None &&
+                outgoing != panel &&
+                (panel.activeSelf || IsTravelFadeRunning());
+
+            void SwapPanels()
+            {
+                startScenePanel.SetActive(panel == startScenePanel);
+                ingamePanel.SetActive(panel == ingamePanel);
+                mapPanel.SetActive(panel == mapPanel);
+                evidencePanel.SetActive(panel == evidencePanel);
+                ActivePanel = panelKind;
+                LocationLoader.Instance?.SetPresentationVisible(
+                    panelKind == UiPrimaryPanel.Ingame);
+                statusHud?.SetActive(false);
+                explorationNavigation?.Refresh();
+                SetPrimaryInteraction(true);
+                activated?.Invoke();
+            }
+
+            if (outgoing == panel || hasDedicatedTransition)
+            {
+                SwapPanels();
+                completed?.Invoke();
+                return;
+            }
+
+            SetPrimaryInteraction(false);
+            void CompleteTransition()
+            {
+                SetPrimaryInteraction(true);
+                completed?.Invoke();
+            }
+            if (screenTransitions == null ||
+                !screenTransitions.Run(
+                    outgoing,
+                    panel,
+                    SwapPanels,
+                    CompleteTransition))
+            {
+                SwapPanels();
+                CompleteTransition();
+            }
         }
+
+        private GameObject ResolvePanel(UiPrimaryPanel panel) =>
+            panel switch
+            {
+                UiPrimaryPanel.Start => startScenePanel,
+                UiPrimaryPanel.Ingame => ingamePanel,
+                UiPrimaryPanel.Map => mapPanel,
+                UiPrimaryPanel.Evidence => evidencePanel,
+                _ => null
+            };
+
+        private bool IsTravelFadeRunning() =>
+            startScenePanel?.transform.parent
+                ?.GetComponent<ScreenFadeTransition>()?.IsRunning == true;
 
         internal void SetSystemScreenOverlayActive(bool active)
         {
@@ -668,13 +828,111 @@ namespace Wake.UI
 
         private void CloseRuntimeModals()
         {
-            foreach (IRuntimeModalController modal in runtimeModals)
+            suppressRuntimeModalAnimations = true;
+            try
             {
-                if (modal != null && modal.IsOpen)
+                foreach (IRuntimeModalController modal in runtimeModals)
                 {
-                    modal.Close();
+                    if (modal != null && modal.IsOpen)
+                        modal.Close();
                 }
             }
+            finally
+            {
+                suppressRuntimeModalAnimations = false;
+            }
+        }
+
+        internal void OpenRuntimeModalAnimated(
+            GameObject modal,
+            Action activate)
+        {
+            if (modal == null)
+                return;
+
+            SetPrimaryInteraction(false);
+            CanvasGroup modalInput =
+                EnsureComponent<CanvasGroup>(modal);
+            modalInput.ignoreParentGroups = true;
+            modalInput.interactable = true;
+            modalInput.blocksRaycasts = true;
+            runtimeModalTransitionProfile ??=
+                UiTransitionProfile.CreateRuntime(
+                    "Runtime Modal Transition",
+                    UiTransitionDirection.Scale,
+                    .2f,
+                    .3f,
+                    .02f);
+            if (suppressRuntimeModalAnimations ||
+                screenTransitions == null ||
+                screenTransitions.IsTransitioning ||
+                !screenTransitions.Run(
+                    null,
+                    modal,
+                    activate,
+                    null,
+                    runtimeModalTransitionProfile))
+            {
+                activate?.Invoke();
+            }
+        }
+
+        internal void CloseRuntimeModalAnimated(
+            GameObject modal,
+            Action deactivate,
+            Action completed)
+        {
+            if (modal == null)
+            {
+                completed?.Invoke();
+                return;
+            }
+
+            if (!suppressRuntimeModalAnimations &&
+                screenTransitions != null &&
+                screenTransitions.IsTransitioning)
+            {
+                StartCoroutine(
+                    CloseRuntimeModalWhenTransitionReady(
+                        modal,
+                        deactivate,
+                        completed));
+                return;
+            }
+
+            void RestoreInteraction()
+            {
+                statusHud?.SetActive(false);
+                SetPrimaryInteraction(true);
+                completed?.Invoke();
+            }
+
+            if (suppressRuntimeModalAnimations ||
+                screenTransitions == null ||
+                !screenTransitions.Run(
+                    modal,
+                    null,
+                    deactivate,
+                    RestoreInteraction,
+                    runtimeModalTransitionProfile))
+            {
+                deactivate?.Invoke();
+                if (!suppressRuntimeModalAnimations)
+                    RestoreInteraction();
+            }
+        }
+
+        private IEnumerator CloseRuntimeModalWhenTransitionReady(
+            GameObject modal,
+            Action deactivate,
+            Action completed)
+        {
+            while (screenTransitions != null &&
+                   screenTransitions.IsTransitioning)
+            {
+                yield return null;
+            }
+            CloseRuntimeModalAnimated(modal, deactivate, completed);
         }
 
         private void SetPrimaryInteraction(bool enabled)

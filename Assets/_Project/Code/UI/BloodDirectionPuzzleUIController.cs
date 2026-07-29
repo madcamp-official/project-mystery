@@ -81,16 +81,20 @@ namespace Wake.UI
                 id => EvidenceInventory.Instance != null &&
                       EvidenceInventory.Instance.Contains(id));
             puzzle = new BloodDirectionPuzzleSession();
-            root.SetActive(true);
-            LocationLoader.Instance?.SetWorldInteractionSuppressed(true);
+            RuntimeModalTransition.Open(
+                root,
+                () => LocationLoader.Instance
+                    ?.SetWorldInteractionSuppressed(true));
             Refresh();
             return true;
         }
 
         public void Close()
         {
-            root?.SetActive(false);
-            LocationLoader.Instance?.SetWorldInteractionSuppressed(false);
+            RuntimeModalTransition.Close(
+                root,
+                () => LocationLoader.Instance
+                    ?.SetWorldInteractionSuppressed(false));
         }
 
         private void OnDestroy()

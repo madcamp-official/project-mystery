@@ -164,7 +164,7 @@ namespace Wake.Tests.PlayMode
             yield return null;
 
             Ui.OpenPause();
-            yield return null;
+            yield return WaitForUiTransition();
 
             GameObject pause =
                 RequireObject("System Screen Flow/Pause");
@@ -192,7 +192,7 @@ namespace Wake.Tests.PlayMode
                 "확인",
                 "현재 행동을 계속하시겠습니까?",
                 () => confirmed = true);
-            yield return null;
+            yield return WaitForUiTransition();
 
             GameObject confirmation =
                 RequireObject("System Screen Flow/Confirmation");
@@ -209,6 +209,33 @@ namespace Wake.Tests.PlayMode
                 Is.EqualTo(SystemScreenState.None));
             Assert.That(ingameInput.interactable, Is.True);
             AssertNoRuntimeErrors("일시정지와 확인 모달");
+        }
+
+        [UnityTest]
+        public IEnumerator Settings_AnimatesAndReturnsToTitle()
+        {
+            Ui.OpenSettings();
+            yield return WaitForUiTransition();
+
+            GameObject settings = RequireObject("Settings Popup");
+            CanvasGroup titleInput =
+                RequireObject("StartScene").GetComponent<CanvasGroup>();
+            Assert.That(settings.activeInHierarchy, Is.True);
+            Assert.That(
+                Ui.ActiveSystemScreen,
+                Is.EqualTo(SystemScreenState.Settings));
+            Assert.That(titleInput.interactable, Is.False);
+
+            Button close = RequireComponent<Button>(
+                "Settings Popup/Close");
+            yield return InvokeAndSettle(close);
+
+            Assert.That(settings.activeSelf, Is.False);
+            Assert.That(
+                Ui.ActiveSystemScreen,
+                Is.EqualTo(SystemScreenState.Title));
+            Assert.That(titleInput.interactable, Is.True);
+            AssertNoRuntimeErrors("설정 화면 왕복");
         }
 
         [UnityTest]
@@ -232,7 +259,7 @@ namespace Wake.Tests.PlayMode
                     InvestigationEventKind.SceneCompleted,
                     boundary.CompletedSceneId,
                     boundary.NextSceneId);
-                yield return new WaitForSecondsRealtime(0.25f);
+                yield return WaitForUiTransition();
 
                 Assert.That(
                     transition.activeInHierarchy,
@@ -259,7 +286,8 @@ namespace Wake.Tests.PlayMode
                     Is.Not.Empty);
 
                 continueButton.onClick.Invoke();
-                yield return new WaitForSecondsRealtime(0.3f);
+                yield return new WaitForSecondsRealtime(0.2f);
+                yield return WaitForUiTransition();
 
                 Assert.That(transition.activeSelf, Is.False);
                 Assert.That(

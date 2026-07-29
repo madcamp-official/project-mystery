@@ -22,6 +22,7 @@ namespace Wake.Tests.PlayMode
             State.StartNewGame();
             State.RecordCompletedScene("D1-07");
             Ui.ShowIngame();
+            yield return WaitForUiTransition();
             Assert.That(Dialogue.StartProductionScene("D2-01"), Is.True);
             yield return CompleteActiveProductionDialogue();
 
@@ -73,7 +74,7 @@ namespace Wake.Tests.PlayMode
             Assert.That(controller.Session.InspectionOrder,
                 Is.EqualTo(new[] { ExitInspectionCatalog.ServiceHatch }));
             controller.Close();
-            yield return null;
+            yield return WaitForUiTransition();
 
             Button reopen = RequireComponent<Button>("Exit Inspection Resume");
             Assert.That(reopen.gameObject.activeInHierarchy, Is.True);
