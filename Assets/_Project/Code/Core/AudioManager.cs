@@ -421,6 +421,10 @@ namespace Wake.Core
                 AudioCueCatalog.FootstepPitchFor(surface);
             travelFootstepSource.volume =
                 SfxVolume * currentTravelFootstepMix;
+            travelFootstepSource.time = Mathf.Clamp(
+                AudioCueCatalog.FootstepStartOffsetFor(surface),
+                0f,
+                Mathf.Max(0f, clip.length - 0.05f));
             travelFootstepSource.Play();
             if (travelFootstepStop != null)
             {

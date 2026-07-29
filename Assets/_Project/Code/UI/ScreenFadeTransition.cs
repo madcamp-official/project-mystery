@@ -34,7 +34,8 @@ namespace Wake.UI
             float fadeOutSeconds = .25f,
             float fadeInSeconds = .25f,
             Action started = null,
-            Action completed = null)
+            Action completed = null,
+            float holdSeconds = 0f)
         {
             if (transition != null)
                 return false;
@@ -44,7 +45,8 @@ namespace Wake.UI
                 midpoint,
                 fadeOutSeconds,
                 fadeInSeconds,
-                completed));
+                completed,
+                holdSeconds));
             return true;
         }
 
@@ -118,7 +120,8 @@ namespace Wake.UI
             Action midpoint,
             float fadeOutSeconds,
             float fadeInSeconds,
-            Action completed)
+            Action completed,
+            float holdSeconds)
         {
             yield return FadeIn(fadeOutSeconds, DefaultColor);
             try
@@ -130,6 +133,10 @@ namespace Wake.UI
                 Debug.LogException(exception);
             }
             blocker.transform.SetAsLastSibling();
+            if (holdSeconds > 0f)
+            {
+                yield return new WaitForSecondsRealtime(holdSeconds);
+            }
             yield return FadeOut(fadeInSeconds);
             transition = null;
             completed?.Invoke();

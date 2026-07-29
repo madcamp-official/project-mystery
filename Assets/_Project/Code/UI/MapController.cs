@@ -435,6 +435,11 @@ namespace Wake.UI
                 return;
             }
             AudioManager audio = AudioManager.Instance;
+            // Hold the screen fully black until the travel footstep sound
+            // finishes, rather than starting the reveal partway through it.
+            float holdSeconds = Mathf.Max(
+                0f,
+                AudioCueCatalog.MapTravelFootstepSeconds - MapTravelFadeSeconds);
             transition.Run(
                 () =>
                 {
@@ -448,7 +453,8 @@ namespace Wake.UI
                     entry.Spec.Code,
                     MapTravelFadeSeconds,
                     MapTravelFadeSeconds),
-                () => audio?.EndMapTravelAudio());
+                () => audio?.EndMapTravelAudio(),
+                holdSeconds);
         }
 
         private void SelectLocation(LocationDefinition location)
