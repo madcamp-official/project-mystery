@@ -637,6 +637,12 @@ namespace Wake.Core
                 $"{(string.IsNullOrWhiteSpace(displayName) ? flag : displayName)} \uD68D\uB4DD");
         }
 
+        public void AddFlagSilently(string flag)
+        {
+            if (AddFlagInternal(flag))
+                SaveAndNotify();
+        }
+
         public void RemoveFlag(string flag)
         {
             if (!data.flags.Remove(NormalizeObjectiveId(flag)))

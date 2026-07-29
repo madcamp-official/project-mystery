@@ -365,6 +365,59 @@ namespace Wake.Tests.PlayMode
             AssertNoRuntimeErrors("DAY 경계 챕터 전환");
         }
 
+        [UnityTest]
+        public IEnumerator BodyDiscovery_PlaysOnceAndReturnsToD106Background()
+        {
+            yield return StartNewGameFromVisibleButton(false);
+            BodyDiscoveryPresenter presenter =
+                Ui.GetComponent<BodyDiscoveryPresenter>();
+            Assert.That(presenter, Is.Not.Null);
+            Assert.That(
+                State.HasFlag(BodyDiscoveryPresenter.SeenFlag),
+                Is.False);
+
+            InvestigationEventHub.Publish(
+                InvestigationEventKind.SceneEntered,
+                BodyDiscoveryPresenter.SceneId,
+                "HORIZON");
+            yield return null;
+
+            GameObject cinematic =
+                RequireObject("Body Discovery Cinematic");
+            CanvasGroup ingameInput =
+                RequireObject("Ingame").GetComponent<CanvasGroup>();
+            Assert.That(presenter.IsPlaying, Is.True);
+            Assert.That(presenter.LoadedFrameCount, Is.EqualTo(4));
+            Assert.That(presenter.HasStingerClip, Is.True);
+            Assert.That(cinematic.activeInHierarchy, Is.True);
+            Assert.That(ingameInput.interactable, Is.False);
+            Assert.That(Dialogue.IsInputSuppressed, Is.True);
+
+            yield return new WaitForSecondsRealtime(5.3f);
+
+            Assert.That(presenter.IsPlaying, Is.False);
+            Assert.That(cinematic.activeSelf, Is.False);
+            Assert.That(
+                cinematic.transform.Find("Discovery Frame")
+                    .GetComponent<RawImage>().texture,
+                Is.Null,
+                "The final frame must reveal the original D1-06 background.");
+            Assert.That(
+                State.HasFlag(BodyDiscoveryPresenter.SeenFlag),
+                Is.True);
+            Assert.That(ingameInput.interactable, Is.True);
+            Assert.That(Dialogue.IsInputSuppressed, Is.False);
+
+            InvestigationEventHub.Publish(
+                InvestigationEventKind.SceneEntered,
+                BodyDiscoveryPresenter.SceneId,
+                "HORIZON");
+            yield return null;
+            Assert.That(presenter.IsPlaying, Is.False);
+            Assert.That(cinematic.activeSelf, Is.False);
+            AssertNoRuntimeErrors("D1-06 body discovery cinematic");
+        }
+
         private void AssertResponsiveLayout(RectTransform rect)
         {
             Assert.That(rect, Is.Not.Null);

@@ -213,6 +213,26 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void SilentFlags_SaveWithoutShowingAcquisitionFeedback()
+        {
+            int stateChanges = 0;
+            int feedbackRequests = 0;
+            state.StateChanged += () => stateChanges++;
+            state.FeedbackRequested += _ => feedbackRequests++;
+
+            state.AddFlagSilently(
+                " cinematic.d1_06_body_discovery_seen ");
+            state.AddFlagSilently(
+                "cinematic.d1_06_body_discovery_seen");
+
+            Assert.That(
+                state.HasFlag("cinematic.d1_06_body_discovery_seen"),
+                Is.True);
+            Assert.That(stateChanges, Is.EqualTo(1));
+            Assert.That(feedbackRequests, Is.Zero);
+        }
+
+        [Test]
         public void EvidenceAndLocationIds_AreTrimmedBeforeSaving()
         {
             state.RecordEvidenceCollected(" C-02 ");

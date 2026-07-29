@@ -47,6 +47,7 @@ namespace Wake.UI
         private UiTransitionProfile settingsTransitionProfile;
         private UiTransitionProfile runtimeModalTransitionProfile;
         private ExplorationNavigationController explorationNavigation;
+        private BodyDiscoveryPresenter bodyDiscoveryPresenter;
         private bool suppressRuntimeModalAnimations;
         private bool systemScreenPausesAmbientMotion;
         private bool settingsPauseAmbientMotion;
@@ -107,7 +108,8 @@ namespace Wake.UI
                 Keyboard.current == null ||
                 ActivePanel == UiPrimaryPanel.Start ||
                 IsSettingsOpen ||
-                ActiveSystemScreen != SystemScreenState.None)
+                ActiveSystemScreen != SystemScreenState.None ||
+                bodyDiscoveryPresenter?.IsPlaying == true)
             {
                 return;
             }
@@ -275,6 +277,8 @@ namespace Wake.UI
             EnsureComponent<RuntimeUiOverhaulController>(gameObject);
             EnsureComponent<EvidenceAcquisitionNoticeController>(gameObject);
             EnsureComponent<ChapterTransitionPresenter>(gameObject);
+            bodyDiscoveryPresenter =
+                EnsureComponent<BodyDiscoveryPresenter>(gameObject);
             screenTransitions =
                 EnsureComponent<UIScreenTransitionCoordinator>(gameObject);
             screenTransitions.Configure(
@@ -903,6 +907,13 @@ namespace Wake.UI
             LocationLoader.Instance?.SetAmbientMotionPaused(
                 systemScreenPausesAmbientMotion ||
                 settingsPauseAmbientMotion);
+        }
+
+        internal void SetCinematicOverlayActive(bool active)
+        {
+            SetPrimaryInteraction(!active);
+            statusHud?.SetActive(false);
+            explorationNavigation?.SetInteractionEnabled(!active);
         }
 
         internal void SetExplorationNavigationSuppressed(bool suppressed)
