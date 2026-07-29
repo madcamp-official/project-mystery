@@ -253,12 +253,16 @@ namespace Wake.UI
             mapButton = CreateButton(
                 parent,
                 "지도",
-                owner != null ? owner.ShowMap : null);
+                owner != null ? owner.ShowMap : null,
+                Resources.Load<Sprite>("UI/Icons/Navigation/ui_icon_nav_map"));
             evidenceButton =
                 CreateButton(
                     parent,
                     "조사 기록",
-                    owner != null ? owner.ShowEvidence : null);
+                    owner != null ? owner.ShowEvidence : null,
+                    Resources.Load<Sprite>(
+                        "UI/Icons/Navigation/ui_icon_nav_evidence"),
+                    iconPadding: 14f);
             pauseButton =
                 CreateButton(
                     parent,
@@ -482,7 +486,9 @@ namespace Wake.UI
         private static Button CreateButton(
             Transform parent,
             string label,
-            UnityEngine.Events.UnityAction action)
+            UnityEngine.Events.UnityAction action,
+            Sprite icon = null,
+            float iconPadding = 8f)
         {
             GameObject target = new(
                 $"{label} 버튼",
@@ -493,19 +499,43 @@ namespace Wake.UI
                 typeof(LayoutElement));
             target.transform.SetParent(parent, false);
             LayoutElement element = target.GetComponent<LayoutElement>();
-            element.preferredWidth = label.Length > 3 ? 190f : 150f;
-            element.minWidth = 120f;
+            if (icon != null)
+            {
+                element.preferredWidth = 64f;
+                element.minWidth = 64f;
+            }
+            else
+            {
+                element.preferredWidth = label.Length > 3 ? 190f : 150f;
+                element.minWidth = 120f;
+            }
 
-            GameObject textObject = new(
-                "Label",
-                typeof(RectTransform),
-                typeof(TextMeshProUGUI));
-            textObject.transform.SetParent(target.transform, false);
-            Stretch(textObject.GetComponent<RectTransform>(), 12f);
-            TMP_Text text = textObject.GetComponent<TMP_Text>();
-            text.text = label;
-            text.alignment = TextAlignmentOptions.Center;
-            text.raycastTarget = false;
+            if (icon != null)
+            {
+                GameObject iconObject = new(
+                    "Icon",
+                    typeof(RectTransform),
+                    typeof(Image));
+                iconObject.transform.SetParent(target.transform, false);
+                Stretch(iconObject.GetComponent<RectTransform>(), iconPadding);
+                Image iconImage = iconObject.GetComponent<Image>();
+                iconImage.sprite = icon;
+                iconImage.preserveAspect = true;
+                iconImage.raycastTarget = false;
+            }
+            else
+            {
+                GameObject textObject = new(
+                    "Label",
+                    typeof(RectTransform),
+                    typeof(TextMeshProUGUI));
+                textObject.transform.SetParent(target.transform, false);
+                Stretch(textObject.GetComponent<RectTransform>(), 12f);
+                TMP_Text text = textObject.GetComponent<TMP_Text>();
+                text.text = label;
+                text.alignment = TextAlignmentOptions.Center;
+                text.raycastTarget = false;
+            }
 
             Button button = target.GetComponent<Button>();
             UiVisualThemeService.ApplyButton(
