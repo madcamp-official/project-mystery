@@ -92,6 +92,21 @@ namespace Wake.UI
 
             Instance = this;
             EnsureInitialized();
+            ApplyCustomCursor();
+        }
+
+        private static void ApplyCustomCursor()
+        {
+            Texture2D cursorTexture =
+                Resources.Load<Texture2D>("Cursors/ui_cursor_magic_arrow");
+            if (cursorTexture == null)
+            {
+                return;
+            }
+
+            // The art's pointer tip sits at the texture's top-left corner,
+            // matching the standard OS arrow cursor convention.
+            Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
         }
 
         private void OnDestroy()
