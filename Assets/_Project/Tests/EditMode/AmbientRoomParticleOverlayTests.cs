@@ -1,3 +1,4 @@
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,6 +8,26 @@ namespace Wake.Tests
 {
     public sealed class AmbientRoomParticleOverlayTests
     {
+        // Regression test for a bug where multiplying the raw (dark)
+        // sampled background color into the particle crushed brightness to
+        // near-invisible. NormalizeForGlow must keep hue but force the
+        // background sample back up to full brightness.
+        [Test]
+        public void NormalizeForGlow_ForcesDarkBackgroundToFullBrightness()
+        {
+            MethodInfo method = typeof(AmbientRoomParticleOverlay).GetMethod(
+                "NormalizeForGlow",
+                BindingFlags.NonPublic | BindingFlags.Static);
+            Color darkBackground = new(0.049f, 0.047f, 0.063f);
+
+            Color result = (Color)method.Invoke(
+                null, new object[] { darkBackground });
+
+            float maxChannel = Mathf.Max(result.r, result.g, result.b);
+            Assert.That(maxChannel, Is.EqualTo(1f).Within(0.01f));
+        }
+
+
         [Test]
         public void Initialize_CreatesSixteenNonInteractiveGlowParticles()
         {

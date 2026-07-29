@@ -11,6 +11,7 @@ namespace Wake.Exploration
         private const float MaxSizePx = 18f;
         private const int GlowTextureSize = 32;
         private const int SampleGridSize = 24;
+        private const float BackgroundSaturationFactor = 0.5f;
 
         private static Sprite glowSprite;
         private static Material additiveMaterial;
@@ -106,8 +107,8 @@ namespace Wake.Exploration
                         bounds.xMin, bounds.xMax, state.Position.x);
                     float v = Mathf.InverseLerp(
                         bounds.yMin, bounds.yMax, state.Position.y);
-                    backgroundColor =
-                        backgroundSampleCache.GetPixelBilinear(u, v);
+                    backgroundColor = NormalizeForGlow(
+                        backgroundSampleCache.GetPixelBilinear(u, v));
                 }
 
                 Color color = tint * backgroundColor;
@@ -162,6 +163,20 @@ namespace Wake.Exploration
 
             RenderTexture.active = previous;
             RenderTexture.ReleaseTemporary(renderTexture);
+        }
+
+        // Multiplying the raw sampled background color into the particle
+        // crushed brightness to near-invisible: photographic backgrounds
+        // are rarely near-white, and that darkness compounded with the
+        // twinkle alpha and the additive shader's alpha-premultiply (three
+        // multiplicative darkening factors stacked). Keep the background's
+        // hue (and a softened saturation) so particles still pick up local
+        // room color, but force it back up to full brightness first.
+        private static Color NormalizeForGlow(Color color)
+        {
+            Color.RGBToHSV(color, out float hue, out float saturation, out _);
+            return Color.HSVToRGB(
+                hue, saturation * BackgroundSaturationFactor, 1f);
         }
 
         private void OnDestroy()
