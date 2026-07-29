@@ -374,19 +374,23 @@ namespace Wake.Tests.PlayMode
                 legacyObjective.activeInHierarchy,
                 Is.False,
                 "The legacy objective overlay must not duplicate the authored top HUD.");
-            GameObject objective = RequireObject(
-                "Exploration Global Navigation/Exploration Objective");
-            Assert.That(objective.activeInHierarchy, Is.True);
+            GameObject context = RequireObject(
+                "Exploration Global Navigation/Exploration Context");
+            Assert.That(context.activeInHierarchy, Is.True);
             Assert.That(
-                objective.transform.Find("Current Objective")
+                context.transform.Find("Current Objective")
                     ?.GetComponent<TMP_Text>()?.text,
                 Is.EqualTo("항구의 기자를 찾기"));
             Assert.That(
-                objective.transform.Find("Objective Detail")
+                context.transform.Find("Objective Eyebrow")
                     ?.GetComponent<TMP_Text>()?.text,
-                Is.EqualTo("항구를 둘러보고 다니엘을 찾아보자."));
+                Is.EqualTo("메인 목표"));
             Assert.That(
-                objective.GetComponentsInChildren<TMP_Text>(true)
+                context.transform.Find("Location Context"),
+                Is.Null,
+                "The top-left HUD must not show a redundant current-place caption.");
+            Assert.That(
+                context.GetComponentsInChildren<TMP_Text>(true)
                     .Select(text => text.text),
                 Has.None.Contains("P-01"));
             Assert.That(
@@ -471,11 +475,6 @@ namespace Wake.Tests.PlayMode
             Assert.That(
                 RequireObject(
                     "Exploration Global Navigation/Exploration Context")
-                    .activeSelf,
-                Is.False);
-            Assert.That(
-                RequireObject(
-                    "Exploration Global Navigation/Exploration Objective")
                     .activeSelf,
                 Is.False);
             Assert.That(
@@ -571,10 +570,6 @@ namespace Wake.Tests.PlayMode
                 RequireObject(
                     "Exploration Global Navigation/Exploration Context")
                 .GetComponent<RectTransform>();
-            RectTransform objectiveRegion =
-                RequireObject(
-                    "Exploration Global Navigation/Exploration Objective")
-                .GetComponent<RectTransform>();
             Bounds navigationBounds =
                 RectTransformUtility.CalculateRelativeRectTransformBounds(
                     canvas,
@@ -583,10 +578,6 @@ namespace Wake.Tests.PlayMode
                 RectTransformUtility.CalculateRelativeRectTransformBounds(
                     canvas,
                     context);
-            Bounds objectiveBounds =
-                RectTransformUtility.CalculateRelativeRectTransformBounds(
-                    canvas,
-                    objectiveRegion);
             Assert.That(navigationBounds.max.x, Is.LessThanOrEqualTo(
                 canvas.rect.xMax + 1f));
             Assert.That(navigationBounds.max.y, Is.LessThanOrEqualTo(
@@ -595,15 +586,11 @@ namespace Wake.Tests.PlayMode
             Assert.That(navigationBounds.center.y, Is.GreaterThan(0f));
             Assert.That(
                 contextBounds.max.x,
-                Is.LessThanOrEqualTo(objectiveBounds.min.x + 1f),
-                "The top-left context must not overlap the objective region.");
-            Assert.That(
-                objectiveBounds.max.x,
                 Is.LessThanOrEqualTo(navigationBounds.min.x + 1f),
-                "The objective region must not overlap global navigation.");
+                "The consolidated top-left HUD must not overlap navigation.");
 
             TMP_Text objective = RequireObject(
-                    "Exploration Global Navigation/Exploration Objective/" +
+                    "Exploration Global Navigation/Exploration Context/" +
                     "Current Objective")
                 .GetComponent<TMP_Text>();
             Assert.That(objective.text, Is.Not.Empty);

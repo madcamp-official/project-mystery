@@ -15,14 +15,12 @@ namespace Wake.UI
         private CanvasGroup canvasGroup;
         private TMP_Text locationLabel;
         private TMP_Text timeLabel;
-        private TMP_Text contextLabel;
+        private TMP_Text objectiveEyebrow;
         private TMP_Text objectiveLabel;
-        private TMP_Text objectiveDetail;
         private Button mapButton;
         private Button evidenceButton;
         private Button pauseButton;
         private RectTransform contextRegion;
-        private RectTransform objectiveRegion;
         private RectTransform globalRegion;
         private UiPrimaryPanel renderedPanel = UiPrimaryPanel.None;
         private string renderedLocationCode = string.Empty;
@@ -99,12 +97,11 @@ namespace Wake.UI
             root.transform.SetAsLastSibling();
             bool showExplorationHud = panel == UiPrimaryPanel.Ingame;
             contextRegion?.gameObject.SetActive(showExplorationHud);
-            objectiveRegion?.gameObject.SetActive(showExplorationHud);
             globalRegion?.gameObject.SetActive(true);
             if (showExplorationHud)
             {
-                RefreshContext(panel);
-                RefreshObjective(panel);
+                RefreshContext();
+                RefreshObjective();
             }
             SetSelectedState(mapButton, panel == UiPrimaryPanel.Map);
             SetSelectedState(
@@ -172,12 +169,6 @@ namespace Wake.UI
                 ScreenRegionIds.ContextTopLeft);
             CreateContext(contextRegion);
 
-            objectiveRegion = CreateRegion(
-                root.transform,
-                "Exploration Objective",
-                ScreenRegionIds.ObjectiveTop);
-            CreateObjective(objectiveRegion);
-
             globalRegion = CreateRegion(
                 root.transform,
                 "Global Navigation",
@@ -207,35 +198,17 @@ namespace Wake.UI
                 "Current Location",
                 UiTextStyle.Heading,
                 36f);
-            contextLabel = CreateText(
+            objectiveEyebrow = CreateText(
                 parent,
-                "Location Context",
+                "Objective Eyebrow",
                 UiTextStyle.Caption,
-                26f);
-        }
-
-        private void CreateObjective(RectTransform parent)
-        {
-            VerticalLayoutGroup layout =
-                parent.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(22, 22, 10, 10);
-            layout.spacing = 2f;
-            layout.childAlignment = TextAnchor.MiddleLeft;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
-
+                20f);
+            objectiveEyebrow.text = "메인 목표";
             objectiveLabel = CreateText(
                 parent,
                 "Current Objective",
                 UiTextStyle.Body,
-                34f);
-            objectiveDetail = CreateText(
-                parent,
-                "Objective Detail",
-                UiTextStyle.Caption,
-                24f);
+                32f);
         }
 
         private void CreateGlobalNavigation(RectTransform parent)
@@ -284,55 +257,26 @@ namespace Wake.UI
             pauseButton?.onClick.AddListener(owner.OpenPause);
         }
 
-        private void RefreshContext(UiPrimaryPanel panel)
+        private void RefreshContext()
         {
             GameStateManager state = GameStateManager.Instance;
             timeLabel.text = state != null
                 ? ResolveWorldTimeLabel(state)
                 : "DAY 1 · 오전";
-            switch (panel)
-            {
-                case UiPrimaryPanel.Map:
-                    locationLabel.text = "선내 지도";
-                    contextLabel.text = "이동할 장소를 선택하세요";
-                    break;
-                case UiPrimaryPanel.Evidence:
-                    locationLabel.text = "조사 기록";
-                    contextLabel.text = "확보한 기록을 검토하세요";
-                    break;
-                default:
-                    LocationDefinition location =
-                        LocationLoader.Instance?.CurrentLocation;
-                    CanonicalLocationSpec fallback =
-                        CanonicalLocationCatalog.FindSpec(
-                            ResolveLocationCode());
-                    locationLabel.text =
-                        location != null &&
-                        !string.IsNullOrWhiteSpace(location.DisplayName)
-                            ? location.DisplayName
-                            : fallback?.DisplayName ?? "현재 장소";
-                    contextLabel.text = "주변을 살펴보고 단서를 찾으세요";
-                    break;
-            }
+            LocationDefinition location =
+                LocationLoader.Instance?.CurrentLocation;
+            CanonicalLocationSpec fallback =
+                CanonicalLocationCatalog.FindSpec(
+                    ResolveLocationCode());
+            locationLabel.text =
+                location != null &&
+                !string.IsNullOrWhiteSpace(location.DisplayName)
+                    ? location.DisplayName
+                    : fallback?.DisplayName ?? "장소 미확인";
         }
 
-        private void RefreshObjective(UiPrimaryPanel panel)
+        private void RefreshObjective()
         {
-            if (panel == UiPrimaryPanel.Map)
-            {
-                objectiveLabel.text = "다음 조사 장소 선택";
-                objectiveDetail.text =
-                    "잠긴 장소는 사건 진행 후 열립니다";
-                return;
-            }
-            if (panel == UiPrimaryPanel.Evidence)
-            {
-                objectiveLabel.text = "기록과 인물의 연결 확인";
-                objectiveDetail.text =
-                    "코드와 수집률 대신 사건의 맥락을 확인하세요";
-                return;
-            }
-
             ProductionObjectiveItem? current =
                 ProductionObjectiveViewModel
                     .Resolve(GameStateManager.Instance)
@@ -340,14 +284,10 @@ namespace Wake.UI
             if (current.HasValue)
             {
                 objectiveLabel.text = current.Value.Definition.Title;
-                objectiveDetail.text =
-                    current.Value.Definition.Description;
             }
             else
             {
                 objectiveLabel.text = "자유 조사";
-                objectiveDetail.text =
-                    "인물과 사물을 직접 선택해 조사하세요";
             }
         }
 
@@ -420,12 +360,9 @@ namespace Wake.UI
                 int displayHour = hour > 12 ? hour - 12 : hour;
                 if (displayHour == 0)
                     displayHour = 12;
-                string minuteLabel = minute > 0
-                    ? $" {minute}분"
-                    : string.Empty;
                 return
                     $"DAY {scene.Day} · {TimeBlockLabel(scene.TimeBlock)} " +
-                    $"{displayHour}시{minuteLabel}";
+                    $"{displayHour}:{minute:00}";
             }
 
             return
