@@ -500,7 +500,8 @@ namespace Wake.UI
             Transform explorationNavigation =
                 GameObject.Find("Exploration Global Navigation")?.transform;
             bool replacedByExplorationShell =
-                explorationNavigation?.Find("Exploration Objective") != null;
+                explorationNavigation?.Find(
+                    "Exploration Context/Current Objective") != null;
             UIManager ui = UIManager.Instance;
             GameFlow flow = GameFlow.Instance;
             Wake.Exploration.LocationLoader locations =
