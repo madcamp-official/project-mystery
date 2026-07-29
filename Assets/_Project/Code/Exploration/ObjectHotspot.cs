@@ -1,8 +1,6 @@
 using UnityEngine;
 using Wake.Narrative;
 using Wake.Evidence;
-using Wake.UI;
-using Wake.Core;
 
 namespace Wake.Exploration
 {
@@ -21,11 +19,7 @@ namespace Wake.Exploration
 
             if (isEvidence && evidenceDefinition != null)
             {
-                bool added = EvidenceInventory.Instance.Add(evidenceDefinition);
-                if (added)
-                {
-                    ToastController.Instance.Show($"단서 확보: {evidenceDefinition.DisplayName}");
-                }
+                EvidenceInventory.Instance.Add(evidenceDefinition);
             }
         }
     }

@@ -361,6 +361,84 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator EvidenceAcquisitionNotices_QueueThreeOnRightAndReflow()
+        {
+            EvidenceAcquisitionNoticeController controller =
+                Object.FindFirstObjectByType<
+                    EvidenceAcquisitionNoticeController>();
+            Assert.That(controller, Is.Not.Null);
+
+            Assert.That(EvidenceInventory.Instance.TryAddById("C-01"), Is.True);
+            Assert.That(EvidenceInventory.Instance.TryAddById("C-02"), Is.True);
+            Assert.That(EvidenceInventory.Instance.TryAddById("C-03"), Is.True);
+            Assert.That(EvidenceInventory.Instance.TryAddById("C-04"), Is.True);
+
+            yield return new WaitForSecondsRealtime(0.35f);
+
+            Assert.That(
+                controller.VisibleNoticeCount,
+                Is.EqualTo(
+                    EvidenceAcquisitionNoticeController
+                        .MaximumVisibleNotices));
+            Assert.That(controller.PendingNoticeCount, Is.EqualTo(1));
+            Assert.That(
+                controller.VisibleMessages.Select(
+                    message => message.Split('\n').Last()),
+                Is.EqualTo(new[]
+                {
+                    "다니엘의 초대장",
+                    "열린 출입문",
+                    "외벽 발판"
+                }));
+
+            RectTransform first = RequireComponent<RectTransform>(
+                "Evidence Acquisition Notice 1");
+            Image background = first.GetComponent<Image>();
+            Assert.That(first.anchorMin, Is.EqualTo(Vector2.one));
+            Assert.That(first.anchorMax, Is.EqualTo(Vector2.one));
+            Assert.That(first.anchoredPosition.x, Is.LessThan(0f));
+            Assert.That(first.rect.width, Is.LessThan(340f));
+            Assert.That(background.color.a, Is.EqualTo(1f));
+            Assert.That(background.color.r, Is.Zero.Within(0.001f));
+            Assert.That(background.color.g, Is.Zero.Within(0.001f));
+            Assert.That(background.color.b, Is.Zero.Within(0.001f));
+            Assert.That(first.GetComponent<Outline>(), Is.Null);
+
+            yield return new WaitForSecondsRealtime(2.55f);
+
+            Assert.That(controller.VisibleNoticeCount, Is.EqualTo(3));
+            Assert.That(controller.PendingNoticeCount, Is.Zero);
+            Assert.That(
+                controller.VisibleMessages.Select(
+                    message => message.Split('\n').Last()),
+                Is.EqualTo(new[]
+                {
+                    "열린 출입문",
+                    "외벽 발판",
+                    "덕트 먼지"
+                }));
+            AssertNoRuntimeErrors("단서 획득 알림 큐");
+        }
+
+        [UnityTest]
+        public IEnumerator LegacyTopToast_DoesNotCreateAVisualSurface()
+        {
+            Assert.That(ToastController.RuntimeSurfaceEnabled, Is.False);
+
+            ToastController.Instance?.Show(
+                "천장 조사 개방 · 단서 C-08 FireDetector");
+            yield return null;
+
+            Assert.That(
+                Object.FindObjectsByType<RectTransform>(
+                        FindObjectsInactive.Include,
+                        FindObjectsSortMode.None)
+                    .Any(rect => rect.name == "Toast"),
+                Is.False);
+            AssertNoRuntimeErrors("상단 Toast 제거");
+        }
+
+        [UnityTest]
         public IEnumerator NewGame_ShowsNaturalLanguageObjectiveHud()
         {
             yield return StartNewGameFromVisibleButton(

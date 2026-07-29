@@ -212,7 +212,6 @@ namespace Wake.Exploration
                 return;
             }
 
-            ToastController.Instance?.Show($"단서 확보: {displayName}");
             UIManager.Instance?.ShowEvidence(spec.EvidenceId);
         }
 

@@ -727,6 +727,17 @@ namespace Wake.Narrative
             if (!presentation.ShowToast)
                 return;
 
+            if (presentation.Channel ==
+                ProductionUiEventChannel.Evidence &&
+                EvidencePlayerFacingText.TryExtractAcquisitionName(
+                    presentation.Message,
+                    out _))
+            {
+                EvidenceAcquisitionNoticeController.Instance
+                    ?.EnqueuePlayerMessage(presentation.Message);
+                return;
+            }
+
             if (presentation.Channel is
                 ProductionUiEventChannel.Theory or
                 ProductionUiEventChannel.Interaction)

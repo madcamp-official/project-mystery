@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -7,7 +8,6 @@ using UnityEngine.UI;
 using Wake.Core;
 using Wake.Evidence;
 using Wake.Exploration;
-using System.Text.RegularExpressions;
 
 namespace Wake.UI
 {
@@ -80,15 +80,12 @@ namespace Wake.UI
     public sealed class RuntimeUiOverhaulController : MonoBehaviour
     {
         private float nextScan;
-        private static readonly Regex EvidenceCode =
-            new(@"\bC[-_ ]?(\d{1,2})\b", RegexOptions.IgnoreCase);
 
         private void Start()
         {
             ConfigureCanvas();
             ConfigurePanels();
             ScanButtons();
-            SanitizeVisibleText();
         }
 
         private static void ConfigureCanvas()
@@ -114,7 +111,6 @@ namespace Wake.UI
             }
             nextScan = Time.unscaledTime + 0.5f;
             ScanButtons();
-            SanitizeVisibleText();
         }
 
         private static void ConfigurePanels()
@@ -173,31 +169,6 @@ namespace Wake.UI
             }
         }
 
-        private static void SanitizeVisibleText()
-        {
-            GameObject canvas = GameObject.Find("Canvas");
-            if (canvas == null)
-            {
-                return;
-            }
-            foreach (TMP_Text label in canvas.GetComponentsInChildren<TMP_Text>(true))
-            {
-                string original = label.text ?? string.Empty;
-                string sanitized = original;
-                sanitized = EvidenceCode.Replace(sanitized, match =>
-                {
-                    string id = $"C-{int.Parse(match.Groups[1].Value):00}";
-                    return CanonicalEvidenceCatalog.TryGet(
-                        id, out CanonicalEvidenceEntry entry)
-                        ? entry.DisplayName
-                        : "단서";
-                });
-                if (sanitized != original)
-                {
-                    label.text = sanitized;
-                }
-            }
-        }
     }
 
     [DisallowMultipleComponent]
@@ -1244,10 +1215,51 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class EvidenceAcquisitionNoticeController : MonoBehaviour
     {
-        private RectTransform notice;
-        private TMP_Text title;
+        private sealed class NoticeCard
+        {
+            public RectTransform Rect;
+            public TMP_Text Text;
+            public string Key;
+            public float TopSince;
+            public Coroutine Movement;
+        }
+
+        public const int MaximumVisibleNotices = 3;
+
+        private const float CardWidth = 318f;
+        private const float CardHeight = 68f;
+        private const float CardGap = 9f;
+        private const float RightMargin = 18f;
+        private const float TopOffset = 168f;
+        private const float SlideSeconds = 0.24f;
+        private const float ReflowSeconds = 0.18f;
+        private const float HoldSeconds = 2f;
+
+        private readonly Queue<string> pending = new();
+        private readonly HashSet<string> scheduled =
+            new(StringComparer.Ordinal);
+        private readonly List<NoticeCard> visible = new();
+        private readonly List<NoticeCard> cards = new();
+
+        private RectTransform canvas;
         private EvidenceInventory boundInventory;
-        private Coroutine noticeAnimation;
+        private Coroutine queueRoutine;
+
+        public static EvidenceAcquisitionNoticeController Instance
+        {
+            get;
+            private set;
+        }
+
+        public int PendingNoticeCount => pending.Count;
+        public int VisibleNoticeCount => visible.Count;
+        public IReadOnlyList<string> VisibleMessages =>
+            visible.ConvertAll(card => card.Text.text);
+
+        private void Awake()
+        {
+            Instance = this;
+        }
 
         private void Update()
         {
@@ -1268,92 +1280,254 @@ namespace Wake.UI
 
         private void OnDestroy()
         {
-            if (noticeAnimation != null)
+            if (queueRoutine != null)
             {
-                StopCoroutine(noticeAnimation);
-                noticeAnimation = null;
+                StopCoroutine(queueRoutine);
+                queueRoutine = null;
             }
             if (boundInventory != null)
             {
                 boundInventory.EvidenceAdded -= Show;
             }
+            if (Instance == this)
+            {
+                Instance = null;
+            }
         }
 
         private void EnsureBuilt()
         {
-            if (notice != null)
+            if (canvas != null)
             {
                 return;
             }
-            // FindFirstObjectByType<Canvas>() is ambiguous now that the
-            // scene has more than one Canvas (e.g. AmbientRoomParticleOverlay's
-            // offscreen bloom canvas) - it can land on the wrong one, whose
-            // camera then bloats this panel's brightness through its bloom
-            // pass and composites it full-screen. Target the main UI canvas
-            // by name, matching every other runtime-built UI in this file.
-            Transform canvas = GameObject.Find("Canvas").transform;
-            GameObject panel = SaveSlotSelectionController.Panel(
-                canvas, "Evidence Acquired Notice",
-                new Color32(8, 20, 38, 248));
-            notice = panel.GetComponent<RectTransform>();
-            notice.anchorMin = notice.anchorMax = new Vector2(1f, .72f);
-            notice.pivot = new Vector2(1f, .5f);
-            notice.sizeDelta = new Vector2(390f, 150f);
-            title = SaveSlotSelectionController.MakeText(
-                notice, string.Empty, 25f, Vector2.zero, new Vector2(340f, 115f));
-            panel.AddComponent<Outline>().effectColor = new Color32(214, 166, 76, 255);
-            panel.SetActive(false);
+            canvas = GameObject.Find("Canvas")
+                ?.transform as RectTransform;
         }
 
         private void Show(EvidenceDefinition evidence)
         {
-            EnsureBuilt();
-            title.text = $"새로운 단서를 발견했습니다\n{evidence.DisplayName}";
+            Enqueue(
+                EvidencePlayerFacingText.AcquisitionMessage(evidence));
             AudioManager.Instance?.PlayEvidencePickup();
-            if (noticeAnimation != null)
-            {
-                StopCoroutine(noticeAnimation);
-            }
-            noticeAnimation = StartCoroutine(AnimateNotice());
         }
 
-        private IEnumerator AnimateNotice()
+        public void EnqueuePlayerMessage(string message)
         {
-            if (notice == null)
-                yield break;
+            if (!EvidencePlayerFacingText.TryExtractAcquisitionName(
+                    message,
+                    out string displayName))
+            {
+                return;
+            }
 
-            notice.gameObject.SetActive(true);
-            Vector2 shown = new Vector2(-24f, 0f);
-            Vector2 hidden = new Vector2(notice.sizeDelta.x + 30f, 0f);
-            notice.anchoredPosition = hidden;
-            yield return Move(hidden, shown, .3f);
-            if (notice == null)
-                yield break;
-            yield return new WaitForSecondsRealtime(2.5f);
-            if (notice == null)
-                yield break;
-            yield return Move(shown, hidden, .28f);
-            if (notice == null)
-                yield break;
-            notice.gameObject.SetActive(false);
-            noticeAnimation = null;
+            Enqueue($"새로운 단서를 발견했습니다\n{displayName}");
         }
 
-        private IEnumerator Move(Vector2 from, Vector2 to, float duration)
+        private void Enqueue(string message)
+        {
+            string sanitized =
+                EvidencePlayerFacingText.SanitizeMessage(message);
+            if (string.IsNullOrEmpty(sanitized) ||
+                !scheduled.Add(sanitized))
+            {
+                return;
+            }
+
+            pending.Enqueue(sanitized);
+            if (queueRoutine == null)
+            {
+                queueRoutine = StartCoroutine(ProcessQueue());
+            }
+        }
+
+        private IEnumerator ProcessQueue()
+        {
+            EnsureBuilt();
+            while (pending.Count > 0 || visible.Count > 0)
+            {
+                FillAvailableSlots();
+                if (visible.Count == 0)
+                {
+                    yield return null;
+                    continue;
+                }
+
+                NoticeCard top = visible[0];
+                if (Time.unscaledTime - top.TopSince < HoldSeconds)
+                {
+                    yield return null;
+                    continue;
+                }
+
+                Vector2 hidden = HiddenPosition(0);
+                yield return MoveCard(
+                    top,
+                    top.Rect.anchoredPosition,
+                    hidden,
+                    SlideSeconds);
+                visible.RemoveAt(0);
+                scheduled.Remove(top.Key);
+                top.Key = string.Empty;
+                top.Rect.gameObject.SetActive(false);
+
+                if (visible.Count > 0)
+                {
+                    yield return ReflowVisibleCards();
+                    visible[0].TopSince = Time.unscaledTime;
+                }
+            }
+
+            queueRoutine = null;
+        }
+
+        private void FillAvailableSlots()
+        {
+            while (pending.Count > 0 &&
+                   visible.Count < MaximumVisibleNotices)
+            {
+                NoticeCard card = GetAvailableCard();
+                string message = pending.Dequeue();
+                int index = visible.Count;
+                card.Key = message;
+                card.Text.text = message;
+                card.Rect.anchoredPosition = HiddenPosition(index);
+                card.Rect.gameObject.SetActive(true);
+                visible.Add(card);
+                if (index == 0)
+                {
+                    card.TopSince =
+                        Time.unscaledTime + SlideSeconds;
+                }
+                card.Movement = StartCoroutine(MoveCard(
+                    card,
+                    HiddenPosition(index),
+                    ShownPosition(index),
+                    SlideSeconds));
+            }
+        }
+
+        private NoticeCard GetAvailableCard()
+        {
+            foreach (NoticeCard card in cards)
+            {
+                if (!card.Rect.gameObject.activeSelf)
+                {
+                    return card;
+                }
+            }
+
+            EnsureBuilt();
+            int number = cards.Count + 1;
+            GameObject panel = SaveSlotSelectionController.Panel(
+                canvas,
+                $"Evidence Acquisition Notice {number}",
+                Color.black);
+            RectTransform rect = panel.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = Vector2.one;
+            rect.pivot = Vector2.one;
+            rect.sizeDelta = new Vector2(CardWidth, CardHeight);
+            Image background = panel.GetComponent<Image>();
+            background.sprite = null;
+            background.material = null;
+            background.type = Image.Type.Simple;
+            background.color = Color.black;
+
+            TMP_Text text = SaveSlotSelectionController.MakeText(
+                rect,
+                string.Empty,
+                18f,
+                new Vector2(-8f, 0f),
+                new Vector2(CardWidth - 34f, CardHeight - 12f));
+            text.alignment = TextAlignmentOptions.MidlineLeft;
+            text.color = new Color32(245, 239, 224, 255);
+            text.textWrappingMode = TextWrappingModes.Normal;
+            panel.SetActive(false);
+
+            var created = new NoticeCard
+            {
+                Rect = rect,
+                Text = text,
+                Key = string.Empty
+            };
+            cards.Add(created);
+            return created;
+        }
+
+        private IEnumerator ReflowVisibleCards()
+        {
+            Vector2[] starts = new Vector2[visible.Count];
+            for (int index = 0; index < visible.Count; index++)
+            {
+                NoticeCard card = visible[index];
+                if (card.Movement != null)
+                {
+                    StopCoroutine(card.Movement);
+                    card.Movement = null;
+                }
+                starts[index] = card.Rect.anchoredPosition;
+            }
+
+            float elapsed = 0f;
+            while (elapsed < ReflowSeconds)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    Mathf.Clamp01(elapsed / ReflowSeconds));
+                for (int index = 0; index < visible.Count; index++)
+                {
+                    visible[index].Rect.anchoredPosition = Vector2.Lerp(
+                        starts[index],
+                        ShownPosition(index),
+                        t);
+                }
+                yield return null;
+            }
+
+            for (int index = 0; index < visible.Count; index++)
+            {
+                visible[index].Rect.anchoredPosition =
+                    ShownPosition(index);
+            }
+        }
+
+        private IEnumerator MoveCard(
+            NoticeCard card,
+            Vector2 from,
+            Vector2 to,
+            float duration)
         {
             float elapsed = 0f;
             while (elapsed < duration)
             {
-                if (notice == null)
+                if (card?.Rect == null)
                     yield break;
                 elapsed += Time.unscaledDeltaTime;
-                notice.anchoredPosition = Vector2.Lerp(
-                    from, to, Mathf.SmoothStep(0f, 1f, elapsed / duration));
+                card.Rect.anchoredPosition = Vector2.Lerp(
+                    from,
+                    to,
+                    Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        Mathf.Clamp01(elapsed / duration)));
                 yield return null;
             }
-            if (notice == null)
+            if (card?.Rect == null)
                 yield break;
-            notice.anchoredPosition = to;
+            card.Rect.anchoredPosition = to;
+            card.Movement = null;
         }
+
+        private static Vector2 ShownPosition(int index) =>
+            new(
+                -RightMargin,
+                -TopOffset - index * (CardHeight + CardGap));
+
+        private static Vector2 HiddenPosition(int index) =>
+            new(
+                CardWidth + 24f,
+                -TopOffset - index * (CardHeight + CardGap));
     }
 }
