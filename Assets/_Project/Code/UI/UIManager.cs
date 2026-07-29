@@ -481,7 +481,12 @@ namespace Wake.UI
 
             if (ActivePanel == UiPrimaryPanel.Map)
             {
-                CloseMap();
+                // Re-clicking the nav bar's own map icon is a toggle back
+                // to the game background - unlike the map's in-panel Back
+                // Btn (CloseMap), it shouldn't honor mapReturnPanel and
+                // return to Evidence just because that's where Map was
+                // opened from.
+                ShowIngame();
                 return;
             }
 
