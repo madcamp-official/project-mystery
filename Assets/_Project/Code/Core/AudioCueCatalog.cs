@@ -185,6 +185,18 @@ namespace Wake.Core
                 _ => 1.2f
             };
 
+        // Each source mp3 has its own lead-in silence before the actual
+        // footstep audio starts (measured from each clip's waveform), so
+        // playback starts partway in instead of during a silent gap.
+        public static float FootstepStartOffsetFor(FootstepSurface surface) =>
+            surface switch
+            {
+                FootstepSurface.Metal => 0.06f,
+                FootstepSurface.Wood => 1.10f,
+                FootstepSurface.Stone => 1.10f,
+                _ => 0.41f
+            };
+
         private static LocationAudioCue Cue(
             string music,
             float musicVolume,
