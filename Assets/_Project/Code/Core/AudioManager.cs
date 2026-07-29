@@ -234,6 +234,7 @@ namespace Wake.Core
 
             waterSplashSource.Stop();
             waterSplashSource.clip = clip;
+            waterSplashSource.volume = 1f;
             waterSplashSource.time = Mathf.Clamp(
                 AudioCueCatalog.WaterSplashOutStartOffset,
                 0f,
@@ -243,8 +244,9 @@ namespace Wake.Core
             {
                 StopCoroutine(waterSplashStop);
             }
-            waterSplashStop = StartCoroutine(
-                StopWaterSplashAfter(AudioCueCatalog.WaterSplashOutSeconds));
+            waterSplashStop = StartCoroutine(StopWaterSplashAfter(
+                AudioCueCatalog.WaterSplashOutSeconds,
+                AudioCueCatalog.WaterSplashOutFadeOutSeconds));
         }
 
         public void BeginMapTravelAudio(
@@ -524,19 +526,33 @@ namespace Wake.Core
             travelFootstepStop = null;
         }
 
-        private IEnumerator StopWaterSplashAfter(float duration)
+        private IEnumerator StopWaterSplashAfter(
+            float duration, float fadeOutSeconds)
         {
+            float safeFade = Mathf.Clamp(fadeOutSeconds, 0f, duration);
+            float holdDuration = Mathf.Max(0f, duration - safeFade);
             float elapsed = 0f;
-            float safeDuration = Mathf.Max(0f, duration);
-            while (elapsed < safeDuration)
+            while (elapsed < holdDuration)
             {
                 elapsed += Time.unscaledDeltaTime;
+                yield return null;
+            }
+            float fadeElapsed = 0f;
+            while (fadeElapsed < safeFade)
+            {
+                fadeElapsed += Time.unscaledDeltaTime;
+                if (waterSplashSource != null)
+                {
+                    waterSplashSource.volume = Mathf.Lerp(
+                        1f, 0f, Mathf.Clamp01(fadeElapsed / safeFade));
+                }
                 yield return null;
             }
             if (waterSplashSource != null)
             {
                 waterSplashSource.Stop();
                 waterSplashSource.clip = null;
+                waterSplashSource.volume = 1f;
             }
             waterSplashStop = null;
         }

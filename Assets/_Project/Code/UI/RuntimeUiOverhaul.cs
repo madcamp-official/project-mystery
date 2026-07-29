@@ -671,7 +671,11 @@ namespace Wake.UI
                 float depth = intensityRising ? t : 1f - t;
                 lightShaft?.SetIntensity(depth);
                 lobbyBackdrop?.SetDepth(depth);
-                float muffleDepth = muffleSaturationDepth > 0f
+                // Diving saturates quickly (muffleSaturationDepth) so the
+                // muffle feels sudden right past the surface; surfacing uses
+                // the raw, unscaled depth so BGM clears back up gradually
+                // across the whole rise instead of mirroring that speed.
+                float muffleDepth = intensityRising && muffleSaturationDepth > 0f
                     ? Mathf.Clamp01(depth / muffleSaturationDepth)
                     : depth;
                 onDepth?.Invoke(muffleDepth);
