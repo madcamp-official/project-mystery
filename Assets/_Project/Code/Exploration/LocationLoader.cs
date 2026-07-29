@@ -105,7 +105,8 @@ namespace Wake.Exploration
                 location.LocationCode,
                 NarrativeSceneContext);
             ambientInspectables?.Show(location.LocationCode);
-            ambientParticles?.Show(location.AmbientParticleTint);
+            ambientParticles?.Show(
+                location.AmbientParticleTint, location.BackgroundSprite);
             CurrentLocation = location;
             LocationChanged?.Invoke(location);
             AudioManager.Instance?.PlayLocationTheme(location.LocationCode);
@@ -131,7 +132,9 @@ namespace Wake.Exploration
                 CurrentLocation.LocationCode,
                 NarrativeSceneContext);
             ambientInspectables?.Show(CurrentLocation.LocationCode);
-            ambientParticles?.Show(CurrentLocation.AmbientParticleTint);
+            ambientParticles?.Show(
+                CurrentLocation.AmbientParticleTint,
+                CurrentLocation.BackgroundSprite);
         }
 
         private void CreateBackgroundPresenter()

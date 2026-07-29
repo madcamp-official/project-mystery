@@ -10,8 +10,10 @@ namespace Wake.Exploration
         private const float MinSizePx = 6f;
         private const float MaxSizePx = 18f;
         private const int GlowTextureSize = 32;
+        private const int SampleGridSize = 24;
 
         private static Sprite glowSprite;
+        private static Material additiveMaterial;
 
         private readonly RectTransform[] particleRects =
             new RectTransform[ParticleCount];
@@ -21,11 +23,13 @@ namespace Wake.Exploration
             new int[ParticleCount];
         private RectTransform contentRect;
         private Color tint = new(1f, 0.95f, 0.85f, 0.5f);
+        private Texture2D backgroundSampleCache;
 
         public void Initialize(RectTransform backgroundContentRect)
         {
             contentRect = backgroundContentRect;
             EnsureGlowSprite();
+            EnsureAdditiveMaterial();
 
             for (int index = 0; index < ParticleCount; index++)
             {
@@ -49,6 +53,10 @@ namespace Wake.Exploration
                 image.sprite = glowSprite;
                 image.raycastTarget = false;
                 image.color = tint;
+                if (additiveMaterial != null)
+                {
+                    image.material = additiveMaterial;
+                }
 
                 particleRects[index] = rect;
                 particleImages[index] = image;
@@ -56,9 +64,10 @@ namespace Wake.Exploration
             }
         }
 
-        public void Show(Color locationTint)
+        public void Show(Color locationTint, Sprite backgroundSprite)
         {
             tint = locationTint;
+            CaptureBackgroundSample(backgroundSprite);
             for (int index = 0; index < particleImages.Length; index++)
             {
                 if (particleImages[index] != null)
@@ -89,12 +98,103 @@ namespace Wake.Exploration
                     time,
                     bounds);
                 particleRects[index].anchoredPosition = state.Position;
-                Color color = tint;
+
+                Color backgroundColor = Color.white;
+                if (backgroundSampleCache != null)
+                {
+                    float u = Mathf.InverseLerp(
+                        bounds.xMin, bounds.xMax, state.Position.x);
+                    float v = Mathf.InverseLerp(
+                        bounds.yMin, bounds.yMax, state.Position.y);
+                    backgroundColor =
+                        backgroundSampleCache.GetPixelBilinear(u, v);
+                }
+
+                Color color = tint * backgroundColor;
                 color.a = tint.a * state.Alpha01;
                 particleImages[index].color = color;
             }
         }
 
+        // Renders the background sprite into a small readable texture once
+        // per location change (background sprites aren't Read/Write enabled,
+        // so a GPU blit + ReadPixels is the only way to sample their pixels)
+        // and caches it for per-particle sampling every frame in Update.
+        private void CaptureBackgroundSample(Sprite sprite)
+        {
+            if (backgroundSampleCache != null)
+            {
+                Destroy(backgroundSampleCache);
+                backgroundSampleCache = null;
+            }
+
+            if (sprite == null || sprite.texture == null)
+            {
+                return;
+            }
+
+            Texture2D source = sprite.texture;
+            Rect texRect = sprite.textureRect;
+            Vector2 scale = new(
+                texRect.width / source.width,
+                texRect.height / source.height);
+            Vector2 offset = new(
+                texRect.x / source.width,
+                texRect.y / source.height);
+
+            RenderTexture renderTexture = RenderTexture.GetTemporary(
+                SampleGridSize, SampleGridSize, 0, RenderTextureFormat.ARGB32);
+            RenderTexture previous = RenderTexture.active;
+            Graphics.Blit(source, renderTexture, scale, offset);
+            RenderTexture.active = renderTexture;
+
+            backgroundSampleCache = new Texture2D(
+                SampleGridSize, SampleGridSize, TextureFormat.RGBA32, false)
+            {
+                name = "Ambient Particle Background Sample",
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Bilinear,
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            backgroundSampleCache.ReadPixels(
+                new Rect(0f, 0f, SampleGridSize, SampleGridSize), 0, 0);
+            backgroundSampleCache.Apply(false, false);
+
+            RenderTexture.active = previous;
+            RenderTexture.ReleaseTemporary(renderTexture);
+        }
+
+        private void OnDestroy()
+        {
+            if (backgroundSampleCache != null)
+            {
+                Destroy(backgroundSampleCache);
+                backgroundSampleCache = null;
+            }
+        }
+
+        private static void EnsureAdditiveMaterial()
+        {
+            if (additiveMaterial != null)
+            {
+                return;
+            }
+
+            Shader shader = Resources.Load<Shader>("Shaders/UIAdditiveGlow");
+            if (shader == null)
+            {
+                return;
+            }
+
+            additiveMaterial = new Material(shader)
+            {
+                name = "Ambient Particle Additive (Runtime)",
+                hideFlags = HideFlags.HideAndDontSave
+            };
+        }
+
+        // Bright, tight core with a soft extended tail rather than a flat
+        // disc, so the particle reads as a glow even without real bloom.
         private static void EnsureGlowSprite()
         {
             if (glowSprite != null)
@@ -120,10 +220,10 @@ namespace Wake.Exploration
                 for (int x = 0; x < GlowTextureSize; x++)
                 {
                     float nx = (x + 0.5f) / GlowTextureSize * 2f - 1f;
-                    float distance = nx * nx + ny * ny;
-                    float falloff = Mathf.Clamp01(1f - distance);
+                    float radius = Mathf.Sqrt(nx * nx + ny * ny);
+                    float falloff = Mathf.Clamp01(1f - radius);
                     byte alpha = (byte)Mathf.RoundToInt(
-                        falloff * falloff * 255f);
+                        Mathf.Pow(falloff, 1.8f) * 255f);
                     pixels[y * GlowTextureSize + x] =
                         new Color32(255, 255, 255, alpha);
                 }
