@@ -254,43 +254,21 @@ namespace Wake.Exploration
                 typeof(RectTransform),
                 typeof(Canvas),
                 typeof(CanvasRenderer),
-                typeof(Image),
-                typeof(Outline));
+                typeof(Image));
             marker.transform.SetParent(parent, false);
             RectTransform markerRect = marker.GetComponent<RectTransform>();
             markerRect.anchorMin = new Vector2(0.78f, 0.86f);
             markerRect.anchorMax = new Vector2(0.78f, 0.86f);
             markerRect.pivot = new Vector2(0.5f, 0.5f);
-            markerRect.sizeDelta = new Vector2(104f, 58f);
+            markerRect.sizeDelta = new Vector2(72f, 72f);
             Canvas markerCanvas = marker.GetComponent<Canvas>();
             markerCanvas.overrideSorting = true;
             markerCanvas.sortingOrder = 50;
-            Image background = marker.GetComponent<Image>();
-            background.color = new Color(0.035f, 0.06f, 0.10f, 0.94f);
-            background.raycastTarget = false;
-            Outline outline = marker.GetComponent<Outline>();
-            outline.effectColor = Color.white;
-            outline.effectDistance = new Vector2(2f, -2f);
-
-            GameObject labelObject = new(
-                "Talk",
-                typeof(RectTransform),
-                typeof(CanvasRenderer),
-                typeof(TextMeshProUGUI));
-            labelObject.transform.SetParent(marker.transform, false);
-            RectTransform labelRect =
-                labelObject.GetComponent<RectTransform>();
-            labelRect.anchorMin = Vector2.zero;
-            labelRect.anchorMax = Vector2.one;
-            labelRect.offsetMin = Vector2.zero;
-            labelRect.offsetMax = Vector2.zero;
-            TMP_Text label = labelObject.GetComponent<TMP_Text>();
-            label.text = "대화";
-            label.fontSize = 22f;
-            label.alignment = TextAlignmentOptions.Center;
-            label.color = UiVisualThemeService.Resolve(UiColorToken.Cream);
-            label.raycastTarget = false;
-            MapTypography.ApplyLocation(label);
+            Image bubble = marker.GetComponent<Image>();
+            bubble.sprite = Resources.Load<Sprite>(
+                "UI/Icons/Prompts/ui_icon_dialogue_prompt");
+            bubble.raycastTarget = false;
+            bubble.preserveAspect = true;
             marker.transform.SetAsLastSibling();
             return marker;
         }
@@ -321,6 +299,18 @@ namespace Wake.Exploration
             text.raycastTarget = false;
             text.outlineWidth = 0.18f;
             text.outlineColor = Color.white;
+            // TMP's outline alone only gives the white ring - a second,
+            // wider black ring behind it (via the underlay layer, dilated
+            // and with zero offset/softness so it renders as a crisp
+            // outline rather than a soft drop shadow) keeps the mark
+            // legible against light backgrounds too.
+            Material material = text.fontMaterial;
+            material.EnableKeyword(ShaderUtilities.Keyword_Underlay);
+            material.SetColor(ShaderUtilities.ID_UnderlayColor, Color.black);
+            material.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, 0f);
+            material.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, 0f);
+            material.SetFloat(ShaderUtilities.ID_UnderlayDilate, 1f);
+            material.SetFloat(ShaderUtilities.ID_UnderlaySoftness, 0f);
             marker.SetActive(false);
             return marker;
         }
