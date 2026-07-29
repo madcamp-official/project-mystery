@@ -267,7 +267,8 @@ namespace Wake.UI
                 CreateButton(
                     parent,
                     "일시정지",
-                    owner != null ? owner.OpenPause : null);
+                    owner != null ? owner.OpenPause : null,
+                    Resources.Load<Sprite>("UI/Icons/Badges/ui_badge_settings"));
         }
 
         private void BindNavigationActions()

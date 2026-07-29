@@ -339,18 +339,14 @@ namespace Wake.Tests.PlayMode
             string[] iconNavigationButtonPaths =
             {
                 "Exploration Global Navigation/Global Navigation/지도 버튼",
-                "Exploration Global Navigation/Global Navigation/조사 기록 버튼"
+                "Exploration Global Navigation/Global Navigation/조사 기록 버튼",
+                "Exploration Global Navigation/Global Navigation/일시정지 버튼"
             };
             foreach (string path in iconNavigationButtonPaths)
             {
                 Image icon = RequireComponent<Image>(path + "/Icon");
                 Assert.That(icon.sprite, Is.Not.Null);
             }
-            TMP_Text pauseLabel = RequireObject(
-                    "Exploration Global Navigation/Global Navigation/일시정지 버튼")
-                .GetComponentInChildren<TMP_Text>(true);
-            Assert.That(pauseLabel, Is.Not.Null);
-            Assert.That(pauseLabel.text, Is.Not.Empty);
             Assert.That(RequireObject("Ingame/Map Btn").activeSelf, Is.False);
             Assert.That(
                 RequireObject("Ingame/Evidence Btn").activeSelf,
