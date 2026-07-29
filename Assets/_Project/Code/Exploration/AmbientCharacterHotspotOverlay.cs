@@ -46,7 +46,11 @@ namespace Wake.Exploration
         private string currentSceneId = string.Empty;
         private DialogueController boundDialogue;
         private bool dialoguePresentationVisible;
+        private bool modalPresentationSuppressed;
         private bool interactionPending;
+
+        public bool IsModalPresentationSuppressed =>
+            modalPresentationSuppressed;
 
         public void Initialize(RectTransform backgroundContentRect)
         {
@@ -327,6 +331,7 @@ namespace Wake.Exploration
         {
             if (interactionPending ||
                 dialoguePresentationVisible ||
+                modalPresentationSuppressed ||
                 view?.Target == null)
             {
                 return;
@@ -385,13 +390,14 @@ namespace Wake.Exploration
                     interactionLocationCode,
                     currentLocationCode,
                     System.StringComparison.Ordinal);
-            if (contextUnchanged)
+            if (contextUnchanged && !modalPresentationSuppressed)
             {
                 onClick?.Invoke();
             }
 
             interactionPending = false;
-            if (!dialoguePresentationVisible)
+            if (!dialoguePresentationVisible &&
+                !modalPresentationSuppressed)
             {
                 foreach (WorldCharacterView item in spawned)
                 {
@@ -547,9 +553,20 @@ namespace Wake.Exploration
             ApplyDialogueVisibility();
         }
 
+        public void SetModalPresentationSuppressed(bool suppressed)
+        {
+            if (modalPresentationSuppressed == suppressed)
+                return;
+
+            modalPresentationSuppressed = suppressed;
+            ApplyDialogueVisibility();
+        }
+
         private void ApplyDialogueVisibility()
         {
-            bool visible = !dialoguePresentationVisible;
+            bool visible =
+                !dialoguePresentationVisible &&
+                !modalPresentationSuppressed;
             foreach (WorldCharacterView view in spawned)
             {
                 view?.Target?.SetActive(visible);
@@ -712,7 +729,8 @@ namespace Wake.Exploration
                 view.ObjectiveMarker?.SetActive(
                     view.IsMainCharacter &&
                     !completed &&
-                    !dialoguePresentationVisible);
+                    !dialoguePresentationVisible &&
+                    !modalPresentationSuppressed);
             }
         }
 

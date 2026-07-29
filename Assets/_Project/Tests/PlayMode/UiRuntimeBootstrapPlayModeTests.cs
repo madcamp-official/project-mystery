@@ -92,6 +92,9 @@ namespace Wake.Tests.PlayMode
             Assert.That(controller.Open(), Is.True);
             yield return null;
             UnityEngine.Canvas.ForceUpdateCanvases();
+            Assert.That(
+                LocationLoader.Instance.IsWorldInteractionSuppressed,
+                Is.True);
 
             BloodPuzzlePieceView[] pieces =
                 Object.FindObjectsByType<BloodPuzzlePieceView>(
@@ -169,8 +172,114 @@ namespace Wake.Tests.PlayMode
                 controller.Puzzle.Rotations[0],
                 Is.EqualTo((rotationBeforeClick + 1) % 4));
 
+            controller.Puzzle.SetSolvedReconstruction();
+            controller.RotatePiece(0);
+            yield return null;
+            UnityEngine.Canvas.ForceUpdateCanvases();
+
+            BloodAnalysisToolDrag[] analysisTools =
+                Object.FindObjectsByType<BloodAnalysisToolDrag>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None);
+            BloodAnalysisToolDrag postureTool = analysisTools.First(
+                item => item.Kind == BloodAnalysisToolKind.Posture &&
+                        item.PostureIndex == 1);
+            BloodAnalysisToolDrag woundTool = analysisTools.Single(
+                item => item.Kind == BloodAnalysisToolKind.WoundMarker);
+            BloodAnalysisToolDrag poolTool = analysisTools.Single(
+                item => item.Kind == BloodAnalysisToolKind.PoolMarker);
+            RectTransform board = Object
+                .FindFirstObjectByType<BloodPuzzleBoardClick>(
+                    FindObjectsInactive.Include)
+                .GetComponent<RectTransform>();
+
+            DragAnalysisTool(
+                postureTool,
+                board,
+                new Vector2(0.68f, 0.38f));
+            Assert.That(controller.Puzzle.SelectedPosture, Is.EqualTo(1));
+            DragAnalysisTool(
+                woundTool,
+                board,
+                new Vector2(0.2f, 0.2f));
+            Assert.That(
+                Vector2.Distance(
+                    controller.Puzzle.WoundMarker.Value,
+                    new Vector2(0.2f, 0.2f)),
+                Is.LessThan(0.01f));
+            DragAnalysisTool(
+                poolTool,
+                board,
+                new Vector2(0.8f, 0.8f));
+            yield return null;
+            Assert.That(
+                Vector2.Distance(
+                    controller.Puzzle.PoolMarker.Value,
+                    new Vector2(0.8f, 0.8f)),
+                Is.LessThan(0.01f));
+            Assert.That(
+                controller.Puzzle.Stage,
+                Is.EqualTo(BloodDirectionStage.ChooseConclusion));
+            Assert.That(
+                GameObject.Find("Analysis Tool Drag Preview"),
+                Is.Null);
+
             controller.Close();
+            Assert.That(
+                LocationLoader.Instance.IsWorldInteractionSuppressed,
+                Is.False);
             AssertNoRuntimeErrors("혈흔 퍼즐 드래그와 클릭 입력");
+        }
+
+        private static void DragAnalysisTool(
+            BloodAnalysisToolDrag tool,
+            RectTransform board,
+            Vector2 normalizedBoardPosition)
+        {
+            Canvas canvas = tool.GetComponentInParent<Canvas>().rootCanvas;
+            Camera eventCamera = canvas.renderMode ==
+                                 RenderMode.ScreenSpaceOverlay
+                ? null
+                : canvas.worldCamera;
+            Vector2 sourcePosition =
+                RectTransformUtility.WorldToScreenPoint(
+                    eventCamera,
+                    tool.transform.position);
+            Rect boardRect = board.rect;
+            Vector3 localTarget = new(
+                Mathf.Lerp(
+                    boardRect.xMin,
+                    boardRect.xMax,
+                    normalizedBoardPosition.x),
+                Mathf.Lerp(
+                    boardRect.yMin,
+                    boardRect.yMax,
+                    normalizedBoardPosition.y));
+            Vector2 targetPosition =
+                RectTransformUtility.WorldToScreenPoint(
+                    eventCamera,
+                    board.TransformPoint(localTarget));
+            var eventData = new PointerEventData(EventSystem.current)
+            {
+                button = PointerEventData.InputButton.Left,
+                position = sourcePosition,
+                pressPosition = sourcePosition,
+                pointerDrag = tool.gameObject
+            };
+
+            ExecuteEvents.Execute(
+                tool.gameObject,
+                eventData,
+                ExecuteEvents.beginDragHandler);
+            eventData.position = targetPosition;
+            ExecuteEvents.Execute(
+                tool.gameObject,
+                eventData,
+                ExecuteEvents.dragHandler);
+            ExecuteEvents.Execute(
+                tool.gameObject,
+                eventData,
+                ExecuteEvents.endDragHandler);
         }
 
         [UnityTest]

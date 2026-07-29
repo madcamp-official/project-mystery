@@ -21,6 +21,8 @@ namespace Wake.Exploration
         public event Action<LocationDefinition> LocationChanged;
         public bool IsPresentationVisible =>
             container != null && container.gameObject.activeSelf;
+        public bool IsWorldInteractionSuppressed =>
+            ambientCharacters?.IsModalPresentationSuppressed == true;
         public RectTransform BackgroundRect => backgroundPresenter?.ViewportRect;
 
         private GameObject currentInstance;
@@ -58,6 +60,11 @@ namespace Wake.Exploration
             {
                 container.gameObject.SetActive(visible);
             }
+        }
+
+        public void SetWorldInteractionSuppressed(bool suppressed)
+        {
+            ambientCharacters?.SetModalPresentationSuppressed(suppressed);
         }
 
         public bool TryLoadLocation(LocationDefinition location, out LoadFailure failure)

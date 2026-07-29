@@ -35,6 +35,32 @@ namespace Wake.Tests.EditMode
         }
 
         [Test]
+        public void AnalysisTool_RegistersCompleteDragEventContract()
+        {
+            var target = new GameObject(
+                "Analysis Tool",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image));
+            try
+            {
+                BloodAnalysisToolDrag view =
+                    target.AddComponent<BloodAnalysisToolDrag>();
+
+                Assert.That(view, Is.InstanceOf<IBeginDragHandler>());
+                Assert.That(view, Is.InstanceOf<IDragHandler>());
+                Assert.That(view, Is.InstanceOf<IEndDragHandler>());
+                Assert.That(
+                    ExecuteEvents.GetEventHandler<IDragHandler>(target),
+                    Is.SameAs(target));
+            }
+            finally
+            {
+                Object.DestroyImmediate(target);
+            }
+        }
+
+        [Test]
         public void Reconstruction_RequiresCorrectPieceAndRotation()
         {
             var session = new BloodDirectionPuzzleSession();

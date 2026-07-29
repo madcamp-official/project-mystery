@@ -7,11 +7,19 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Wake.Core;
 using Wake.Evidence;
+using Wake.Exploration;
 using Wake.Narrative;
 using Wake.Puzzles;
 
 namespace Wake.UI
 {
+    public enum BloodAnalysisToolKind
+    {
+        Posture,
+        WoundMarker,
+        PoolMarker
+    }
+
     [DisallowMultipleComponent]
     public sealed class BloodDirectionPuzzleUIController :
         MonoBehaviour,
@@ -31,6 +39,7 @@ namespace Wake.UI
         private TMP_Text stepText;
         private TMP_Text instructionText;
         private TMP_Text feedbackText;
+        private TMP_Text toolStatusText;
         private GameObject markerA;
         private GameObject markerB;
         private GameObject postureOverlay;
@@ -73,6 +82,7 @@ namespace Wake.UI
                       EvidenceInventory.Instance.Contains(id));
             puzzle = new BloodDirectionPuzzleSession();
             root.SetActive(true);
+            LocationLoader.Instance?.SetWorldInteractionSuppressed(true);
             Refresh();
             return true;
         }
@@ -80,6 +90,12 @@ namespace Wake.UI
         public void Close()
         {
             root?.SetActive(false);
+            LocationLoader.Instance?.SetWorldInteractionSuppressed(false);
+        }
+
+        private void OnDestroy()
+        {
+            LocationLoader.Instance?.SetWorldInteractionSuppressed(false);
         }
 
         public void RotatePiece(int slot)
@@ -96,19 +112,86 @@ namespace Wake.UI
 
         public void SelectPosture(int index)
         {
+            TrySelectPosture(index, null);
+        }
+
+        public bool CanDragAnalysisTool(BloodAnalysisToolKind kind)
+        {
+            return puzzle != null &&
+                   puzzle.Stage == BloodDirectionStage.CompareBody &&
+                   (kind == BloodAnalysisToolKind.Posture ||
+                    kind == BloodAnalysisToolKind.WoundMarker ||
+                    kind == BloodAnalysisToolKind.PoolMarker);
+        }
+
+        public bool DropAnalysisTool(
+            BloodAnalysisToolKind kind,
+            int postureIndex,
+            PointerEventData eventData)
+        {
+            if (!CanDragAnalysisTool(kind) ||
+                eventData == null ||
+                !TryGetBoardPosition(eventData, out Vector2 normalized))
+            {
+                return false;
+            }
+
+            switch (kind)
+            {
+                case BloodAnalysisToolKind.Posture:
+                    return TrySelectPosture(postureIndex, normalized);
+                case BloodAnalysisToolKind.WoundMarker:
+                    SetMarkerTool(true);
+                    PlaceMarker(normalized);
+                    return true;
+                case BloodAnalysisToolKind.PoolMarker:
+                    SetMarkerTool(false);
+                    PlaceMarker(normalized);
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private bool TryGetBoardPosition(
+            PointerEventData eventData,
+            out Vector2 normalized)
+        {
+            normalized = default;
+            if (board == null ||
+                !RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    board,
+                    eventData.position,
+                    eventData.pressEventCamera,
+                    out Vector2 local) ||
+                !board.rect.Contains(local))
+            {
+                return false;
+            }
+
+            Rect rect = board.rect;
+            normalized = new Vector2(
+                Mathf.InverseLerp(rect.xMin, rect.xMax, local.x),
+                Mathf.InverseLerp(rect.yMin, rect.yMax, local.y));
+            return true;
+        }
+
+        private bool TrySelectPosture(int index, Vector2? normalizedPosition)
+        {
             if (puzzle == null || !puzzle.SelectPosture(index))
             {
-                return;
+                return false;
             }
 
             feedbackText.text =
                 "Helena: “그 위치라면 벽 쪽에도 작은 비산 흔적이 남아야 해요.”";
-            ShowPostureOverlay(index);
+            ShowPostureOverlay(index, normalizedPosition);
             if (puzzle.ShouldEmphasizeTails)
             {
                 StartCoroutine(FlashDirectionLines());
             }
             RefreshStageVisibility();
+            return true;
         }
 
         public void SetMarkerTool(bool wound)
@@ -240,6 +323,16 @@ namespace Wake.UI
             };
             bool comparing = stage == BloodDirectionStage.CompareBody;
             bool choosing = stage == BloodDirectionStage.ChooseConclusion;
+            toolStatusText.text = stage switch
+            {
+                BloodDirectionStage.Reconstruct =>
+                    "조각 복원 후 분석 도구가 활성화됩니다.",
+                BloodDirectionStage.CompareBody =>
+                    "도구를 클릭하거나 사진 위로 드래그하세요.",
+                BloodDirectionStage.ChooseConclusion =>
+                    "분석 결과를 바탕으로 결론을 선택하세요.",
+                _ => "분석이 완료되었습니다."
+            };
             foreach (GameObject posture in postureViews)
             {
                 posture.SetActive(comparing);
@@ -334,6 +427,15 @@ namespace Wake.UI
             SetRect(toolPanel, 0.72f, 0.12f, 0.965f, 0.84f);
             TMP_Text tools = MakeText(toolPanel, "분석 도구", 21f);
             SetRect(tools.rectTransform, 0.06f, 0.91f, 0.94f, 0.98f);
+            toolStatusText = MakeText(toolPanel, string.Empty, 14f);
+            SetRect(
+                toolStatusText.rectTransform,
+                0.06f,
+                0.84f,
+                0.94f,
+                0.91f);
+            toolStatusText.alignment = TextAlignmentOptions.Center;
+            toolStatusText.color = Paper;
             BuildPostureTools();
             BuildMarkerTools();
             BuildConclusions();
@@ -369,6 +471,12 @@ namespace Wake.UI
                 TMP_Text label = MakeText(button.transform, labels[index], 14f);
                 SetRect(label.rectTransform, 0f, 0f, 1f, 0.18f);
                 button.onClick.AddListener(() => SelectPosture(captured));
+                button.gameObject
+                    .AddComponent<BloodAnalysisToolDrag>()
+                    .Initialize(
+                        this,
+                        BloodAnalysisToolKind.Posture,
+                        captured);
                 postureViews.Add(button.gameObject);
             }
 
@@ -398,12 +506,26 @@ namespace Wake.UI
                 CreateSprite(markerTexture, 510, 490, 455, 475));
             SetRect(markerAButton.GetComponent<RectTransform>(), 0.08f, 0.38f, 0.45f, 0.58f);
             markerAButton.onClick.AddListener(() => SetMarkerTool(true));
+            AddToolCaption(markerAButton.transform, "A · 자상 위치");
+            markerAButton.gameObject
+                .AddComponent<BloodAnalysisToolDrag>()
+                .Initialize(
+                    this,
+                    BloodAnalysisToolKind.WoundMarker,
+                    -1);
             markerBButton = MakeImageButton(
                 toolPanel,
                 "Marker B",
                 CreateSprite(markerTexture, 960, 490, 455, 475));
             SetRect(markerBButton.GetComponent<RectTransform>(), 0.55f, 0.38f, 0.92f, 0.58f);
             markerBButton.onClick.AddListener(() => SetMarkerTool(false));
+            AddToolCaption(markerBButton.transform, "B · 혈흔 중심");
+            markerBButton.gameObject
+                .AddComponent<BloodAnalysisToolDrag>()
+                .Initialize(
+                    this,
+                    BloodAnalysisToolKind.PoolMarker,
+                    -1);
 
             directionToolButton = MakeImageButton(
                 toolPanel,
@@ -417,6 +539,7 @@ namespace Wake.UI
                 0.34f);
             directionToolButton.onClick.AddListener(
                 () => StartCoroutine(FlashDirectionLines()));
+            AddToolCaption(directionToolButton.transform, "혈흔 방향 보기");
 
             markerA = MakeBoardMarker("A · 자상", Burgundy);
             markerB = MakeBoardMarker("B · 웅덩이", Brass);
@@ -479,14 +602,40 @@ namespace Wake.UI
             return target;
         }
 
-        private void ShowPostureOverlay(int index)
+        private void ShowPostureOverlay(
+            int index,
+            Vector2? normalizedPosition)
         {
+            RectTransform rect =
+                postureOverlay.GetComponent<RectTransform>();
+            Vector2 center = normalizedPosition ?? new Vector2(0.5f, 0.5f);
+            const float halfWidth = 0.19f;
+            const float halfHeight = 0.26f;
+            float minX = Mathf.Clamp(center.x - halfWidth, 0f, 1f - halfWidth * 2f);
+            float minY = Mathf.Clamp(center.y - halfHeight, 0f, 1f - halfHeight * 2f);
+            rect.anchorMin = new Vector2(minX, minY);
+            rect.anchorMax = new Vector2(
+                minX + halfWidth * 2f,
+                minY + halfHeight * 2f);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
             Image image = postureOverlay.GetComponent<Image>();
             image.sprite = CreateAtlasThird(postureTexture, index);
             postureOverlay.SetActive(true);
             postureOverlay.transform.SetAsLastSibling();
             markerA.transform.SetAsLastSibling();
             markerB.transform.SetAsLastSibling();
+        }
+
+        private static void AddToolCaption(
+            Transform parent,
+            string value)
+        {
+            TMP_Text caption = MakeText(parent, value, 13f);
+            SetRect(caption.rectTransform, 0.02f, 0.01f, 0.98f, 0.22f);
+            caption.alignment = TextAlignmentOptions.Center;
+            caption.color = Paper;
+            caption.raycastTarget = false;
         }
 
         private IEnumerator FlashDirectionLines()
@@ -632,6 +781,139 @@ namespace Wake.UI
             rect.anchorMax = new Vector2(maxX, maxY);
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
+        }
+    }
+
+    public sealed class BloodAnalysisToolDrag :
+        MonoBehaviour,
+        IBeginDragHandler,
+        IDragHandler,
+        IEndDragHandler
+    {
+        private BloodDirectionPuzzleUIController owner;
+        private BloodAnalysisToolKind kind;
+        private int postureIndex;
+        private Image sourceImage;
+        private Canvas rootCanvas;
+        private RectTransform dragPreview;
+        private Color restingColor = Color.white;
+
+        public BloodAnalysisToolKind Kind => kind;
+        public int PostureIndex => postureIndex;
+
+        public void Initialize(
+            BloodDirectionPuzzleUIController controller,
+            BloodAnalysisToolKind toolKind,
+            int toolPostureIndex)
+        {
+            owner = controller;
+            kind = toolKind;
+            postureIndex = toolPostureIndex;
+            sourceImage = GetComponent<Image>();
+            rootCanvas = GetComponentInParent<Canvas>()?.rootCanvas;
+        }
+
+        public void OnBeginDrag(PointerEventData eventData)
+        {
+            if (owner == null ||
+                !owner.CanDragAnalysisTool(kind) ||
+                sourceImage == null ||
+                rootCanvas == null)
+            {
+                return;
+            }
+
+            restingColor = sourceImage.color;
+            sourceImage.color = new Color(
+                restingColor.r,
+                restingColor.g,
+                restingColor.b,
+                0.45f);
+            CreateDragPreview();
+            UpdateDragPreview(eventData);
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            UpdateDragPreview(eventData);
+        }
+
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            if (dragPreview != null)
+            {
+                owner?.DropAnalysisTool(
+                    kind,
+                    postureIndex,
+                    eventData);
+            }
+            EndDragVisuals();
+        }
+
+        private void OnDisable()
+        {
+            EndDragVisuals();
+        }
+
+        private void CreateDragPreview()
+        {
+            var previewObject = new GameObject(
+                "Analysis Tool Drag Preview",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(CanvasGroup));
+            previewObject.transform.SetParent(rootCanvas.transform, false);
+            previewObject.transform.SetAsLastSibling();
+            dragPreview = previewObject.GetComponent<RectTransform>();
+            RectTransform sourceRect = sourceImage.rectTransform;
+            dragPreview.sizeDelta = new Vector2(
+                Mathf.Max(72f, sourceRect.rect.width),
+                Mathf.Max(72f, sourceRect.rect.height));
+            Image previewImage = previewObject.GetComponent<Image>();
+            previewImage.sprite = sourceImage.sprite;
+            previewImage.preserveAspect = true;
+            previewImage.color = new Color(1f, 1f, 1f, 0.82f);
+            CanvasGroup group = previewObject.GetComponent<CanvasGroup>();
+            group.blocksRaycasts = false;
+            group.interactable = false;
+        }
+
+        private void UpdateDragPreview(PointerEventData eventData)
+        {
+            if (dragPreview == null ||
+                eventData == null ||
+                rootCanvas == null)
+            {
+                return;
+            }
+
+            RectTransform canvasRect =
+                rootCanvas.transform as RectTransform;
+            if (canvasRect != null &&
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    canvasRect,
+                    eventData.position,
+                    eventData.pressEventCamera,
+                    out Vector2 local))
+            {
+                dragPreview.anchoredPosition = local;
+            }
+        }
+
+        private void EndDragVisuals()
+        {
+            if (sourceImage != null)
+            {
+                Color restored = sourceImage.color;
+                restored.a = restingColor.a;
+                sourceImage.color = restored;
+            }
+            if (dragPreview != null)
+            {
+                Destroy(dragPreview.gameObject);
+                dragPreview = null;
+            }
         }
     }
 
