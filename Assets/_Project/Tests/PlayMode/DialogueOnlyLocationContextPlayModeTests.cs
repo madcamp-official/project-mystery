@@ -46,6 +46,9 @@ namespace Wake.Tests.PlayMode
                 Is.EqualTo("CREW_STAIRS"));
             Assert.That(LocationLoader.Instance.CurrentLocation.BackgroundSprite,
                 Is.Not.Null);
+            Assert.That(Dialogue.IsBusy, Is.False);
+            yield return StartPreparedProductionSceneFromFocusCharacter(
+                "D1-04");
             Assert.That(Dialogue.ActiveProductionSceneId, Is.EqualTo("D1-04"));
             Assert.That(State.DialogueCheckpoint, Is.Not.Null);
             Assert.That(State.DialogueCheckpoint.activeSceneId, Is.EqualTo("D1-04"));
@@ -57,18 +60,22 @@ namespace Wake.Tests.PlayMode
             RectTransform locationBanner = contextHud.transform
                 .Find("Narrative Location Context")
                 .GetComponent<RectTransform>();
+            Assert.That(
+                RuntimeUiLayoutRegistry.TryResolve(
+                    "hud.location",
+                    out RectTransform authoredLocationSlot),
+                Is.True);
             Assert.That(locationBanner.anchorMin,
-                Is.EqualTo(new Vector2(0.5f, 1f)));
+                Is.EqualTo(authoredLocationSlot.anchorMin));
             Assert.That(locationBanner.anchorMax,
-                Is.EqualTo(new Vector2(0.5f, 1f)));
+                Is.EqualTo(authoredLocationSlot.anchorMax));
             Assert.That(locationBanner.pivot,
-                Is.EqualTo(new Vector2(0.5f, 1f)));
+                Is.EqualTo(authoredLocationSlot.pivot));
             Assert.That(Mathf.Abs(locationBanner.anchoredPosition.x),
                 Is.LessThan(8f),
                 "The location banner should be visually settled near screen center while its entrance animation finishes.");
-            Assert.That(locationBanner.anchoredPosition.y,
-                Is.EqualTo(-NarrativeLocationHUDPresentation.TopOffset)
-                    .Within(0.01f));
+            Assert.That(locationBanner.anchoredPosition,
+                Is.EqualTo(authoredLocationSlot.anchoredPosition));
             Assert.That(locationBanner.rect.width,
                 Is.LessThanOrEqualTo(
                     NarrativeLocationHUDPresentation.MaximumWidth));

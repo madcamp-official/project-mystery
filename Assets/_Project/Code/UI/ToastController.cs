@@ -31,6 +31,12 @@ namespace Wake.UI
             BuildToastUi();
         }
 
+        private void OnDestroy()
+        {
+            if (Instance == this)
+                Instance = null;
+        }
+
         private void BuildToastUi()
         {
             Transform canvas = GameObject.Find("Canvas").transform;

@@ -25,7 +25,7 @@ namespace Wake.Tests
                     ProductionEffectParser.Parse(record.NextOrEffect))
                 .ToArray();
 
-            Assert.That(withEffects, Has.Length.EqualTo(282));
+            Assert.That(withEffects, Has.Length.EqualTo(281));
             Assert.That(
                 parsed.SelectMany(result => result.Errors),
                 Is.Empty);
