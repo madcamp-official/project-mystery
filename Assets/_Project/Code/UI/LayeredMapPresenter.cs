@@ -15,8 +15,11 @@ namespace Wake.UI
         private readonly Dictionary<int, Button> deckButtons = new();
         private readonly Dictionary<MapLayerMode, Button> layerButtons = new();
         private readonly List<GameObject> nodeObjects = new();
+        private readonly MapPassengerRedactionRenderer redactionRenderer =
+            new();
         private readonly MapRestrictedAreaRenderer restrictedAreaRenderer =
             new();
+        private readonly MapRoomHitAreaRenderer roomHitAreaRenderer = new();
 
         private RectTransform root;
         private RectTransform mapFrame;
@@ -110,11 +113,13 @@ namespace Wake.UI
             mapAspect.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
             mapAspect.aspectRatio = 1448f / 1086f;
             baseMap = LayerImage(mapFrame, "Base Map");
+            redactionRenderer.Build(mapFrame);
             restrictedAreaRenderer.Build(mapFrame);
             restrictedOverlay =
                 LayerImage(mapFrame, "Investigation Overlay Fallback");
             technicalOverlay =
                 LayerImage(mapFrame, "Technical Overlay");
+            roomHitAreaRenderer.Build(mapFrame);
             nodeLayer = new GameObject(
                 "Map Location Nodes",
                 typeof(RectTransform)).GetComponent<RectTransform>();
@@ -255,6 +260,7 @@ namespace Wake.UI
             selectedLayer = mode;
             RefreshLayerButtons();
             ApplyLayerSprites();
+            RefreshPassengerRedactions();
             RefreshRestrictedAreas();
         }
 
@@ -290,11 +296,13 @@ namespace Wake.UI
                     ? "항구 · 승선 구역"
                     : $"{MapDeckCatalog.DeckLabel(selectedDeck)} · 층별 설계도";
             ApplyLayerSprites();
+            RefreshPassengerRedactions();
             RefreshRestrictedAreas();
 
             foreach (GameObject node in nodeObjects)
                 UnityEngine.Object.Destroy(node);
             nodeObjects.Clear();
+            roomHitAreaRenderer.Clear();
 
             if (viewModel == null)
                 return;
@@ -306,6 +314,10 @@ namespace Wake.UI
             string objectiveCode =
                 CanonicalLocationCatalog.FindSpec(objectiveLocationCode)?.Code ??
                 objectiveLocationCode ?? string.Empty;
+            string currentCode =
+                CanonicalLocationCatalog.FindSpec(
+                    state?.CurrentLocationCode)?.Code ??
+                state?.CurrentLocationCode ?? string.Empty;
             foreach (MapLocationPlacement placement in
                      MapDeckCatalog.ForDeck(selectedDeck))
             {
@@ -322,13 +334,21 @@ namespace Wake.UI
                     continue;
                 }
 
-                CreateNode(
-                    placement,
-                    entry,
-                    string.Equals(
-                        placement.LocationCode,
-                        objectiveCode,
-                        StringComparison.Ordinal));
+                bool objective = string.Equals(
+                    placement.LocationCode,
+                    objectiveCode,
+                    StringComparison.Ordinal);
+                bool current = string.Equals(
+                    placement.LocationCode,
+                    currentCode,
+                    StringComparison.OrdinalIgnoreCase);
+                roomHitAreaRenderer.Add(
+                    placement.LocationCode,
+                    entry.Status == ProductionMapEntryStatus.Locked,
+                    objective,
+                    current,
+                    () => SelectEntry(entry, placement, current));
+                CreateNode(placement, entry, objective);
             }
         }
 
@@ -369,6 +389,14 @@ namespace Wake.UI
                 viewModel,
                 state,
                 SelectArea);
+        }
+
+        private void RefreshPassengerRedactions()
+        {
+            redactionRenderer.Refresh(
+                selectedDeck,
+                selectedLayer,
+                state?.CompletedProductionSceneIds);
         }
 
         private void SelectArea(MapAreaShape area)
@@ -430,8 +458,14 @@ namespace Wake.UI
             nodeObjects.Add(rootObject);
             RectTransform rect =
                 rootObject.GetComponent<RectTransform>();
-            rect.anchorMin = placement.Position;
-            rect.anchorMax = placement.Position;
+            Vector2 nodePosition =
+                MapInteractionGeometryCatalog.TryGetNode(
+                    placement.LocationCode,
+                    out MapLocationNode authoredNode)
+                    ? authoredNode.NormalizedPosition
+                    : placement.Position;
+            rect.anchorMin = nodePosition;
+            rect.anchorMax = nodePosition;
             rect.pivot = new Vector2(.5f, .5f);
             rect.sizeDelta = new Vector2(150f, 54f);
 
