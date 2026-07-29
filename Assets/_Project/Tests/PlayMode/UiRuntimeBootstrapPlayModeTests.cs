@@ -384,7 +384,16 @@ namespace Wake.Tests.PlayMode
             Assert.That(
                 context.transform.Find("Current Location")
                     ?.GetComponent<TMP_Text>()?.text,
-                Is.Not.Empty.And.Not.EqualTo("현재 장소"));
+                Is.EqualTo("항구"));
+            TMP_Text currentLocation = context.transform
+                .Find("Current Location")
+                ?.GetComponent<TMP_Text>();
+            Assert.That(currentLocation, Is.Not.Null);
+            Assert.That(currentLocation.gameObject.activeInHierarchy, Is.True);
+            Assert.That(currentLocation.enableAutoSizing, Is.True);
+            Assert.That(
+                currentLocation.textWrappingMode,
+                Is.EqualTo(TextWrappingModes.NoWrap));
             Assert.That(
                 context.transform.Find("Current Objective")
                     ?.GetComponent<TMP_Text>()?.text,
@@ -401,6 +410,42 @@ namespace Wake.Tests.PlayMode
                 context.GetComponentsInChildren<TMP_Text>(true)
                     .Select(text => text.text),
                 Has.None.Contains("P-01"));
+            GameObject guidance = RequireObject(
+                "Exploration Global Navigation/Objective Guidance");
+            Assert.That(guidance.activeInHierarchy, Is.True);
+            Assert.That(
+                guidance.transform.Find("Guidance Eyebrow")
+                    ?.GetComponent<TMP_Text>()?.text,
+                Is.EqualTo("목표"));
+            Assert.That(
+                guidance.GetComponentsInChildren<TMP_Text>(true)
+                    .Select(text => text.text),
+                Has.None.Contains("서브 목표"));
+            Assert.That(
+                guidance.transform.Find("Current Guidance")
+                    ?.GetComponent<TMP_Text>()?.text,
+                Is.EqualTo("다니엘 머서 찾기"));
+            Assert.That(
+                guidance.transform.Find("Top Gold Line")
+                    ?.GetComponent<Image>()?.color.a,
+                Is.GreaterThan(0.75f));
+            Assert.That(
+                guidance.transform.Find("Bottom Gold Line")
+                    ?.GetComponent<Image>()?.color.a,
+                Is.GreaterThan(0.75f));
+            AssertHudDim(
+                context,
+                "HUD Dim Left",
+                sampleFromRight: false);
+            AssertHudDim(
+                guidance,
+                "HUD Dim Center",
+                sampleFromRight: false);
+            AssertHudDim(
+                RequireObject(
+                    "Exploration Global Navigation/Global Navigation"),
+                "HUD Dim Right",
+                sampleFromRight: true);
             Assert.That(
                 Dialogue.ActiveProductionSceneId,
                 Is.Empty,
@@ -450,6 +495,34 @@ namespace Wake.Tests.PlayMode
             Assert.That(
                 Dialogue.ActiveProductionSceneId,
                 Is.EqualTo("P-01"));
+        }
+
+        private static void AssertHudDim(
+            GameObject region,
+            string expectedSpriteName,
+            bool sampleFromRight)
+        {
+            Image dim = region.GetComponent<Image>();
+            Assert.That(dim, Is.Not.Null);
+            Assert.That(dim.sprite, Is.Not.Null);
+            Assert.That(dim.sprite.name, Is.EqualTo(expectedSpriteName));
+            Assert.That(dim.color.a, Is.GreaterThan(0.5f));
+            Texture2D texture = dim.sprite.texture;
+            int top = texture.height - 1;
+            bool sampleFromCenter =
+                expectedSpriteName.EndsWith("Center");
+            int strongX = sampleFromCenter
+                ? texture.width / 2
+                : sampleFromRight ? texture.width - 1 : 0;
+            int weakX = sampleFromRight ? 0 : texture.width - 1;
+            if (sampleFromCenter)
+                weakX = 0;
+            Assert.That(
+                texture.GetPixel(strongX, top).a,
+                Is.GreaterThan(texture.GetPixel(weakX, top).a));
+            Assert.That(
+                texture.GetPixel(strongX, top).a,
+                Is.GreaterThan(texture.GetPixel(strongX, 0).a));
         }
 
         [UnityTest]

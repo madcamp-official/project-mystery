@@ -1,3 +1,4 @@
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,6 +17,8 @@ namespace Wake.UI
             new(0.95f, 0.92f, 0.84f, 1f);
         private static readonly Color HudOutline =
             new(0.015f, 0.035f, 0.06f, 0.96f);
+        private static readonly Color HudDim =
+            new(0.008f, 0.02f, 0.04f, 0.78f);
 
         private UIManager owner;
         private GameObject root;
@@ -24,10 +27,13 @@ namespace Wake.UI
         private TMP_Text timeLabel;
         private TMP_Text objectiveEyebrow;
         private TMP_Text objectiveLabel;
+        private TMP_Text guidanceEyebrow;
+        private TMP_Text guidanceLabel;
         private Button mapButton;
         private Button evidenceButton;
         private Button pauseButton;
         private RectTransform contextRegion;
+        private RectTransform objectiveRegion;
         private RectTransform globalRegion;
         private UiPrimaryPanel renderedPanel = UiPrimaryPanel.None;
         private string renderedLocationCode = string.Empty;
@@ -39,6 +45,7 @@ namespace Wake.UI
         public GameObject Root => root;
         public TMP_Text LocationLabel => locationLabel;
         public TMP_Text ObjectiveLabel => objectiveLabel;
+        public TMP_Text GuidanceLabel => guidanceLabel;
         public Button MapButton => mapButton;
         public Button EvidenceButton => evidenceButton;
         public Button PauseButton => pauseButton;
@@ -104,11 +111,13 @@ namespace Wake.UI
             root.transform.SetAsLastSibling();
             bool showExplorationHud = panel == UiPrimaryPanel.Ingame;
             contextRegion?.gameObject.SetActive(showExplorationHud);
+            objectiveRegion?.gameObject.SetActive(showExplorationHud);
             globalRegion?.gameObject.SetActive(true);
             if (showExplorationHud)
             {
                 RefreshContext();
                 RefreshObjective();
+                RefreshGuidance();
             }
             SetSelectedState(mapButton, panel == UiPrimaryPanel.Map);
             SetSelectedState(
@@ -174,12 +183,21 @@ namespace Wake.UI
                 root.transform,
                 "Exploration Context",
                 ScreenRegionIds.ContextTopLeft);
+            ApplyDim(contextRegion, DimDirection.Left);
             CreateContext(contextRegion);
+
+            objectiveRegion = CreateRegion(
+                root.transform,
+                "Objective Guidance",
+                ScreenRegionIds.ObjectiveTop);
+            ApplyDim(objectiveRegion, DimDirection.Center);
+            CreateGuidance(objectiveRegion);
 
             globalRegion = CreateRegion(
                 root.transform,
                 "Global Navigation",
                 ScreenRegionIds.GlobalTopRight);
+            ApplyDim(globalRegion, DimDirection.Right);
             CreateGlobalNavigation(globalRegion);
         }
 
@@ -205,6 +223,10 @@ namespace Wake.UI
                 "Current Location",
                 UiTextStyle.Heading,
                 36f);
+            locationLabel.textWrappingMode = TextWrappingModes.NoWrap;
+            locationLabel.enableAutoSizing = true;
+            locationLabel.fontSizeMin = 20f;
+            locationLabel.fontSizeMax = 36f;
             objectiveEyebrow = CreateText(
                 parent,
                 "Objective Eyebrow",
@@ -217,6 +239,40 @@ namespace Wake.UI
                 "Current Objective",
                 UiTextStyle.Body,
                 32f);
+        }
+
+        private void CreateGuidance(RectTransform parent)
+        {
+            VerticalLayoutGroup layout =
+                parent.gameObject.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(96, 96, 16, 14);
+            layout.spacing = 3f;
+            layout.childAlignment = TextAnchor.UpperCenter;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+
+            CreateGoldLine(parent, "Top Gold Line");
+            guidanceEyebrow = CreateText(
+                parent,
+                "Guidance Eyebrow",
+                UiTextStyle.Caption,
+                22f);
+            guidanceEyebrow.text = "목표";
+            guidanceEyebrow.color = HudGold;
+            guidanceEyebrow.alignment = TextAlignmentOptions.Center;
+            guidanceLabel = CreateText(
+                parent,
+                "Current Guidance",
+                UiTextStyle.Body,
+                38f);
+            guidanceLabel.alignment = TextAlignmentOptions.Top;
+            guidanceLabel.textWrappingMode = TextWrappingModes.NoWrap;
+            guidanceLabel.enableAutoSizing = true;
+            guidanceLabel.fontSizeMin = 19f;
+            guidanceLabel.fontSizeMax = 30f;
+            CreateGoldLine(parent, "Bottom Gold Line");
         }
 
         private void CreateGlobalNavigation(RectTransform parent)
@@ -277,16 +333,7 @@ namespace Wake.UI
             timeLabel.text = state != null
                 ? ResolveWorldTimeLabel(state)
                 : "DAY 1 · 오전";
-            LocationDefinition location =
-                LocationLoader.Instance?.CurrentLocation;
-            CanonicalLocationSpec fallback =
-                CanonicalLocationCatalog.FindSpec(
-                    ResolveLocationCode());
-            locationLabel.text =
-                location != null &&
-                !string.IsNullOrWhiteSpace(location.DisplayName)
-                    ? location.DisplayName
-                    : fallback?.DisplayName ?? "장소 미확인";
+            locationLabel.text = ResolveLocationDisplayName();
         }
 
         private void RefreshObjective()
@@ -303,6 +350,75 @@ namespace Wake.UI
             {
                 objectiveLabel.text = "자유 조사";
             }
+        }
+
+        private void RefreshGuidance()
+        {
+            ProductionObjectiveViewModel view =
+                ProductionObjectiveViewModel.Resolve(
+                    GameStateManager.Instance);
+            ProductionObjectivePresentation? presentation =
+                view.Presentation;
+            if (!presentation.HasValue)
+            {
+                guidanceLabel.text = "주변을 조사하세요";
+                return;
+            }
+
+            ProductionObjectiveDefinition definition =
+                presentation.Value.Definition;
+            guidanceLabel.text = presentation.Value.IsTravel
+                ? ToGuidanceSentence(presentation.Value.DisplayText)
+                : definition.Steps.FirstOrDefault() ??
+                  presentation.Value.DisplayText;
+        }
+
+        private string ResolveLocationDisplayName()
+        {
+            LocationDefinition loaded =
+                LocationLoader.Instance?.CurrentLocation;
+            if (!string.IsNullOrWhiteSpace(loaded?.DisplayName))
+                return loaded.DisplayName.Trim();
+
+            string locationCode = ResolveLocationCode();
+            CanonicalLocationSpec canonical =
+                CanonicalLocationCatalog.FindSpec(locationCode);
+            if (!string.IsNullOrWhiteSpace(canonical?.DisplayName))
+                return canonical.DisplayName.Trim();
+
+            string sceneId =
+                DialogueController.Instance?.ActiveProductionSceneId;
+            if (string.IsNullOrWhiteSpace(sceneId))
+            {
+                sceneId = ProductionObjectiveViewModel
+                    .Resolve(GameStateManager.Instance)
+                    .Current?
+                    .Definition
+                    .SceneId;
+            }
+            if (!string.IsNullOrWhiteSpace(sceneId) &&
+                ProductionSceneCatalog.TryGet(
+                    sceneId,
+                    out ProductionSceneDefinition scene))
+            {
+                canonical = CanonicalLocationCatalog.FindSpec(
+                    scene.NarrativeLocationCode);
+                if (!string.IsNullOrWhiteSpace(canonical?.DisplayName))
+                    return canonical.DisplayName.Trim();
+            }
+
+            return "위치 정보 없음";
+        }
+
+        private static string ToGuidanceSentence(string value)
+        {
+            string text = value?.Trim() ?? string.Empty;
+            if (string.IsNullOrEmpty(text))
+                return "주변을 조사하세요";
+
+            if (text.EndsWith("향하기"))
+                return text.Substring(0, text.Length - 3) + "향하세요";
+            return text;
         }
 
         private void BindRuntime()
@@ -410,6 +526,43 @@ namespace Wake.UI
             hitArea.color = Color.clear;
             hitArea.raycastTarget = false;
             return rect;
+        }
+
+        private static void ApplyDim(
+            RectTransform region,
+            DimDirection direction)
+        {
+            Image image = region != null
+                ? region.GetComponent<Image>()
+                : null;
+            if (image == null)
+                return;
+
+            image.sprite = HudDimSpriteCache.Get(direction);
+            image.type = Image.Type.Simple;
+            image.color = HudDim;
+            image.raycastTarget = false;
+        }
+
+        private static void CreateGoldLine(Transform parent, string name)
+        {
+            GameObject target = new(
+                name,
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(LayoutElement));
+            target.transform.SetParent(parent, false);
+            Image image = target.GetComponent<Image>();
+            image.color = new Color(
+                HudGold.r,
+                HudGold.g,
+                HudGold.b,
+                0.82f);
+            image.raycastTarget = false;
+            LayoutElement layout = target.GetComponent<LayoutElement>();
+            layout.preferredHeight = 1.5f;
+            layout.minHeight = 1.5f;
         }
 
         private static TMP_Text CreateText(
@@ -539,6 +692,86 @@ namespace Wake.UI
             rect.anchorMax = Vector2.one;
             rect.offsetMin = new Vector2(inset, inset);
             rect.offsetMax = new Vector2(-inset, -inset);
+        }
+
+        private enum DimDirection
+        {
+            Left,
+            Center,
+            Right
+        }
+
+        private static class HudDimSpriteCache
+        {
+            private const int Width = 64;
+            private const int Height = 32;
+            private static readonly Sprite[] Sprites = new Sprite[3];
+
+            public static Sprite Get(DimDirection direction)
+            {
+                int index = (int)direction;
+                if (Sprites[index] == null)
+                    Sprites[index] = Create(direction);
+                return Sprites[index];
+            }
+
+            private static Sprite Create(DimDirection direction)
+            {
+                Texture2D texture = new(
+                    Width,
+                    Height,
+                    TextureFormat.RGBA32,
+                    false)
+                {
+                    name = $"HUD Dim {direction}",
+                    filterMode = FilterMode.Bilinear,
+                    wrapMode = TextureWrapMode.Clamp,
+                    hideFlags = HideFlags.HideAndDontSave
+                };
+                Color32[] pixels = new Color32[Width * Height];
+                for (int y = 0; y < Height; y++)
+                {
+                    float vertical = Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        y / (Height - 1f));
+                    for (int x = 0; x < Width; x++)
+                    {
+                        float normalizedX = x / (Width - 1f);
+                        float horizontal = direction switch
+                        {
+                            DimDirection.Left =>
+                                1f - Mathf.SmoothStep(
+                                    0.15f,
+                                    1f,
+                                    normalizedX),
+                            DimDirection.Right =>
+                                Mathf.SmoothStep(
+                                    0f,
+                                    0.85f,
+                                    normalizedX),
+                            _ => 1f - Mathf.SmoothStep(
+                                0.1f,
+                                0.5f,
+                                Mathf.Abs(normalizedX - 0.5f))
+                        };
+                        byte alpha = (byte)Mathf.RoundToInt(
+                            255f * horizontal * vertical);
+                        pixels[y * Width + x] =
+                            new Color32(255, 255, 255, alpha);
+                    }
+                }
+                texture.SetPixels32(pixels);
+                texture.Apply(false, false);
+                Sprite sprite = Sprite.Create(
+                    texture,
+                    new Rect(0f, 0f, Width, Height),
+                    new Vector2(0.5f, 0.5f),
+                    100f);
+                sprite.name = $"HUD Dim {direction}";
+                sprite.hideFlags = HideFlags.HideAndDontSave;
+                return sprite;
+            }
         }
     }
 }
