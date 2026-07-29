@@ -22,11 +22,12 @@ namespace Wake.Tests
 
             Assert.That(view.IsVisible, Is.True);
             Assert.That(view.IsWarning, Is.False);
-            Assert.That(view.Eyebrow, Is.EqualTo("D1-04 · 현재 위치"));
+            Assert.That(view.Eyebrow, Is.EqualTo("현재 위치"));
             Assert.That(view.Title, Is.EqualTo("승무원 계단"));
             Assert.That(view.SupportingText,
-                Is.EqualTo("탐색 배경 · CREW_STAIRS"));
-            Assert.That(view.DisplayText, Does.Contain("D1-04"));
+                Is.EqualTo("탐색 가능한 현장"));
+            Assert.That(view.DisplayText, Does.Not.Contain("D1-04"));
+            Assert.That(view.DisplayText, Does.Not.Contain("CREW_STAIRS"));
             Assert.That(view.DisplayText, Does.Contain("승무원 계단"));
         }
 
@@ -64,9 +65,9 @@ namespace Wake.Tests
             Assert.That(view.BackgroundColor, Is.EqualTo(Color.clear));
         }
 
-        [TestCase(1920f, 1920f, 560f)]
-        [TestCase(1280f, 1100f, 560f)]
-        [TestCase(720f, 720f, 560f)]
+        [TestCase(1920f, 1920f, 620f)]
+        [TestCase(1280f, 1100f, 620f)]
+        [TestCase(720f, 720f, 620f)]
         [TestCase(390f, 390f, 358f)]
         [TestCase(320f, 280f, 280f)]
         public void Layout_ClampsWidthInsideSafeArea(

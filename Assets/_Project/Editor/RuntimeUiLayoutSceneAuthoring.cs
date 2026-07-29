@@ -71,7 +71,7 @@ namespace Wake.Editor
                 "Context Top Left Slot",
                 ScreenRegionIds.ContextTopLeft,
                 new Vector2(.02f, .84f),
-                new Vector2(.26f, .98f),
+                new Vector2(.24f, .98f),
                 Vector2.zero,
                 blue).GetComponent<RuntimeUiLayoutSlot>();
             RuntimeUiLayoutSlot objective = Slot(
@@ -79,14 +79,14 @@ namespace Wake.Editor
                 "Objective Top Slot",
                 ScreenRegionIds.ObjectiveTop,
                 new Vector2(.25f, .84f),
-                new Vector2(.75f, .98f),
+                new Vector2(.74f, .98f),
                 Vector2.zero,
                 blue).GetComponent<RuntimeUiLayoutSlot>();
             RuntimeUiLayoutSlot global = Slot(
                 shell,
                 "Global Top Right Slot",
                 ScreenRegionIds.GlobalTopRight,
-                new Vector2(.74f, .84f),
+                new Vector2(.75f, .84f),
                 new Vector2(.98f, .98f),
                 Vector2.zero,
                 blue).GetComponent<RuntimeUiLayoutSlot>();

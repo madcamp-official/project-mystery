@@ -482,8 +482,8 @@ namespace Wake.UI
             if (progressText != null)
             {
                 progressText.text = detailsExpanded
-                    ? $"{actionLabel} · 접기 ▴"
-                    : $"다음 목표 · {actionLabel}\n세부 목표 ▾";
+                    ? $"{actionLabel} · 접기"
+                    : $"다음 목표 · {actionLabel}\n세부 목표 보기";
             }
         }
 
@@ -494,11 +494,19 @@ namespace Wake.UI
                 return;
             }
 
+            // The authored exploration shell is now the single owner of the
+            // top objective presentation. Showing this legacy overlay at the
+            // same time duplicates copy and makes both HUDs overlap.
+            Transform explorationNavigation =
+                GameObject.Find("Exploration Global Navigation")?.transform;
+            bool replacedByExplorationShell =
+                explorationNavigation?.Find("Exploration Objective") != null;
             UIManager ui = UIManager.Instance;
             GameFlow flow = GameFlow.Instance;
             Wake.Exploration.LocationLoader locations =
                 Wake.Exploration.LocationLoader.Instance;
             bool visible =
+                !replacedByExplorationShell &&
                 hasRenderableObjective &&
                 ui != null &&
                 ui.ActivePanel == UiPrimaryPanel.Ingame &&

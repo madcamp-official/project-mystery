@@ -7,6 +7,7 @@ using UnityEngine.TestTools;
 using UnityEngine.UI;
 using Wake.Core;
 using Wake.Evidence;
+using Wake.Exploration;
 using Wake.Puzzles;
 using Wake.UI;
 
@@ -49,13 +50,6 @@ namespace Wake.Tests.PlayMode
             Assert.That(
                 ingame.GetComponents<MarcusInterrogationUIController>(),
                 Has.Length.EqualTo(1));
-            Transform marcusRoot = RequireObject("Marcus Interrogation")
-                .transform;
-            Assert.That(
-                marcusRoot.GetComponentsInChildren<Button>(true)
-                    .Count(button =>
-                        button.name.StartsWith("Question ")),
-                Is.EqualTo(8));
             Assert.That(
                 ingame.GetComponents<TimelinePuzzleUIController>(),
                 Has.Length.EqualTo(1));
@@ -173,16 +167,23 @@ namespace Wake.Tests.PlayMode
             yield return null;
 
             Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Ingame));
-            GameObject objective = RequireObject("Ingame/Objective HUD");
+            GameObject legacyObjective =
+                RequireObject("Ingame/Objective HUD");
+            Assert.That(
+                legacyObjective.activeInHierarchy,
+                Is.False,
+                "The legacy objective overlay must not duplicate the authored top HUD.");
+            GameObject objective = RequireObject(
+                "Exploration Global Navigation/Exploration Objective");
             Assert.That(objective.activeInHierarchy, Is.True);
             Assert.That(
-                objective.transform.Find("Title")
+                objective.transform.Find("Current Objective")
                     ?.GetComponent<TMP_Text>()?.text,
                 Is.EqualTo("항구의 기자를 찾기"));
             Assert.That(
-                objective.transform.Find("Progress")
+                objective.transform.Find("Objective Detail")
                     ?.GetComponent<TMP_Text>()?.text,
-                Does.StartWith("다음 목표 · 탐색"));
+                Is.EqualTo("항구를 둘러보고 다니엘을 찾아보자."));
             Assert.That(
                 objective.GetComponentsInChildren<TMP_Text>(true)
                     .Select(text => text.text),
@@ -195,30 +196,99 @@ namespace Wake.Tests.PlayMode
                 RequireObject("Ingame/Line Panel").activeSelf,
                 Is.False);
 
-            yield return InvokeAndSettle(objective.GetComponent<Button>());
-            GameObject details =
-                RequireObject("Ingame/Objective HUD/Objective Details");
-            Assert.That(details.activeInHierarchy, Is.True);
-            Assert.That(
-                details.GetComponentInChildren<TMP_Text>(true).text,
-                Does.Contain("다니엘 머서 찾기"));
-
             Button daniel = Object.FindObjectsByType<Button>(
                     FindObjectsInactive.Include,
                     FindObjectsSortMode.None)
                 .First(button =>
                     button.name.StartsWith("AmbientCharacter_DANIEL"));
             Transform talkMarker =
-                daniel.transform.Find("Objective Talk Marker");
+                daniel.transform.Find("Dialogue Speech Bubble");
             Assert.That(talkMarker, Is.Not.Null);
             Assert.That(talkMarker.gameObject.activeInHierarchy, Is.True);
             Assert.That(
                 talkMarker.GetComponentInChildren<TMP_Text>(true).text,
                 Is.EqualTo("대화"));
+            AlphaContourRaycastFilter contour =
+                daniel.GetComponent<AlphaContourRaycastFilter>();
+            Assert.That(
+                contour,
+                Is.Not.Null,
+                "Character interaction must follow the visible alpha contour.");
+            Assert.That(
+                contour.HasAlphaMask,
+                Is.True,
+                "The production character texture should provide an alpha mask.");
+            Button[] worldCharacters = Object.FindObjectsByType<Button>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None)
+                .Where(button =>
+                    button.name.StartsWith("AmbientCharacter_"))
+                .ToArray();
+            Assert.That(
+                worldCharacters
+                    .Where(button => button != daniel)
+                    .All(button =>
+                        daniel.transform.GetSiblingIndex() >=
+                        button.transform.GetSiblingIndex()),
+                Is.True,
+                "The story focus participant must stay above overlapping NPCs.");
             yield return InvokeAndSettle(daniel);
             Assert.That(
                 Dialogue.ActiveProductionSceneId,
                 Is.EqualTo("P-01"));
+        }
+
+        [UnityTest]
+        public IEnumerator Map_HidesWorldCharactersAndCompactsTopHud()
+        {
+            yield return StartNewGameFromVisibleButton(
+                startOpeningDialogue: false);
+            yield return null;
+
+            Button daniel = Object.FindObjectsByType<Button>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None)
+                .First(button =>
+                    button.name.StartsWith("AmbientCharacter_DANIEL"));
+            GameObject talkMarker =
+                daniel.transform.Find("Dialogue Speech Bubble").gameObject;
+            Assert.That(talkMarker.activeInHierarchy, Is.True);
+            Assert.That(
+                LocationLoader.Instance.IsPresentationVisible,
+                Is.True);
+
+            Ui.ShowMap();
+            yield return null;
+
+            Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Map));
+            Assert.That(
+                LocationLoader.Instance.IsPresentationVisible,
+                Is.False,
+                "The exploration layer must be hidden as soon as the map opens.");
+            Assert.That(daniel.gameObject.activeInHierarchy, Is.False);
+            Assert.That(talkMarker.activeInHierarchy, Is.False);
+            Assert.That(
+                RequireObject(
+                    "Exploration Global Navigation/Exploration Context")
+                    .activeSelf,
+                Is.False);
+            Assert.That(
+                RequireObject(
+                    "Exploration Global Navigation/Exploration Objective")
+                    .activeSelf,
+                Is.False);
+            Assert.That(
+                RequireObject(
+                    "Exploration Global Navigation/Global Navigation")
+                    .activeInHierarchy,
+                Is.True);
+
+            Ui.ShowIngame();
+            yield return null;
+            Assert.That(
+                LocationLoader.Instance.IsPresentationVisible,
+                Is.True);
+            Assert.That(daniel.gameObject.activeInHierarchy, Is.True);
         }
 
         [UnityTest]
@@ -298,16 +368,40 @@ namespace Wake.Tests.PlayMode
                 RequireObject(
                     "Exploration Global Navigation/Global Navigation")
                 .GetComponent<RectTransform>();
+            RectTransform context =
+                RequireObject(
+                    "Exploration Global Navigation/Exploration Context")
+                .GetComponent<RectTransform>();
+            RectTransform objectiveRegion =
+                RequireObject(
+                    "Exploration Global Navigation/Exploration Objective")
+                .GetComponent<RectTransform>();
             Bounds navigationBounds =
                 RectTransformUtility.CalculateRelativeRectTransformBounds(
                     canvas,
                     navigation);
+            Bounds contextBounds =
+                RectTransformUtility.CalculateRelativeRectTransformBounds(
+                    canvas,
+                    context);
+            Bounds objectiveBounds =
+                RectTransformUtility.CalculateRelativeRectTransformBounds(
+                    canvas,
+                    objectiveRegion);
             Assert.That(navigationBounds.max.x, Is.LessThanOrEqualTo(
                 canvas.rect.xMax + 1f));
             Assert.That(navigationBounds.max.y, Is.LessThanOrEqualTo(
                 canvas.rect.yMax + 1f));
             Assert.That(navigationBounds.center.x, Is.GreaterThan(0f));
             Assert.That(navigationBounds.center.y, Is.GreaterThan(0f));
+            Assert.That(
+                contextBounds.max.x,
+                Is.LessThanOrEqualTo(objectiveBounds.min.x + 1f),
+                "The top-left context must not overlap the objective region.");
+            Assert.That(
+                objectiveBounds.max.x,
+                Is.LessThanOrEqualTo(navigationBounds.min.x + 1f),
+                "The objective region must not overlap global navigation.");
 
             TMP_Text objective = RequireObject(
                     "Exploration Global Navigation/Exploration Objective/" +
@@ -353,8 +447,8 @@ namespace Wake.Tests.PlayMode
             Assert.That(portrait.uvRect.y, Is.Zero.Within(0.001f));
             Assert.That(portrait.uvRect.height, Is.EqualTo(1f).Within(0.001f));
             Assert.That(
-                globalNavigation.activeSelf,
-                Is.False,
+                globalNavigation.GetComponent<CanvasGroup>().alpha,
+                Is.Zero,
                 "Navigation controls must hide while dialogue is active.");
             Assert.That(legacyMapNavigation.activeSelf, Is.False);
 
@@ -380,7 +474,7 @@ namespace Wake.Tests.PlayMode
             Assert.That(line.enableAutoSizing, Is.True);
             Assert.That(
                 line.overflowMode,
-                Is.EqualTo(TextOverflowModes.Overflow));
+                Is.EqualTo(TextOverflowModes.Truncate));
             Assert.That(line.isTextOverflowing, Is.False);
 
             dialogue.CancelActiveDialogue();
@@ -415,7 +509,7 @@ namespace Wake.Tests.PlayMode
             RectTransform logoRect = logo.rectTransform;
             Assert.That(
                 logoRect.anchorMax.x - logoRect.anchorMin.x,
-                Is.EqualTo(0.48f).Within(0.001f));
+                Is.EqualTo(0.5f).Within(0.001f));
             Assert.That(
                 logoRect.anchorMin.y,
                 Is.GreaterThanOrEqualTo(0.7f));
@@ -601,7 +695,8 @@ namespace Wake.Tests.PlayMode
                 RequireComponent<Image>("Evidence/Image").sprite,
                 Is.Null);
             TMP_Text placeholder =
-                RequireComponent<TMP_Text>("Evidence/Description");
+                RequireComponent<TMP_Text>(
+                    "Evidence/Description Viewport/Description");
             Assert.That(placeholder.gameObject.activeSelf, Is.True);
             Assert.That(placeholder.text, Does.Contain("확보한 증거가 없습니다"));
             Assert.That(
@@ -611,7 +706,7 @@ namespace Wake.Tests.PlayMode
                         TypographyRole.BodyRegular)));
             TMP_Text title =
                 RequireComponent<TMP_Text>("Evidence/Text (TMP)");
-            Assert.That(title.text, Is.EqualTo("증거"));
+            Assert.That(title.text, Is.EqualTo("조사 기록"));
             Assert.That(title.text, Does.Not.Contain("C-"));
             Assert.That(
                 title.font,

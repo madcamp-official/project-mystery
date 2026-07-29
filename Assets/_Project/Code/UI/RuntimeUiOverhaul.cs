@@ -463,7 +463,7 @@ namespace Wake.UI
             // Exactly twice the original 24% x 14% title-safe slot.
             // The right edge stops at screen center so it cannot cover the
             // character composition, and it remains well above the menu.
-            logoRect.anchorMin = new Vector2(0.00f, 0.30f);
+            logoRect.anchorMin = new Vector2(0.00f, 0.70f);
             logoRect.anchorMax = new Vector2(0.50f, 1.00f);
             logoRect.offsetMin = Vector2.zero;
             logoRect.offsetMax = Vector2.zero;
@@ -1275,6 +1275,11 @@ namespace Wake.UI
 
         private void OnDestroy()
         {
+            if (noticeAnimation != null)
+            {
+                StopCoroutine(noticeAnimation);
+                noticeAnimation = null;
+            }
             if (boundInventory != null)
             {
                 boundInventory.EvidenceAdded -= Show;
@@ -1315,14 +1320,24 @@ namespace Wake.UI
 
         private IEnumerator AnimateNotice()
         {
+            if (notice == null)
+                yield break;
+
             notice.gameObject.SetActive(true);
             Vector2 shown = new Vector2(-24f, 0f);
             Vector2 hidden = new Vector2(notice.sizeDelta.x + 30f, 0f);
             notice.anchoredPosition = hidden;
             yield return Move(hidden, shown, .3f);
+            if (notice == null)
+                yield break;
             yield return new WaitForSecondsRealtime(2.5f);
+            if (notice == null)
+                yield break;
             yield return Move(shown, hidden, .28f);
+            if (notice == null)
+                yield break;
             notice.gameObject.SetActive(false);
+            noticeAnimation = null;
         }
 
         private IEnumerator Move(Vector2 from, Vector2 to, float duration)
@@ -1330,11 +1345,15 @@ namespace Wake.UI
             float elapsed = 0f;
             while (elapsed < duration)
             {
+                if (notice == null)
+                    yield break;
                 elapsed += Time.unscaledDeltaTime;
                 notice.anchoredPosition = Vector2.Lerp(
                     from, to, Mathf.SmoothStep(0f, 1f, elapsed / duration));
                 yield return null;
             }
+            if (notice == null)
+                yield break;
             notice.anchoredPosition = to;
         }
     }
