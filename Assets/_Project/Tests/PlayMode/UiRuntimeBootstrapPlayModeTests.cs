@@ -414,6 +414,11 @@ namespace Wake.Tests.PlayMode
                 Is.Null,
                 "The top-left HUD must not show a redundant current-place caption.");
             Assert.That(
+                RequireObject("Ingame").transform.Find(
+                    "Narrative Location Context"),
+                Is.Null,
+                "The retired top-center location banner must not be created.");
+            Assert.That(
                 context.GetComponentsInChildren<TMP_Text>(true)
                     .Select(text => text.text),
                 Has.None.Contains("P-01"));
