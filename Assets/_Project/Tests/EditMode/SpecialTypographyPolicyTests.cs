@@ -137,21 +137,36 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void PreventOrphanWrap_ReplacesLastSpaceWithNonBreakingSpace()
+        public void PreventOrphanWrap_GluesLastTwoCharacters()
         {
-            char nonBreakingSpace = (char)0x00A0;
+            char wordJoiner = (char)0x2060;
             string result = DialogueTypography.PreventOrphanWrap(
-                "alpha beta gamma");
+                "hello world");
 
             Assert.That(
                 result,
-                Is.EqualTo("alpha beta" + nonBreakingSpace + "gamma"));
+                Is.EqualTo("hello worl" + wordJoiner + "d"));
+        }
+
+        [Test]
+        public void PreventOrphanWrap_ReplacesTrailingSpaceWithNonBreakingSpace()
+        {
+            char nonBreakingSpace = (char)0x00A0;
+            char wordJoiner = (char)0x2060;
+            string result = DialogueTypography.PreventOrphanWrap(
+                "hear the warning x");
+
+            Assert.That(
+                result,
+                Is.EqualTo(
+                    "hear the warning" + nonBreakingSpace +
+                    wordJoiner + "x"));
         }
 
         [TestCase("")]
         [TestCase(null)]
-        [TestCase("singleword")]
-        public void PreventOrphanWrap_LeavesTextWithoutASpaceUnchanged(
+        [TestCase("a")]
+        public void PreventOrphanWrap_LeavesShortTextUnchanged(
             string content)
         {
             Assert.That(
