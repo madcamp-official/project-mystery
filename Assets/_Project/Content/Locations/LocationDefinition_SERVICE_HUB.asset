@@ -15,7 +15,7 @@ MonoBehaviour:
   locationCode: SERVICE_HUB
   displayName: 서비스 허브
   deck: 6
-  roomCode: D6-4
+  roomCode: D6-2
   backgroundSprite: {fileID: 21300000, guid: bf36629a99b326045934f22fa4615208, type: 3}
   narrativeAliases: []
   contentPrefab: {fileID: 0}

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using Wake.Core;
 using Wake.Evidence;
@@ -42,6 +43,7 @@ namespace Wake.UI
         private SystemScreenFlowController systemScreens;
         private ExplorationNavigationController explorationNavigation;
         private bool hasShownBoot;
+        private UiPrimaryPanel mapReturnPanel = UiPrimaryPanel.Ingame;
         private readonly List<IRuntimeModalController> runtimeModals = new();
 
         public bool IsInitialized { get; private set; }
@@ -86,6 +88,32 @@ namespace Wake.UI
             if (Instance == this)
             {
                 Instance = null;
+            }
+        }
+
+        private void Update()
+        {
+            if (!IsInitialized ||
+                Keyboard.current == null ||
+                ActivePanel == UiPrimaryPanel.Start ||
+                IsSettingsOpen ||
+                ActiveSystemScreen != SystemScreenState.None)
+            {
+                return;
+            }
+
+            if (Keyboard.current.mKey.wasPressedThisFrame)
+            {
+                if (ActivePanel == UiPrimaryPanel.Map)
+                    CloseMap();
+                else
+                    ShowMap();
+            }
+            else if (
+                ActivePanel == UiPrimaryPanel.Map &&
+                Keyboard.current.escapeKey.wasPressedThisFrame)
+            {
+                CloseMap();
             }
         }
 
@@ -137,7 +165,7 @@ namespace Wake.UI
                 BindButton(canvas, "Ingame/Map Btn", ShowMap) &
                 BindButton(canvas, "Ingame/Evidence Btn", ShowEvidence) &
                 BindButton(canvas, "Ingame/Settings Btn", OpenSettings) &
-                BindButton(canvas, "Map/Back Btn", ShowIngame);
+                BindButton(canvas, "Map/Back Btn", CloseMap);
             if (!buttonsBound)
             {
                 IsInitialized = false;
@@ -148,6 +176,7 @@ namespace Wake.UI
                 canvas.Find("StartScene/Start Game Btn"));
             FeatureTypography.ApplyMenuAction(
                 canvas.Find("StartScene/Continue Btn"));
+            StyleMapBackButton(canvas);
             SetStartButtonLabel(canvas.Find("StartScene/Start Game Btn"));
             continueButton.SetActive(false);
             SetLegacyExplorationNavigationVisible(canvas, false);
@@ -160,6 +189,50 @@ namespace Wake.UI
             }
 
             return true;
+        }
+
+        private static void StyleMapBackButton(Transform canvas)
+        {
+            Transform target = canvas?.Find("Map/Back Btn");
+            if (target == null)
+                return;
+
+            Button button = target.GetComponent<Button>();
+            Image image = target.GetComponent<Image>();
+            RectTransform rect = target as RectTransform;
+            TMP_Text label =
+                target.GetComponentInChildren<TMP_Text>(true);
+            if (image != null)
+            {
+                image.sprite = null;
+                image.type = Image.Type.Simple;
+                image.material = null;
+            }
+            if (button != null)
+            {
+                button.transition = Selectable.Transition.ColorTint;
+                button.spriteState = default;
+                button.targetGraphic = image;
+            }
+            UiVisualThemeService.ApplyButton(
+                button,
+                UiButtonStyle.Secondary);
+            if (rect != null)
+            {
+                rect.anchorMin = new Vector2(.855f, .905f);
+                rect.anchorMax = new Vector2(.985f, .975f);
+                rect.anchoredPosition = Vector2.zero;
+                rect.sizeDelta = Vector2.zero;
+            }
+            if (label != null)
+            {
+                label.text = "← 돌아가기";
+                UiVisualThemeService.ApplyText(
+                    label,
+                    UiTextStyle.Technical);
+                label.alignment = TextAlignmentOptions.Center;
+            }
+            target.SetAsLastSibling();
         }
 
         private void EnsureRuntimeControllers()
@@ -382,8 +455,24 @@ namespace Wake.UI
 
         public void ShowMap()
         {
+            if (ActivePanel != UiPrimaryPanel.Map)
+            {
+                mapReturnPanel =
+                    ActivePanel == UiPrimaryPanel.Evidence
+                        ? UiPrimaryPanel.Evidence
+                        : UiPrimaryPanel.Ingame;
+            }
             SetActivePanel(mapPanel, UiPrimaryPanel.Map);
             FindFirstObjectByType<MapController>()?.RefreshMap();
+            StyleMapBackButton(mapPanel?.transform.parent);
+        }
+
+        public void CloseMap()
+        {
+            if (mapReturnPanel == UiPrimaryPanel.Evidence)
+                ShowEvidence();
+            else
+                ShowIngame();
         }
 
         public void ShowEvidence()

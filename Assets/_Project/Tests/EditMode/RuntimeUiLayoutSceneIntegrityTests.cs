@@ -168,7 +168,8 @@ namespace Wake.Tests
                 Assert.That(
                     mapNodes,
                     Has.Length.EqualTo(25),
-                    "The project has 25 authored locations.");
+                    "The scene keeps 25 legacy inspector nodes; five separated " +
+                    "story locations are added by MapController for compatibility.");
                 Assert.That(
                     mapNodes.All(node =>
                         node.GetComponent<RuntimeUiLayoutSlot>() != null),

@@ -1,0 +1,217 @@
+{
+  "decks": {
+    "10": {
+      "base": "Deck10_Base.png",
+      "restricted": "Deck10_Restricted.png",
+      "technical": "Deck10_Technical.png",
+      "preview": "Deck10_Preview_AllLayers.png",
+      "size": [
+        1448,
+        1086
+      ],
+      "restricted_regions": [
+        {
+          "rect_normalized": [
+            0.11,
+            0.61,
+            0.35,
+            0.78
+          ],
+          "label": "보안 전실·금고"
+        },
+        {
+          "rect_normalized": [
+            0.35,
+            0.62,
+            0.75,
+            0.79
+          ],
+          "label": "제한 서비스 복도"
+        },
+        {
+          "rect_normalized": [
+            0.71,
+            0.19,
+            0.84,
+            0.37
+          ],
+          "label": "기록·인터뷰 구역"
+        },
+        {
+          "rect_normalized": [
+            0.72,
+            0.53,
+            0.89,
+            0.75
+          ],
+          "label": "선장실·승무원 계단"
+        }
+      ]
+    },
+    "9": {
+      "base": "Deck09_Base.png",
+      "restricted": "Deck09_Restricted.png",
+      "technical": "Deck09_Technical.png",
+      "preview": "Deck09_Preview_AllLayers.png",
+      "size": [
+        1448,
+        1086
+      ],
+      "restricted_regions": [
+        {
+          "rect_normalized": [
+            0.11,
+            0.61,
+            0.32,
+            0.78
+          ],
+          "label": "볼룸 백오브하우스"
+        },
+        {
+          "rect_normalized": [
+            0.33,
+            0.17,
+            0.63,
+            0.34
+          ],
+          "label": "주방·팬트리"
+        },
+        {
+          "rect_normalized": [
+            0.65,
+            0.37,
+            0.79,
+            0.58
+          ],
+          "label": "바 지원·창고"
+        },
+        {
+          "rect_normalized": [
+            0.74,
+            0.58,
+            0.89,
+            0.76
+          ],
+          "label": "직원 휴게·계단 B"
+        }
+      ]
+    },
+    "8": {
+      "base": "Deck08_Base.png",
+      "restricted": "Deck08_Restricted.png",
+      "technical": "Deck08_Technical.png",
+      "preview": "Deck08_Preview_AllLayers.png",
+      "size": [
+        1448,
+        1086
+      ],
+      "restricted_regions": [
+        {
+          "rect_normalized": [
+            0.27,
+            0.2,
+            0.41,
+            0.42
+          ],
+          "label": "보안실"
+        },
+        {
+          "rect_normalized": [
+            0.76,
+            0.23,
+            0.9,
+            0.55
+          ],
+          "label": "승무원 계단 B"
+        },
+        {
+          "rect_normalized": [
+            0.25,
+            0.39,
+            0.42,
+            0.61
+          ],
+          "label": "엘리베이터 코어"
+        }
+      ]
+    },
+    "7": {
+      "base": "Deck07_Base.png",
+      "restricted": "Deck07_Restricted.png",
+      "technical": "Deck07_Technical.png",
+      "preview": "Deck07_Preview_AllLayers.png",
+      "size": [
+        1448,
+        1086
+      ],
+      "restricted_regions": [
+        {
+          "rect_normalized": [
+            0.1,
+            0.15,
+            0.74,
+            0.32
+          ],
+          "label": "서비스 7"
+        },
+        {
+          "rect_normalized": [
+            0.09,
+            0.54,
+            0.74,
+            0.72
+          ],
+          "label": "직원·설비 구역"
+        },
+        {
+          "rect_normalized": [
+            0.7,
+            0.34,
+            0.84,
+            0.58
+          ],
+          "label": "기관 제어실"
+        },
+        {
+          "rect_normalized": [
+            0.83,
+            0.34,
+            0.94,
+            0.58
+          ],
+          "label": "밸러스트 제어 부속실"
+        },
+        {
+          "rect_normalized": [
+            0.74,
+            0.57,
+            0.86,
+            0.73
+          ],
+          "label": "계단 B"
+        }
+      ]
+    },
+    "6": {
+      "base": "Deck06_Base.png",
+      "restricted": "Deck06_Restricted.png",
+      "technical": "Deck06_Technical.png",
+      "preview": "Deck06_Preview_AllLayers.png",
+      "size": [
+        1448,
+        1086
+      ],
+      "restricted_regions": [
+        {
+          "rect_normalized": [
+            0.1,
+            0.18,
+            0.88,
+            0.74
+          ],
+          "label": "하부 기계·정비 구역"
+        }
+      ]
+    }
+  }
+}

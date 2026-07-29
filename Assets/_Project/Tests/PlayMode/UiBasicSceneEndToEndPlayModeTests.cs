@@ -33,8 +33,8 @@ namespace Wake.Tests.PlayMode
             CompleteScenes("D1-01", "D1-02", "D1-03");
             yield return SelectSceneFromMap("D1-04");
             Assert.That(Dialogue.ActiveProductionSceneId, Is.EqualTo("D1-04"));
-            Assert.That(State.CurrentLocationCode, Is.EqualTo("CREW_STAIRS"),
-                "대화 전용 장소는 현재 확정 배경을 유지해야 합니다.");
+            Assert.That(State.CurrentLocationCode, Is.EqualTo("SERVICE7"),
+                "7층 서비스 구역은 독립된 물리 장소로 이동해야 합니다.");
             NarrativeLocationHUDController locationHud =
                 RequireObject("Ingame")
                     .GetComponent<NarrativeLocationHUDController>();

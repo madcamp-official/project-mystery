@@ -16,6 +16,8 @@ namespace Wake.Exploration
         PrerequisiteSceneIncomplete,
         BoardingSequenceIncomplete,
         RestrictedByPublicAnxiety,
+        RouteRequired,
+        LocationUndiscovered,
         DialogueUnavailable,
         LocationLoadFailed
     }
@@ -64,8 +66,10 @@ namespace Wake.Exploration
             new(StringComparer.Ordinal)
             {
                 "SECURITY",
+                "BRIDGE",
+                "INTERVIEW",
+                "SERVICE7",
                 "SERVICE_RAIL",
-                "MEDBAY",
                 "BALLAST_CONTROL_ANNEX",
                 "ENGINE_CONTROL",
                 "CREW_STAIRS",
@@ -183,6 +187,62 @@ namespace Wake.Exploration
                 SceneAccessDenialReason.BoardingSequenceIncomplete,
                 "Complete P-01, P-02, and P-03 before using free travel.",
                 location: location);
+        }
+
+        public static SceneTravelResult EvaluateMapTravel(
+            LocationDefinition location,
+            IEnumerable<string> completedSceneIds,
+            IEnumerable<string> unlockedSceneIds,
+            int publicAnxiety)
+        {
+            SceneTravelResult basic = EvaluateFreeTravel(
+                location,
+                completedSceneIds,
+                publicAnxiety);
+            if (!basic.IsAllowed)
+                return basic;
+
+            Wake.UI.MapLocationPlacement placement =
+                Wake.UI.MapDeckCatalog.Find(location?.LocationCode);
+            if (placement == null)
+            {
+                return SceneTravelResult.Denied(
+                    SceneAccessDenialReason.LocationUndiscovered,
+                    "The destination is not registered on the passenger map.",
+                    location: location);
+            }
+
+            if (placement.TravelTier == Wake.UI.MapTravelTier.RouteOnly)
+            {
+                return SceneTravelResult.Denied(
+                    SceneAccessDenialReason.RouteRequired,
+                    "This area can only be entered through an adjacent route.",
+                    location: location);
+            }
+
+            if (placement.TravelTier ==
+                Wake.UI.MapTravelTier.ConditionalFastTravel)
+            {
+                var known = new HashSet<string>(
+                    (completedSceneIds ?? Array.Empty<string>())
+                        .Concat(unlockedSceneIds ?? Array.Empty<string>()),
+                    StringComparer.Ordinal);
+                bool discovered = ProductionSceneCatalog.All
+                    .Where(scene =>
+                        CanonicalLocationCatalog.FindSpec(
+                            scene.NarrativeLocationCode)?.Code ==
+                        location.LocationCode)
+                    .Any(scene => known.Contains(scene.SceneId));
+                if (!discovered)
+                {
+                    return SceneTravelResult.Denied(
+                        SceneAccessDenialReason.LocationUndiscovered,
+                        "The route to this destination has not been discovered.",
+                        location: location);
+                }
+            }
+
+            return basic;
         }
 
         private static bool CanReachDuringBoarding(

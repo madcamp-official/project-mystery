@@ -153,11 +153,11 @@ namespace Wake.Tests
         {
             ScenePresenceCatalog.TryGet(
                 "D3-03",
-                out ScenePresenceRecord engine);
+                out ScenePresenceRecord bridge);
 
             string[] visible =
                 ScenePresencePresentationPolicy
-                    .SelectVisible(engine, "ENGINE_CONTROL")
+                    .SelectVisible(bridge, "BRIDGE")
                     .Select(entry => entry.CharacterId)
                     .ToArray();
 

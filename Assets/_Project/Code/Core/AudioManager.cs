@@ -33,29 +33,21 @@ namespace Wake.Core
         private AudioSource activeMusicSource;
         private AudioSource ambienceSourceA;
         private AudioSource ambienceSourceB;
+        private AudioSource travelFootstepSource;
         private Coroutine musicFade;
         private Coroutine ambienceFadeA;
         private Coroutine ambienceFadeB;
+        private Coroutine travelFade;
+        private Coroutine travelFootstepStop;
         private float currentMusicMix = 1f;
         private float currentAmbienceMixA;
         private float currentAmbienceMixB;
+        private float currentTravelFootstepMix;
+        private string pendingTravelLocationCode = string.Empty;
+        private float pendingTravelFadeInSeconds;
 
         public float MusicVolume { get; private set; } = DefaultMusicVolume;
         public float SfxVolume { get; private set; } = DefaultSfxVolume;
-
-        private void OnDestroy()
-        {
-            // With "Enter Play Mode Options > Reload Domain" disabled,
-            // static fields survive across Play sessions - without this,
-            // Instance keeps pointing at this destroyed object into the
-            // next session, and the first call through it (before the new
-            // AudioManager's Awake reassigns Instance) throws
-            // MissingReferenceException.
-            if (Instance == this)
-            {
-                Instance = null;
-            }
-        }
 
         private void Awake()
         {
@@ -79,6 +71,15 @@ namespace Wake.Core
         private void OnDisable()
         {
             UnbindState();
+        }
+
+        private void OnDestroy()
+        {
+            UnbindState();
+            if (Instance == this)
+            {
+                Instance = null;
+            }
         }
 
         private void BindState()
@@ -110,12 +111,22 @@ namespace Wake.Core
                     locationCode,
                     out LocationAudioCue cue))
             {
+                float transitionSeconds = cue.CrossfadeSeconds;
+                if (string.Equals(
+                        pendingTravelLocationCode,
+                        locationCode?.Trim(),
+                        System.StringComparison.OrdinalIgnoreCase))
+                {
+                    transitionSeconds = pendingTravelFadeInSeconds;
+                    pendingTravelLocationCode = string.Empty;
+                    pendingTravelFadeInSeconds = 0f;
+                }
                 AudioClip clip = LoadClip(cue.MusicKey);
                 if (clip != null)
                 {
                     CrossfadeMusic(
                         clip,
-                        cue.CrossfadeSeconds,
+                        transitionSeconds,
                         cue.MusicVolume);
                 }
                 else
@@ -127,12 +138,12 @@ namespace Wake.Core
                     0,
                     cue.PrimaryAmbienceKey,
                     cue.PrimaryAmbienceVolume,
-                    cue.CrossfadeSeconds);
+                    transitionSeconds);
                 FadeAmbience(
                     1,
                     cue.SecondaryAmbienceKey,
                     cue.SecondaryAmbienceVolume,
-                    cue.CrossfadeSeconds);
+                    transitionSeconds);
                 return;
             }
 
@@ -184,6 +195,55 @@ namespace Wake.Core
         public void PlayIronDoorToggle()
         {
             PlaySfx(LoadClip(AudioCueCatalog.IronDoorToggleKey));
+        }
+
+        public void BeginMapTravelAudio(
+            string destinationLocationCode,
+            float fadeOutSeconds,
+            float fadeInSeconds)
+        {
+            EnsureRuntimeSources();
+            StopTransitionFades();
+            pendingTravelLocationCode =
+                destinationLocationCode?.Trim() ?? string.Empty;
+            pendingTravelFadeInSeconds = Mathf.Max(0f, fadeInSeconds);
+            travelFade = StartCoroutine(
+                FadeCurrentAudioToSilence(fadeOutSeconds));
+            PlayTravelFootsteps(destinationLocationCode);
+        }
+
+        public void CompleteMapTravelFadeOut()
+        {
+            if (travelFade != null)
+            {
+                StopCoroutine(travelFade);
+                travelFade = null;
+            }
+            SilenceTravelMix();
+        }
+
+        public void ResumeCurrentLocationIfTravelPending()
+        {
+            if (string.IsNullOrEmpty(pendingTravelLocationCode))
+                return;
+
+            string current =
+                GameStateManager.Instance?.CurrentLocationCode;
+            if (string.IsNullOrWhiteSpace(current))
+            {
+                pendingTravelLocationCode = string.Empty;
+                pendingTravelFadeInSeconds = 0f;
+                return;
+            }
+
+            pendingTravelLocationCode = current;
+            PlayLocationTheme(current);
+        }
+
+        public void EndMapTravelAudio()
+        {
+            pendingTravelLocationCode = string.Empty;
+            pendingTravelFadeInSeconds = 0f;
         }
 
         public void PlayTitleTheme(bool fade = true)
@@ -274,6 +334,9 @@ namespace Wake.Core
             if (ambienceSourceB != null)
                 ambienceSourceB.volume =
                     SfxVolume * currentAmbienceMixB;
+            if (travelFootstepSource != null)
+                travelFootstepSource.volume =
+                    SfxVolume * currentTravelFootstepMix;
             PlayerPrefs.SetFloat(SfxVolumePreference, SfxVolume);
         }
 
@@ -307,6 +370,12 @@ namespace Wake.Core
                 ambienceSourceB = CreateSource("Ambience B", true, musicSource);
             }
 
+            if (travelFootstepSource == null)
+            {
+                travelFootstepSource =
+                    CreateSource("Travel Footsteps", true, sfxSource);
+            }
+
             activeMusicSource ??= musicSource;
         }
 
@@ -327,6 +396,134 @@ namespace Wake.Core
                 source.priority = template.priority;
             }
             return source;
+        }
+
+        private void PlayTravelFootsteps(string locationCode)
+        {
+            FootstepSurface surface =
+                AudioCueCatalog.FootstepSurfaceFor(locationCode);
+            AudioClip clip = LoadClip(
+                AudioCueCatalog.FootstepKeyFor(surface));
+            if (clip == null || travelFootstepSource == null)
+                return;
+
+            currentTravelFootstepMix = surface switch
+            {
+                FootstepSurface.Metal => .62f,
+                FootstepSurface.Wood => .72f,
+                FootstepSurface.Stone => .68f,
+                _ => .7f
+            };
+            travelFootstepSource.Stop();
+            travelFootstepSource.clip = clip;
+            travelFootstepSource.loop = true;
+            travelFootstepSource.pitch =
+                AudioCueCatalog.FootstepPitchFor(surface);
+            travelFootstepSource.volume =
+                SfxVolume * currentTravelFootstepMix;
+            travelFootstepSource.Play();
+            if (travelFootstepStop != null)
+            {
+                StopCoroutine(travelFootstepStop);
+            }
+            travelFootstepStop = StartCoroutine(
+                StopTravelFootstepsAfter(
+                    AudioCueCatalog.MapTravelFootstepSeconds));
+        }
+
+        private IEnumerator StopTravelFootstepsAfter(float duration)
+        {
+            float elapsed = 0f;
+            float safeDuration = Mathf.Max(0f, duration);
+            while (elapsed < safeDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                yield return null;
+            }
+            if (travelFootstepSource != null)
+            {
+                travelFootstepSource.Stop();
+                travelFootstepSource.clip = null;
+            }
+            travelFootstepStop = null;
+        }
+
+        private void StopTransitionFades()
+        {
+            if (musicFade != null)
+            {
+                StopCoroutine(musicFade);
+                musicFade = null;
+            }
+            if (ambienceFadeA != null)
+            {
+                StopCoroutine(ambienceFadeA);
+                ambienceFadeA = null;
+            }
+            if (ambienceFadeB != null)
+            {
+                StopCoroutine(ambienceFadeB);
+                ambienceFadeB = null;
+            }
+            if (travelFade != null)
+            {
+                StopCoroutine(travelFade);
+                travelFade = null;
+            }
+        }
+
+        private IEnumerator FadeCurrentAudioToSilence(float duration)
+        {
+            float safeDuration = Mathf.Max(0f, duration);
+            float elapsed = 0f;
+            float musicAStart = musicSource != null ? musicSource.volume : 0f;
+            float musicBStart = musicSourceB != null ? musicSourceB.volume : 0f;
+            float ambienceAStart =
+                ambienceSourceA != null ? ambienceSourceA.volume : 0f;
+            float ambienceBStart =
+                ambienceSourceB != null ? ambienceSourceB.volume : 0f;
+            while (elapsed < safeDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float progress = Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    Mathf.Clamp01(elapsed / safeDuration));
+                if (musicSource != null)
+                    musicSource.volume =
+                        Mathf.Lerp(musicAStart, 0f, progress);
+                if (musicSourceB != null)
+                    musicSourceB.volume =
+                        Mathf.Lerp(musicBStart, 0f, progress);
+                if (ambienceSourceA != null)
+                    ambienceSourceA.volume =
+                        Mathf.Lerp(ambienceAStart, 0f, progress);
+                if (ambienceSourceB != null)
+                    ambienceSourceB.volume =
+                        Mathf.Lerp(ambienceBStart, 0f, progress);
+                yield return null;
+            }
+            SilenceTravelMix();
+            travelFade = null;
+        }
+
+        private void SilenceTravelMix()
+        {
+            if (musicSource != null)
+                musicSource.volume = 0f;
+            if (musicSourceB != null)
+                musicSourceB.volume = 0f;
+            StopAndClear(ambienceSourceA);
+            StopAndClear(ambienceSourceB);
+        }
+
+        private static void StopAndClear(AudioSource source)
+        {
+            if (source == null)
+                return;
+            source.Stop();
+            source.clip = null;
+            source.volume = 0f;
         }
 
         private AudioSource FindPlayingMusicSource(AudioClip clip)
@@ -447,16 +644,20 @@ namespace Wake.Core
                 yield break;
             }
 
-            float halfDuration = safeDuration * .5f;
+            bool hasOutgoing = source.isPlaying;
+            float outgoingDuration =
+                hasOutgoing ? safeDuration * .5f : 0f;
+            float incomingDuration =
+                hasOutgoing ? safeDuration * .5f : safeDuration;
             float outgoingStart = source.volume;
             float elapsedOut = 0f;
-            while (source.isPlaying && elapsedOut < halfDuration)
+            while (source.isPlaying && elapsedOut < outgoingDuration)
             {
                 elapsedOut += Time.unscaledDeltaTime;
                 source.volume = Mathf.Lerp(
                     outgoingStart,
                     0f,
-                    Mathf.Clamp01(elapsedOut / halfDuration));
+                    Mathf.Clamp01(elapsedOut / outgoingDuration));
                 yield return null;
             }
 
@@ -471,13 +672,13 @@ namespace Wake.Core
             source.loop = true;
             source.Play();
             float elapsedIn = 0f;
-            while (elapsedIn < halfDuration)
+            while (elapsedIn < incomingDuration)
             {
                 elapsedIn += Time.unscaledDeltaTime;
                 source.volume = Mathf.Lerp(
                     0f,
                     SfxVolume * mixVolume,
-                    Mathf.Clamp01(elapsedIn / halfDuration));
+                    Mathf.Clamp01(elapsedIn / incomingDuration));
                 yield return null;
             }
             source.volume = SfxVolume * mixVolume;

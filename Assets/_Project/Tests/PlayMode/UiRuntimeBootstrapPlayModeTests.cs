@@ -680,7 +680,7 @@ namespace Wake.Tests.PlayMode
                     "지도 버튼"));
             AssertOnlyPanel(UiPrimaryPanel.Map);
             yield return InvokeAndSettle(
-                RequireComponent<Button>("Map/Back Btn"));
+                AssertStyledMapBackButton());
             AssertOnlyPanel(UiPrimaryPanel.Ingame);
 
             yield return InvokeAndSettle(
@@ -781,6 +781,29 @@ namespace Wake.Tests.PlayMode
                 RequireObject("Status HUD").activeSelf,
                 Is.False);
             AssertNoRuntimeErrors("설정 모달 입력 복구");
+        }
+
+        private Button AssertStyledMapBackButton()
+        {
+            Button button =
+                RequireComponent<Button>("Map/Back Btn");
+            Image image = button.GetComponent<Image>();
+            RectTransform rect =
+                button.GetComponent<RectTransform>();
+            TMP_Text label =
+                button.GetComponentInChildren<TMP_Text>(true);
+
+            Assert.That(image.sprite, Is.Null);
+            Assert.That(
+                button.transition,
+                Is.EqualTo(Selectable.Transition.ColorTint));
+            Assert.That(label.text, Is.EqualTo("← 돌아가기"));
+            Assert.That(rect.anchorMin.x, Is.GreaterThan(.8f));
+            Assert.That(rect.anchorMin.y, Is.GreaterThan(.8f));
+            Assert.That(
+                button.transform.GetSiblingIndex(),
+                Is.EqualTo(button.transform.parent.childCount - 1));
+            return button;
         }
 
         private void AssertOnlyPanel(UiPrimaryPanel expected)

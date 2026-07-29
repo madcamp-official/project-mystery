@@ -111,7 +111,7 @@ namespace Wake.Tests
                 Is.EqualTo(SceneAccessDenialReason.None));
             Assert.That(result.Scene.NarrativeLocationCode, Is.EqualTo("SERVICE7"));
             Assert.That(result.Location, Is.Not.Null);
-            Assert.That(result.Location.LocationCode, Is.EqualTo("CREW_STAIRS"));
+            Assert.That(result.Location.LocationCode, Is.EqualTo("SERVICE7"));
             Assert.That(result.Location.BackgroundSprite, Is.Not.Null);
         }
 
@@ -195,7 +195,7 @@ namespace Wake.Tests
         [Test]
         public void RestrictedCatalog_ContainsOnlyPhysicalLocations()
         {
-            Assert.That(SceneTravelPolicy.RestrictedLocations, Has.Count.EqualTo(14));
+            Assert.That(SceneTravelPolicy.RestrictedLocations, Has.Count.EqualTo(16));
             Assert.That(SceneTravelPolicy.RestrictedLocations.All(code =>
                 CanonicalLocationCatalog.FindSpec(code) != null), Is.True);
             Assert.That(SceneTravelPolicy.RestrictedLocations, Does.Not.Contain("DINING"));

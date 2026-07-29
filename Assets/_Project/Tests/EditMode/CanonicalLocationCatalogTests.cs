@@ -17,18 +17,19 @@ namespace Wake.Tests
             "Assets/_Project/Art/Backgrounds/Locations";
 
         [Test]
-        public void Catalog_DefinesAllTwentyFiveStructureMapLocations()
+        public void Catalog_DefinesAllThirtyStructureMapLocations()
         {
             IReadOnlyList<CanonicalLocationSpec> definitions = CanonicalLocationCatalog.All;
 
-            Assert.That(definitions.Count, Is.EqualTo(25));
+            Assert.That(definitions.Count, Is.EqualTo(30));
             Assert.That(definitions.Select(item => item.Code), Is.Unique);
-            Assert.That(definitions.Count(item => item.Deck == 10), Is.EqualTo(3));
+            Assert.That(definitions.Count(item => item.Deck == 10), Is.EqualTo(7));
             Assert.That(definitions.Count(item => item.Deck == 9), Is.EqualTo(4));
-            Assert.That(definitions.Count(item => item.Deck == 8), Is.EqualTo(4));
-            Assert.That(definitions.Count(item => item.Deck == 7), Is.EqualTo(4));
-            Assert.That(definitions.Count(item => item.Deck == 6), Is.EqualTo(4));
-            Assert.That(definitions.Count(item => item.Deck == 5), Is.EqualTo(4));
+            Assert.That(definitions.Count(item => item.Deck == 8), Is.EqualTo(5));
+            Assert.That(definitions.Count(item => item.Deck == 7), Is.EqualTo(6));
+            Assert.That(definitions.Count(item => item.Deck == 6), Is.EqualTo(6));
+            Assert.That(definitions.Count(item => item.Deck == 5), Is.Zero);
+            Assert.That(definitions.Count(item => item.Deck == 0), Is.EqualTo(2));
         }
 
         [Test]
@@ -38,13 +39,16 @@ namespace Wake.Tests
             IReadOnlyList<LocationCatalogDiagnostic> diagnostics =
                 CanonicalLocationCatalog.Validate(locations, ProductionSceneCatalog.All);
 
-            Assert.That(locations, Has.Length.EqualTo(25));
+            Assert.That(locations, Has.Length.EqualTo(30));
             Assert.That(
                 diagnostics.Where(item => item.Severity == LocationCatalogDiagnosticSeverity.Error),
                 Is.Empty,
                 string.Join("\n", diagnostics.Select(item => $"{item.Code}: {item.Message}")));
             Assert.That(locations.All(item => item.BackgroundSprite != null), Is.True);
-            Assert.That(locations.Select(item => item.BackgroundSprite).Distinct().Count(), Is.EqualTo(25));
+            Assert.That(
+                locations.Select(item => item.BackgroundSprite).Distinct().Count(),
+                Is.EqualTo(25),
+                "Five newly separated physical locations temporarily reuse their former shared scene art.");
         }
 
         [Test]
@@ -62,11 +66,11 @@ namespace Wake.Tests
         [TestCase("ENGINE_CTRL", "ENGINE_CONTROL")]
         [TestCase("STAIR_B", "CREW_STAIRS")]
         [TestCase("BALLAST", "BALLAST_CONTROL_ANNEX")]
-        [TestCase("SERVICE7", "CREW_STAIRS")]
-        [TestCase("CABIN_DANIEL", "NEWS_LOUNGE")]
-        [TestCase("BRIDGE", "ENGINE_CONTROL")]
-        [TestCase("CABIN_CLAIRE", "VIP_LOUNGE")]
-        [TestCase("INTERVIEW", "SECURITY")]
+        [TestCase("SERVICE7", "SERVICE7")]
+        [TestCase("CABIN_DANIEL", "CABIN_DANIEL")]
+        [TestCase("BRIDGE", "BRIDGE")]
+        [TestCase("CABIN_CLAIRE", "CABIN_CLAIRE")]
+        [TestCase("INTERVIEW", "INTERVIEW")]
         [TestCase("FORENSIC", "MEDBAY")]
         [TestCase("EVIDENCE_BOARD", "NEWS_LOUNGE")]
         [TestCase("STERN", "OPEN_DECK")]
@@ -87,15 +91,15 @@ namespace Wake.Tests
                 $"{LocationFolder}/LocationGraph.asset");
 
             Assert.That(graph, Is.Not.Null);
-            Assert.That(graph.Locations, Has.Count.EqualTo(25));
+            Assert.That(graph.Locations, Has.Count.EqualTo(30));
             Assert.That(graph.StartingLocation.LocationCode, Is.EqualTo("PORT"));
             Assert.That(graph.FindByCode(" PORT "), Is.SameAs(graph.StartingLocation));
             Assert.That(graph.FindByCode("DECK10_SUITE").LocationCode, Is.EqualTo("RICHARD_SUITE"));
-            Assert.That(graph.FindByCode("SERVICE7").LocationCode, Is.EqualTo("CREW_STAIRS"));
-            Assert.That(graph.FindByCode("CABIN_DANIEL").LocationCode, Is.EqualTo("NEWS_LOUNGE"));
-            Assert.That(graph.FindByCode("BRIDGE").LocationCode, Is.EqualTo("ENGINE_CONTROL"));
-            Assert.That(graph.FindByCode("CABIN_CLAIRE").LocationCode, Is.EqualTo("VIP_LOUNGE"));
-            Assert.That(graph.FindByCode("INTERVIEW").LocationCode, Is.EqualTo("SECURITY"));
+            Assert.That(graph.FindByCode("SERVICE7").LocationCode, Is.EqualTo("SERVICE7"));
+            Assert.That(graph.FindByCode("CABIN_DANIEL").LocationCode, Is.EqualTo("CABIN_DANIEL"));
+            Assert.That(graph.FindByCode("BRIDGE").LocationCode, Is.EqualTo("BRIDGE"));
+            Assert.That(graph.FindByCode("CABIN_CLAIRE").LocationCode, Is.EqualTo("CABIN_CLAIRE"));
+            Assert.That(graph.FindByCode("INTERVIEW").LocationCode, Is.EqualTo("INTERVIEW"));
             Assert.That(graph.FindByCode("FORENSIC").LocationCode, Is.EqualTo("MEDBAY"));
             Assert.That(graph.FindByCode("EVIDENCE_BOARD").LocationCode, Is.EqualTo("NEWS_LOUNGE"));
             Assert.That(graph.FindByCode("STERN").LocationCode, Is.EqualTo("OPEN_DECK"));
@@ -124,7 +128,7 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void AllTwentyFiveCanonicalBackgroundSprites_AreRegisteredOnce()
+        public void EveryCanonicalLocation_RegistersAnAuthoredBackground()
         {
             LocationDefinition[] locations = LoadLocations();
             string[] registeredPaths = locations
@@ -138,8 +142,10 @@ namespace Wake.Tests
                 .OrderBy(path => path, StringComparer.Ordinal)
                 .ToArray();
 
-            Assert.That(registeredPaths, Has.Length.EqualTo(25));
-            Assert.That(registeredPaths, Is.Unique);
+            Assert.That(registeredPaths, Has.Length.EqualTo(30));
+            Assert.That(
+                registeredPaths.Distinct().Count(),
+                Is.EqualTo(25));
             string[] unregisteredArtVariants = backgroundPaths
                 .Except(registeredPaths, StringComparer.Ordinal)
                 .ToArray();
