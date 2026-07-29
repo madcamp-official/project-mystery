@@ -55,12 +55,7 @@ namespace Wake.Evidence
 
         public static TypographyRole ResolveDetailRole(string category)
         {
-            return string.Equals(
-                    category,
-                    "invitation",
-                    System.StringComparison.OrdinalIgnoreCase)
-                ? TypographyRole.Handwritten
-                : TypographyRole.BodyRegular;
+            return TypographyRole.BodyRegular;
         }
 
         private static void ApplyOverride(
