@@ -10,6 +10,13 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class ExplorationNavigationController : MonoBehaviour
     {
+        private static readonly Color HudGold =
+            new(0.89f, 0.72f, 0.35f, 1f);
+        private static readonly Color HudIvory =
+            new(0.95f, 0.92f, 0.84f, 1f);
+        private static readonly Color HudOutline =
+            new(0.015f, 0.035f, 0.06f, 0.96f);
+
         private UIManager owner;
         private GameObject root;
         private CanvasGroup canvasGroup;
@@ -204,6 +211,7 @@ namespace Wake.UI
                 UiTextStyle.Caption,
                 20f);
             objectiveEyebrow.text = "메인 목표";
+            objectiveEyebrow.color = HudGold;
             objectiveLabel = CreateText(
                 parent,
                 "Current Objective",
@@ -227,21 +235,27 @@ namespace Wake.UI
                 parent,
                 "지도",
                 owner != null ? owner.ShowMap : null,
-                Resources.Load<Sprite>("UI/Icons/Navigation/ui_icon_nav_map"));
+                LoadNavigationIcon(
+                    "UI/Icons/Navigation/ui_icon_nav_map_outline",
+                    "UI/Icons/Navigation/ui_icon_nav_map"));
             evidenceButton =
                 CreateButton(
                     parent,
                     "조사 기록",
                     owner != null ? owner.ShowEvidence : null,
-                    Resources.Load<Sprite>(
+                    LoadNavigationIcon(
+                        "UI/Icons/Navigation/ui_icon_nav_evidence_outline",
                         "UI/Icons/Navigation/ui_icon_nav_evidence"),
-                    iconPadding: 20f);
+                    iconPadding: 10f);
             pauseButton =
                 CreateButton(
                     parent,
                     "일시정지",
                     owner != null ? owner.OpenPause : null,
-                    Resources.Load<Sprite>("UI/Icons/Badges/ui_badge_settings"));
+                    LoadNavigationIcon(
+                        "UI/Icons/Navigation/ui_icon_nav_pause_outline",
+                        "UI/Icons/Badges/ui_badge_settings"),
+                    iconPadding: 12f);
         }
 
         private void BindNavigationActions()
@@ -392,9 +406,9 @@ namespace Wake.UI
             RectTransform rect = target.GetComponent<RectTransform>();
             if (!RuntimeUiLayoutRegistry.CopyWorldLayout(rect, slotId))
                 Stretch(rect);
-            UiVisualThemeService.ApplySurface(
-                target.GetComponent<Image>(),
-                UiSurfaceStyle.Overlay);
+            Image hitArea = target.GetComponent<Image>();
+            hitArea.color = Color.clear;
+            hitArea.raycastTarget = false;
             return rect;
         }
 
@@ -412,6 +426,10 @@ namespace Wake.UI
             target.transform.SetParent(parent, false);
             TMP_Text text = target.GetComponent<TMP_Text>();
             UiVisualThemeService.ApplyText(text, style);
+            text.color = HudIvory;
+            text.outlineColor = HudOutline;
+            text.outlineWidth = 0.16f;
+            text.extraPadding = true;
             text.textWrappingMode = TextWrappingModes.Normal;
             text.overflowMode = TextOverflowModes.Ellipsis;
             text.alignment = TextAlignmentOptions.MidlineLeft;
@@ -448,6 +466,7 @@ namespace Wake.UI
                 element.minWidth = 120f;
             }
 
+            Image iconGraphic = null;
             if (icon != null)
             {
                 GameObject iconObject = new(
@@ -456,10 +475,10 @@ namespace Wake.UI
                     typeof(Image));
                 iconObject.transform.SetParent(target.transform, false);
                 Stretch(iconObject.GetComponent<RectTransform>(), iconPadding);
-                Image iconImage = iconObject.GetComponent<Image>();
-                iconImage.sprite = icon;
-                iconImage.preserveAspect = true;
-                iconImage.raycastTarget = false;
+                iconGraphic = iconObject.GetComponent<Image>();
+                iconGraphic.sprite = icon;
+                iconGraphic.preserveAspect = true;
+                iconGraphic.raycastTarget = false;
             }
             else
             {
@@ -476,13 +495,35 @@ namespace Wake.UI
             }
 
             Button button = target.GetComponent<Button>();
-            UiVisualThemeService.ApplyButton(
-                button,
-                UiButtonStyle.Secondary);
+            Image hitArea = target.GetComponent<Image>();
+            hitArea.color = Color.clear;
+            hitArea.raycastTarget = true;
+            button.targetGraphic =
+                iconGraphic != null ? iconGraphic : hitArea;
+            button.transition = Selectable.Transition.ColorTint;
+            ColorBlock colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1f, 0.96f, 0.82f, 1f);
+            colors.pressedColor = new Color(0.78f, 0.61f, 0.28f, 1f);
+            colors.selectedColor = colors.highlightedColor;
+            colors.disabledColor = new Color(0.72f, 0.62f, 0.42f, 0.48f);
+            colors.colorMultiplier = 1f;
+            colors.fadeDuration = 0.08f;
+            button.colors = colors;
             if (action != null)
                 button.onClick.AddListener(action);
             target.AddComponent<UiHoverFeedback>();
             return button;
+        }
+
+        private static Sprite LoadNavigationIcon(
+            string preferredPath,
+            string fallbackPath)
+        {
+            Sprite preferred = Resources.Load<Sprite>(preferredPath);
+            return preferred != null
+                ? preferred
+                : Resources.Load<Sprite>(fallbackPath);
         }
 
         private static void SetSelectedState(Button button, bool selected)

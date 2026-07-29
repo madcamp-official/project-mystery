@@ -378,6 +378,14 @@ namespace Wake.Tests.PlayMode
                 "Exploration Global Navigation/Exploration Context");
             Assert.That(context.activeInHierarchy, Is.True);
             Assert.That(
+                context.transform.Find("World Time")
+                    ?.GetComponent<TMP_Text>()?.text,
+                Does.Match(@"^DAY \d+ · .+ \d+:\d{2}$"));
+            Assert.That(
+                context.transform.Find("Current Location")
+                    ?.GetComponent<TMP_Text>()?.text,
+                Is.Not.Empty.And.Not.EqualTo("현재 장소"));
+            Assert.That(
                 context.transform.Find("Current Objective")
                     ?.GetComponent<TMP_Text>()?.text,
                 Is.EqualTo("항구의 기자를 찾기"));
@@ -411,8 +419,9 @@ namespace Wake.Tests.PlayMode
             Assert.That(talkMarker, Is.Not.Null);
             Assert.That(talkMarker.gameObject.activeInHierarchy, Is.True);
             Assert.That(
-                talkMarker.GetComponentInChildren<TMP_Text>(true).text,
-                Is.EqualTo("대화"));
+                talkMarker.GetComponent<Image>()?.sprite,
+                Is.Not.Null,
+                "The dialogue prompt must render its speech-bubble icon.");
             AlphaContourRaycastFilter contour =
                 daniel.GetComponent<AlphaContourRaycastFilter>();
             Assert.That(
@@ -546,6 +555,33 @@ namespace Wake.Tests.PlayMode
             {
                 Image icon = RequireComponent<Image>(path + "/Icon");
                 Assert.That(icon.sprite, Is.Not.Null);
+                Assert.That(
+                    icon.sprite.name,
+                    Does.Contain("outline"),
+                    $"{path} must use the line-art HUD icon.");
+                Assert.That(
+                    RequireComponent<Image>(path).color.a,
+                    Is.Zero.Within(0.001f),
+                    $"{path} must not render a button background.");
+            }
+            GameObject context = RequireObject(
+                "Exploration Global Navigation/Exploration Context");
+            Assert.That(
+                context.GetComponent<Image>().color.a,
+                Is.Zero.Within(0.001f));
+            Assert.That(
+                RequireObject(
+                    "Exploration Global Navigation/Global Navigation")
+                    .GetComponent<Image>().color.a,
+                Is.Zero.Within(0.001f));
+            foreach (TMP_Text text in
+                     context.GetComponentsInChildren<TMP_Text>(true))
+            {
+                Assert.That(
+                    text.outlineWidth,
+                    Is.GreaterThanOrEqualTo(0.1f),
+                    $"{text.name} must use a readability outline.");
+                Assert.That(text.outlineColor.a, Is.GreaterThan(0));
             }
             Assert.That(RequireObject("Ingame/Map Btn").activeSelf, Is.False);
             Assert.That(
