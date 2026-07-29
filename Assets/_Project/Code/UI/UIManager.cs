@@ -209,26 +209,9 @@ namespace Wake.UI
             if (target == null)
                 return;
 
-            Button button = target.GetComponent<Button>();
-            Image image = target.GetComponent<Image>();
+            ApplyMinimalBackButtonStyle(target);
+
             RectTransform rect = target as RectTransform;
-            TMP_Text label =
-                target.GetComponentInChildren<TMP_Text>(true);
-            if (image != null)
-            {
-                image.sprite = null;
-                image.type = Image.Type.Simple;
-                image.material = null;
-            }
-            if (button != null)
-            {
-                button.transition = Selectable.Transition.ColorTint;
-                button.spriteState = default;
-                button.targetGraphic = image;
-            }
-            UiVisualThemeService.ApplyButton(
-                button,
-                UiButtonStyle.Secondary);
             if (rect != null)
             {
                 // Sits where Evidence's own Back Btn already is, so both
@@ -249,6 +232,34 @@ namespace Wake.UI
                 rect.anchoredPosition = Vector2.zero;
                 rect.sizeDelta = Vector2.zero;
             }
+            target.SetAsLastSibling();
+        }
+
+        // Shared "plain, no background sprite, mono label" look for both
+        // screens' back buttons - this is Map's exact setup, including
+        // resetting the button's transition/spriteState, since leaving
+        // those at their original SpriteSwap authoring is what made
+        // Evidence's back button flip to a different icon on hover/click.
+        private static void ApplyMinimalBackButtonStyle(Transform target)
+        {
+            Button button = target.GetComponent<Button>();
+            Image image = target.GetComponent<Image>();
+            TMP_Text label = target.GetComponentInChildren<TMP_Text>(true);
+            if (image != null)
+            {
+                image.sprite = null;
+                image.type = Image.Type.Simple;
+                image.material = null;
+            }
+            if (button != null)
+            {
+                button.transition = Selectable.Transition.ColorTint;
+                button.spriteState = default;
+                button.targetGraphic = image;
+            }
+            UiVisualThemeService.ApplyButton(
+                button,
+                UiButtonStyle.Secondary);
             if (label != null)
             {
                 label.text = "← 돌아가기";
@@ -257,7 +268,6 @@ namespace Wake.UI
                     UiTextStyle.Technical);
                 label.alignment = TextAlignmentOptions.Center;
             }
-            target.SetAsLastSibling();
         }
 
         private void EnsureRuntimeControllers()
@@ -369,19 +379,7 @@ namespace Wake.UI
                 return;
             }
 
-            Image evidenceImage = evidenceBack.GetComponent<Image>();
-            if (evidenceImage != null)
-            {
-                evidenceImage.sprite = null;
-            }
-            TMP_Text evidenceLabel =
-                evidenceBack.GetComponentInChildren<TMP_Text>(true);
-            if (evidenceLabel != null)
-            {
-                evidenceLabel.text = "← 돌아가기";
-                TypographyService.Apply(
-                    evidenceLabel, TypographyRole.Technical);
-            }
+            ApplyMinimalBackButtonStyle(evidenceBack);
         }
 
         private static GameObject FindRequired(
