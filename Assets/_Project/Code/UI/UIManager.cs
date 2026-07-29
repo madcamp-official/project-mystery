@@ -161,6 +161,7 @@ namespace Wake.UI
             }
 
             EnsureSettingsPopupSetup();
+            EnsureEvidenceBackButtonStyle();
             EnsureRuntimeControllers();
             bool buttonsBound =
                 BindButton(
@@ -210,11 +211,42 @@ namespace Wake.UI
             if (target == null)
                 return;
 
+            ApplyMinimalBackButtonStyle(target);
+
+            RectTransform rect = target as RectTransform;
+            if (rect != null)
+            {
+                // Sits where Evidence's own Back Btn already is, so both
+                // screens' back buttons read as the same button in the
+                // same spot regardless of which one is open.
+                RectTransform evidenceRect =
+                    canvas?.Find("Evidence/Back Btn") as RectTransform;
+                if (evidenceRect != null)
+                {
+                    rect.anchorMin = evidenceRect.anchorMin;
+                    rect.anchorMax = evidenceRect.anchorMax;
+                }
+                else
+                {
+                    rect.anchorMin = new Vector2(.855f, .905f);
+                    rect.anchorMax = new Vector2(.985f, .975f);
+                }
+                rect.anchoredPosition = Vector2.zero;
+                rect.sizeDelta = Vector2.zero;
+            }
+            target.SetAsLastSibling();
+        }
+
+        // Shared "plain, no background sprite, mono label" look for both
+        // screens' back buttons - this is Map's exact setup, including
+        // resetting the button's transition/spriteState, since leaving
+        // those at their original SpriteSwap authoring is what made
+        // Evidence's back button flip to a different icon on hover/click.
+        private static void ApplyMinimalBackButtonStyle(Transform target)
+        {
             Button button = target.GetComponent<Button>();
             Image image = target.GetComponent<Image>();
-            RectTransform rect = target as RectTransform;
-            TMP_Text label =
-                target.GetComponentInChildren<TMP_Text>(true);
+            TMP_Text label = target.GetComponentInChildren<TMP_Text>(true);
             if (image != null)
             {
                 image.sprite = null;
@@ -230,13 +262,6 @@ namespace Wake.UI
             UiVisualThemeService.ApplyButton(
                 button,
                 UiButtonStyle.Secondary);
-            if (rect != null)
-            {
-                rect.anchorMin = new Vector2(.855f, .905f);
-                rect.anchorMax = new Vector2(.985f, .975f);
-                rect.anchoredPosition = Vector2.zero;
-                rect.sizeDelta = Vector2.zero;
-            }
             if (label != null)
             {
                 label.text = "← 돌아가기";
@@ -245,7 +270,6 @@ namespace Wake.UI
                     UiTextStyle.Technical);
                 label.alignment = TextAlignmentOptions.Center;
             }
-            target.SetAsLastSibling();
         }
 
         private void EnsureRuntimeControllers()
@@ -343,6 +367,23 @@ namespace Wake.UI
             EnsureComponent<GraphicRaycaster>(settingsPopup);
             EnsureComponent<UiPanelTransitionAnimator>(settingsPopup)
                 .DisableAutoPlayIn();
+        }
+
+        // Evidence's own "돌아가기" switches to Map's plain (no background
+        // sprite, mono label) look. Map's back button already moves to
+        // Evidence's position/style inside StyleMapBackButton, which is
+        // the actual authority on that button's position - it reapplies
+        // its own hardcoded anchors every time ShowMap() runs, so setting
+        // the position here too would just be overwritten right after.
+        private void EnsureEvidenceBackButtonStyle()
+        {
+            Transform evidenceBack = evidencePanel?.transform.Find("Back Btn");
+            if (evidenceBack == null)
+            {
+                return;
+            }
+
+            ApplyMinimalBackButtonStyle(evidenceBack);
         }
 
         private static GameObject FindRequired(
