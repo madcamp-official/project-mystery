@@ -20,8 +20,8 @@ namespace Wake.Exploration
     public sealed class AmbientRoomParticleOverlay : MonoBehaviour
     {
         private const int ParticleCount = 16;
-        private const float MinSizePx = 6f;
-        private const float MaxSizePx = 18f;
+        private const float MinSizePx = 2f;
+        private const float MaxSizePx = 7f;
         private const int GlowTextureSize = 32;
         private const int SampleGridSize = 24;
         private const float BackgroundSaturationFactor = 0.5f;
@@ -163,9 +163,9 @@ namespace Wake.Exploration
             bloomProfile.name = "Ambient Particle Bloom Profile";
             Bloom bloom = bloomProfile.Add<Bloom>(true);
             bloom.threshold.overrideState = true;
-            bloom.threshold.value = 0.15f;
+            bloom.threshold.value = 0.25f;
             bloom.intensity.overrideState = true;
-            bloom.intensity.value = 4f;
+            bloom.intensity.value = 6f;
             bloom.scatter.overrideState = true;
             bloom.scatter.value = 0.7f;
             volume.sharedProfile = bloomProfile;
@@ -392,9 +392,14 @@ namespace Wake.Exploration
                 {
                     float nx = (x + 0.5f) / GlowTextureSize * 2f - 1f;
                     float radius = Mathf.Sqrt(nx * nx + ny * ny);
-                    float falloff = Mathf.Clamp01(1f - radius);
+                    // Solid disc with a 1px antialiased edge - the bloom
+                    // pass provides the glow/soft tail now, so the source
+                    // shape itself just needs to be a plain circle.
+                    float edge = 1f / (GlowTextureSize * 0.5f);
+                    float coverage = 1f - Mathf.InverseLerp(
+                        1f - edge, 1f, radius);
                     byte alpha = (byte)Mathf.RoundToInt(
-                        Mathf.Pow(falloff, 1.8f) * 255f);
+                        Mathf.Clamp01(coverage) * 255f);
                     pixels[y * GlowTextureSize + x] =
                         new Color32(255, 255, 255, alpha);
                 }
