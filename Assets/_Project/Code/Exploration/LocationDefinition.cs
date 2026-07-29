@@ -14,6 +14,8 @@ namespace Wake.Exploration
         [SerializeField] private Sprite backgroundSprite;
         [SerializeField] private Vector2 backgroundFocus = new(0.5f, 0.5f);
         [SerializeField, Min(1f)] private float backgroundZoom = 1f;
+        [SerializeField] private Color ambientParticleTint =
+            new(1f, 0.95f, 0.85f, 0.5f);
         [SerializeField] private List<string> narrativeAliases = new();
         [SerializeField] private GameObject contentPrefab;
         [SerializeField] private List<LocationDefinition> connectedLocations = new();
@@ -30,6 +32,7 @@ namespace Wake.Exploration
                     Mathf.Clamp01(backgroundFocus.x),
                     Mathf.Clamp01(backgroundFocus.y));
         public float BackgroundZoom => Mathf.Max(1f, backgroundZoom);
+        public Color AmbientParticleTint => ambientParticleTint;
         public IReadOnlyList<string> NarrativeAliases => narrativeAliases;
         public GameObject ContentPrefab => contentPrefab;
         public IReadOnlyList<LocationDefinition> ConnectedLocations => connectedLocations;

@@ -402,6 +402,11 @@ namespace Wake.UI
 
         private void ShowTravelFeedback()
         {
+            if (LastTravelResult.DenialReason ==
+                SceneAccessDenialReason.RestrictedByPublicAnxiety)
+            {
+                AudioManager.Instance?.PlayIronDoorKnock();
+            }
             InvestigationFeedback feedback =
                 InvestigationFeedbackCatalog.ForTravel(LastTravelResult);
             ToastController.Instance?.Show(
