@@ -29,6 +29,7 @@ namespace Wake.Exploration
         private EvidenceLocationHotspotOverlay evidenceHotspots;
         private AmbientCharacterHotspotOverlay ambientCharacters;
         private AmbientInspectableOverlay ambientInspectables;
+        private AmbientRoomParticleOverlay ambientParticles;
 
         private void Awake()
         {
@@ -104,6 +105,8 @@ namespace Wake.Exploration
                 location.LocationCode,
                 NarrativeSceneContext);
             ambientInspectables?.Show(location.LocationCode);
+            ambientParticles?.Show(
+                location.AmbientParticleTint, location.BackgroundSprite);
             CurrentLocation = location;
             LocationChanged?.Invoke(location);
             AudioManager.Instance?.PlayLocationTheme(location.LocationCode);
@@ -129,6 +132,9 @@ namespace Wake.Exploration
                 CurrentLocation.LocationCode,
                 NarrativeSceneContext);
             ambientInspectables?.Show(CurrentLocation.LocationCode);
+            ambientParticles?.Show(
+                CurrentLocation.AmbientParticleTint,
+                CurrentLocation.BackgroundSprite);
         }
 
         private void CreateBackgroundPresenter()
@@ -162,6 +168,9 @@ namespace Wake.Exploration
             ambientInspectables =
                 presenterObject.AddComponent<AmbientInspectableOverlay>();
             ambientInspectables.Initialize(backgroundPresenter.ContentRect);
+            ambientParticles =
+                presenterObject.AddComponent<AmbientRoomParticleOverlay>();
+            ambientParticles.Initialize(backgroundPresenter.ContentRect);
         }
     }
 }
