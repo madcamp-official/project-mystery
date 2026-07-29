@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -41,6 +42,7 @@ namespace Wake.UI
         private GameObject continueButton;
         private SaveSlotSelectionController saveSlotSelection;
         private SystemScreenFlowController systemScreens;
+        private UIScreenTransitionCoordinator screenTransitions;
         private ExplorationNavigationController explorationNavigation;
         private bool hasShownBoot;
         private UiPrimaryPanel mapReturnPanel = UiPrimaryPanel.Ingame;
@@ -55,6 +57,8 @@ namespace Wake.UI
                 ? systemScreens.ActiveState
                 : SystemScreenState.None;
         public int RuntimeModalControllerCount => runtimeModals.Count;
+        public bool IsTransitioning =>
+            screenTransitions != null && screenTransitions.IsTransitioning;
         public int OpenRuntimeModalCount
         {
             get
@@ -264,6 +268,10 @@ namespace Wake.UI
             EnsureComponent<RuntimeUiOverhaulController>(gameObject);
             EnsureComponent<EvidenceAcquisitionNoticeController>(gameObject);
             EnsureComponent<ChapterTransitionPresenter>(gameObject);
+            screenTransitions =
+                EnsureComponent<UIScreenTransitionCoordinator>(gameObject);
+            screenTransitions.Configure(
+                GameObject.Find("Canvas").transform as RectTransform);
             EnsureComponent<TitleScreenPresentationController>(startScenePanel);
             saveSlotSelection =
                 EnsureComponent<SaveSlotSelectionController>(startScenePanel);
@@ -455,6 +463,9 @@ namespace Wake.UI
 
         public void ShowMap()
         {
+            if (IsTransitioning)
+                return;
+
             if (ActivePanel != UiPrimaryPanel.Map)
             {
                 mapReturnPanel =
@@ -462,9 +473,14 @@ namespace Wake.UI
                         ? UiPrimaryPanel.Evidence
                         : UiPrimaryPanel.Ingame;
             }
-            SetActivePanel(mapPanel, UiPrimaryPanel.Map);
-            FindFirstObjectByType<MapController>()?.RefreshMap();
-            StyleMapBackButton(mapPanel?.transform.parent);
+            SetActivePanel(
+                mapPanel,
+                UiPrimaryPanel.Map,
+                () =>
+                {
+                    FindFirstObjectByType<MapController>()?.RefreshMap();
+                    StyleMapBackButton(mapPanel?.transform.parent);
+                });
         }
 
         public void CloseMap()
@@ -477,14 +493,18 @@ namespace Wake.UI
 
         public void ShowEvidence()
         {
-            SetActivePanel(evidencePanel, UiPrimaryPanel.Evidence);
-            EvidencePanelController.Instance?.Refresh();
+            SetActivePanel(
+                evidencePanel,
+                UiPrimaryPanel.Evidence,
+                () => EvidencePanelController.Instance?.Refresh());
         }
 
         public void ShowEvidence(string evidenceId)
         {
-            SetActivePanel(evidencePanel, UiPrimaryPanel.Evidence);
-            EvidencePanelController.Instance?.Refresh(evidenceId);
+            SetActivePanel(
+                evidencePanel,
+                UiPrimaryPanel.Evidence,
+                () => EvidencePanelController.Instance?.Refresh(evidenceId));
         }
 
         public void OpenSettings()
@@ -632,9 +652,15 @@ namespace Wake.UI
 
         private void SetActivePanel(
             GameObject panel,
-            UiPrimaryPanel panelKind)
+            UiPrimaryPanel panelKind,
+            Action activated = null)
         {
             if (!IsInitialized || panel == null)
+            {
+                return;
+            }
+            if (screenTransitions != null &&
+                screenTransitions.IsTransitioning)
             {
                 return;
             }
@@ -642,17 +668,58 @@ namespace Wake.UI
             systemScreens?.Close();
             CloseRuntimeModals();
             CloseSettings();
-            startScenePanel.SetActive(panel == startScenePanel);
-            ingamePanel.SetActive(panel == ingamePanel);
-            mapPanel.SetActive(panel == mapPanel);
-            evidencePanel.SetActive(panel == evidencePanel);
-            ActivePanel = panelKind;
-            LocationLoader.Instance?.SetPresentationVisible(
-                panelKind == UiPrimaryPanel.Ingame);
-            statusHud?.SetActive(false);
-            explorationNavigation?.Refresh();
-            SetPrimaryInteraction(true);
+            GameObject outgoing = ResolvePanel(ActivePanel);
+            bool hasDedicatedTransition =
+                ActivePanel != UiPrimaryPanel.None &&
+                outgoing != panel &&
+                (panel.activeSelf || IsTravelFadeRunning());
+
+            void SwapPanels()
+            {
+                startScenePanel.SetActive(panel == startScenePanel);
+                ingamePanel.SetActive(panel == ingamePanel);
+                mapPanel.SetActive(panel == mapPanel);
+                evidencePanel.SetActive(panel == evidencePanel);
+                ActivePanel = panelKind;
+                LocationLoader.Instance?.SetPresentationVisible(
+                    panelKind == UiPrimaryPanel.Ingame);
+                statusHud?.SetActive(false);
+                explorationNavigation?.Refresh();
+                SetPrimaryInteraction(true);
+                activated?.Invoke();
+            }
+
+            if (outgoing == panel || hasDedicatedTransition)
+            {
+                SwapPanels();
+                return;
+            }
+
+            SetPrimaryInteraction(false);
+            if (screenTransitions == null ||
+                !screenTransitions.Run(
+                    outgoing,
+                    panel,
+                    SwapPanels,
+                    () => SetPrimaryInteraction(true)))
+            {
+                SwapPanels();
+            }
         }
+
+        private GameObject ResolvePanel(UiPrimaryPanel panel) =>
+            panel switch
+            {
+                UiPrimaryPanel.Start => startScenePanel,
+                UiPrimaryPanel.Ingame => ingamePanel,
+                UiPrimaryPanel.Map => mapPanel,
+                UiPrimaryPanel.Evidence => evidencePanel,
+                _ => null
+            };
+
+        private bool IsTravelFadeRunning() =>
+            startScenePanel?.transform.parent
+                ?.GetComponent<ScreenFadeTransition>()?.IsRunning == true;
 
         internal void SetSystemScreenOverlayActive(bool active)
         {

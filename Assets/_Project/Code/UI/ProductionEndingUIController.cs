@@ -149,7 +149,7 @@ namespace Wake.UI
                 titleText,
                 epilogueText,
                 reasonText);
-            root.AddComponent<UiPanelEntranceAnimator>();
+            root.AddComponent<UiPanelTransitionAnimator>();
             root.SetActive(false);
         }
 

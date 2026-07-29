@@ -448,7 +448,7 @@ namespace Wake.UI
                     ? UiSurfaceStyle.Overlay
                     : UiSurfaceStyle.Canvas);
             Stretch(screen.GetComponent<RectTransform>());
-            screen.AddComponent<UiPanelEntranceAnimator>();
+            screen.AddComponent<UiPanelTransitionAnimator>();
             screen.SetActive(false);
             screens[state] = screen;
             return screen;
