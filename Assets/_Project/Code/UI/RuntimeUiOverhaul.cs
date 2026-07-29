@@ -681,8 +681,12 @@ namespace Wake.UI
 
         private static float EaseInQuint(float t) => t * t * t * t * t;
 
-        // Trapezoidal velocity profile: slow ramp-up, hard accel into a
-        // brief peak-speed cruise, then decel to a full stop.
+        // Smoothed trapezoidal velocity profile: ease into a brief
+        // peak-speed cruise, then ease back down to a full stop. Unlike a
+        // plain linear-ramp trapezoid, velocity approaches and leaves vMax
+        // with zero acceleration at each phase boundary, so there's no
+        // jerk (instant acceleration change) at the seams - that jerk is
+        // what reads as a mechanical "snap" rather than natural motion.
         private static float WaterTrapezoid(float t)
         {
             const float accel = 0.3f;
@@ -692,18 +696,19 @@ namespace Wake.UI
 
             if (t < accel)
             {
-                return 0.5f * vMax * (t * t) / accel;
+                float a = t / accel;
+                return accel * vMax * (a * a * a - 0.5f * a * a * a * a);
             }
             if (t < accel + hold)
             {
-                float pAccel = 0.5f * vMax * accel;
+                float pAccel = accel * vMax * 0.5f;
                 return pAccel + vMax * (t - accel);
             }
             {
-                float pAccel = 0.5f * vMax * accel;
+                float pAccel = accel * vMax * 0.5f;
                 float pHold = pAccel + vMax * hold;
-                float t2 = t - accel - hold;
-                return pHold + vMax * t2 - vMax * (t2 * t2) / (2f * decel);
+                float b = (t - accel - hold) / decel;
+                return pHold + decel * vMax * (b - b * b * b + 0.5f * b * b * b * b);
             }
         }
 
