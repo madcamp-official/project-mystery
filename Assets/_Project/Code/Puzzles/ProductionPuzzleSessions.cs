@@ -70,7 +70,8 @@ namespace Wake.Puzzles
                     "center_mismatch",
                     "vertical_drop"
                 },
-                new[] { "C-07" }),
+                // C-07 is awarded by the dialogue after this puzzle is solved.
+                Array.Empty<string>()),
             new(
                 CargoRailBranch,
                 "D6-02",

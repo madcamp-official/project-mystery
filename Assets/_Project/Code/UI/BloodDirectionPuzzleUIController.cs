@@ -637,14 +637,20 @@ namespace Wake.UI
 
     public sealed class BloodPuzzlePieceView :
         MonoBehaviour,
+        IPointerDownHandler,
         IPointerClickHandler,
         IBeginDragHandler,
+        IDragHandler,
         IEndDragHandler
     {
         private BloodDirectionPuzzleUIController owner;
         private int slot;
         private int source;
         private Image image;
+        private Canvas rootCanvas;
+        private RectTransform dragPreview;
+        private Color restingColor = Color.white;
+        private bool draggedSincePointerDown;
         private static int draggedSlot = -1;
 
         public void Initialize(BloodDirectionPuzzleUIController controller, int slotIndex)
@@ -653,6 +659,7 @@ namespace Wake.UI
             slot = slotIndex;
             image = GetComponent<Image>();
             image.preserveAspect = true;
+            rootCanvas = GetComponentInParent<Canvas>()?.rootCanvas;
         }
 
         public void SetPiece(int sourceIndex, Sprite sprite, int quarterTurns)
@@ -669,9 +676,14 @@ namespace Wake.UI
             image.raycastTarget = enabled;
         }
 
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            draggedSincePointerDown = false;
+        }
+
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (!eventData.dragging)
+            if (!eventData.dragging && !draggedSincePointerDown)
             {
                 owner.RotatePiece(slot);
             }
@@ -679,19 +691,141 @@ namespace Wake.UI
 
         public void OnBeginDrag(PointerEventData eventData)
         {
+            if (owner == null || !image.raycastTarget)
+            {
+                return;
+            }
+
+            draggedSincePointerDown = true;
             draggedSlot = slot;
+            restingColor = image.color;
             image.color = new Color(1f, 1f, 1f, 0.55f);
+            CreateDragPreview();
+            OnDrag(eventData);
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            if (draggedSlot != slot || dragPreview == null)
+            {
+                return;
+            }
+
+            Canvas canvas = rootCanvas != null
+                ? rootCanvas
+                : GetComponentInParent<Canvas>()?.rootCanvas;
+            if (canvas == null ||
+                canvas.transform is not RectTransform canvasRect ||
+                !RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    canvasRect,
+                    eventData.position,
+                    eventData.pressEventCamera != null
+                        ? eventData.pressEventCamera
+                        : canvas.worldCamera,
+                    out Vector2 localPoint))
+            {
+                return;
+            }
+
+            dragPreview.anchoredPosition = localPoint;
         }
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            image.color = Color.white;
-            GameObject hit = eventData.pointerCurrentRaycast.gameObject;
-            BloodPuzzlePieceView destination =
-                hit != null ? hit.GetComponent<BloodPuzzlePieceView>() : null;
-            if (destination != null && draggedSlot >= 0)
+            try
             {
-                owner.SwapPieces(draggedSlot, destination.slot);
+                BloodPuzzlePieceView destination = FindDestination(eventData);
+                if (destination != null &&
+                    draggedSlot >= 0 &&
+                    destination.slot != draggedSlot)
+                {
+                    owner.SwapPieces(draggedSlot, destination.slot);
+                }
+            }
+            finally
+            {
+                EndDragVisuals();
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (draggedSlot == slot || dragPreview != null)
+            {
+                EndDragVisuals();
+            }
+        }
+
+        private void CreateDragPreview()
+        {
+            Canvas canvas = rootCanvas != null
+                ? rootCanvas
+                : GetComponentInParent<Canvas>()?.rootCanvas;
+            if (canvas == null ||
+                canvas.transform is not RectTransform canvasRect)
+            {
+                return;
+            }
+
+            var previewObject = new GameObject(
+                "Blood Piece Drag Preview",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(CanvasGroup));
+            previewObject.transform.SetParent(canvasRect, false);
+            previewObject.transform.SetAsLastSibling();
+            dragPreview = previewObject.GetComponent<RectTransform>();
+            Bounds bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(
+                canvasRect,
+                image.rectTransform);
+            dragPreview.sizeDelta = bounds.size;
+            dragPreview.localRotation = image.rectTransform.localRotation;
+
+            Image previewImage = previewObject.GetComponent<Image>();
+            previewImage.sprite = image.sprite;
+            previewImage.preserveAspect = image.preserveAspect;
+            previewImage.color = new Color(1f, 1f, 1f, 0.82f);
+            previewImage.raycastTarget = false;
+
+            CanvasGroup group = previewObject.GetComponent<CanvasGroup>();
+            group.blocksRaycasts = false;
+            group.interactable = false;
+        }
+
+        private BloodPuzzlePieceView FindDestination(
+            PointerEventData eventData)
+        {
+            EventSystem eventSystem = EventSystem.current;
+            if (eventSystem == null)
+            {
+                return null;
+            }
+
+            var results = new List<RaycastResult>();
+            eventSystem.RaycastAll(eventData, results);
+            foreach (RaycastResult result in results)
+            {
+                BloodPuzzlePieceView destination =
+                    result.gameObject.GetComponentInParent<BloodPuzzlePieceView>();
+                if (destination != null && destination.image.raycastTarget)
+                {
+                    return destination;
+                }
+            }
+            return null;
+        }
+
+        private void EndDragVisuals()
+        {
+            if (image != null)
+            {
+                image.color = restingColor;
+            }
+            if (dragPreview != null)
+            {
+                Destroy(dragPreview.gameObject);
+                dragPreview = null;
             }
             draggedSlot = -1;
         }

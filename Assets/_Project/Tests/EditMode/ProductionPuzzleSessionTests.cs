@@ -41,13 +41,13 @@ namespace Wake.Tests
                 Is.True);
             Assert.That(blood.RequiredSelectionIds,
                 Is.EqualTo(new[] { "no_spatter", "center_mismatch", "vertical_drop" }));
-            Assert.That(blood.RequiredEvidenceIds, Is.EqualTo(new[] { "C-07" }));
+            Assert.That(blood.RequiredEvidenceIds, Is.Empty);
         }
 
         [Test]
         public void BloodPattern_PersistsProgressHintAndCompletion()
         {
-            HashSet<string> evidence = new() { "C-07" };
+            HashSet<string> evidence = new();
             ProductionPuzzleSession session =
                 CreateSession(ProductionPuzzleCatalog.BloodPattern, evidence);
 
@@ -105,7 +105,8 @@ namespace Wake.Tests
             try
             {
                 ProductionPuzzleSession session = CreateSession(
-                    ProductionPuzzleCatalog.BloodPattern, new HashSet<string> { "C-07" });
+                    ProductionPuzzleCatalog.BloodPattern,
+                    new HashSet<string>());
                 session.Select("no_spatter");
                 session.Select("center_mismatch");
                 session.Select("vertical_drop");

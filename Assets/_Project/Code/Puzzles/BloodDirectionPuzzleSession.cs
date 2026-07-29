@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Wake.Core;
 
@@ -22,6 +21,7 @@ namespace Wake.Puzzles
     {
         public const int PieceCount = 9;
         public const float MinimumMarkerDistance = 0.18f;
+        private const int GridSize = 3;
 
         private static readonly int[] InitialOrder = { 7, 2, 5, 1, 8, 0, 6, 3, 4 };
         private static readonly int[] InitialRotations = { 1, 3, 2, 1, 2, 3, 0, 2, 1 };
@@ -44,8 +44,7 @@ namespace Wake.Puzzles
         public Vector2? PoolMarker { get; private set; }
         public bool ShouldEmphasizeTails => IncorrectPostureAttempts >= 3;
         public bool IsReconstructionCorrect =>
-            Enumerable.Range(0, PieceCount).All(index =>
-                pieces[index] == index && rotations[index] == 0);
+            TryGetSolvedGlobalRotation(out _);
 
         public void Swap(int firstSlot, int secondSlot)
         {
@@ -139,9 +138,62 @@ namespace Wake.Puzzles
 
         private void TryAdvanceFromReconstruction()
         {
-            if (IsReconstructionCorrect)
+            if (!TryGetSolvedGlobalRotation(out _))
             {
-                Stage = BloodDirectionStage.CompareBody;
+                return;
+            }
+
+            NormalizeReconstruction();
+            Stage = BloodDirectionStage.CompareBody;
+        }
+
+        private bool TryGetSolvedGlobalRotation(out int quarterTurns)
+        {
+            for (int rotation = 0; rotation < 4; rotation++)
+            {
+                bool matches = true;
+                for (int source = 0; source < PieceCount; source++)
+                {
+                    int destination = RotateSlot(source, rotation);
+                    if (pieces[destination] != source ||
+                        rotations[destination] != rotation)
+                    {
+                        matches = false;
+                        break;
+                    }
+                }
+
+                if (matches)
+                {
+                    quarterTurns = rotation;
+                    return true;
+                }
+            }
+
+            quarterTurns = -1;
+            return false;
+        }
+
+        private static int RotateSlot(int source, int quarterTurns)
+        {
+            int row = source / GridSize;
+            int column = source % GridSize;
+            return quarterTurns switch
+            {
+                0 => source,
+                1 => column * GridSize + (GridSize - 1 - row),
+                2 => (GridSize - 1 - row) * GridSize +
+                     (GridSize - 1 - column),
+                _ => (GridSize - 1 - column) * GridSize + row
+            };
+        }
+
+        private void NormalizeReconstruction()
+        {
+            for (int index = 0; index < PieceCount; index++)
+            {
+                pieces[index] = index;
+                rotations[index] = 0;
             }
         }
     }
