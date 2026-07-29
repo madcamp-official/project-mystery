@@ -121,10 +121,13 @@ namespace Wake.Narrative
             switch (speaker.Kind)
             {
                 case DialogueSpeakerKind.Narration:
+                    // Reads as white text over a near-black screen rather
+                    // than inside the same boxed panel as character lines
+                    // (see DialoguePresentationView.ApplyNarrationStyle).
                     return new DialoguePresentationSpec(
                         DialoguePresentationMode.Narration,
                         DialoguePortraitSide.Hidden,
-                        0.24f,
+                        0.92f,
                         0f,
                         showSpeakerName: false);
 

@@ -41,6 +41,10 @@ namespace Wake.UI
         private const string ChoicesRightSlot = "dialogue.choices-right";
         private const float PortraitSafeInset = 0.90f;
         private const float PortraitBottomPadding = 0.025f;
+        private const float NarrationFontSize = 40f;
+        private const float DialogueTextLeftMargin = 48f;
+        private static readonly Vector2 NarrationTextSize =
+            new(1200f, 360f);
 
         private RectTransform ingameRoot;
         private RectTransform linePanel;
@@ -50,6 +54,10 @@ namespace Wake.UI
         private RectTransform nextButton;
         private RectTransform choices;
         private TMP_Text lineText;
+        private Image panelBackground;
+        private Color panelBackgroundDefaultColor;
+        private Color lineTextDefaultColor;
+        private TextAlignmentOptions lineTextDefaultAlignment;
         private Image backgroundDim;
         private CanvasGroup backgroundDimGroup;
         private Coroutine dimRoutine;
@@ -87,12 +95,41 @@ namespace Wake.UI
             speakerPlate = targetSpeakerText != null
                 ? targetSpeakerText.transform.parent as RectTransform
                 : null;
+            panelBackground = linePanel != null
+                ? linePanel.Find("Panel")?.GetComponent<Image>()
+                : null;
+            if (panelBackground != null)
+                panelBackgroundDefaultColor = panelBackground.color;
+            if (lineText != null)
+            {
+                lineTextDefaultColor = lineText.color;
+                lineTextDefaultAlignment = lineText.alignment;
+            }
             nextButton = targetNextButton;
             choices = targetChoices;
             backgroundDim = EnsureBackgroundDim();
+            EnsureBelowWaterOverlay();
             RestoreNavigationVisibility();
             initialized = true;
             Apply(DialoguePresentationPolicy.Hidden);
+        }
+
+        // "Water Overlay" is a full-screen reflection effect from the
+        // lobby water feature that sits above Ingame in sibling order,
+        // washing out the dim filter (and dialogue contrast in general)
+        // with its white tint. Sink it below Ingame instead of moving
+        // Ingame, so other panels (Map/Evidence/Settings/Toast/etc.)
+        // that already render above Ingame keep their relative order.
+        private void EnsureBelowWaterOverlay()
+        {
+            if (ingameRoot == null || ingameRoot.parent == null)
+                return;
+            Transform waterOverlay = ingameRoot.parent.Find("Water Overlay");
+            if (waterOverlay == null)
+                return;
+            int ingameIndex = ingameRoot.GetSiblingIndex();
+            if (waterOverlay.GetSiblingIndex() > ingameIndex)
+                waterOverlay.SetSiblingIndex(ingameIndex);
         }
 
         public void SetChoicesVisible(bool visible)
@@ -126,10 +163,13 @@ namespace Wake.UI
             string panelSlot = PanelSlotFor(presentation);
             RuntimeUiLayoutRegistry.CopyLayout(linePanel, panelSlot);
             ApplyTextLayout(presentation);
+            ApplyNarrationStyle(presentation);
+            // Portrait must resolve before the speaker plate - the plate
+            // positions itself directly under the portrait's final rect.
+            ApplyPortrait(presentation);
             ApplySpeakerPlate(presentation);
             ApplyNextButton(presentation);
             ApplyChoiceLayout();
-            ApplyPortrait(presentation);
             lastScreen = new Vector2Int(Screen.width, Screen.height);
         }
 
@@ -232,7 +272,12 @@ namespace Wake.UI
             rect.SetAsFirstSibling();
             Image image = node.GetComponent<Image>();
             image.color = Color.clear;
-            image.raycastTarget = false;
+            // Blocks click/hover to whatever's underneath (evidence and
+            // inspectable hotspots on the background canvas don't hide
+            // themselves during dialogue the way ambient characters do) -
+            // it already renders full-screen above that canvas, it just
+            // never intercepted the raycast.
+            image.raycastTarget = true;
             backgroundDimGroup = node.GetComponent<CanvasGroup>();
             if (backgroundDimGroup == null)
                 backgroundDimGroup = node.AddComponent<CanvasGroup>();
@@ -320,26 +365,109 @@ namespace Wake.UI
             FitPortraitToSlot(presentation.PortraitHeightRatio);
         }
 
+        // Narration reads as plain white text over the (now much darker)
+        // background dim instead of sitting inside the same boxed panel
+        // used for character lines - the panel/text colors are shared
+        // objects across every mode, so non-narration modes must be
+        // restored explicitly here too.
+        private void ApplyNarrationStyle(DialoguePresentationSpec presentation)
+        {
+            bool isNarration =
+                presentation.Mode == DialoguePresentationMode.Narration;
+            if (panelBackground != null)
+            {
+                panelBackground.color = isNarration
+                    ? new Color(0f, 0f, 0f, 0f)
+                    : panelBackgroundDefaultColor;
+            }
+            if (lineText != null)
+            {
+                lineText.color = isNarration
+                    ? Color.white
+                    : lineTextDefaultColor;
+            }
+        }
+
         private void ApplyTextLayout(
             DialoguePresentationSpec presentation)
         {
             if (textRect == null)
                 return;
 
-            RuntimeUiLayoutRegistry.CopyWorldLayout(
-                textRect,
-                TextSlotFor(presentation));
+            bool isNarration =
+                presentation.Mode == DialoguePresentationMode.Narration;
+            if (isNarration)
+                PositionNarrationTextCentered();
+            else
+                RuntimeUiLayoutRegistry.CopyWorldLayout(
+                    textRect,
+                    TextSlotFor(presentation));
 
             if (lineText == null)
                 return;
 
-            lineText.enableAutoSizing = true;
-            lineText.fontSizeMin = DialogueTypographyMetrics.LineMinimum;
-            lineText.fontSizeMax = DialogueTypographyMetrics.LineMaximum;
+            if (isNarration)
+            {
+                // One fixed size instead of the auto-sizing range, so every
+                // narration line reads at the same size regardless of how
+                // short/long it is or how much room the centered box has.
+                lineText.enableAutoSizing = false;
+                lineText.fontSize = NarrationFontSize;
+                lineText.alignment = TextAlignmentOptions.Center;
+                lineText.margin = new Vector4(12f, 8f, 12f, 8f);
+            }
+            else
+            {
+                lineText.enableAutoSizing = true;
+                lineText.fontSizeMin = DialogueTypographyMetrics.LineMinimum;
+                lineText.fontSizeMax = DialogueTypographyMetrics.LineMaximum;
+                lineText.alignment = lineTextDefaultAlignment;
+                // Left margin gives the text breathing room from the
+                // panel's edge instead of starting flush against it.
+                lineText.margin = new Vector4(
+                    DialogueTextLeftMargin, 8f, 12f, 8f);
+            }
             lineText.lineSpacing = DialogueTypographyMetrics.BodyLineSpacing;
             lineText.textWrappingMode = TextWrappingModes.Normal;
             lineText.overflowMode = TextOverflowModes.Truncate;
-            lineText.margin = new Vector4(12f, 8f, 12f, 8f);
+        }
+
+        // Narration's text slot sits wherever it was authored (usually
+        // near the bottom, like normal dialogue), but narration should
+        // read as text floating in the middle of the dimmed screen - so
+        // this pins the text box to the screen's actual center instead,
+        // regardless of where its parent Panel currently is.
+        private void PositionNarrationTextCentered()
+        {
+            if (textRect == null ||
+                ingameRoot == null ||
+                textRect.parent is not RectTransform parent)
+            {
+                return;
+            }
+
+            Rect parentRect = parent.rect;
+            if (parentRect.width <= Mathf.Epsilon ||
+                parentRect.height <= Mathf.Epsilon)
+            {
+                return;
+            }
+
+            Vector3[] screenCorners = new Vector3[4];
+            ingameRoot.GetWorldCorners(screenCorners);
+            Vector2 localMin = parent.InverseTransformPoint(screenCorners[0]);
+            Vector2 localMax = parent.InverseTransformPoint(screenCorners[2]);
+            Vector2 centerFraction = new(
+                ((localMin.x + localMax.x) * 0.5f - parentRect.xMin) /
+                    parentRect.width,
+                ((localMin.y + localMax.y) * 0.5f - parentRect.yMin) /
+                    parentRect.height);
+
+            textRect.anchorMin = centerFraction;
+            textRect.anchorMax = centerFraction;
+            textRect.pivot = new Vector2(0.5f, 0.5f);
+            textRect.anchoredPosition = Vector2.zero;
+            textRect.sizeDelta = NarrationTextSize;
         }
 
         private void ApplySpeakerPlate(
@@ -356,6 +484,52 @@ namespace Wake.UI
             RuntimeUiLayoutRegistry.CopyWorldLayout(
                 speakerPlate,
                 SpeakerNameSlotFor(presentation));
+            if (presentation.ShowPortrait)
+                PositionSpeakerPlateBelowPortrait();
+        }
+
+        // Slot-copied layout puts the plate beside the dialogue text: pin
+        // it to the portrait's own rect instead so it always sits directly
+        // under the character image regardless of portrait size/position.
+        private void PositionSpeakerPlateBelowPortrait()
+        {
+            if (speakerPlate == null ||
+                portrait == null ||
+                !portrait.gameObject.activeSelf ||
+                speakerPlate.parent is not RectTransform parent)
+            {
+                return;
+            }
+
+            Rect parentRect = parent.rect;
+            if (parentRect.width <= Mathf.Epsilon ||
+                parentRect.height <= Mathf.Epsilon)
+            {
+                return;
+            }
+
+            // Portrait is parented under Ingame directly, while the
+            // speaker plate is nested under Line Panel - different parents
+            // means their anchors/anchoredPosition aren't in the same
+            // coordinate space, so the portrait's bottom-center has to be
+            // converted through world space (same technique as
+            // PositionNarrationTextCentered) rather than copied directly.
+            Vector3[] corners = new Vector3[4];
+            portrait.GetWorldCorners(corners);
+            Vector2 bottomCenterWorld = (corners[0] + corners[3]) * 0.5f;
+            Vector2 localPoint =
+                parent.InverseTransformPoint(bottomCenterWorld);
+            Vector2 anchorFraction = new(
+                (localPoint.x - parentRect.xMin) / parentRect.width,
+                (localPoint.y - parentRect.yMin) / parentRect.height);
+
+            const float gap = 8f;
+            Vector2 size = speakerPlate.rect.size;
+            speakerPlate.anchorMin = anchorFraction;
+            speakerPlate.anchorMax = anchorFraction;
+            speakerPlate.pivot = new Vector2(0.5f, 1f);
+            speakerPlate.sizeDelta = size;
+            speakerPlate.anchoredPosition = new Vector2(0f, -gap);
         }
 
         private void ApplyNextButton(
@@ -400,7 +574,14 @@ namespace Wake.UI
                     PortraitSafeInset);
             float availableHeight = slotSize.y * PortraitSafeInset;
             float availableWidth = slotSize.x * PortraitSafeInset;
-            float height = Mathf.Min(availableHeight, maximumHeight);
+            // idealHeight ignores the aspect/width clamp below - it's the
+            // height every character would get if their sprite were tall
+            // enough to fit availableWidth (Adrian Vale's portrait is,
+            // which is why his was the reference everyone else drifted
+            // from). Baseline is computed from this so the clamp only
+            // ever eats into a portrait's height from the top.
+            float idealHeight = Mathf.Min(availableHeight, maximumHeight);
+            float height = idealHeight;
             float width = height * aspect;
             if (width > availableWidth)
             {
@@ -412,9 +593,15 @@ namespace Wake.UI
                 (portrait.anchorMin + portrait.anchorMax) * 0.5f;
             portrait.anchorMin = anchorCenter;
             portrait.anchorMax = anchorCenter;
+            // Pivot on the feet, not the center, and anchor them to a
+            // baseline derived from idealHeight (not the clamped height)
+            // so every character's portrait - and the speaker plate
+            // pinned under it - lines up on the same floor regardless of
+            // how wide their sprite's aspect ratio is.
+            portrait.pivot = new Vector2(0.5f, 0f);
             portrait.anchoredPosition = new Vector2(
                 0f,
-                slotSize.y * PortraitBottomPadding);
+                slotSize.y * PortraitBottomPadding - idealHeight * 0.5f);
             portrait.sizeDelta = new Vector2(width, height);
             if (fitter != null)
                 fitter.aspectMode = AspectRatioFitter.AspectMode.None;
