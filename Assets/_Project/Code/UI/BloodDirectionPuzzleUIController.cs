@@ -72,14 +72,14 @@ namespace Wake.UI
                 id => EvidenceInventory.Instance != null &&
                       EvidenceInventory.Instance.Contains(id));
             puzzle = new BloodDirectionPuzzleSession();
-            root.SetActive(true);
+            RuntimeModalTransition.Open(root);
             Refresh();
             return true;
         }
 
         public void Close()
         {
-            root?.SetActive(false);
+            RuntimeModalTransition.Close(root);
         }
 
         public void RotatePiece(int slot)

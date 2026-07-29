@@ -158,14 +158,14 @@ namespace Wake.UI
                 evidenceId =>
                     EvidenceInventory.Instance != null &&
                     EvidenceInventory.Instance.Contains(evidenceId));
-            root.SetActive(true);
+            RuntimeModalTransition.Open(root);
             Refresh();
             return true;
         }
 
         public void Close()
         {
-            root?.SetActive(false);
+            RuntimeModalTransition.Close(root);
         }
 
         public bool Toggle(string selectionId)

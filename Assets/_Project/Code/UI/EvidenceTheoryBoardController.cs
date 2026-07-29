@@ -124,7 +124,7 @@ namespace Wake.UI
             statusText.text = unlocked.Count == 0
                 ? "증거 조합과 가설 상태를 확인하세요."
                 : $"새 논증 해금: {string.Join(", ", unlocked)}";
-            root.SetActive(true);
+            RuntimeModalTransition.Open(root);
             Refresh();
             return true;
         }
@@ -132,11 +132,13 @@ namespace Wake.UI
         public void Close()
         {
             bool wasOpen = IsOpen;
-            root?.SetActive(false);
-            if (wasOpen)
-            {
-                Closed?.Invoke();
-            }
+            RuntimeModalTransition.Close(
+                root,
+                () =>
+                {
+                    if (wasOpen)
+                        Closed?.Invoke();
+                });
         }
 
         public bool ResolveDeduction(string deductionId)

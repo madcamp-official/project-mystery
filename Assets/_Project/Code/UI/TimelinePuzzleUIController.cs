@@ -150,14 +150,14 @@ namespace Wake.UI
             statusText.text =
                 "사건 카드를 선택한 뒤 배치할 시간 슬롯을 누르세요.\n" +
                 TimelinePuzzlePresentation.SourceStatus(session.Definitions);
-            root.SetActive(true);
+            RuntimeModalTransition.Open(root);
             Refresh();
             return true;
         }
 
         public void Close()
         {
-            root?.SetActive(false);
+            RuntimeModalTransition.Close(root);
         }
 
         public bool SelectCard(string cardId)

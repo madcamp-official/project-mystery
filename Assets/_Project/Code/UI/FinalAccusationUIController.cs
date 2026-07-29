@@ -553,14 +553,14 @@ namespace Wake.UI
                 ? preparation.GetPlayerMessage() +
                   "\n현재 질문의 답을 선택하고 최종 논증을 제출하세요."
                 : preparation.GetPlayerMessage();
-            panel.SetActive(true);
+            RuntimeModalTransition.Open(panel);
         }
 
         private void Awake() => Build();
 
         public void Close()
         {
-            panel?.SetActive(false);
+            RuntimeModalTransition.Close(panel);
         }
 
         private void Build()

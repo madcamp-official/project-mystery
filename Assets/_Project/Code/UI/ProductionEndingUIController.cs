@@ -68,7 +68,7 @@ namespace Wake.UI
                 Show(state.FinalEndingId, "귀항 후 사건 평가가 확정되었습니다.");
         }
 
-        public void Close() => root?.SetActive(false);
+        public void Close() => RuntimeModalTransition.Close(root);
 
         private void Show(string endingId, string reason)
         {
@@ -84,7 +84,7 @@ namespace Wake.UI
             titleText.text = ending.Title;
             epilogueText.text = ending.Epilogue;
             reasonText.text = reason ?? string.Empty;
-            root.SetActive(true);
+            RuntimeModalTransition.Open(root);
             Canvas.ForceUpdateCanvases();
             ResetScrollPositions();
         }

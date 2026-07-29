@@ -44,7 +44,9 @@ namespace Wake.UI
         private SystemScreenFlowController systemScreens;
         private UIScreenTransitionCoordinator screenTransitions;
         private UiTransitionProfile settingsTransitionProfile;
+        private UiTransitionProfile runtimeModalTransitionProfile;
         private ExplorationNavigationController explorationNavigation;
+        private bool suppressRuntimeModalAnimations;
         private bool hasShownBoot;
         private UiPrimaryPanel mapReturnPanel = UiPrimaryPanel.Ingame;
         private readonly List<IRuntimeModalController> runtimeModals = new();
@@ -799,12 +801,84 @@ namespace Wake.UI
 
         private void CloseRuntimeModals()
         {
-            foreach (IRuntimeModalController modal in runtimeModals)
+            suppressRuntimeModalAnimations = true;
+            try
             {
-                if (modal != null && modal.IsOpen)
+                foreach (IRuntimeModalController modal in runtimeModals)
                 {
-                    modal.Close();
+                    if (modal != null && modal.IsOpen)
+                        modal.Close();
                 }
+            }
+            finally
+            {
+                suppressRuntimeModalAnimations = false;
+            }
+        }
+
+        internal void OpenRuntimeModalAnimated(
+            GameObject modal,
+            Action activate)
+        {
+            if (modal == null)
+                return;
+
+            SetPrimaryInteraction(false);
+            CanvasGroup modalInput =
+                EnsureComponent<CanvasGroup>(modal);
+            modalInput.ignoreParentGroups = true;
+            modalInput.interactable = true;
+            modalInput.blocksRaycasts = true;
+            runtimeModalTransitionProfile ??=
+                UiTransitionProfile.CreateRuntime(
+                    "Runtime Modal Transition",
+                    UiTransitionDirection.Scale,
+                    .2f,
+                    .3f,
+                    .02f);
+            if (suppressRuntimeModalAnimations ||
+                screenTransitions == null ||
+                screenTransitions.IsTransitioning ||
+                !screenTransitions.Run(
+                    null,
+                    modal,
+                    activate,
+                    null,
+                    runtimeModalTransitionProfile))
+            {
+                activate?.Invoke();
+            }
+        }
+
+        internal void CloseRuntimeModalAnimated(
+            GameObject modal,
+            Action deactivate)
+        {
+            if (modal == null)
+            {
+                deactivate?.Invoke();
+                return;
+            }
+
+            void RestoreInteraction()
+            {
+                statusHud?.SetActive(false);
+                SetPrimaryInteraction(true);
+            }
+
+            if (suppressRuntimeModalAnimations ||
+                screenTransitions == null ||
+                screenTransitions.IsTransitioning ||
+                !screenTransitions.Run(
+                    modal,
+                    null,
+                    deactivate,
+                    RestoreInteraction,
+                    runtimeModalTransitionProfile))
+            {
+                deactivate?.Invoke();
+                if (!suppressRuntimeModalAnimations)
+                    RestoreInteraction();
             }
         }
 

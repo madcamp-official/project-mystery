@@ -121,7 +121,7 @@ namespace Wake.UI
                 inventory.TryAddById);
             isPlaying = false;
             timeSlider.SetValueWithoutNotify(session.CurrentSecond);
-            root.SetActive(true);
+            RuntimeModalTransition.Open(root);
             reopenButton.gameObject.SetActive(false);
             root.transform.SetAsLastSibling();
             statusText.text = session.HasReviewedCctv
@@ -139,8 +139,7 @@ namespace Wake.UI
         {
             isPlaying = false;
             session?.SetTime(session.CurrentSecond);
-            root?.SetActive(false);
-            SetReopenVisibility();
+            RuntimeModalTransition.Close(root, SetReopenVisibility);
         }
 
         public void TogglePlayback()

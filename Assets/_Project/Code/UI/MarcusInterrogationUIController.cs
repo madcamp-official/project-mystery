@@ -73,7 +73,7 @@ namespace Wake.UI
             selectedQuestionId = null;
             statusText.text =
                 "확인할 질문을 고른 뒤 마커스의 답변을 기록하세요.";
-            root.SetActive(true);
+            RuntimeModalTransition.Open(root);
             root.transform.SetAsLastSibling();
             Refresh();
             FocusFirstAvailableQuestion();
@@ -82,7 +82,7 @@ namespace Wake.UI
 
         public void Close()
         {
-            root?.SetActive(false);
+            RuntimeModalTransition.Close(root);
         }
 
         public bool SelectQuestion(string questionId)
