@@ -25,8 +25,8 @@ namespace Wake.UI
         // and if the camera rises faster than a bubble's own speed the
         // bubble should visibly sink relative to the screen (negative
         // effective speed), not just slow down.
-        private const float DepthVelocityToPixelsPerSecond = 220f;
-        private const float MaxCameraContributionPxPerSecond = 260f;
+        private const float DepthVelocityToPixelsPerSecond = 10000f;
+        private const float MaxCameraContributionPxPerSecond = 12000f;
         private const float BubbleSpeedDecayPerSecond = 4f;
 
         private static Sprite softDotSprite;
