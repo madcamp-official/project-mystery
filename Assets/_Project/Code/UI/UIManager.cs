@@ -322,6 +322,7 @@ namespace Wake.UI
                 return;
             }
 
+            AudioManager.Instance?.PlayTitleTheme();
             DialogueController.Instance?.CancelActiveDialogue();
             GameFlow.Instance?.ResetSession();
             EvidenceInventory.Instance?.Clear();
