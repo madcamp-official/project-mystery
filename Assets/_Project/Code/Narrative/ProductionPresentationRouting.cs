@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Wake.Evidence;
 
 namespace Wake.Narrative
 {
@@ -45,7 +46,8 @@ namespace Wake.Narrative
         {
             string effect = record?.NextOrEffect ?? string.Empty;
             string stage = record?.StageDirection ?? string.Empty;
-            string message = record?.TextKo ?? string.Empty;
+            string message = EvidencePlayerFacingText.SanitizeMessage(
+                record?.TextKo);
 
             if (Contains(effect, "ending:") ||
                 EqualsToken(record?.LineType, "ending_trigger"))

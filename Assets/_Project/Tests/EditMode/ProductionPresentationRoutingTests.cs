@@ -70,13 +70,18 @@ namespace Wake.Tests
         {
             var latin = new Regex("[A-Za-z]");
             var allowed = new Regex(
-                @"(?<![A-Za-z])(?:DNA|COO|VIP|kg|cm)(?![A-Za-z])|C-\d+",
+                @"(?<![A-Za-z])(?:DNA|COO|VIP|kg|cm|ES)(?![A-Za-z])",
                 RegexOptions.IgnoreCase);
             string[] violations = records
                 .Select(record => new
                 {
                     record.CanonicalLineId,
-                    Text = allowed.Replace(record.TextKo, string.Empty)
+                    Text = allowed.Replace(
+                        ProductionPresentationRouting.IsSystemEvent(record)
+                            ? ProductionPresentationRouting
+                                .ClassifySystemEvent(record).Message
+                            : record.TextKo,
+                        string.Empty)
                 })
                 .Where(item => latin.IsMatch(item.Text))
                 .Select(item =>
@@ -84,6 +89,65 @@ namespace Wake.Tests
                 .ToArray();
 
             Assert.That(violations, Is.Empty);
+        }
+
+        [Test]
+        public void OfficialSystemPresentations_HideInternalCodes()
+        {
+            string[] violations = records
+                .Where(ProductionPresentationRouting.IsSystemEvent)
+                .Select(record => new
+                {
+                    record.CanonicalLineId,
+                    Presentation = ProductionPresentationRouting
+                        .ClassifySystemEvent(record)
+                })
+                .Where(item =>
+                    Wake.Evidence.EvidencePlayerFacingText
+                        .ContainsInternalCode(item.Presentation.Message))
+                .Select(item =>
+                    $"{item.CanonicalLineId}: " +
+                    item.Presentation.Message)
+                .ToArray();
+
+            Assert.That(violations, Is.Empty);
+        }
+
+        [Test]
+        public void OfficialSystemText_AvoidsImplementationVocabulary()
+        {
+            var implementationTerms = new Regex(
+                "플래그|신뢰도 분기|현장 보존도 분기|" +
+                "퀘스트 활성화|수치가 갱신|시간 블록|‘자동장치’ 노드");
+            string[] violations = records
+                .Where(ProductionPresentationRouting.IsSystemEvent)
+                .Where(record => implementationTerms.IsMatch(record.TextKo))
+                .Select(record =>
+                    $"{record.CanonicalLineId}: {record.TextKo}")
+                .ToArray();
+
+            Assert.That(violations, Is.Empty);
+        }
+
+        [TestCase(
+            "단서 획득: C-15 마커스 인증",
+            "마커스 인증")]
+        [TestCase(
+            "단서 획득: 보조 단서: ES 토큰",
+            "ES 토큰")]
+        public void EvidenceAcquisitionPresentation_UsesNaturalNameOnly(
+            string source,
+            string expected)
+        {
+            Assert.That(
+                Wake.Evidence.EvidencePlayerFacingText
+                    .TryExtractAcquisitionName(source, out string actual),
+                Is.True);
+            Assert.That(actual, Is.EqualTo(expected));
+            Assert.That(
+                Wake.Evidence.EvidencePlayerFacingText
+                    .ContainsInternalCode(actual),
+                Is.False);
         }
 
         [TestCase("D8-03_013")]
