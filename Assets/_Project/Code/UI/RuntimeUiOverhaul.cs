@@ -601,9 +601,10 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class SaveSlotSelectionController : MonoBehaviour
     {
-        private const float RevealDuration = 5.2f;
-        private const float DiveDuration = 3f;
-        private const float RiseDuration = RevealDuration - DiveDuration;
+        private const float RiseDuration = 2.2f;
+        private const float DiveDuration = 4f;
+        private const float RevealDuration = RiseDuration + DiveDuration;
+        private const float FadeInDelay = 1.5f;
         private const float PanelTravelExtra = 2.8f;
         private const float LobbyTravelExtra = 3.5f;
         // The title exit and the water dive must read as one motion, so they
@@ -615,7 +616,7 @@ namespace Wake.UI
         // its dive depth only means moving it there, no hardcoded copy to
         // keep in sync. Only the risen height is a pure animation choice
         // with no scene counterpart.
-        private const float WaterRisenY = -4f;
+        private const float WaterRisenY = -7f;
 
         private GameObject overlay;
         private GameObject confirmation;
@@ -680,29 +681,34 @@ namespace Wake.UI
 
         private static float EaseInQuint(float t) => t * t * t * t * t;
 
-        // Trapezoidal velocity profile: slow ramp-up, hard accel into a
-        // brief peak-speed cruise, then decel to a full stop.
+        // Smoothed trapezoidal velocity profile: ease into a brief
+        // peak-speed cruise, then ease back down to a full stop. Unlike a
+        // plain linear-ramp trapezoid, velocity approaches and leaves vMax
+        // with zero acceleration at each phase boundary, so there's no
+        // jerk (instant acceleration change) at the seams - that jerk is
+        // what reads as a mechanical "snap" rather than natural motion.
         private static float WaterTrapezoid(float t)
         {
             const float accel = 0.3f;
-            const float hold = 0.3f;
-            const float decel = 1f - accel - hold;
+            const float decel = 0.25f;
+            const float hold = 1f - accel - decel;
             float vMax = 1f / (0.5f * accel + hold + 0.5f * decel);
 
             if (t < accel)
             {
-                return 0.5f * vMax * (t * t) / accel;
+                float a = t / accel;
+                return accel * vMax * (a * a * a - 0.5f * a * a * a * a);
             }
             if (t < accel + hold)
             {
-                float pAccel = 0.5f * vMax * accel;
+                float pAccel = accel * vMax * 0.5f;
                 return pAccel + vMax * (t - accel);
             }
             {
-                float pAccel = 0.5f * vMax * accel;
+                float pAccel = accel * vMax * 0.5f;
                 float pHold = pAccel + vMax * hold;
-                float t2 = t - accel - hold;
-                return pHold + vMax * t2 - vMax * (t2 * t2) / (2f * decel);
+                float b = (t - accel - hold) / decel;
+                return pHold + decel * vMax * (b - b * b * b + 0.5f * b * b * b * b);
             }
         }
 
@@ -1117,6 +1123,9 @@ namespace Wake.UI
         // lobby - same slot-exit -> water-surface -> tail-entrance shape.
         private IEnumerator EnterGameRoutine(int slot, bool continuing)
         {
+            StartCoroutine(DelayedFadeIn(
+                FadeInDelay, RevealDuration - FadeInDelay, Color.white));
+
             ingamePanel = ingamePanel != null
                 ? ingamePanel
                 : GameObject.Find("Canvas")?.transform.Find("Ingame")
@@ -1185,6 +1194,11 @@ namespace Wake.UI
             overlay.SetActive(false);
 
             revealRoutine = null;
+            // ContinueGameInSlot/StartNewGameInSlot deactivate this
+            // controller's own GameObject (via SetActivePanel), which kills
+            // this coroutine immediately after - so FadeOut is fired here
+            // rather than yielded on, and runs to completion on
+            // ScreenFadeTransition's own (still-active) Canvas object.
             if (continuing)
             {
                 UIManager.Instance?.ContinueGameInSlot(slot);
@@ -1193,6 +1207,15 @@ namespace Wake.UI
             {
                 UIManager.Instance?.StartNewGameInSlot(slot);
             }
+
+            ScreenFadeTransition.Ensure()?.FadeOut(0.4f);
+        }
+
+        private static IEnumerator DelayedFadeIn(
+            float delay, float duration, Color color)
+        {
+            yield return new WaitForSecondsRealtime(delay);
+            ScreenFadeTransition.Ensure()?.FadeIn(duration, color);
         }
 
         internal static GameObject Panel(Transform parent, string name, Color color)

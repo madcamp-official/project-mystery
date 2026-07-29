@@ -8,9 +8,12 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class ScreenFadeTransition : MonoBehaviour
     {
+        private static readonly Color DefaultColor = new Color32(3, 8, 18, 255);
+
         private CanvasGroup group;
         private Image blocker;
         private Coroutine transition;
+        private Coroutine fadeRoutine;
 
         public bool IsRunning => transition != null;
 
@@ -33,17 +36,55 @@ namespace Wake.UI
             Action started = null,
             Action completed = null)
         {
-            EnsureOverlay();
             if (transition != null)
                 return false;
 
             started?.Invoke();
-            transition = StartCoroutine(Animate(
+            transition = StartCoroutine(RunSequence(
                 midpoint,
                 fadeOutSeconds,
                 fadeInSeconds,
                 completed));
             return true;
+        }
+
+        // Fades the overlay to fully covering the screen. Callers that
+        // start this in parallel with some other animation (rather than
+        // via Run(...)) are responsible for eventually calling FadeOut.
+        public Coroutine FadeIn(float duration, Color color)
+        {
+            EnsureOverlay();
+            blocker.color = color;
+            blocker.gameObject.SetActive(true);
+            blocker.transform.SetAsLastSibling();
+            group.blocksRaycasts = true;
+            if (fadeRoutine != null)
+                StopCoroutine(fadeRoutine);
+            fadeRoutine = StartCoroutine(Fade(group.alpha, 1f, duration));
+            return fadeRoutine;
+        }
+
+        public Coroutine FadeOut(float duration)
+        {
+            EnsureOverlay();
+            if (fadeRoutine != null)
+                StopCoroutine(fadeRoutine);
+            fadeRoutine = StartCoroutine(FadeOutSequence(duration));
+            return fadeRoutine;
+        }
+
+        private IEnumerator FadeOutSequence(float duration)
+        {
+            // Callers often call this right after synchronous scene/asset
+            // loading, which stalls a frame - Time.unscaledDeltaTime on the
+            // next frame reports that whole stall, so starting the fade
+            // immediately would consume the entire duration in one step.
+            // Waiting a frame first lets that oversized delta land on a
+            // frame we don't animate on.
+            yield return null;
+            yield return Fade(group.alpha, 0f, duration);
+            group.blocksRaycasts = false;
+            blocker.gameObject.SetActive(false);
         }
 
         private void EnsureOverlay()
@@ -65,7 +106,7 @@ namespace Wake.UI
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
             blocker = overlay.GetComponent<Image>();
-            blocker.color = new Color32(3, 8, 18, 255);
+            blocker.color = DefaultColor;
             group = overlay.GetComponent<CanvasGroup>();
             group.alpha = 0f;
             group.interactable = false;
@@ -73,16 +114,13 @@ namespace Wake.UI
             overlay.SetActive(false);
         }
 
-        private IEnumerator Animate(
+        private IEnumerator RunSequence(
             Action midpoint,
             float fadeOutSeconds,
             float fadeInSeconds,
             Action completed)
         {
-            blocker.gameObject.SetActive(true);
-            blocker.transform.SetAsLastSibling();
-            group.blocksRaycasts = true;
-            yield return Fade(0f, 1f, fadeOutSeconds);
+            yield return FadeIn(fadeOutSeconds, DefaultColor);
             try
             {
                 midpoint?.Invoke();
@@ -92,9 +130,7 @@ namespace Wake.UI
                 Debug.LogException(exception);
             }
             blocker.transform.SetAsLastSibling();
-            yield return Fade(1f, 0f, fadeInSeconds);
-            group.blocksRaycasts = false;
-            blocker.gameObject.SetActive(false);
+            yield return FadeOut(fadeInSeconds);
             transition = null;
             completed?.Invoke();
         }
@@ -106,7 +142,11 @@ namespace Wake.UI
             group.alpha = from;
             while (elapsed < safeDuration)
             {
-                elapsed += Time.unscaledDeltaTime;
+                // Clamp so a single frame hitch (e.g. synchronous scene
+                // loading right before this starts) can't consume the
+                // whole fade in one step - the fade may lag briefly after
+                // a hitch, but it never skips frames of animation.
+                elapsed += Mathf.Min(Time.unscaledDeltaTime, 0.1f);
                 group.alpha = Mathf.Lerp(
                     from,
                     to,

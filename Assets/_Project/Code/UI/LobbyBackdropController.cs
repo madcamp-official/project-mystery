@@ -36,6 +36,7 @@ namespace Wake.UI
         private RectTransform bubbleLayer;
         private readonly RectTransform[] bubbles = new RectTransform[BubbleCount];
         private readonly float[] bubbleSpeed = new float[BubbleCount];
+        private readonly float[] bubbleCameraFactor = new float[BubbleCount];
         private readonly float[] bubblePhase = new float[BubbleCount];
         private readonly float[] bubbleBaseX = new float[BubbleCount];
         private float depth;
@@ -161,6 +162,12 @@ namespace Wake.UI
                 image.raycastTarget = false;
                 bubbles[i] = rect;
                 bubbleSpeed[i] = Random.Range(40f, 110f);
+                // Ties each bubble's share of the shared camera-relative
+                // contribution to its own base speed, so faster bubbles
+                // still surge more than slower ones during a fast dive -
+                // without this they'd all move in lockstep once the
+                // camera term dwarfs their individual base speed.
+                bubbleCameraFactor[i] = bubbleSpeed[i] / 75f;
                 bubblePhase[i] = Random.Range(0f, 1f);
                 bubbleBaseX[i] = Random.Range(-1f, 1f);
             }
@@ -192,7 +199,8 @@ namespace Wake.UI
                 {
                     continue;
                 }
-                float effectiveSpeed = bubbleSpeed[i] + cameraContributionPxPerSecond;
+                float effectiveSpeed = bubbleSpeed[i]
+                    + cameraContributionPxPerSecond * bubbleCameraFactor[i];
                 bubblePhase[i] +=
                     effectiveSpeed * Time.unscaledDeltaTime / Mathf.Max(height, 1f);
                 if (bubblePhase[i] > 1f)
