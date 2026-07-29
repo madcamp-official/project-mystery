@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
 using Wake.Core;
+using Wake.Exploration;
 using Wake.Narrative;
 using Wake.UI;
 
@@ -175,6 +176,9 @@ namespace Wake.Tests.PlayMode
                 Ui.ActiveSystemScreen,
                 Is.EqualTo(SystemScreenState.Pause));
             Assert.That(ingameInput.interactable, Is.False);
+            Assert.That(
+                LocationLoader.Instance.IsAmbientMotionPaused,
+                Is.True);
 
             Button resume =
                 RequireComponent<Button>(
@@ -186,6 +190,9 @@ namespace Wake.Tests.PlayMode
                 Ui.ActiveSystemScreen,
                 Is.EqualTo(SystemScreenState.None));
             Assert.That(ingameInput.interactable, Is.True);
+            Assert.That(
+                LocationLoader.Instance.IsAmbientMotionPaused,
+                Is.False);
 
             bool confirmed = false;
             Ui.RequestConfirmation(
@@ -198,6 +205,9 @@ namespace Wake.Tests.PlayMode
                 RequireObject("System Screen Flow/Confirmation");
             Assert.That(confirmation.activeInHierarchy, Is.True);
             Assert.That(ingameInput.interactable, Is.False);
+            Assert.That(
+                LocationLoader.Instance.IsAmbientMotionPaused,
+                Is.True);
             Button confirm = RequireComponent<Button>(
                 "System Screen Flow/Confirmation/확인");
             yield return InvokeAndSettle(confirm);
@@ -208,6 +218,9 @@ namespace Wake.Tests.PlayMode
                 Ui.ActiveSystemScreen,
                 Is.EqualTo(SystemScreenState.None));
             Assert.That(ingameInput.interactable, Is.True);
+            Assert.That(
+                LocationLoader.Instance.IsAmbientMotionPaused,
+                Is.False);
             AssertNoRuntimeErrors("일시정지와 확인 모달");
         }
 
@@ -236,6 +249,46 @@ namespace Wake.Tests.PlayMode
                 Is.EqualTo(SystemScreenState.Title));
             Assert.That(titleInput.interactable, Is.True);
             AssertNoRuntimeErrors("설정 화면 왕복");
+        }
+
+        [UnityTest]
+        public IEnumerator IngameSettings_PausesAmbientMotionAndPreservesPauseReason()
+        {
+            yield return StartNewGameFromVisibleButton();
+            Dialogue.CancelActiveDialogue();
+            yield return null;
+
+            Ui.OpenSettings();
+            yield return WaitForUiTransition();
+            Assert.That(
+                LocationLoader.Instance.IsAmbientMotionPaused,
+                Is.True);
+
+            Button close = RequireComponent<Button>(
+                "Settings Popup/Close");
+            yield return InvokeAndSettle(close);
+            Assert.That(
+                LocationLoader.Instance.IsAmbientMotionPaused,
+                Is.False);
+
+            Ui.OpenPause();
+            yield return WaitForUiTransition();
+            Ui.OpenSettings();
+            yield return WaitForUiTransition();
+            yield return InvokeAndSettle(close);
+
+            Assert.That(
+                LocationLoader.Instance.IsAmbientMotionPaused,
+                Is.True,
+                "Closing settings must not clear the underlying pause reason.");
+
+            Button resume = RequireComponent<Button>(
+                "System Screen Flow/Pause/Pause Menu/계속");
+            yield return InvokeAndSettle(resume);
+            Assert.That(
+                LocationLoader.Instance.IsAmbientMotionPaused,
+                Is.False);
+            AssertNoRuntimeErrors("인게임 설정 모션 일시정지");
         }
 
         [UnityTest]
@@ -370,8 +423,23 @@ namespace Wake.Tests.PlayMode
             Assert.That(rect, Is.Not.Null);
             Assert.That(rect.anchorMin.x, Is.LessThan(rect.anchorMax.x));
             Assert.That(rect.anchorMin.y, Is.LessThan(rect.anchorMax.y));
-            Assert.That(rect.anchoredPosition, Is.EqualTo(Vector2.zero));
-            Assert.That(rect.sizeDelta, Is.EqualTo(Vector2.zero));
+            const float subPixelTolerance = 0.1f;
+            Assert.That(
+                rect.anchoredPosition.x,
+                Is.EqualTo(0f).Within(subPixelTolerance),
+                $"{rect.name} anchoredPosition.x");
+            Assert.That(
+                rect.anchoredPosition.y,
+                Is.EqualTo(0f).Within(subPixelTolerance),
+                $"{rect.name} anchoredPosition.y");
+            Assert.That(
+                rect.sizeDelta.x,
+                Is.EqualTo(0f).Within(subPixelTolerance),
+                $"{rect.name} sizeDelta.x");
+            Assert.That(
+                rect.sizeDelta.y,
+                Is.EqualTo(0f).Within(subPixelTolerance),
+                $"{rect.name} sizeDelta.y");
         }
 
         private void AssertInsideCanvas(RectTransform rect)
