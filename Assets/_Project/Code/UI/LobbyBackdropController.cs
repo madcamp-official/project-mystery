@@ -18,13 +18,15 @@ namespace Wake.UI
         private static readonly Color DeepTop = new(0.02f, 0.06f, 0.11f, 1f);
         private static readonly Color DeepBottom = new(0.003f, 0.01f, 0.02f, 1f);
 
-        // How strongly the water dive's speed (depth changing quickly)
-        // speeds up the bubbles, and how fast that boost decays back to 1x
-        // once the dive stops updating depth (SetDepth simply isn't called
-        // between dives, so without decay the last dive's boost would be
-        // stuck forever).
-        private const float DepthVelocityToBubbleSpeedScale = 8f;
-        private const float MaxBubbleSpeedMultiplier = 5f;
+        // Bubbles rise relative to the water, not relative to the screen -
+        // the camera's own vertical motion adds on top. Diving (camera
+        // descending, depth increasing) adds to the bubbles' rise speed;
+        // surfacing (camera ascending, depth decreasing) subtracts from it,
+        // and if the camera rises faster than a bubble's own speed the
+        // bubble should visibly sink relative to the screen (negative
+        // effective speed), not just slow down.
+        private const float DepthVelocityToPixelsPerSecond = 220f;
+        private const float MaxCameraContributionPxPerSecond = 260f;
         private const float BubbleSpeedDecayPerSecond = 4f;
 
         private static Sprite softDotSprite;
@@ -55,7 +57,9 @@ namespace Wake.UI
                 float dt = now - lastDepthSampleTime;
                 if (dt > 0f)
                 {
-                    depthVelocity = Mathf.Abs(next - depth) / dt;
+                    // Signed: positive while diving (depth increasing),
+                    // negative while surfacing (depth decreasing).
+                    depthVelocity = (next - depth) / dt;
                 }
             }
             hasDepthSample = true;
@@ -177,10 +181,10 @@ namespace Wake.UI
             float width = layerRect.width;
             depthVelocity = Mathf.MoveTowards(
                 depthVelocity, 0f, BubbleSpeedDecayPerSecond * Time.unscaledDeltaTime);
-            float speedMultiplier = Mathf.Clamp(
-                1f + depthVelocity * DepthVelocityToBubbleSpeedScale,
-                1f,
-                MaxBubbleSpeedMultiplier);
+            float cameraContributionPxPerSecond = Mathf.Clamp(
+                depthVelocity * DepthVelocityToPixelsPerSecond,
+                -MaxCameraContributionPxPerSecond,
+                MaxCameraContributionPxPerSecond);
             for (int i = 0; i < bubbles.Length; i++)
             {
                 RectTransform rect = bubbles[i];
@@ -188,12 +192,17 @@ namespace Wake.UI
                 {
                     continue;
                 }
+                float effectiveSpeed = bubbleSpeed[i] + cameraContributionPxPerSecond;
                 bubblePhase[i] +=
-                    bubbleSpeed[i] * speedMultiplier * Time.unscaledDeltaTime /
-                    Mathf.Max(height, 1f);
+                    effectiveSpeed * Time.unscaledDeltaTime / Mathf.Max(height, 1f);
                 if (bubblePhase[i] > 1f)
                 {
                     bubblePhase[i] -= 1f;
+                    bubbleBaseX[i] = Random.Range(-1f, 1f);
+                }
+                else if (bubblePhase[i] < 0f)
+                {
+                    bubblePhase[i] += 1f;
                     bubbleBaseX[i] = Random.Range(-1f, 1f);
                 }
                 float y = bubblePhase[i] * height;
