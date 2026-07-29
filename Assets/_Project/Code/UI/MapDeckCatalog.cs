@@ -161,7 +161,13 @@ namespace Wake.UI
             int deck,
             MapLayerMode mode)
         {
-            if (deck <= 0)
+            if (deck == 0)
+            {
+                return mode == MapLayerMode.Passenger
+                    ? "Maps/DeckLayers/Port_Base"
+                    : string.Empty;
+            }
+            if (deck < 0)
                 return string.Empty;
 
             string suffix = mode switch

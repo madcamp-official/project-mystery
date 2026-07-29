@@ -77,6 +77,10 @@
 7. 경유 전용 지도 제한이 공식 스토리 장면 진입을 막지 않는다.
 8. 수사·설비 레이어가 정해진 완료 시점보다 먼저 열리지 않는다.
 
+귀빈 라운지는 공식 장면·목표·증거를 직접 시작하지 않는 주변 대사 중심의 공용 장소이므로,
+승선 완료 뒤 자유 이동 예외로 개방한다. 그 외 미래 장면 목적지는 장면 해금과 선행 조건을
+따르며, 공식 장면이 없는 기술 구역은 경유 전용 상태를 유지한다.
+
 관련 회귀 테스트는
 `Assets/_Project/Tests/EditMode/MapStoryIntegrationTests.cs`,
 `ScenePresenceCatalogTests.cs`, `SceneTravelPolicyTests.cs`에 있다.
@@ -90,3 +94,8 @@
 지도 PNG는 Unity에서 단일 Sprite, 밉맵 비활성화, 알파 투명도 사용, Clamp
 래핑으로 가져온다. 임포트 규칙은
 `Assets/_Project/Editor/MapLayerAssetImporter.cs`에 있다.
+
+항구 탭의 기본 레이어는
+`Assets/_Project/Resources/Maps/DeckLayers/Port_Base.png`를 사용한다.
+항구와 승선 통로 노드는 다른 층과 동일하게 이미지 위 UI 노드로 표시하며,
+항구에는 조사·설비 오버레이를 별도로 두지 않는다.

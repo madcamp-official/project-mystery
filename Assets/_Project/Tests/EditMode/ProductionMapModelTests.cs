@@ -127,6 +127,25 @@ namespace Wake.Tests
                 afterBoarding.Entries.Single(
                     entry => entry.Spec.Code == "LAUNDRY").Status,
                 Is.EqualTo(ProductionMapEntryStatus.Locked));
+            Assert.That(
+                afterBoarding.Entries.Single(
+                    entry => entry.Spec.Code == "VIP_LOUNGE").Status,
+                Is.EqualTo(ProductionMapEntryStatus.LocationOnly));
+            foreach (string futureStoryLocation in new[]
+                     {
+                         "HORIZON",
+                         "OPEN_DECK",
+                         "BRIDGE",
+                         "CABIN_CLAIRE"
+                     })
+            {
+                Assert.That(
+                    afterBoarding.Entries.Single(
+                        entry =>
+                            entry.Spec.Code == futureStoryLocation).Status,
+                    Is.EqualTo(ProductionMapEntryStatus.Locked),
+                    futureStoryLocation);
+            }
         }
 
         [Test]

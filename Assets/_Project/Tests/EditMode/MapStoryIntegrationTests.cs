@@ -94,6 +94,28 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void VipLounge_IsTheOnlySceneLessFastTravelException()
+        {
+            string[] storyLocationCodes = ProductionSceneCatalog.All
+                .Select(scene =>
+                    CanonicalLocationCatalog.FindSpec(
+                        scene.NarrativeLocationCode)?.Code)
+                .Where(code => !string.IsNullOrWhiteSpace(code))
+                .Distinct()
+                .ToArray();
+            string[] sceneLessFastTravel = MapDeckCatalog.All
+                .Where(placement =>
+                    placement.TravelTier != MapTravelTier.RouteOnly &&
+                    !storyLocationCodes.Contains(placement.LocationCode))
+                .Select(placement => placement.LocationCode)
+                .ToArray();
+
+            Assert.That(
+                sceneLessFastTravel,
+                Is.EquivalentTo(new[] { "VIP_LOUNGE" }));
+        }
+
+        [Test]
         public void DeckLayerAssets_AreCompleteAndImportedAsSprites()
         {
             foreach (int deck in new[] { 6, 7, 8, 9, 10 })
@@ -109,6 +131,27 @@ namespace Wake.Tests
                         path);
                 }
             }
+        }
+
+        [Test]
+        public void PortPassengerLayer_IsImportedAndConnected()
+        {
+            const string path =
+                LayerRoot + "/Port_Base.png";
+            Assert.That(
+                MapDeckCatalog.ResourceKey(
+                    0,
+                    MapLayerMode.Passenger),
+                Is.EqualTo("Maps/DeckLayers/Port_Base"));
+            Assert.That(
+                AssetDatabase.LoadAssetAtPath<UnityEngine.Sprite>(path),
+                Is.Not.Null,
+                path);
+            Assert.That(
+                MapDeckCatalog.ResourceKey(
+                    0,
+                    MapLayerMode.Investigation),
+                Is.Empty);
         }
 
         [Test]
