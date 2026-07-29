@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LocationDefinition_BALLROOM
   m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
   locationCode: BALLROOM
-  displayName: Ballroom
+  displayName: 볼룸
   deck: 9
   roomCode: D9-1
   backgroundSprite: {fileID: 21300000, guid: bce3df1dc39103e4ca8e0e960f62ed6b, type: 3}

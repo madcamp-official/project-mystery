@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LocationDefinition_VAULT
   m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
   locationCode: VAULT
-  displayName: Vault
+  displayName: 금고실
   deck: 6
   roomCode: D6-1
   backgroundSprite: {fileID: 21300000, guid: ecd3c952693f65145be0b0f93bab4be1, type: 3}

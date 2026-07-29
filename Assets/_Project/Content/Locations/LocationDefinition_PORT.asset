@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LocationDefinition_PORT
   m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
   locationCode: PORT
-  displayName: Port
+  displayName: 항구
   deck: 0
   roomCode:
   backgroundSprite: {fileID: 21300000, guid: fd85cdd6e6e64585af8ae2d616ecab6e, type: 3}

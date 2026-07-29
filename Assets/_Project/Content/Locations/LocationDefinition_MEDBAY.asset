@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LocationDefinition_MEDBAY
   m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
   locationCode: MEDBAY
-  displayName: Medbay
+  displayName: 의무실
   deck: 7
   roomCode: D7-1
   backgroundSprite: {fileID: 21300000, guid: b556c7c28b094d4b8d664e0539bd22bb, type: 3}

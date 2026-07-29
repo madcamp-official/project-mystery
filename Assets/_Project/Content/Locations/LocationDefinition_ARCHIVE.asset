@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LocationDefinition_ARCHIVE
   m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
   locationCode: ARCHIVE
-  displayName: Archive
+  displayName: 기록 보관실
   deck: 6
   roomCode: D6-2
   backgroundSprite: {fileID: 21300000, guid: 4039632bf8832b343b76634a9388f234, type: 3}

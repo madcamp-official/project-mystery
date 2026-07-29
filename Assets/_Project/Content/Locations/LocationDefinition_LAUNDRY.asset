@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LocationDefinition_LAUNDRY
   m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
   locationCode: LAUNDRY
-  displayName: Laundry
+  displayName: 세탁실
   deck: 6
   roomCode: D6-3
   backgroundSprite: {fileID: 21300000, guid: eef7d6aea54d2e849b29ca2e9f911c58, type: 3}

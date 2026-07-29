@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LocationDefinition_CREW_STAIRS
   m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
   locationCode: CREW_STAIRS
-  displayName: Crew Stairs
+  displayName: 승무원 계단
   deck: 7
   roomCode: D7-4
   backgroundSprite: {fileID: 21300000, guid: 7c3f3813118ed5549bf381fdab31d377, type: 3}
