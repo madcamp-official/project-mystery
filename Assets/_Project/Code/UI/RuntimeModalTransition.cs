@@ -34,19 +34,19 @@ namespace Wake.UI
                 return;
             }
 
-            void Deactivate()
-            {
-                root.SetActive(false);
-                deactivated?.Invoke();
-            }
+            void Deactivate() => root.SetActive(false);
 
             UIManager manager = UIManager.Instance;
             if (manager == null)
             {
                 Deactivate();
+                deactivated?.Invoke();
                 return;
             }
-            manager.CloseRuntimeModalAnimated(root, Deactivate);
+            manager.CloseRuntimeModalAnimated(
+                root,
+                Deactivate,
+                deactivated);
         }
     }
 }

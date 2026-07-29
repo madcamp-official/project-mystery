@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -427,6 +428,15 @@ namespace Wake.UI
             SetActivePanel(ingamePanel, UiPrimaryPanel.Ingame);
         }
 
+        internal void ShowIngameAfterTransition(Action completed)
+        {
+            SetActivePanel(
+                ingamePanel,
+                UiPrimaryPanel.Ingame,
+                null,
+                completed);
+        }
+
         public bool ResumePendingInteraction(
             ProductionDialogueCheckpoint checkpoint)
         {
@@ -508,6 +518,15 @@ namespace Wake.UI
                 evidencePanel,
                 UiPrimaryPanel.Evidence,
                 () => EvidencePanelController.Instance?.Refresh(evidenceId));
+        }
+
+        internal void ShowEvidenceAfterTransition(Action completed)
+        {
+            SetActivePanel(
+                evidencePanel,
+                UiPrimaryPanel.Evidence,
+                () => EvidencePanelController.Instance?.Refresh(),
+                completed);
         }
 
         public void OpenSettings()
@@ -719,7 +738,8 @@ namespace Wake.UI
         private void SetActivePanel(
             GameObject panel,
             UiPrimaryPanel panelKind,
-            Action activated = null)
+            Action activated = null,
+            Action completed = null)
         {
             if (!IsInitialized || panel == null)
             {
@@ -758,18 +778,25 @@ namespace Wake.UI
             if (outgoing == panel || hasDedicatedTransition)
             {
                 SwapPanels();
+                completed?.Invoke();
                 return;
             }
 
             SetPrimaryInteraction(false);
+            void CompleteTransition()
+            {
+                SetPrimaryInteraction(true);
+                completed?.Invoke();
+            }
             if (screenTransitions == null ||
                 !screenTransitions.Run(
                     outgoing,
                     panel,
                     SwapPanels,
-                    () => SetPrimaryInteraction(true)))
+                    CompleteTransition))
             {
                 SwapPanels();
+                CompleteTransition();
             }
         }
 
@@ -852,11 +879,24 @@ namespace Wake.UI
 
         internal void CloseRuntimeModalAnimated(
             GameObject modal,
-            Action deactivate)
+            Action deactivate,
+            Action completed)
         {
             if (modal == null)
             {
-                deactivate?.Invoke();
+                completed?.Invoke();
+                return;
+            }
+
+            if (!suppressRuntimeModalAnimations &&
+                screenTransitions != null &&
+                screenTransitions.IsTransitioning)
+            {
+                StartCoroutine(
+                    CloseRuntimeModalWhenTransitionReady(
+                        modal,
+                        deactivate,
+                        completed));
                 return;
             }
 
@@ -864,11 +904,11 @@ namespace Wake.UI
             {
                 statusHud?.SetActive(false);
                 SetPrimaryInteraction(true);
+                completed?.Invoke();
             }
 
             if (suppressRuntimeModalAnimations ||
                 screenTransitions == null ||
-                screenTransitions.IsTransitioning ||
                 !screenTransitions.Run(
                     modal,
                     null,
@@ -880,6 +920,19 @@ namespace Wake.UI
                 if (!suppressRuntimeModalAnimations)
                     RestoreInteraction();
             }
+        }
+
+        private IEnumerator CloseRuntimeModalWhenTransitionReady(
+            GameObject modal,
+            Action deactivate,
+            Action completed)
+        {
+            while (screenTransitions != null &&
+                   screenTransitions.IsTransitioning)
+            {
+                yield return null;
+            }
+            CloseRuntimeModalAnimated(modal, deactivate, completed);
         }
 
         private void SetPrimaryInteraction(bool enabled)

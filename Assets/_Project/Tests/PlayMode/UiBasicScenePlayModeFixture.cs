@@ -184,6 +184,9 @@ namespace Wake.Tests.PlayMode
 
         protected IEnumerator WaitForUiTransition(float timeout = 2f)
         {
+            // Coordinator state is set by its coroutine on the next frame.
+            // Give direct Open/Show calls one frame to begin before polling it.
+            yield return null;
             float transitionDeadline =
                 Time.realtimeSinceStartup + timeout;
             while (UIManager.Instance != null &&
@@ -197,6 +200,8 @@ namespace Wake.Tests.PlayMode
                 UIManager.Instance.IsTransitioning,
                 Is.False,
                 "UI 전환이 제한 시간 안에 완료되지 않았습니다.");
+            yield return null;
+            UnityEngine.Canvas.ForceUpdateCanvases();
         }
 
         protected IEnumerator StartPreparedProductionSceneFromFocusCharacter(

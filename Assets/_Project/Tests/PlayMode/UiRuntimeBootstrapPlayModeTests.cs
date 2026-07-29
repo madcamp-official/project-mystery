@@ -89,7 +89,7 @@ namespace Wake.Tests.PlayMode
                 Is.True);
 
             Ui.ShowEvidence();
-            yield return null;
+            yield return WaitForUiTransition();
 
             TMP_Text title =
                 RequireComponent<TMP_Text>("Evidence/Text (TMP)");
@@ -258,7 +258,7 @@ namespace Wake.Tests.PlayMode
                 Is.True);
 
             Ui.ShowMap();
-            yield return null;
+            yield return WaitForUiTransition();
 
             Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Map));
             Assert.That(
@@ -284,7 +284,7 @@ namespace Wake.Tests.PlayMode
                 Is.True);
 
             Ui.ShowIngame();
-            yield return null;
+            yield return WaitForUiTransition();
             Assert.That(
                 LocationLoader.Instance.IsPresentationVisible,
                 Is.True);
@@ -523,7 +523,7 @@ namespace Wake.Tests.PlayMode
             float originalSfx = audio.SfxVolume;
 
             Ui.OpenSettings();
-            yield return null;
+            yield return WaitForUiTransition();
             Slider music = RequireComponent<Slider>(
                 "Settings Popup/Settings/Sound");
             Slider sfx = RequireComponent<Slider>(
@@ -542,8 +542,19 @@ namespace Wake.Tests.PlayMode
 
             Assert.That(audio.MusicVolume, Is.EqualTo(0.31f).Within(0.001f));
             Assert.That(audio.SfxVolume, Is.EqualTo(0.47f).Within(0.001f));
+            float activeMusicVolume = new[]
+                {
+                    GameObject.Find("MusicSource")
+                        ?.GetComponent<AudioSource>(),
+                    GameObject.Find("Music A")
+                        ?.GetComponent<AudioSource>(),
+                    GameObject.Find("Music B")
+                        ?.GetComponent<AudioSource>()
+                }
+                .Where(source => source != null)
+                .Max(source => source.volume);
             Assert.That(
-                GameObject.Find("MusicSource").GetComponent<AudioSource>().volume,
+                activeMusicVolume,
                 Is.EqualTo(0.31f).Within(0.001f));
             Assert.That(
                 GameObject.Find("SfxSource").GetComponent<AudioSource>().volume,
@@ -593,7 +604,7 @@ namespace Wake.Tests.PlayMode
                 RequireObject("Ingame")
                     .GetComponent<FinalAccusationUIController>();
             accusation.Open();
-            yield return null;
+            yield return WaitForUiTransition();
 
             Assert.That(
                 RequireObject("Ingame/Final Accusation").activeSelf,
@@ -634,7 +645,7 @@ namespace Wake.Tests.PlayMode
                 RequireObject("Ingame")
                     .GetComponent<FinalAccusationUIController>();
             accusation.Open();
-            yield return null;
+            yield return WaitForUiTransition();
 
             Assert.That(
                 RequireComponent<Button>(
@@ -734,13 +745,14 @@ namespace Wake.Tests.PlayMode
         {
             yield return StartNewGameFromVisibleButton();
             Ui.ShowEvidence();
+            yield return WaitForUiTransition();
             Assert.That(Ui.OpenRuntimeModalCount, Is.Zero);
             yield return InvokeAndSettle(
                 RequireComponent<Button>("Evidence/Turn (2)"));
             Assert.That(Ui.OpenRuntimeModalCount, Is.EqualTo(1));
 
             Ui.OpenSettings();
-            yield return null;
+            yield return WaitForUiTransition();
             Assert.That(Ui.IsSettingsOpen, Is.True);
             Assert.That(Ui.OpenRuntimeModalCount, Is.Zero);
             Assert.That(

@@ -593,7 +593,7 @@ namespace Wake.UI
             submitButton = CreateButton("최종 논증 제출", Submit);
             theoryBoardButton =
                 CreateButton("증거 보드 열기", OpenTheoryBoard);
-            CreateButton("닫기", () => panel.SetActive(false));
+            CreateButton("닫기", Close);
             panel.SetActive(false);
         }
 
@@ -615,39 +615,58 @@ namespace Wake.UI
 
         private void OpenTheoryBoard()
         {
-            panel.SetActive(false);
-            UIManager.Instance?.ShowEvidence();
             EvidenceTheoryBoardController board =
-                FindFirstObjectByType<EvidenceTheoryBoardController>();
+                FindFirstObjectByType<EvidenceTheoryBoardController>(
+                    FindObjectsInactive.Include);
             if (board == null)
             {
-                UIManager.Instance?.ShowIngame();
-                panel.SetActive(true);
                 feedback.text = "증거 보드를 열 수 없습니다.";
                 return;
             }
 
             board.Closed -= ReturnFromTheoryBoard;
             board.Closed += ReturnFromTheoryBoard;
-            if (!board.Open())
+            UIManager manager = UIManager.Instance;
+            if (manager == null)
             {
                 board.Closed -= ReturnFromTheoryBoard;
-                UIManager.Instance?.ShowIngame();
                 panel.SetActive(true);
                 feedback.text = "증거 보드를 열 수 없습니다.";
+                return;
             }
+            RuntimeModalTransition.Close(
+                panel,
+                () =>
+                {
+                    manager.ShowEvidenceAfterTransition(
+                        () =>
+                        {
+                            if (board.Open())
+                                return;
+                            board.Closed -= ReturnFromTheoryBoard;
+                            manager.ShowIngameAfterTransition(
+                                () =>
+                                {
+                                    panel.SetActive(true);
+                                    feedback.text =
+                                        "증거 보드를 열 수 없습니다.";
+                                });
+                        });
+                });
         }
 
         private void ReturnFromTheoryBoard()
         {
             EvidenceTheoryBoardController board =
-                FindFirstObjectByType<EvidenceTheoryBoardController>();
+                FindFirstObjectByType<EvidenceTheoryBoardController>(
+                    FindObjectsInactive.Include);
             if (board != null)
             {
                 board.Closed -= ReturnFromTheoryBoard;
             }
-            UIManager.Instance?.ShowIngame();
-            Open();
+            UIManager manager = UIManager.Instance;
+            if (manager != null)
+                manager.ShowIngameAfterTransition(Open);
         }
 
         private void ApplySavedValues()

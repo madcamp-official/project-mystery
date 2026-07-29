@@ -53,6 +53,7 @@ namespace Wake.UI
             group.blocksRaycasts = false;
             group.interactable = false;
             image.gameObject.SetActive(false);
+            image.transform.SetAsFirstSibling();
         }
 
         private bool EnsureCover()
