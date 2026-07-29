@@ -216,6 +216,10 @@ namespace Wake.UI
         {
             SetEvidenceContent(false);
             characters?.SetActive(true);
+            // The characters panel's bounds overlap the evidence root's
+            // Back Btn (bottom-left corner on both), so without this the
+            // opaque panel renders over it and swallows its clicks.
+            transform.Find("Back Btn")?.SetAsLastSibling();
         }
 
         private void SetEvidenceContent(bool visible)
