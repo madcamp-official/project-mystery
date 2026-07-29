@@ -1,7 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Wake.UI;
 
@@ -14,8 +16,13 @@ namespace Wake.Evidence
         private const float ItemSpacing = 330f;
         private const float SelectedScale = 1.08f;
 
+        private const float SnapDuration = .28f;
+
         private readonly List<GameObject> spawnedItems = new();
         private Transform carouselContainer;
+        private RectTransform carouselContent;
+        private ScrollRect carouselScroll;
+        private Coroutine snapRoutine;
         private GameObject itemTemplate;
         private Image detailImage;
         private TMP_Text titleText;
@@ -125,6 +132,56 @@ namespace Wake.Evidence
             {
                 DestroyImmediate(grid);
             }
+
+            Transform existingContent = carouselContainer.Find("Content");
+            GameObject contentObject = existingContent != null
+                ? existingContent.gameObject
+                : new GameObject("Content", typeof(RectTransform));
+            carouselContent = contentObject.GetComponent<RectTransform>();
+            carouselContent.SetParent(carouselContainer, false);
+            carouselContent.anchorMin = new Vector2(.5f, 0f);
+            carouselContent.anchorMax = new Vector2(.5f, 1f);
+            carouselContent.pivot = new Vector2(.5f, .5f);
+            carouselContent.anchoredPosition = Vector2.zero;
+
+            carouselScroll =
+                carouselContainer.GetComponent<ScrollRect>() ??
+                carouselContainer.gameObject.AddComponent<ScrollRect>();
+            carouselScroll.content = carouselContent;
+            carouselScroll.horizontal = true;
+            carouselScroll.vertical = false;
+            // Unrestricted, not Elastic - SnapRoutine already owns settling
+            // content on a released item, and Elastic's own bounds
+            // correction (based on content/viewport rects it computes
+            // itself, unrelated to this carousel's index*ItemSpacing
+            // layout) fights that the instant the ScrollRect is
+            // re-enabled, landing off the intended snap target.
+            carouselScroll.movementType = ScrollRect.MovementType.Unrestricted;
+            carouselScroll.inertia = true;
+            carouselScroll.decelerationRate = .1f;
+            carouselScroll.onValueChanged.RemoveListener(OnCarouselScrolled);
+            carouselScroll.onValueChanged.AddListener(OnCarouselScrolled);
+
+            EvidenceCarouselDragEndRelay relay =
+                carouselContainer.GetComponent<EvidenceCarouselDragEndRelay>() ??
+                carouselContainer.gameObject
+                    .AddComponent<EvidenceCarouselDragEndRelay>();
+            relay.DragEnded = SnapToSelected;
+        }
+
+        // ScrollRect only exposes drag begin/end through its own
+        // IBeginDragHandler/IEndDragHandler implementation, so a sibling
+        // component is the only way for this controller to learn a drag
+        // just ended and it's time to snap the released item to center.
+        private sealed class EvidenceCarouselDragEndRelay :
+            MonoBehaviour, IEndDragHandler
+        {
+            public Action DragEnded;
+
+            public void OnEndDrag(PointerEventData eventData)
+            {
+                DragEnded?.Invoke();
+            }
         }
 
         private bool BindAuthoredDetail()
@@ -217,6 +274,11 @@ namespace Wake.Evidence
             turnLeftButton.onClick.AddListener(() => Rotate(-1));
             turnRightButton.onClick.AddListener(() => Rotate(1));
             theoryBoardButton.onClick.AddListener(OpenTheoryBoard);
+
+            // Records are browsed by dragging the carousel to center the
+            // one you want instead - see OnCarouselScrolled/SnapToSelected.
+            nextButton.gameObject.SetActive(false);
+            prevButton.gameObject.SetActive(false);
         }
 
         private Button RequireButton(string name)
@@ -315,7 +377,7 @@ namespace Wake.Evidence
             for (int index = 0; index < viewModel.Items.Count; index++)
             {
                 GameObject instance =
-                    Instantiate(itemTemplate, carouselContainer);
+                    Instantiate(itemTemplate, carouselContent);
                 instance.SetActive(true);
                 TMP_Text label = instance.GetComponentInChildren<TMP_Text>();
                 if (label != null)
@@ -339,7 +401,7 @@ namespace Wake.Evidence
                     () => SelectIndex(capturedIndex));
                 spawnedItems.Add(instance);
             }
-            PositionCarouselItems();
+            LayoutCarouselItems();
         }
 
         private static void ConfigureCarouselLabel(TMP_Text label)
@@ -379,7 +441,44 @@ namespace Wake.Evidence
             };
         }
 
-        private void PositionCarouselItems()
+        // Item positions are now fixed (index * ItemSpacing) instead of
+        // relative to selectedIndex - the carousel's Content moves under
+        // drag/snap instead of every item repositioning each selection.
+        private void LayoutCarouselItems()
+        {
+            for (int index = 0; index < spawnedItems.Count; index++)
+            {
+                RectTransform rect =
+                    spawnedItems[index].GetComponent<RectTransform>();
+                rect.anchorMin = rect.anchorMax =
+                    rect.pivot = new Vector2(0.5f, 0.5f);
+                rect.anchoredPosition = new Vector2(index * ItemSpacing, 0f);
+            }
+            if (carouselContent != null)
+            {
+                carouselContent.sizeDelta = new Vector2(
+                    Mathf.Max(0, spawnedItems.Count - 1) * ItemSpacing, 0f);
+            }
+            UpdateItemHighlighting();
+            SnapContentImmediate();
+        }
+
+        private void SnapContentImmediate()
+        {
+            if (carouselContent == null)
+            {
+                return;
+            }
+            if (snapRoutine != null)
+            {
+                StopCoroutine(snapRoutine);
+                snapRoutine = null;
+            }
+            carouselContent.anchoredPosition =
+                new Vector2(-selectedIndex * ItemSpacing, 0f);
+        }
+
+        private void UpdateItemHighlighting()
         {
             Sprite normalSprite =
                 itemTemplate.GetComponent<Image>()?.sprite;
@@ -390,10 +489,6 @@ namespace Wake.Evidence
             {
                 RectTransform rect =
                     spawnedItems[index].GetComponent<RectTransform>();
-                rect.anchorMin = rect.anchorMax =
-                    rect.pivot = new Vector2(0.5f, 0.5f);
-                rect.anchoredPosition =
-                    new Vector2((index - selectedIndex) * ItemSpacing, 0f);
                 rect.localScale = Vector3.one *
                     (index == selectedIndex ? SelectedScale : 1f);
                 Image image = spawnedItems[index].GetComponent<Image>();
@@ -422,6 +517,64 @@ namespace Wake.Evidence
             }
         }
 
+        // Fires continuously while the carousel is being dragged (or
+        // coasting on inertia) so the detail view updates live as a
+        // different record nears center, not just once the drag ends.
+        private void OnCarouselScrolled(Vector2 _)
+        {
+            if (viewModel.Items.Count == 0 || carouselContent == null)
+            {
+                return;
+            }
+            int nearest = Mathf.Clamp(
+                Mathf.RoundToInt(
+                    -carouselContent.anchoredPosition.x / ItemSpacing),
+                0,
+                viewModel.Items.Count - 1);
+            if (nearest == selectedIndex)
+            {
+                return;
+            }
+            selectedIndex = nearest;
+            currentViewIndex = 0;
+            UpdateItemHighlighting();
+            ApplySelection();
+        }
+
+        private void SnapToSelected()
+        {
+            if (carouselContent == null || carouselScroll == null)
+            {
+                return;
+            }
+            if (snapRoutine != null)
+            {
+                StopCoroutine(snapRoutine);
+            }
+            snapRoutine = StartCoroutine(
+                SnapRoutine(-selectedIndex * ItemSpacing));
+        }
+
+        private IEnumerator SnapRoutine(float targetX)
+        {
+            carouselScroll.StopMovement();
+            carouselScroll.enabled = false;
+            float startX = carouselContent.anchoredPosition.x;
+            float elapsed = 0f;
+            while (elapsed < SnapDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = 1f - Mathf.Pow(
+                    1f - Mathf.Clamp01(elapsed / SnapDuration), 3f);
+                carouselContent.anchoredPosition = new Vector2(
+                    Mathf.LerpUnclamped(startX, targetX, t), 0f);
+                yield return null;
+            }
+            carouselContent.anchoredPosition = new Vector2(targetX, 0f);
+            carouselScroll.enabled = true;
+            snapRoutine = null;
+        }
+
         private void Advance(int delta)
         {
             if (viewModel.Items.Count > 0)
@@ -444,7 +597,8 @@ namespace Wake.Evidence
                 0,
                 viewModel.Items.Count - 1);
             currentViewIndex = 0;
-            PositionCarouselItems();
+            UpdateItemHighlighting();
+            SnapToSelected();
             ApplySelection();
         }
 
@@ -477,9 +631,6 @@ namespace Wake.Evidence
                 }
             }
 
-            prevButton.interactable = selectedIndex > 0;
-            nextButton.interactable =
-                selectedIndex < viewModel.Items.Count - 1;
             EvidenceDefinition evidence = selected?.Definition;
             bool hasMultipleViews = GetUsableViews(evidence).Count > 1;
             turnLeftButton.gameObject.SetActive(hasMultipleViews);

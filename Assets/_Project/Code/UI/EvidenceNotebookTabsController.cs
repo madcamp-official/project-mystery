@@ -10,24 +10,30 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class EvidenceNotebookTabsController : MonoBehaviour
     {
+        // "Next"/"Next (1)" (prev/next record) are deliberately excluded -
+        // EvidencePanelController hides them permanently now that records
+        // are browsed by scrolling the carousel, and this list's blanket
+        // SetActive(true) on every tab switch would otherwise undo that.
         private static readonly string[] EvidenceContentNames =
         {
             "Evidences", "Image", "Text (TMP)", "Description",
             "Description Viewport", "Acquisition Place",
             "Related People", "Reliability",
-            "Next", "Next (1)", "Turn", "Turn (1)", "Turn (2)"
+            "Turn", "Turn (1)", "Turn (2)"
         };
 
         private GameObject tabs;
         private GameObject characters;
         private GameObject characterList;
         private GameObject characterDetail;
+        private RectTransform characterCardsContent;
         private RawImage detailPortrait;
         private TMP_Text detailName;
         private TMP_Text detailRole;
         private TMP_Text detailTrust;
         private TMP_Text detailSummary;
         private TMP_Text detailNote;
+        private TMP_Text detailUnknownMark;
         private bool built;
 
         private void Start()
@@ -120,6 +126,7 @@ namespace Wake.UI
                 content = viewport?.Find("Content") as RectTransform;
                 if (content != null && content.childCount > 0)
                 {
+                    characterCardsContent = content;
                     int existingVisibleCount = 0;
                     foreach (DialoguePortraitDefinition person in
                              DialoguePortraitCatalog.All)
@@ -127,7 +134,7 @@ namespace Wake.UI
                         if (!person.UsesExpressionSprites ||
                             !CharacterRelationshipProfileCatalog.TryGet(
                                 person.CharacterId,
-                                out _))
+                                out CharacterRelationshipProfile profile))
                         {
                             continue;
                         }
@@ -139,13 +146,17 @@ namespace Wake.UI
                             WirePersonCard(
                                 existingCard.gameObject,
                                 person);
+                            ApplyPortraitDiscoveryState(
+                                existingCard.gameObject,
+                                profile);
                         }
                         else
                         {
                             CreatePersonCard(
                                 content,
                                 person,
-                                existingVisibleCount);
+                                existingVisibleCount,
+                                profile);
                         }
                         existingVisibleCount++;
                     }
@@ -198,6 +209,7 @@ namespace Wake.UI
                 scroll.vertical = true;
             }
 
+            characterCardsContent = content;
             IReadOnlyList<DialoguePortraitDefinition> people =
                 DialoguePortraitCatalog.All;
             int visibleIndex = 0;
@@ -209,11 +221,11 @@ namespace Wake.UI
                 }
                 if (!CharacterRelationshipProfileCatalog.TryGet(
                         person.CharacterId,
-                        out _))
+                        out CharacterRelationshipProfile profile))
                 {
                     continue;
                 }
-                CreatePersonCard(content, person, visibleIndex++);
+                CreatePersonCard(content, person, visibleIndex++, profile);
             }
             int rows = Mathf.CeilToInt(visibleIndex / 3f);
             content.sizeDelta = new Vector2(
@@ -225,7 +237,8 @@ namespace Wake.UI
         private void CreatePersonCard(
             RectTransform content,
             DialoguePortraitDefinition person,
-            int index)
+            int index,
+            CharacterRelationshipProfile profile)
         {
             int column = index % 3;
             int row = index / 3;
@@ -250,9 +263,9 @@ namespace Wake.UI
                 imageRect.anchorMax = new Vector2(.85f, .94f);
                 imageRect.offsetMin = imageRect.offsetMax = Vector2.zero;
                 RawImage image = imageObject.GetComponent<RawImage>();
-                image.texture = portrait.Texture;
-                image.uvRect = portrait.UvRect;
                 image.raycastTarget = false;
+
+                ApplyPortraitDiscoveryState(card, profile);
             }
             int trust = GameStateManager.Instance?.GetTrust(person.CharacterId) ??
                         GameStateManager.DefaultTrust;
@@ -299,6 +312,85 @@ namespace Wake.UI
             }
         }
 
+        // Runs every time the tab opens (cards themselves are only ever
+        // built once, guarded by `built`), so a character discovered
+        // mid-session stops showing as a silhouette without needing a
+        // scene reload.
+        private void RefreshCharacterDiscoveryStates()
+        {
+            if (characterCardsContent == null)
+            {
+                return;
+            }
+            foreach (DialoguePortraitDefinition person in
+                     DialoguePortraitCatalog.All)
+            {
+                if (!person.UsesExpressionSprites ||
+                    !CharacterRelationshipProfileCatalog.TryGet(
+                        person.CharacterId,
+                        out CharacterRelationshipProfile profile))
+                {
+                    continue;
+                }
+                Transform card =
+                    characterCardsContent.Find(person.CharacterId);
+                if (card != null)
+                {
+                    ApplyPortraitDiscoveryState(card.gameObject, profile);
+                }
+            }
+        }
+
+        private static void ApplyPortraitDiscoveryState(
+            GameObject card,
+            CharacterRelationshipProfile profile)
+        {
+            Transform portraitTransform = card.transform.Find("Portrait");
+            RawImage portraitImage =
+                portraitTransform?.GetComponent<RawImage>();
+            if (portraitTransform == null || portraitImage == null)
+            {
+                return;
+            }
+
+            bool discovered = profile.IsDiscovered(GameStateManager.Instance);
+            // Cards can reach here from either CreatePersonCard (which
+            // already builds this) or the "already exists in scene" path
+            // in BuildCharacters (which never did) - creating it lazily
+            // here means either origin ends up correct.
+            Transform mark = portraitTransform.Find("Unknown Mark");
+            if (mark == null)
+            {
+                TMP_Text created = SaveSlotSelectionController.MakeText(
+                    portraitTransform as RectTransform,
+                    "?",
+                    96f,
+                    Vector2.zero,
+                    Vector2.zero);
+                created.gameObject.name = "Unknown Mark";
+                SaveSlotSelectionController.Stretch(created.rectTransform);
+                created.alignment = TextAlignmentOptions.Center;
+                created.color = Color.white;
+                created.raycastTarget = false;
+                mark = created.transform;
+            }
+            if (discovered)
+            {
+                DialoguePortraitAsset portrait = DialoguePortraitCatalog
+                    .Resolve(profile.CharacterId, PortraitEmotion.Neutral);
+                portraitImage.texture = portrait.Texture;
+                portraitImage.uvRect = portrait.UvRect;
+                portraitImage.color = Color.white;
+            }
+            else
+            {
+                portraitImage.texture = Texture2D.whiteTexture;
+                portraitImage.uvRect = new Rect(0f, 0f, 1f, 1f);
+                portraitImage.color = Color.black;
+            }
+            mark.gameObject.SetActive(!discovered);
+        }
+
         private void BuildCharacterDetail(RectTransform panel)
         {
             Transform existing = panel.Find("Character Detail");
@@ -308,6 +400,9 @@ namespace Wake.UI
                 detailPortrait = existing
                     .Find("Portrait Frame/Portrait")
                     ?.GetComponent<RawImage>();
+                detailUnknownMark = existing
+                    .Find("Portrait Frame/Unknown Mark")
+                    ?.GetComponent<TMP_Text>();
                 detailName = existing.Find("Name")?.GetComponent<TMP_Text>();
                 detailRole = existing.Find("Role")?.GetComponent<TMP_Text>();
                 detailTrust = existing.Find("Trust")?.GetComponent<TMP_Text>();
@@ -349,6 +444,15 @@ namespace Wake.UI
             AspectRatioFitter fitter =
                 portraitObject.GetComponent<AspectRatioFitter>();
             fitter.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+
+            detailUnknownMark = SaveSlotSelectionController.MakeText(
+                portraitFrame, "?", 120f, Vector2.zero, Vector2.zero);
+            detailUnknownMark.gameObject.name = "Unknown Mark";
+            SaveSlotSelectionController.Stretch(
+                detailUnknownMark.rectTransform);
+            detailUnknownMark.alignment = TextAlignmentOptions.Center;
+            detailUnknownMark.color = Color.white;
+            detailUnknownMark.raycastTarget = false;
 
             detailName = MakeAnchoredText(
                 detailRect,
@@ -443,20 +547,52 @@ namespace Wake.UI
                 return;
             }
 
+            GameStateManager state = GameStateManager.Instance;
+            bool discovered = profile.IsDiscovered(state);
             DialoguePortraitAsset portrait =
                 DialoguePortraitCatalog.Resolve(
                     characterId,
                     PortraitEmotion.Neutral);
-            detailPortrait.texture = portrait.Texture;
-            detailPortrait.uvRect = portrait.UvRect;
             AspectRatioFitter fitter =
                 detailPortrait.GetComponent<AspectRatioFitter>();
-            if (fitter != null)
+            if (discovered)
             {
-                fitter.aspectRatio = Mathf.Max(.1f, portrait.AspectRatio);
+                detailPortrait.texture = portrait.Texture;
+                detailPortrait.uvRect = portrait.UvRect;
+                detailPortrait.color = Color.white;
+                if (fitter != null)
+                {
+                    fitter.aspectRatio = Mathf.Max(.1f, portrait.AspectRatio);
+                }
             }
+            else
+            {
+                detailPortrait.texture = Texture2D.whiteTexture;
+                detailPortrait.uvRect = new Rect(0f, 0f, 1f, 1f);
+                detailPortrait.color = Color.black;
+                if (fitter != null)
+                {
+                    fitter.aspectRatio = 1f;
+                }
+            }
+            if (detailUnknownMark == null)
+            {
+                Transform portraitFrame = detailPortrait.transform.parent;
+                detailUnknownMark = SaveSlotSelectionController.MakeText(
+                    portraitFrame as RectTransform,
+                    "?",
+                    120f,
+                    Vector2.zero,
+                    Vector2.zero);
+                detailUnknownMark.gameObject.name = "Unknown Mark";
+                SaveSlotSelectionController.Stretch(
+                    detailUnknownMark.rectTransform);
+                detailUnknownMark.alignment = TextAlignmentOptions.Center;
+                detailUnknownMark.color = Color.white;
+                detailUnknownMark.raycastTarget = false;
+            }
+            detailUnknownMark.gameObject.SetActive(!discovered);
 
-            GameStateManager state = GameStateManager.Instance;
             int trust = state?.GetTrust(characterId) ??
                         GameStateManager.DefaultTrust;
             detailName.text = definition.DisplayName;
@@ -501,6 +637,7 @@ namespace Wake.UI
             SetEvidenceContent(false);
             characters?.SetActive(true);
             ShowCharacterList();
+            RefreshCharacterDiscoveryStates();
             EnsureBackButtonAccessible();
         }
 

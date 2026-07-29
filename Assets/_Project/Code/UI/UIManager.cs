@@ -159,6 +159,7 @@ namespace Wake.UI
             }
 
             EnsureSettingsPopupSetup();
+            EnsureEvidenceBackButtonStyle();
             EnsureRuntimeControllers();
             bool buttonsBound =
                 BindButton(
@@ -230,8 +231,21 @@ namespace Wake.UI
                 UiButtonStyle.Secondary);
             if (rect != null)
             {
-                rect.anchorMin = new Vector2(.855f, .905f);
-                rect.anchorMax = new Vector2(.985f, .975f);
+                // Sits where Evidence's own Back Btn already is, so both
+                // screens' back buttons read as the same button in the
+                // same spot regardless of which one is open.
+                RectTransform evidenceRect =
+                    canvas?.Find("Evidence/Back Btn") as RectTransform;
+                if (evidenceRect != null)
+                {
+                    rect.anchorMin = evidenceRect.anchorMin;
+                    rect.anchorMax = evidenceRect.anchorMax;
+                }
+                else
+                {
+                    rect.anchorMin = new Vector2(.855f, .905f);
+                    rect.anchorMax = new Vector2(.985f, .975f);
+                }
                 rect.anchoredPosition = Vector2.zero;
                 rect.sizeDelta = Vector2.zero;
             }
@@ -339,6 +353,35 @@ namespace Wake.UI
             EnsureComponent<GraphicRaycaster>(settingsPopup);
             EnsureComponent<UiPanelTransitionAnimator>(settingsPopup)
                 .DisableAutoPlayIn();
+        }
+
+        // Evidence's own "돌아가기" switches to Map's plain (no background
+        // sprite, mono label) look. Map's back button already moves to
+        // Evidence's position/style inside StyleMapBackButton, which is
+        // the actual authority on that button's position - it reapplies
+        // its own hardcoded anchors every time ShowMap() runs, so setting
+        // the position here too would just be overwritten right after.
+        private void EnsureEvidenceBackButtonStyle()
+        {
+            Transform evidenceBack = evidencePanel?.transform.Find("Back Btn");
+            if (evidenceBack == null)
+            {
+                return;
+            }
+
+            Image evidenceImage = evidenceBack.GetComponent<Image>();
+            if (evidenceImage != null)
+            {
+                evidenceImage.sprite = null;
+            }
+            TMP_Text evidenceLabel =
+                evidenceBack.GetComponentInChildren<TMP_Text>(true);
+            if (evidenceLabel != null)
+            {
+                evidenceLabel.text = "← 돌아가기";
+                TypographyService.Apply(
+                    evidenceLabel, TypographyRole.Technical);
+            }
         }
 
         private static GameObject FindRequired(
