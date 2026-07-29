@@ -1117,6 +1117,8 @@ namespace Wake.UI
         // lobby - same slot-exit -> water-surface -> tail-entrance shape.
         private IEnumerator EnterGameRoutine(int slot, bool continuing)
         {
+            ScreenFadeTransition.Ensure()?.FadeIn(RevealDuration, Color.white);
+
             ingamePanel = ingamePanel != null
                 ? ingamePanel
                 : GameObject.Find("Canvas")?.transform.Find("Ingame")
@@ -1192,6 +1194,12 @@ namespace Wake.UI
             else
             {
                 UIManager.Instance?.StartNewGameInSlot(slot);
+            }
+
+            ScreenFadeTransition fadeOverlay = ScreenFadeTransition.Ensure();
+            if (fadeOverlay != null)
+            {
+                yield return fadeOverlay.FadeOut(0.4f);
             }
         }
 
