@@ -81,16 +81,28 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void EveryPhysicalLocation_HasExactlyOneMapPlacement()
+        public void EveryPlayableLocation_HasExactlyOneMapPlacement()
         {
-            Assert.That(MapDeckCatalog.All.Count, Is.EqualTo(30));
+            Assert.That(MapDeckCatalog.All.Count, Is.EqualTo(24));
             Assert.That(
                 MapDeckCatalog.All.Select(item => item.LocationCode),
                 Is.Unique);
             Assert.That(
                 MapDeckCatalog.All.Select(item => item.LocationCode),
                 Is.EquivalentTo(
-                    CanonicalLocationCatalog.All.Select(item => item.Code)));
+                    CanonicalLocationCatalog.Playable.Select(item => item.Code)));
+            foreach (CanonicalLocationSpec unused in
+                     CanonicalLocationCatalog.Unused)
+            {
+                Assert.That(
+                    MapDeckCatalog.Find(unused.Code),
+                    Is.Null,
+                    unused.Code);
+            }
+            Assert.That(
+                MapDeckCatalog.Unused.Select(item => item.LocationCode),
+                Is.EquivalentTo(
+                    CanonicalLocationCatalog.Unused.Select(item => item.Code)));
         }
 
         [Test]
@@ -190,34 +202,20 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void LowerMachineryNodes_AppearOnlyAfterTechnicalInvestigation()
+        public void UnusedLowerMachineryLocations_NeverAppearOnActiveMap()
         {
-            MapLocationPlacement placement = MapDeckCatalog.Find("GENERATOR");
-            CanonicalLocationSpec spec =
-                CanonicalLocationCatalog.FindSpec("GENERATOR");
-            ProductionMapEntry locked = new(
-                spec,
-                null,
-                string.Empty,
-                ProductionMapEntryStatus.Locked,
-                SceneAccessDenialReason.RouteRequired);
-
-            Assert.That(
-                MapDeckCatalog.ShouldReveal(
-                    placement,
-                    locked,
-                    string.Empty,
-                    new[] { "D6-01" },
-                    new[] { "D6-02" }),
-                Is.False);
-            Assert.That(
-                MapDeckCatalog.ShouldReveal(
-                    placement,
-                    locked,
-                    string.Empty,
-                    new[] { "D6-02" },
-                    Array.Empty<string>()),
-                Is.True);
+            foreach (CanonicalLocationSpec unused in
+                     CanonicalLocationCatalog.Unused)
+            {
+                Assert.That(MapDeckCatalog.Find(unused.Code), Is.Null);
+                Assert.That(
+                    SceneTravelPolicy.IsLocationVisibleOnMap(
+                        unused.Code,
+                        ProductionSceneCatalog.All.Select(
+                            scene => scene.SceneId)),
+                    Is.False,
+                    unused.Code);
+            }
         }
 
         [Test]

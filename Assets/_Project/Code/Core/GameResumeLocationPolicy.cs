@@ -69,7 +69,9 @@ namespace Wake.Core
 
             LocationDefinition savedLocation =
                 graph.FindByCode(state?.CurrentLocationCode);
-            return savedLocation != null
+            return savedLocation != null &&
+                   CanonicalLocationCatalog.IsPlayable(
+                       savedLocation.LocationCode)
                 ? savedLocation
                 : graph.StartingLocation;
         }

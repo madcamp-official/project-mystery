@@ -11,6 +11,7 @@ namespace Wake.Exploration
         None,
         SceneNotRegistered,
         PhysicalLocationUnresolved,
+        LocationUnused,
         LocationVisualMissing,
         SceneNotUnlocked,
         PrerequisiteSceneIncomplete,
@@ -78,13 +79,7 @@ namespace Wake.Exploration
                 "ENGINE_CONTROL",
                 "CREW_STAIRS",
                 "VAULT",
-                "ARCHIVE",
-                "LAUNDRY",
-                "SERVICE_HUB",
-                "STABILIZERS",
-                "BALLAST_TANKS",
-                "GENERATOR",
-                "WORKSHOP"
+                "ARCHIVE"
             };
 
         public static IReadOnlyCollection<string> RestrictedLocations =>
@@ -141,6 +136,15 @@ namespace Wake.Exploration
                     SceneAccessDenialReason.PhysicalLocationUnresolved,
                     "Physical location is missing.",
                     scene);
+            }
+
+            if (CanonicalLocationCatalog.IsUnused(location.LocationCode))
+            {
+                return SceneTravelResult.Denied(
+                    SceneAccessDenialReason.LocationUnused,
+                    $"Location '{location.LocationCode}' is cataloged as unused.",
+                    scene,
+                    location);
             }
 
             if (location.ContentPrefab == null && location.BackgroundSprite == null)
@@ -261,6 +265,11 @@ namespace Wake.Exploration
             string locationCode,
             IEnumerable<string> completedSceneIds)
         {
+            if (CanonicalLocationCatalog.IsUnused(locationCode))
+            {
+                return false;
+            }
+
             if (!string.Equals(
                     locationCode?.Trim(),
                     GangwayLocationCode,
