@@ -529,7 +529,7 @@ namespace Wake.UI
         private const float WaterMuffleSaturationY = -30f;
         // On the rise, muffle stays fully saturated until the water climbs
         // above this height, then clears gradually the rest of the way home.
-        private const float WaterMuffleClearStartY = -25f;
+        private const float WaterMuffleClearStartY = -30f;
 
         private GameObject overlay;
         private GameObject confirmation;
