@@ -26,6 +26,7 @@ namespace Wake.UI
         private UIManager owner;
         private GameObject root;
         private CanvasGroup canvasGroup;
+        private CanvasGroup pauseGroup;
         private TMP_Text locationLabel;
         private TMP_Text timeLabel;
         private TMP_Text objectiveEyebrow;
@@ -164,6 +165,16 @@ namespace Wake.UI
 
             canvasGroup.interactable = presented && interactionEnabled;
             canvasGroup.blocksRaycasts = presented && interactionEnabled;
+            // The pause button ignores this group (see CreateGlobalNavigation)
+            // so it can stay clickable while interactionEnabled is false
+            // during its own pause overlay - but it must still track
+            // presented alone, or it stays visible/clickable outside
+            // Ingame/Map/Evidence too (e.g. the title/lobby screen).
+            if (pauseGroup != null)
+            {
+                pauseGroup.interactable = presented;
+                pauseGroup.blocksRaycasts = presented;
+            }
 
             bool risingEdge = presented && !wasPresented;
             wasPresented = presented;
@@ -175,7 +186,7 @@ namespace Wake.UI
                     StopCoroutine(presentationRoutine);
                     presentationRoutine = null;
                 }
-                canvasGroup.alpha = 0f;
+                SetAlpha(0f);
                 RectTransform rootRect = root.transform as RectTransform;
                 if (rootRect != null)
                 {
@@ -186,7 +197,7 @@ namespace Wake.UI
 
             if (!risingEdge)
             {
-                canvasGroup.alpha = 1f;
+                SetAlpha(1f);
                 return;
             }
 
@@ -199,6 +210,15 @@ namespace Wake.UI
             presentationRoutine = StartCoroutine(SlideIn());
         }
 
+        private void SetAlpha(float value)
+        {
+            canvasGroup.alpha = value;
+            if (pauseGroup != null)
+            {
+                pauseGroup.alpha = value;
+            }
+        }
+
         private IEnumerator SlideIn()
         {
             RectTransform rootRect = root.transform as RectTransform;
@@ -208,7 +228,7 @@ namespace Wake.UI
                 elapsed += Time.unscaledDeltaTime;
                 float t = Mathf.SmoothStep(
                     0f, 1f, Mathf.Clamp01(elapsed / SlideInDuration));
-                canvasGroup.alpha = t;
+                SetAlpha(t);
                 if (rootRect != null)
                 {
                     rootRect.anchoredPosition =
@@ -216,7 +236,7 @@ namespace Wake.UI
                 }
                 yield return null;
             }
-            canvasGroup.alpha = 1f;
+            SetAlpha(1f);
             if (rootRect != null)
             {
                 rootRect.anchoredPosition = Vector2.zero;
@@ -382,8 +402,10 @@ namespace Wake.UI
             // CanvasGroup ignoring the shared nav bar group (which
             // SetInteractionEnabled(false) disables while any system
             // screen is open) keeps it interactable regardless.
-            CanvasGroup pauseGroup =
-                pauseButton.gameObject.AddComponent<CanvasGroup>();
+            // ApplyCanvasGroupState still drives its alpha/presented state
+            // directly (see SetAlpha), so it stays hidden outside
+            // Ingame/Map/Evidence rather than showing everywhere.
+            pauseGroup = pauseButton.gameObject.AddComponent<CanvasGroup>();
             pauseGroup.ignoreParentGroups = true;
             pauseGroup.interactable = true;
             pauseGroup.blocksRaycasts = true;
