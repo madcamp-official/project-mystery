@@ -43,13 +43,19 @@ namespace Wake.UI
 
             if (investigationEvent.Kind !=
                     InvestigationEventKind.SceneCompleted ||
-                !ProductionSceneCatalog.TryGet(
+                !ProductionDayBoundaryCatalog.TryGet(
                     investigationEvent.SubjectId,
+                    out ProductionDayBoundary boundary) ||
+                !string.Equals(
+                    boundary.NextSceneId,
+                    investigationEvent.ContextId,
+                    System.StringComparison.OrdinalIgnoreCase) ||
+                !ProductionSceneCatalog.TryGet(
+                    boundary.CompletedSceneId,
                     out ProductionSceneDefinition completed) ||
                 !ProductionSceneCatalog.TryGet(
-                    investigationEvent.ContextId,
-                    out ProductionSceneDefinition next) ||
-                next.Day <= completed.Day)
+                    boundary.NextSceneId,
+                    out ProductionSceneDefinition next))
             {
                 return;
             }

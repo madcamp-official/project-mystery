@@ -59,6 +59,41 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void DayBoundaryCatalog_CoversEveryDayOneThroughEightTransition()
+        {
+            string[] expected =
+            {
+                "D1-07>D2-01",
+                "D2-06>D3-01",
+                "D3-05>D4-01",
+                "D4-04>D5-01",
+                "D5-04>D6-01",
+                "D6-05>D7-01",
+                "D7-04>D8-01"
+            };
+
+            Assert.That(
+                ProductionDayBoundaryCatalog.All.Select(item =>
+                    $"{item.CompletedSceneId}>{item.NextSceneId}"),
+                Is.EqualTo(expected));
+            foreach (ProductionDayBoundary boundary in
+                     ProductionDayBoundaryCatalog.All)
+            {
+                Assert.That(
+                    ProductionSceneCatalog.TryGet(
+                        boundary.CompletedSceneId,
+                        out ProductionSceneDefinition completed),
+                    Is.True);
+                Assert.That(
+                    ProductionSceneCatalog.TryGet(
+                        boundary.NextSceneId,
+                        out ProductionSceneDefinition next),
+                    Is.True);
+                Assert.That(next.Day, Is.EqualTo(completed.Day + 1));
+            }
+        }
+
+        [Test]
         public void Validator_AcceptsTheProductionCsvWithoutDiagnostics()
         {
             Assert.That(

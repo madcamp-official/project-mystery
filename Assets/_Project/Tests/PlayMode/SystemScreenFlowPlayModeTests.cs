@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
 using Wake.Core;
+using Wake.Narrative;
 using Wake.UI;
 
 namespace Wake.Tests.PlayMode
@@ -214,45 +215,58 @@ namespace Wake.Tests.PlayMode
         public IEnumerator DayBoundary_ShowsChapterTransitionBeforeNextScene()
         {
             yield return StartNewGameFromVisibleButton(false);
-            State.RecordCompletedScene("D1-07");
-
-            InvestigationEventHub.Publish(
-                InvestigationEventKind.SceneCompleted,
-                "D1-07",
-                "D2-01");
-            yield return new WaitForSecondsRealtime(0.25f);
-
             GameObject transition = RequireObject(
                 "System Screen Flow/ChapterTransition");
-            Assert.That(transition.activeInHierarchy, Is.True);
-            Assert.That(
-                Ui.ActiveSystemScreen,
-                Is.EqualTo(SystemScreenState.ChapterTransition));
-            Assert.That(
-                RequireText(
-                    "System Screen Flow/ChapterTransition/Chapter Context")
-                    .text,
-                Does.Contain("DAY 2"));
-            Assert.That(
-                RequireText(
-                    "System Screen Flow/ChapterTransition/Chapter Title")
-                    .text,
-                Is.EqualTo("2일 차"));
-            Assert.That(
-                RequireText(
-                    "System Screen Flow/ChapterTransition/Chapter Summary")
-                    .text,
-                Does.Contain("밀실의 출구 흔적"));
-
             Button continueButton = RequireComponent<Button>(
                 "System Screen Flow/ChapterTransition/계속");
-            continueButton.onClick.Invoke();
-            yield return new WaitForSecondsRealtime(0.3f);
 
-            Assert.That(transition.activeSelf, Is.False);
-            Assert.That(
-                Ui.ActiveSystemScreen,
-                Is.Not.EqualTo(SystemScreenState.ChapterTransition));
+            foreach (ProductionDayBoundary boundary in
+                     ProductionDayBoundaryCatalog.All)
+            {
+                Assert.That(
+                    ProductionSceneCatalog.TryGet(
+                        boundary.NextSceneId,
+                        out ProductionSceneDefinition next),
+                    Is.True);
+                InvestigationEventHub.Publish(
+                    InvestigationEventKind.SceneCompleted,
+                    boundary.CompletedSceneId,
+                    boundary.NextSceneId);
+                yield return new WaitForSecondsRealtime(0.25f);
+
+                Assert.That(
+                    transition.activeInHierarchy,
+                    Is.True,
+                    boundary.CompletedSceneId);
+                Assert.That(
+                    Ui.ActiveSystemScreen,
+                    Is.EqualTo(SystemScreenState.ChapterTransition),
+                    boundary.CompletedSceneId);
+                Assert.That(
+                    RequireText(
+                        "System Screen Flow/ChapterTransition/" +
+                        "Chapter Context").text,
+                    Does.Contain($"DAY {next.Day}"));
+                Assert.That(
+                    RequireText(
+                        "System Screen Flow/ChapterTransition/" +
+                        "Chapter Title").text,
+                    Is.EqualTo($"{next.Day}일 차"));
+                Assert.That(
+                    RequireText(
+                        "System Screen Flow/ChapterTransition/" +
+                        "Chapter Summary").text,
+                    Is.Not.Empty);
+
+                continueButton.onClick.Invoke();
+                yield return new WaitForSecondsRealtime(0.3f);
+
+                Assert.That(transition.activeSelf, Is.False);
+                Assert.That(
+                    Ui.ActiveSystemScreen,
+                    Is.Not.EqualTo(SystemScreenState.ChapterTransition));
+            }
+
             AssertNoRuntimeErrors("DAY 경계 챕터 전환");
         }
 

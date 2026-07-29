@@ -159,6 +159,59 @@ namespace Wake.Narrative
         }
     }
 
+    public readonly struct ProductionDayBoundary
+    {
+        public ProductionDayBoundary(
+            string completedSceneId,
+            string nextSceneId)
+        {
+            CompletedSceneId =
+                completedSceneId?.Trim().ToUpperInvariant() ?? string.Empty;
+            NextSceneId =
+                nextSceneId?.Trim().ToUpperInvariant() ?? string.Empty;
+        }
+
+        public string CompletedSceneId { get; }
+        public string NextSceneId { get; }
+    }
+
+    public static class ProductionDayBoundaryCatalog
+    {
+        private static readonly ProductionDayBoundary[] Entries =
+        {
+            B("D1-07", "D2-01"),
+            B("D2-06", "D3-01"),
+            B("D3-05", "D4-01"),
+            B("D4-04", "D5-01"),
+            B("D5-04", "D6-01"),
+            B("D6-05", "D7-01"),
+            B("D7-04", "D8-01")
+        };
+
+        private static readonly IReadOnlyDictionary<string, ProductionDayBoundary>
+            ByCompletedScene = Entries.ToDictionary(
+                item => item.CompletedSceneId,
+                StringComparer.Ordinal);
+
+        public static IReadOnlyList<ProductionDayBoundary> All => Entries;
+
+        public static bool TryGet(
+            string completedSceneId,
+            out ProductionDayBoundary boundary)
+        {
+            return ByCompletedScene.TryGetValue(
+                completedSceneId?.Trim().ToUpperInvariant() ?? string.Empty,
+                out boundary);
+        }
+
+        private static ProductionDayBoundary B(
+            string completedSceneId,
+            string nextSceneId)
+        {
+            return new ProductionDayBoundary(completedSceneId, nextSceneId);
+        }
+    }
+
     public sealed class SceneScheduleDiagnostic
     {
         public string SceneId { get; }

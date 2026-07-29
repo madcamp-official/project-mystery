@@ -204,6 +204,52 @@ namespace Wake.Tests
             Assert.That(nextSceneId, Is.EqualTo("D5-01"));
         }
 
+        [TestCase(
+            "D4-04",
+            MarcusInterrogationCatalog.SessionId,
+            "D5-01")]
+        [TestCase(
+            "D6-05",
+            ProductionSceneCompletionCatalog.TimelineInteraction,
+            "D7-01")]
+        public void DayBoundaryInteraction_PublishesRegisteredNextDay(
+            string sceneId,
+            string interactionId,
+            string expectedNextSceneId)
+        {
+            InvestigationEvent completion = default;
+            int completionEvents = 0;
+            void Capture(InvestigationEvent item)
+            {
+                if (item.Kind != InvestigationEventKind.SceneCompleted)
+                    return;
+
+                completion = item;
+                completionEvents++;
+            }
+
+            InvestigationEventHub.Published += Capture;
+            try
+            {
+                Assert.That(
+                    ProductionSceneCompletionGate.TryComplete(
+                        state,
+                        sceneId,
+                        interactionId),
+                    Is.True);
+            }
+            finally
+            {
+                InvestigationEventHub.Published -= Capture;
+            }
+
+            Assert.That(completionEvents, Is.EqualTo(1));
+            Assert.That(completion.SubjectId, Is.EqualTo(sceneId));
+            Assert.That(
+                completion.ContextId,
+                Is.EqualTo(expectedNextSceneId));
+        }
+
         [Test]
         public void Completion_PreservesUnrelatedCheckpoint()
         {
