@@ -86,6 +86,21 @@ namespace Wake.UI
 
         private void OnDisable()
         {
+            // Only StateChanged drives Refresh(), which touches this HUD's
+            // own now-inactive UI - that's fine to drop while hidden.
+            // FeedbackRequested/BadEndTriggered just forward to
+            // ToastController and must stay bound even while the HUD is
+            // hidden (e.g. behind the pause screen), or messages like the
+            // save confirmation silently never show. See UnbindState/
+            // TryBindState for where those two are actually managed.
+            if (state != null)
+            {
+                state.StateChanged -= Refresh;
+            }
+        }
+
+        private void OnDestroy()
+        {
             UnbindState();
         }
 
@@ -205,23 +220,30 @@ namespace Wake.UI
 
         private void TryBindState()
         {
-            if (state == GameStateManager.Instance && state != null)
+            GameStateManager current = GameStateManager.Instance;
+            if (current == null)
             {
-                Refresh();
+                if (state == null)
+                {
+                    RenderDefaults();
+                }
                 return;
             }
 
-            UnbindState();
-            state = GameStateManager.Instance;
-            if (state == null)
+            if (state != current)
             {
-                RenderDefaults();
-                return;
+                UnbindState();
+                state = current;
+                state.FeedbackRequested += ShowFeedback;
+                state.BadEndTriggered += ShowBadEnd;
             }
 
+            // OnDisable only drops StateChanged (see its comment), so
+            // re-enabling needs to restore just that one - guard against
+            // double-subscribing since TryBindState can run again for the
+            // same still-bound instance (e.g. from Start() after OnEnable).
+            state.StateChanged -= Refresh;
             state.StateChanged += Refresh;
-            state.FeedbackRequested += ShowFeedback;
-            state.BadEndTriggered += ShowBadEnd;
             Refresh();
         }
 
