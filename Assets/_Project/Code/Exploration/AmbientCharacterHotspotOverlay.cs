@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -24,6 +25,7 @@ namespace Wake.Exploration
             public Button Button;
             public GameObject GroundShadowObject;
             public GameObject ObjectiveMarker;
+            public GameObject NoticeIndicator;
             public RectTransform GroundShadowRect;
             public RawImage GroundShadowImage;
             public AmbientWorldCharacterAsset Asset;
@@ -44,6 +46,7 @@ namespace Wake.Exploration
         private string currentSceneId = string.Empty;
         private DialogueController boundDialogue;
         private bool dialoguePresentationVisible;
+        private bool interactionPending;
 
         public void Initialize(RectTransform backgroundContentRect)
         {
@@ -91,6 +94,7 @@ namespace Wake.Exploration
                     CreateMainCharacter(character);
             }
 
+            PrioritizeInteractionTargets();
             RefreshLayout();
             ApplyDialogueVisibility();
         }
@@ -175,7 +179,8 @@ namespace Wake.Exploration
             Button button = target.GetComponent<Button>();
             button.targetGraphic = image;
             button.transition = Selectable.Transition.ColorTint;
-            button.onClick.AddListener(onClick);
+            target.AddComponent<AlphaContourRaycastFilter>()
+                .Configure(image, texture);
             target.AddComponent<ExplorationHotspotFeedback>()
                 .Configure(DialoguePortraitCatalog.GetDisplayName(speaker));
 
@@ -200,41 +205,48 @@ namespace Wake.Exploration
                 BlendMaterial = blendMaterial,
                 BaseTint = Color.white
             };
-            view.ObjectiveMarker = CreateObjectiveMarker(
+            view.ObjectiveMarker = CreateDialogueBubble(
                 target.transform,
-                speaker,
-                isMainCharacter && isFocusParticipant);
+                isMainCharacter);
+            view.NoticeIndicator = CreateNoticeIndicator(target.transform);
+            button.onClick.AddListener(
+                () => BeginCharacterInteraction(view, onClick));
             spawned.Add(view);
         }
 
-        private GameObject CreateObjectiveMarker(
+        private void PrioritizeInteractionTargets()
+        {
+            // Characters required by the current story beat must receive the
+            // pointer when painted silhouettes overlap. Ambient characters
+            // remain behind optional main characters, and focus participants
+            // are always the topmost interactive silhouettes.
+            BringMatchingTargetsToFront(
+                view => !view.IsMainCharacter);
+            BringMatchingTargetsToFront(
+                view => view.IsMainCharacter && !view.IsFocusParticipant);
+            BringMatchingTargetsToFront(
+                view => view.IsFocusParticipant);
+        }
+
+        private void BringMatchingTargetsToFront(
+            System.Predicate<WorldCharacterView> predicate)
+        {
+            foreach (WorldCharacterView view in spawned)
+            {
+                if (view?.Target != null && predicate(view))
+                    view.Target.transform.SetAsLastSibling();
+            }
+        }
+
+        private GameObject CreateDialogueBubble(
             Transform parent,
-            string characterId,
             bool isEligibleCharacter)
         {
-            if (!isEligibleCharacter ||
-                Wake.Core.GameStateManager.Instance == null)
-            {
+            if (!isEligibleCharacter)
                 return null;
-            }
-
-            ProductionObjectiveViewModel objective =
-                ProductionObjectiveViewModel.Resolve(
-                    Wake.Core.GameStateManager.Instance);
-            if (!objective.Presentation.HasValue ||
-                objective.Presentation.Value.MarkerMode !=
-                ObjectiveMarkerMode.Npc ||
-                objective.Presentation.Value.Definition.SceneId !=
-                currentSceneId ||
-                !ProductionObjectiveNpcTargets.Contains(
-                    currentSceneId,
-                    characterId))
-            {
-                return null;
-            }
 
             GameObject marker = new(
-                "Objective Talk Marker",
+                "Dialogue Speech Bubble",
                 typeof(RectTransform),
                 typeof(Canvas),
                 typeof(CanvasRenderer),
@@ -242,16 +254,15 @@ namespace Wake.Exploration
                 typeof(Outline));
             marker.transform.SetParent(parent, false);
             RectTransform markerRect = marker.GetComponent<RectTransform>();
-            markerRect.anchorMin = new Vector2(0.80f, 0.88f);
-            markerRect.anchorMax = new Vector2(0.80f, 0.88f);
+            markerRect.anchorMin = new Vector2(0.78f, 0.86f);
+            markerRect.anchorMax = new Vector2(0.78f, 0.86f);
             markerRect.pivot = new Vector2(0.5f, 0.5f);
-            markerRect.sizeDelta = new Vector2(92f, 52f);
+            markerRect.sizeDelta = new Vector2(104f, 58f);
             Canvas markerCanvas = marker.GetComponent<Canvas>();
             markerCanvas.overrideSorting = true;
             markerCanvas.sortingOrder = 50;
             Image background = marker.GetComponent<Image>();
-            background.color =
-                UiVisualThemeService.Resolve(UiColorToken.Brass);
+            background.color = new Color(0.035f, 0.06f, 0.10f, 0.94f);
             background.raycastTarget = false;
             Outline outline = marker.GetComponent<Outline>();
             outline.effectColor = Color.white;
@@ -271,13 +282,123 @@ namespace Wake.Exploration
             labelRect.offsetMax = Vector2.zero;
             TMP_Text label = labelObject.GetComponent<TMP_Text>();
             label.text = "대화";
-            label.fontSize = 21f;
+            label.fontSize = 22f;
             label.alignment = TextAlignmentOptions.Center;
-            label.color = UiVisualThemeService.Resolve(UiColorToken.Canvas);
+            label.color = UiVisualThemeService.Resolve(UiColorToken.Cream);
             label.raycastTarget = false;
             MapTypography.ApplyLocation(label);
             marker.transform.SetAsLastSibling();
             return marker;
+        }
+
+        private static GameObject CreateNoticeIndicator(Transform parent)
+        {
+            GameObject marker = new(
+                "Character Notice Indicator",
+                typeof(RectTransform),
+                typeof(Canvas),
+                typeof(CanvasRenderer),
+                typeof(TextMeshProUGUI));
+            marker.transform.SetParent(parent, false);
+            RectTransform rect = marker.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0.94f);
+            rect.anchorMax = rect.anchorMin;
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.sizeDelta = new Vector2(72f, 96f);
+            Canvas canvas = marker.GetComponent<Canvas>();
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = 60;
+            TMP_Text text = marker.GetComponent<TMP_Text>();
+            text.text = "!";
+            text.fontSize = 72f;
+            text.fontStyle = FontStyles.Bold;
+            text.alignment = TextAlignmentOptions.Center;
+            text.color = UiVisualThemeService.Resolve(UiColorToken.Brass);
+            text.raycastTarget = false;
+            text.outlineWidth = 0.18f;
+            text.outlineColor = Color.white;
+            marker.SetActive(false);
+            return marker;
+        }
+
+        private void BeginCharacterInteraction(
+            WorldCharacterView view,
+            UnityEngine.Events.UnityAction onClick)
+        {
+            if (interactionPending ||
+                dialoguePresentationVisible ||
+                view?.Target == null)
+            {
+                return;
+            }
+
+            StartCoroutine(NoticeThenTalk(view, onClick));
+        }
+
+        private IEnumerator NoticeThenTalk(
+            WorldCharacterView view,
+            UnityEngine.Events.UnityAction onClick)
+        {
+            string interactionSceneId = currentSceneId;
+            string interactionLocationCode = currentLocationCode;
+            interactionPending = true;
+            foreach (WorldCharacterView item in spawned)
+            {
+                if (item?.Button != null)
+                    item.Button.interactable = false;
+            }
+
+            if (view.NoticeIndicator != null)
+            {
+                view.NoticeIndicator.SetActive(true);
+                RectTransform rect =
+                    view.NoticeIndicator.transform as RectTransform;
+                rect.localScale = Vector3.zero;
+                float elapsed = 0f;
+                const float duration = 0.34f;
+                while (elapsed < duration)
+                {
+                    elapsed += Time.unscaledDeltaTime;
+                    float t = Mathf.Clamp01(elapsed / duration);
+                    float scale = 1f + Mathf.Sin(t * Mathf.PI) * 0.22f;
+                    if (rect != null)
+                    {
+                        rect.localScale = Vector3.one *
+                            Mathf.Lerp(
+                                0f,
+                                scale,
+                                Mathf.SmoothStep(0f, 1f, t));
+                    }
+                    yield return null;
+                }
+                yield return new WaitForSecondsRealtime(0.14f);
+                if (view.NoticeIndicator != null)
+                    view.NoticeIndicator.SetActive(false);
+            }
+
+            bool contextUnchanged =
+                string.Equals(
+                    interactionSceneId,
+                    currentSceneId,
+                    System.StringComparison.Ordinal) &&
+                string.Equals(
+                    interactionLocationCode,
+                    currentLocationCode,
+                    System.StringComparison.Ordinal);
+            if (contextUnchanged)
+            {
+                onClick?.Invoke();
+            }
+
+            interactionPending = false;
+            if (!dialoguePresentationVisible)
+            {
+                foreach (WorldCharacterView item in spawned)
+                {
+                    if (item?.Button != null)
+                        item.Button.interactable = true;
+                }
+            }
         }
 
         private void StartMainCharacterDialogue(
@@ -285,7 +406,12 @@ namespace Wake.Exploration
         {
             DialogueController dialogue = DialogueController.Instance;
             if (dialogue == null)
+            {
+                Debug.LogWarning(
+                    $"Character interaction ignored: dialogue controller missing " +
+                    $"for {currentSceneId}/{character.CharacterId}.");
                 return;
+            }
 
             Wake.Core.GameStateManager state =
                 Wake.Core.GameStateManager.Instance;
@@ -320,6 +446,11 @@ namespace Wake.Exploration
                     dialogue.StartProductionScene(currentSceneId);
                     return;
                 }
+
+                Debug.LogWarning(
+                    $"Character interaction could not start scene {currentSceneId}; " +
+                    $"busy={dialogue.IsBusy}, active={dialogue.ActiveProductionSceneId}, " +
+                    $"completed={state?.HasCompletedScene(currentSceneId)}.");
             }
 
             string interactionId = CreateInteractionId(
@@ -426,6 +557,8 @@ namespace Wake.Exploration
                 if (!visible || view?.Target == null)
                     continue;
 
+                if (view.Button != null)
+                    view.Button.interactable = !interactionPending;
                 view.Target
                     .GetComponent<ExplorationHotspotFeedback>()
                     ?.ResetTransientState();
@@ -576,7 +709,10 @@ namespace Wake.Exploration
                 view.Image.color = tint;
                 view.Button.colors =
                     AmbientInteractionPresentation.CharacterSpriteColors(tint);
-                view.ObjectiveMarker?.SetActive(!completed);
+                view.ObjectiveMarker?.SetActive(
+                    view.IsMainCharacter &&
+                    !completed &&
+                    !dialoguePresentationVisible);
             }
         }
 

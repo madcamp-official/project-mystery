@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LocationDefinition_SECURITY
   m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
   locationCode: SECURITY
-  displayName: Security
+  displayName: 보안실
   deck: 8
   roomCode: D8-3
   backgroundSprite: {fileID: 21300000, guid: fedc476c37e04b2086b7a1771210ea2c, type: 3}

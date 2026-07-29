@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LocationDefinition_GENERATOR
   m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
   locationCode: GENERATOR
-  displayName: Generator
+  displayName: 발전기실
   deck: 5
   roomCode: D5-3
   backgroundSprite: {fileID: 21300000, guid: 25642bfb641afec49b375d32afb7917f, type: 3}

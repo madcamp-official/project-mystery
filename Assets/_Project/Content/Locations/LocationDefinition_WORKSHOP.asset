@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LocationDefinition_WORKSHOP
   m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
   locationCode: WORKSHOP
-  displayName: Workshop
+  displayName: 작업실
   deck: 5
   roomCode: D5-4
   backgroundSprite: {fileID: 21300000, guid: 044bb2a72fc48e345943f94bbde1c2d6, type: 3}

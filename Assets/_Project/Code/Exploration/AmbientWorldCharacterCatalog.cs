@@ -71,7 +71,7 @@ namespace Wake.Exploration
                 ["PASSENGER_A"] = ExpressionFigure(
                     "passenger_a", 0.6255f, 0.0000f, 0.0328f),
                 ["PASSENGER_B"] = ExpressionFigure(
-                    "passenger_b", 0.7500f, 0.0000f, 0.0166f),
+                    "passenger_b", 0.7500f, 0.0000f, 0.0200f),
                 ["PASSENGER_C"] = ExpressionFigure(
                     "passenger_c", 0.6255f, 0.0277f, 0.0214f),
                 ["PASSENGER_D"] = ExpressionFigure(
@@ -92,7 +92,8 @@ namespace Wake.Exploration
                 ["CHIEF_ENGINEER"] = Specialist("chief_engineer"),
                 ["SUITE_STEWARD"] = Specialist("suite_steward"),
                 ["ARCHIVIST"] = Specialist("archivist"),
-                ["LAUNDRY_SUPERVISOR"] = Specialist("suite_steward"),
+                ["LAUNDRY_SUPERVISOR"] = Specialist(
+                    "suite_steward", 0.08f, 0.08f),
                 ["ROBOTICS_TECH"] = Specialist("robotics_tech"),
                 ["WORKSHOP_MACHINIST"] = Specialist("chief_engineer"),
                 ["ADRIAN"] = Main(
@@ -194,14 +195,17 @@ namespace Wake.Exploration
                 topMargin);
         }
 
-        private static AmbientWorldCharacterAsset Specialist(string resourceName)
+        private static AmbientWorldCharacterAsset Specialist(
+            string resourceName,
+            float bottomMargin = 0.02f,
+            float topMargin = 0.02f)
         {
             return new AmbientWorldCharacterAsset(
                 $"AmbientCharacters/{resourceName}",
                 new Rect(0f, 0f, 1f, 1f),
                 0.7f,
-                0.02f,
-                0.02f);
+                bottomMargin,
+                topMargin);
         }
 
         private static AmbientWorldCharacterAsset Main(
