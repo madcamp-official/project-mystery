@@ -374,21 +374,90 @@ namespace Wake.Tests.PlayMode
                 legacyObjective.activeInHierarchy,
                 Is.False,
                 "The legacy objective overlay must not duplicate the authored top HUD.");
-            GameObject objective = RequireObject(
-                "Exploration Global Navigation/Exploration Objective");
-            Assert.That(objective.activeInHierarchy, Is.True);
+            GameObject context = RequireObject(
+                "Exploration Global Navigation/Exploration Context");
+            Assert.That(context.activeInHierarchy, Is.True);
             Assert.That(
-                objective.transform.Find("Current Objective")
+                context.transform.Find("World Time")
                     ?.GetComponent<TMP_Text>()?.text,
-                Is.EqualTo("항구의 기자를 찾기"));
+                Does.Match(@"^DAY \d+ · .+ \d+:\d{2}$"));
             Assert.That(
-                objective.transform.Find("Objective Detail")
+                context.transform.Find("Current Location")
                     ?.GetComponent<TMP_Text>()?.text,
-                Is.EqualTo("항구를 둘러보고 다니엘을 찾아보자."));
+                Is.EqualTo("항구"));
+            TMP_Text currentLocation = context.transform
+                .Find("Current Location")
+                ?.GetComponent<TMP_Text>();
+            Assert.That(currentLocation, Is.Not.Null);
+            Assert.That(currentLocation.gameObject.activeInHierarchy, Is.True);
+            Assert.That(currentLocation.enableAutoSizing, Is.True);
             Assert.That(
-                objective.GetComponentsInChildren<TMP_Text>(true)
+                currentLocation.fontSizeMax,
+                Is.EqualTo(42f).Within(0.01f));
+            Assert.That(currentLocation.color.r, Is.EqualTo(0.89f).Within(0.01f));
+            Assert.That(currentLocation.color.g, Is.EqualTo(0.72f).Within(0.01f));
+            Assert.That(currentLocation.color.b, Is.EqualTo(0.35f).Within(0.01f));
+            Assert.That(
+                currentLocation.textWrappingMode,
+                Is.EqualTo(TextWrappingModes.NoWrap));
+            Assert.That(
+                context.transform.Find("Current Objective")
+                    ?.GetComponent<TMP_Text>()?.text,
+                Is.EqualTo(
+                    "<color=#E3B859>◆</color>  항구의 기자를 찾기"));
+            Assert.That(
+                context.transform.Find("Objective Eyebrow")
+                    ?.GetComponent<TMP_Text>()?.text,
+                Is.EqualTo("메인 목표"));
+            Assert.That(
+                context.transform.Find("Location Context"),
+                Is.Null,
+                "The top-left HUD must not show a redundant current-place caption.");
+            Assert.That(
+                RequireObject("Ingame").transform.Find(
+                    "Narrative Location Context"),
+                Is.Null,
+                "The retired top-center location banner must not be created.");
+            Assert.That(
+                context.GetComponentsInChildren<TMP_Text>(true)
                     .Select(text => text.text),
                 Has.None.Contains("P-01"));
+            GameObject guidance = RequireObject(
+                "Exploration Global Navigation/Objective Guidance");
+            Assert.That(guidance.activeInHierarchy, Is.True);
+            Assert.That(
+                guidance.transform.Find("Guidance Eyebrow")
+                    ?.GetComponent<TMP_Text>()?.text,
+                Is.EqualTo("목표"));
+            Assert.That(
+                guidance.GetComponentsInChildren<TMP_Text>(true)
+                    .Select(text => text.text),
+                Has.None.Contains("서브 목표"));
+            Assert.That(
+                guidance.transform.Find("Current Guidance")
+                    ?.GetComponent<TMP_Text>()?.text,
+                Is.EqualTo("다니엘 머서 찾기"));
+            Assert.That(
+                guidance.transform.Find("Top Gold Line")
+                    ?.GetComponent<Image>()?.color.a,
+                Is.GreaterThan(0.75f));
+            Assert.That(
+                guidance.transform.Find("Bottom Gold Line")
+                    ?.GetComponent<Image>()?.color.a,
+                Is.GreaterThan(0.75f));
+            AssertHudDim(
+                context,
+                "HUD Dim Left",
+                sampleFromRight: false);
+            AssertHudDim(
+                guidance,
+                "HUD Dim Center",
+                sampleFromRight: false);
+            AssertHudDim(
+                RequireObject(
+                    "Exploration Global Navigation/Global Navigation"),
+                "HUD Dim Right",
+                sampleFromRight: true);
             Assert.That(
                 Dialogue.ActiveProductionSceneId,
                 Is.Empty,
@@ -407,8 +476,9 @@ namespace Wake.Tests.PlayMode
             Assert.That(talkMarker, Is.Not.Null);
             Assert.That(talkMarker.gameObject.activeInHierarchy, Is.True);
             Assert.That(
-                talkMarker.GetComponentInChildren<TMP_Text>(true).text,
-                Is.EqualTo("대화"));
+                talkMarker.GetComponent<Image>()?.sprite,
+                Is.Not.Null,
+                "The dialogue prompt must render its speech-bubble icon.");
             AlphaContourRaycastFilter contour =
                 daniel.GetComponent<AlphaContourRaycastFilter>();
             Assert.That(
@@ -437,6 +507,50 @@ namespace Wake.Tests.PlayMode
             Assert.That(
                 Dialogue.ActiveProductionSceneId,
                 Is.EqualTo("P-01"));
+        }
+
+        private static void AssertHudDim(
+            GameObject region,
+            string expectedSpriteName,
+            bool sampleFromRight)
+        {
+            RectTransform regionRect =
+                region.GetComponent<RectTransform>();
+            RectTransform dimRect = region.transform
+                .Find("Dim Background")
+                ?.GetComponent<RectTransform>();
+            Assert.That(dimRect, Is.Not.Null);
+            Assert.That(dimRect.anchorMin, Is.EqualTo(Vector2.zero));
+            Assert.That(dimRect.anchorMax, Is.EqualTo(Vector2.one));
+            Assert.That(dimRect.offsetMin.y, Is.LessThan(0f));
+            Assert.That(dimRect.offsetMax.y, Is.GreaterThan(0f));
+            Assert.That(
+                dimRect.rect.width,
+                Is.GreaterThan(regionRect.rect.width));
+            Assert.That(
+                dimRect.GetComponent<LayoutElement>().ignoreLayout,
+                Is.True);
+            Image dim = dimRect.GetComponent<Image>();
+            Assert.That(dim, Is.Not.Null);
+            Assert.That(dim.sprite, Is.Not.Null);
+            Assert.That(dim.sprite.name, Is.EqualTo(expectedSpriteName));
+            Assert.That(dim.color.a, Is.GreaterThan(0.5f));
+            Texture2D texture = dim.sprite.texture;
+            int top = texture.height - 1;
+            bool sampleFromCenter =
+                expectedSpriteName.EndsWith("Center");
+            int strongX = sampleFromCenter
+                ? texture.width / 2
+                : sampleFromRight ? texture.width - 1 : 0;
+            int weakX = sampleFromRight ? 0 : texture.width - 1;
+            if (sampleFromCenter)
+                weakX = 0;
+            Assert.That(
+                texture.GetPixel(strongX, top).a,
+                Is.GreaterThan(texture.GetPixel(weakX, top).a));
+            Assert.That(
+                texture.GetPixel(strongX, top).a,
+                Is.GreaterThan(texture.GetPixel(strongX, 0).a));
         }
 
         [UnityTest]
@@ -471,11 +585,6 @@ namespace Wake.Tests.PlayMode
             Assert.That(
                 RequireObject(
                     "Exploration Global Navigation/Exploration Context")
-                    .activeSelf,
-                Is.False);
-            Assert.That(
-                RequireObject(
-                    "Exploration Global Navigation/Exploration Objective")
                     .activeSelf,
                 Is.False);
             Assert.That(
@@ -547,6 +656,33 @@ namespace Wake.Tests.PlayMode
             {
                 Image icon = RequireComponent<Image>(path + "/Icon");
                 Assert.That(icon.sprite, Is.Not.Null);
+                Assert.That(
+                    icon.sprite.name,
+                    Does.Contain("outline"),
+                    $"{path} must use the line-art HUD icon.");
+                Assert.That(
+                    RequireComponent<Image>(path).color.a,
+                    Is.Zero.Within(0.001f),
+                    $"{path} must not render a button background.");
+            }
+            GameObject context = RequireObject(
+                "Exploration Global Navigation/Exploration Context");
+            Assert.That(
+                context.GetComponent<Image>().color.a,
+                Is.Zero.Within(0.001f));
+            Assert.That(
+                RequireObject(
+                    "Exploration Global Navigation/Global Navigation")
+                    .GetComponent<Image>().color.a,
+                Is.Zero.Within(0.001f));
+            foreach (TMP_Text text in
+                     context.GetComponentsInChildren<TMP_Text>(true))
+            {
+                Assert.That(
+                    text.outlineWidth,
+                    Is.GreaterThanOrEqualTo(0.1f),
+                    $"{text.name} must use a readability outline.");
+                Assert.That(text.outlineColor.a, Is.GreaterThan(0));
             }
             Assert.That(RequireObject("Ingame/Map Btn").activeSelf, Is.False);
             Assert.That(
@@ -571,10 +707,6 @@ namespace Wake.Tests.PlayMode
                 RequireObject(
                     "Exploration Global Navigation/Exploration Context")
                 .GetComponent<RectTransform>();
-            RectTransform objectiveRegion =
-                RequireObject(
-                    "Exploration Global Navigation/Exploration Objective")
-                .GetComponent<RectTransform>();
             Bounds navigationBounds =
                 RectTransformUtility.CalculateRelativeRectTransformBounds(
                     canvas,
@@ -583,10 +715,6 @@ namespace Wake.Tests.PlayMode
                 RectTransformUtility.CalculateRelativeRectTransformBounds(
                     canvas,
                     context);
-            Bounds objectiveBounds =
-                RectTransformUtility.CalculateRelativeRectTransformBounds(
-                    canvas,
-                    objectiveRegion);
             Assert.That(navigationBounds.max.x, Is.LessThanOrEqualTo(
                 canvas.rect.xMax + 1f));
             Assert.That(navigationBounds.max.y, Is.LessThanOrEqualTo(
@@ -595,15 +723,11 @@ namespace Wake.Tests.PlayMode
             Assert.That(navigationBounds.center.y, Is.GreaterThan(0f));
             Assert.That(
                 contextBounds.max.x,
-                Is.LessThanOrEqualTo(objectiveBounds.min.x + 1f),
-                "The top-left context must not overlap the objective region.");
-            Assert.That(
-                objectiveBounds.max.x,
                 Is.LessThanOrEqualTo(navigationBounds.min.x + 1f),
-                "The objective region must not overlap global navigation.");
+                "The consolidated top-left HUD must not overlap navigation.");
 
             TMP_Text objective = RequireObject(
-                    "Exploration Global Navigation/Exploration Objective/" +
+                    "Exploration Global Navigation/Exploration Context/" +
                     "Current Objective")
                 .GetComponent<TMP_Text>();
             Assert.That(objective.text, Is.Not.Empty);

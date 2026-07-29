@@ -57,28 +57,10 @@ namespace Wake.Tests.PlayMode
             Assert.That(contextHud, Is.Not.Null);
             Assert.That(contextHud.IsWarningVisible, Is.False);
             yield return new WaitForSecondsRealtime(0.4f);
-            RectTransform locationBanner = contextHud.transform
-                .Find("Narrative Location Context")
-                .GetComponent<RectTransform>();
             Assert.That(
-                RuntimeUiLayoutRegistry.TryResolve(
-                    "hud.location",
-                    out RectTransform authoredLocationSlot),
-                Is.True);
-            Assert.That(locationBanner.anchorMin,
-                Is.EqualTo(authoredLocationSlot.anchorMin));
-            Assert.That(locationBanner.anchorMax,
-                Is.EqualTo(authoredLocationSlot.anchorMax));
-            Assert.That(locationBanner.pivot,
-                Is.EqualTo(authoredLocationSlot.pivot));
-            Assert.That(Mathf.Abs(locationBanner.anchoredPosition.x),
-                Is.LessThan(8f),
-                "The location banner should be visually settled near screen center while its entrance animation finishes.");
-            Assert.That(locationBanner.anchoredPosition,
-                Is.EqualTo(authoredLocationSlot.anchoredPosition));
-            Assert.That(locationBanner.rect.width,
-                Is.LessThanOrEqualTo(
-                    NarrativeLocationHUDPresentation.MaximumWidth));
+                contextHud.transform.Find("Narrative Location Context"),
+                Is.Null,
+                "현재 위치는 좌상단 통합 HUD에만 표시해야 합니다.");
             Assert.That(contextHud.CurrentContext.NarrativeCode, Is.EqualTo("SERVICE7"));
             Assert.That(contextHud.CurrentContext.PhysicalLocationCode,
                 Is.EqualTo("CREW_STAIRS"));

@@ -1,3 +1,4 @@
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,14 +11,26 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class ExplorationNavigationController : MonoBehaviour
     {
+        private static readonly Color HudGold =
+            new(0.89f, 0.72f, 0.35f, 1f);
+        private static readonly Color HudIvory =
+            new(0.95f, 0.92f, 0.84f, 1f);
+        private static readonly Color HudOutline =
+            new(0.015f, 0.035f, 0.06f, 0.96f);
+        private static readonly Color HudDim =
+            new(0.008f, 0.02f, 0.04f, 0.86f);
+        private const string ObjectiveMarker =
+            "<color=#E3B859>◆</color>  ";
+
         private UIManager owner;
         private GameObject root;
         private CanvasGroup canvasGroup;
         private TMP_Text locationLabel;
         private TMP_Text timeLabel;
-        private TMP_Text contextLabel;
+        private TMP_Text objectiveEyebrow;
         private TMP_Text objectiveLabel;
-        private TMP_Text objectiveDetail;
+        private TMP_Text guidanceEyebrow;
+        private TMP_Text guidanceLabel;
         private Button mapButton;
         private Button evidenceButton;
         private Button pauseButton;
@@ -34,6 +47,7 @@ namespace Wake.UI
         public GameObject Root => root;
         public TMP_Text LocationLabel => locationLabel;
         public TMP_Text ObjectiveLabel => objectiveLabel;
+        public TMP_Text GuidanceLabel => guidanceLabel;
         public Button MapButton => mapButton;
         public Button EvidenceButton => evidenceButton;
         public Button PauseButton => pauseButton;
@@ -103,8 +117,9 @@ namespace Wake.UI
             globalRegion?.gameObject.SetActive(true);
             if (showExplorationHud)
             {
-                RefreshContext(panel);
-                RefreshObjective(panel);
+                RefreshContext();
+                RefreshObjective();
+                RefreshGuidance();
             }
             if (force)
                 Canvas.ForceUpdateCanvases();
@@ -165,18 +180,21 @@ namespace Wake.UI
                 root.transform,
                 "Exploration Context",
                 ScreenRegionIds.ContextTopLeft);
+            ApplyDim(contextRegion, DimDirection.Left);
             CreateContext(contextRegion);
 
             objectiveRegion = CreateRegion(
                 root.transform,
-                "Exploration Objective",
+                "Objective Guidance",
                 ScreenRegionIds.ObjectiveTop);
-            CreateObjective(objectiveRegion);
+            ApplyDim(objectiveRegion, DimDirection.Center);
+            CreateGuidance(objectiveRegion);
 
             globalRegion = CreateRegion(
                 root.transform,
                 "Global Navigation",
                 ScreenRegionIds.GlobalTopRight);
+            ApplyDim(globalRegion, DimDirection.Right);
             CreateGlobalNavigation(globalRegion);
         }
 
@@ -201,36 +219,58 @@ namespace Wake.UI
                 parent,
                 "Current Location",
                 UiTextStyle.Heading,
-                36f);
-            contextLabel = CreateText(
+                40f);
+            locationLabel.color = HudGold;
+            locationLabel.textWrappingMode = TextWrappingModes.NoWrap;
+            locationLabel.enableAutoSizing = true;
+            locationLabel.fontSizeMin = 24f;
+            locationLabel.fontSizeMax = 42f;
+            objectiveEyebrow = CreateText(
                 parent,
-                "Location Context",
+                "Objective Eyebrow",
                 UiTextStyle.Caption,
-                26f);
+                20f);
+            objectiveEyebrow.text = "메인 목표";
+            objectiveEyebrow.color = HudGold;
+            objectiveLabel = CreateText(
+                parent,
+                "Current Objective",
+                UiTextStyle.Body,
+                32f);
         }
 
-        private void CreateObjective(RectTransform parent)
+        private void CreateGuidance(RectTransform parent)
         {
             VerticalLayoutGroup layout =
                 parent.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(22, 22, 10, 10);
-            layout.spacing = 2f;
-            layout.childAlignment = TextAnchor.MiddleLeft;
+            layout.padding = new RectOffset(96, 96, 16, 14);
+            layout.spacing = 3f;
+            layout.childAlignment = TextAnchor.UpperCenter;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
             layout.childForceExpandWidth = true;
             layout.childForceExpandHeight = false;
 
-            objectiveLabel = CreateText(
+            CreateGoldLine(parent, "Top Gold Line");
+            guidanceEyebrow = CreateText(
                 parent,
-                "Current Objective",
-                UiTextStyle.Body,
-                34f);
-            objectiveDetail = CreateText(
-                parent,
-                "Objective Detail",
+                "Guidance Eyebrow",
                 UiTextStyle.Caption,
-                24f);
+                22f);
+            guidanceEyebrow.text = "목표";
+            guidanceEyebrow.color = HudGold;
+            guidanceEyebrow.alignment = TextAlignmentOptions.Center;
+            guidanceLabel = CreateText(
+                parent,
+                "Current Guidance",
+                UiTextStyle.Body,
+                38f);
+            guidanceLabel.alignment = TextAlignmentOptions.Top;
+            guidanceLabel.textWrappingMode = TextWrappingModes.NoWrap;
+            guidanceLabel.enableAutoSizing = true;
+            guidanceLabel.fontSizeMin = 19f;
+            guidanceLabel.fontSizeMax = 30f;
+            CreateGoldLine(parent, "Bottom Gold Line");
         }
 
         private void CreateGlobalNavigation(RectTransform parent)
@@ -249,21 +289,27 @@ namespace Wake.UI
                 parent,
                 "지도",
                 owner != null ? owner.ShowMap : null,
-                Resources.Load<Sprite>("UI/Icons/Navigation/ui_icon_nav_map"));
+                LoadNavigationIcon(
+                    "UI/Icons/Navigation/ui_icon_nav_map_outline",
+                    "UI/Icons/Navigation/ui_icon_nav_map"));
             evidenceButton =
                 CreateButton(
                     parent,
                     "조사 기록",
                     owner != null ? owner.ShowEvidence : null,
-                    Resources.Load<Sprite>(
+                    LoadNavigationIcon(
+                        "UI/Icons/Navigation/ui_icon_nav_evidence_outline",
                         "UI/Icons/Navigation/ui_icon_nav_evidence"),
-                    iconPadding: 20f);
+                    iconPadding: 10f);
             pauseButton =
                 CreateButton(
                     parent,
                     "일시정지",
                     owner != null ? owner.OpenPause : null,
-                    Resources.Load<Sprite>("UI/Icons/Badges/ui_badge_settings"));
+                    LoadNavigationIcon(
+                        "UI/Icons/Navigation/ui_icon_nav_pause_outline",
+                        "UI/Icons/Badges/ui_badge_settings"),
+                    iconPadding: 12f);
             // Unlike map/evidence, the pause button must stay clickable
             // while paused so it can toggle pause back off - a nested
             // CanvasGroup ignoring the shared nav bar group (which
@@ -289,71 +335,99 @@ namespace Wake.UI
             pauseButton?.onClick.AddListener(owner.OpenPause);
         }
 
-        private void RefreshContext(UiPrimaryPanel panel)
+        private void RefreshContext()
         {
             GameStateManager state = GameStateManager.Instance;
             timeLabel.text = state != null
                 ? ResolveWorldTimeLabel(state)
                 : "DAY 1 · 오전";
-            switch (panel)
-            {
-                case UiPrimaryPanel.Map:
-                    locationLabel.text = "선내 지도";
-                    contextLabel.text = "이동할 장소를 선택하세요";
-                    break;
-                case UiPrimaryPanel.Evidence:
-                    locationLabel.text = "조사 기록";
-                    contextLabel.text = "확보한 기록을 검토하세요";
-                    break;
-                default:
-                    LocationDefinition location =
-                        LocationLoader.Instance?.CurrentLocation;
-                    CanonicalLocationSpec fallback =
-                        CanonicalLocationCatalog.FindSpec(
-                            ResolveLocationCode());
-                    locationLabel.text =
-                        location != null &&
-                        !string.IsNullOrWhiteSpace(location.DisplayName)
-                            ? location.DisplayName
-                            : fallback?.DisplayName ?? "현재 장소";
-                    contextLabel.text = "주변을 살펴보고 단서를 찾으세요";
-                    break;
-            }
+            locationLabel.text = ResolveLocationDisplayName();
         }
 
-        private void RefreshObjective(UiPrimaryPanel panel)
+        private void RefreshObjective()
         {
-            if (panel == UiPrimaryPanel.Map)
-            {
-                objectiveLabel.text = "다음 조사 장소 선택";
-                objectiveDetail.text =
-                    "잠긴 장소는 사건 진행 후 열립니다";
-                return;
-            }
-            if (panel == UiPrimaryPanel.Evidence)
-            {
-                objectiveLabel.text = "기록과 인물의 연결 확인";
-                objectiveDetail.text =
-                    "코드와 수집률 대신 사건의 맥락을 확인하세요";
-                return;
-            }
-
             ProductionObjectiveItem? current =
                 ProductionObjectiveViewModel
                     .Resolve(GameStateManager.Instance)
                     .Current;
             if (current.HasValue)
             {
-                objectiveLabel.text = current.Value.Definition.Title;
-                objectiveDetail.text =
-                    current.Value.Definition.Description;
+                objectiveLabel.text =
+                    ObjectiveMarker + current.Value.Definition.Title;
             }
             else
             {
-                objectiveLabel.text = "자유 조사";
-                objectiveDetail.text =
-                    "인물과 사물을 직접 선택해 조사하세요";
+                objectiveLabel.text = ObjectiveMarker + "자유 조사";
             }
+        }
+
+        private void RefreshGuidance()
+        {
+            ProductionObjectiveViewModel view =
+                ProductionObjectiveViewModel.Resolve(
+                    GameStateManager.Instance);
+            ProductionObjectivePresentation? presentation =
+                view.Presentation;
+            if (!presentation.HasValue)
+            {
+                guidanceLabel.text = "주변을 조사하세요";
+                return;
+            }
+
+            ProductionObjectiveDefinition definition =
+                presentation.Value.Definition;
+            guidanceLabel.text = presentation.Value.IsTravel
+                ? ToGuidanceSentence(presentation.Value.DisplayText)
+                : definition.Steps.FirstOrDefault() ??
+                  presentation.Value.DisplayText;
+        }
+
+        private string ResolveLocationDisplayName()
+        {
+            LocationDefinition loaded =
+                LocationLoader.Instance?.CurrentLocation;
+            if (!string.IsNullOrWhiteSpace(loaded?.DisplayName))
+                return loaded.DisplayName.Trim();
+
+            string locationCode = ResolveLocationCode();
+            CanonicalLocationSpec canonical =
+                CanonicalLocationCatalog.FindSpec(locationCode);
+            if (!string.IsNullOrWhiteSpace(canonical?.DisplayName))
+                return canonical.DisplayName.Trim();
+
+            string sceneId =
+                DialogueController.Instance?.ActiveProductionSceneId;
+            if (string.IsNullOrWhiteSpace(sceneId))
+            {
+                sceneId = ProductionObjectiveViewModel
+                    .Resolve(GameStateManager.Instance)
+                    .Current?
+                    .Definition
+                    .SceneId;
+            }
+            if (!string.IsNullOrWhiteSpace(sceneId) &&
+                ProductionSceneCatalog.TryGet(
+                    sceneId,
+                    out ProductionSceneDefinition scene))
+            {
+                canonical = CanonicalLocationCatalog.FindSpec(
+                    scene.NarrativeLocationCode);
+                if (!string.IsNullOrWhiteSpace(canonical?.DisplayName))
+                    return canonical.DisplayName.Trim();
+            }
+
+            return "위치 정보 없음";
+        }
+
+        private static string ToGuidanceSentence(string value)
+        {
+            string text = value?.Trim() ?? string.Empty;
+            if (string.IsNullOrEmpty(text))
+                return "주변을 조사하세요";
+
+            if (text.EndsWith("향하기"))
+                return text.Substring(0, text.Length - 3) + "향하세요";
+            return text;
         }
 
         private void BindRuntime()
@@ -425,12 +499,9 @@ namespace Wake.UI
                 int displayHour = hour > 12 ? hour - 12 : hour;
                 if (displayHour == 0)
                     displayHour = 12;
-                string minuteLabel = minute > 0
-                    ? $" {minute}분"
-                    : string.Empty;
                 return
                     $"DAY {scene.Day} · {TimeBlockLabel(scene.TimeBlock)} " +
-                    $"{displayHour}시{minuteLabel}";
+                    $"{displayHour}:{minute:00}";
             }
 
             return
@@ -460,10 +531,72 @@ namespace Wake.UI
             RectTransform rect = target.GetComponent<RectTransform>();
             if (!RuntimeUiLayoutRegistry.CopyWorldLayout(rect, slotId))
                 Stretch(rect);
-            UiVisualThemeService.ApplySurface(
-                target.GetComponent<Image>(),
-                UiSurfaceStyle.Overlay);
+            Image hitArea = target.GetComponent<Image>();
+            hitArea.color = Color.clear;
+            hitArea.raycastTarget = false;
             return rect;
+        }
+
+        private static void ApplyDim(
+            RectTransform region,
+            DimDirection direction)
+        {
+            if (region == null)
+                return;
+
+            GameObject background = new(
+                "Dim Background",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(LayoutElement));
+            background.transform.SetParent(region, false);
+            background.transform.SetAsFirstSibling();
+            RectTransform rect =
+                background.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = direction switch
+            {
+                DimDirection.Left => new Vector2(-48f, -72f),
+                DimDirection.Right => new Vector2(-150f, -72f),
+                _ => new Vector2(-90f, -72f)
+            };
+            rect.offsetMax = direction switch
+            {
+                DimDirection.Left => new Vector2(150f, 28f),
+                DimDirection.Right => new Vector2(48f, 28f),
+                _ => new Vector2(90f, 28f)
+            };
+            LayoutElement layout =
+                background.GetComponent<LayoutElement>();
+            layout.ignoreLayout = true;
+            Image image = background.GetComponent<Image>();
+            image.sprite = HudDimSpriteCache.Get(direction);
+            image.type = Image.Type.Simple;
+            image.color = HudDim;
+            image.raycastTarget = false;
+        }
+
+        private static void CreateGoldLine(Transform parent, string name)
+        {
+            GameObject target = new(
+                name,
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(LayoutElement));
+            target.transform.SetParent(parent, false);
+            Image image = target.GetComponent<Image>();
+            image.color = new Color(
+                HudGold.r,
+                HudGold.g,
+                HudGold.b,
+                0.82f);
+            image.raycastTarget = false;
+            LayoutElement layout = target.GetComponent<LayoutElement>();
+            layout.preferredHeight = 1.5f;
+            layout.minHeight = 1.5f;
         }
 
         private static TMP_Text CreateText(
@@ -480,6 +613,10 @@ namespace Wake.UI
             target.transform.SetParent(parent, false);
             TMP_Text text = target.GetComponent<TMP_Text>();
             UiVisualThemeService.ApplyText(text, style);
+            text.color = HudIvory;
+            text.outlineColor = HudOutline;
+            text.outlineWidth = 0.16f;
+            text.extraPadding = true;
             text.textWrappingMode = TextWrappingModes.Normal;
             text.overflowMode = TextOverflowModes.Ellipsis;
             text.alignment = TextAlignmentOptions.MidlineLeft;
@@ -516,6 +653,7 @@ namespace Wake.UI
                 element.minWidth = 120f;
             }
 
+            Image iconGraphic = null;
             if (icon != null)
             {
                 GameObject iconObject = new(
@@ -524,10 +662,10 @@ namespace Wake.UI
                     typeof(Image));
                 iconObject.transform.SetParent(target.transform, false);
                 Stretch(iconObject.GetComponent<RectTransform>(), iconPadding);
-                Image iconImage = iconObject.GetComponent<Image>();
-                iconImage.sprite = icon;
-                iconImage.preserveAspect = true;
-                iconImage.raycastTarget = false;
+                iconGraphic = iconObject.GetComponent<Image>();
+                iconGraphic.sprite = icon;
+                iconGraphic.preserveAspect = true;
+                iconGraphic.raycastTarget = false;
             }
             else
             {
@@ -544,21 +682,122 @@ namespace Wake.UI
             }
 
             Button button = target.GetComponent<Button>();
-            UiVisualThemeService.ApplyButton(
-                button,
-                UiButtonStyle.Secondary);
+            Image hitArea = target.GetComponent<Image>();
+            hitArea.color = Color.clear;
+            hitArea.raycastTarget = true;
+            button.targetGraphic =
+                iconGraphic != null ? iconGraphic : hitArea;
+            button.transition = Selectable.Transition.ColorTint;
+            ColorBlock colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1f, 0.96f, 0.82f, 1f);
+            colors.pressedColor = new Color(0.78f, 0.61f, 0.28f, 1f);
+            colors.selectedColor = colors.highlightedColor;
+            colors.disabledColor = new Color(0.72f, 0.62f, 0.42f, 0.48f);
+            colors.colorMultiplier = 1f;
+            colors.fadeDuration = 0.08f;
+            button.colors = colors;
             if (action != null)
                 button.onClick.AddListener(action);
             target.AddComponent<UiHoverFeedback>();
             return button;
         }
 
+        private static Sprite LoadNavigationIcon(
+            string preferredPath,
+            string fallbackPath)
+        {
+            Sprite preferred = Resources.Load<Sprite>(preferredPath);
+            return preferred != null
+                ? preferred
+                : Resources.Load<Sprite>(fallbackPath);
+        }
         private static void Stretch(RectTransform rect, float inset = 0f)
         {
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
             rect.offsetMin = new Vector2(inset, inset);
             rect.offsetMax = new Vector2(-inset, -inset);
+        }
+
+        private enum DimDirection
+        {
+            Left,
+            Center,
+            Right
+        }
+
+        private static class HudDimSpriteCache
+        {
+            private const int Width = 64;
+            private const int Height = 32;
+            private static readonly Sprite[] Sprites = new Sprite[3];
+
+            public static Sprite Get(DimDirection direction)
+            {
+                int index = (int)direction;
+                if (Sprites[index] == null)
+                    Sprites[index] = Create(direction);
+                return Sprites[index];
+            }
+
+            private static Sprite Create(DimDirection direction)
+            {
+                Texture2D texture = new(
+                    Width,
+                    Height,
+                    TextureFormat.RGBA32,
+                    false)
+                {
+                    name = $"HUD Dim {direction}",
+                    filterMode = FilterMode.Bilinear,
+                    wrapMode = TextureWrapMode.Clamp,
+                    hideFlags = HideFlags.HideAndDontSave
+                };
+                Color32[] pixels = new Color32[Width * Height];
+                for (int y = 0; y < Height; y++)
+                {
+                    float vertical = Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        y / (Height - 1f));
+                    for (int x = 0; x < Width; x++)
+                    {
+                        float normalizedX = x / (Width - 1f);
+                        float horizontal = direction switch
+                        {
+                            DimDirection.Left =>
+                                1f - Mathf.SmoothStep(
+                                    0.15f,
+                                    1f,
+                                    normalizedX),
+                            DimDirection.Right =>
+                                Mathf.SmoothStep(
+                                    0f,
+                                    0.85f,
+                                    normalizedX),
+                            _ => 1f - Mathf.SmoothStep(
+                                0.1f,
+                                0.5f,
+                                Mathf.Abs(normalizedX - 0.5f))
+                        };
+                        byte alpha = (byte)Mathf.RoundToInt(
+                            255f * horizontal * vertical);
+                        pixels[y * Width + x] =
+                            new Color32(255, 255, 255, alpha);
+                    }
+                }
+                texture.SetPixels32(pixels);
+                texture.Apply(false, false);
+                Sprite sprite = Sprite.Create(
+                    texture,
+                    new Rect(0f, 0f, Width, Height),
+                    new Vector2(0.5f, 0.5f),
+                    100f);
+                sprite.name = $"HUD Dim {direction}";
+                sprite.hideFlags = HideFlags.HideAndDontSave;
+                return sprite;
+            }
         }
     }
 }
