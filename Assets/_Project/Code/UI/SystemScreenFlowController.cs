@@ -34,6 +34,7 @@ namespace Wake.UI
         private GameObject statusHud;
         private GameObject root;
         private GameObject activeScreen;
+        private UIScreenTransitionCoordinator transitions;
         private Action confirmAction;
         private Action cancelAction;
         private SystemScreenState returnState;
@@ -61,14 +62,22 @@ namespace Wake.UI
             owner = uiManager;
             canvas = canvasRoot;
             statusHud = gameplayHud;
+            transitions =
+                owner != null
+                    ? owner.GetComponent<UIScreenTransitionCoordinator>()
+                    : null;
             EnsureBuilt();
         }
 
         public IEnumerator ShowBootOnce()
         {
             Show(SystemScreenState.Boot);
+            while (transitions != null && transitions.IsTransitioning)
+                yield return null;
             yield return null;
             Close();
+            while (IsOverlayOpen)
+                yield return null;
             ActiveState = SystemScreenState.Title;
         }
 
@@ -151,7 +160,17 @@ namespace Wake.UI
 
         public void Close()
         {
+            Close(null);
+        }
+
+        private void Close(Action afterClosed)
+        {
             if (!IsOverlayOpen)
+            {
+                afterClosed?.Invoke();
+                return;
+            }
+            if (transitions != null && transitions.IsTransitioning)
                 return;
 
             if (chapterFadeRoutine != null)
@@ -159,22 +178,30 @@ namespace Wake.UI
                 StopCoroutine(chapterFadeRoutine);
                 chapterFadeRoutine = null;
             }
-            if (activeScreen != null)
+
+            GameObject outgoing = activeScreen;
+            void CompleteClose()
             {
-                activeScreen.SetActive(false);
+                if (activeScreen != null)
+                    activeScreen.SetActive(false);
+                activeScreen = null;
+                if (root != null)
+                    root.SetActive(false);
+                owner?.SetSystemScreenOverlayActive(false);
+                ActiveState = returnState == SystemScreenState.None
+                    ? ResolvePassiveState()
+                    : returnState;
+                returnState = SystemScreenState.None;
+                confirmAction = null;
+                cancelAction = null;
+                afterClosed?.Invoke();
             }
-            activeScreen = null;
-            if (root != null)
+
+            if (transitions == null ||
+                !transitions.Run(outgoing, null, CompleteClose))
             {
-                root.SetActive(false);
+                CompleteClose();
             }
-            owner?.SetSystemScreenOverlayActive(false);
-            ActiveState = returnState == SystemScreenState.None
-                ? ResolvePassiveState()
-                : returnState;
-            returnState = SystemScreenState.None;
-            confirmAction = null;
-            cancelAction = null;
         }
 
         public void OnSettingsOpened()
@@ -459,27 +486,36 @@ namespace Wake.UI
             EnsureBuilt();
             if (!screens.TryGetValue(state, out GameObject screen))
                 return;
+            if (transitions != null && transitions.IsTransitioning)
+                return;
 
-            foreach (GameObject candidate in screens.Values)
-            {
-                candidate.SetActive(candidate == screen);
-            }
-            activeScreen = screen;
-            ActiveState = state;
+            GameObject outgoing = activeScreen;
             root.SetActive(true);
             root.transform.SetAsLastSibling();
             owner?.SetSystemScreenOverlayActive(true);
             if (statusHud != null)
-            {
                 statusHud.SetActive(false);
+
+            void SwapScreens()
+            {
+                foreach (GameObject candidate in screens.Values)
+                    candidate.SetActive(candidate == screen);
+                activeScreen = screen;
+                ActiveState = state;
+            }
+
+            if (outgoing == screen ||
+                transitions == null ||
+                !transitions.Run(outgoing, screen, SwapScreens))
+            {
+                SwapScreens();
             }
         }
 
         private void ConfirmAndClose()
         {
             Action action = confirmAction;
-            Close();
-            action?.Invoke();
+            Close(action);
         }
 
         private void BeginChapterContinue()
@@ -493,8 +529,7 @@ namespace Wake.UI
                 0f,
                 () =>
                 {
-                    Close();
-                    action?.Invoke();
+                    Close(action);
                 });
         }
 
@@ -541,8 +576,7 @@ namespace Wake.UI
         private void CancelAndClose()
         {
             Action action = cancelAction;
-            Close();
-            action?.Invoke();
+            Close(action);
         }
 
         private static GameObject CreatePanel(

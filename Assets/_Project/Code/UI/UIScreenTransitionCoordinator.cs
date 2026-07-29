@@ -44,7 +44,8 @@ namespace Wake.UI
             Action completed = null,
             UiTransitionProfile profile = null)
         {
-            if (transition != null || incoming == null)
+            if (transition != null ||
+                (outgoing == null && incoming == null))
                 return false;
 
             if (!Application.isPlaying)

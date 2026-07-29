@@ -83,6 +83,24 @@ namespace Wake.Tests.PlayMode
             Assert.That(
                 element.GetComponent<CanvasGroup>().alpha,
                 Is.EqualTo(1f).Within(.001f));
+
+            bool closed = false;
+            Assert.That(
+                coordinator.Run(
+                    incoming,
+                    null,
+                    () =>
+                    {
+                        incoming.SetActive(false);
+                        closed = true;
+                    }),
+                Is.True);
+
+            yield return new WaitForSecondsRealtime(.25f);
+
+            Assert.That(closed, Is.True);
+            Assert.That(incoming.activeSelf, Is.False);
+            Assert.That(coordinator.IsTransitioning, Is.False);
         }
 
         private static GameObject CreatePanel(
