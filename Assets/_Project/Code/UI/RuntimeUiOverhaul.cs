@@ -604,7 +604,7 @@ namespace Wake.UI
         private const float RiseDuration = 2.2f;
         private const float DiveDuration = 4f;
         private const float RevealDuration = RiseDuration + DiveDuration;
-        private const float FadeInDelay = 1f;
+        private const float FadeInDelay = 1.5f;
         private const float PanelTravelExtra = 2.8f;
         private const float LobbyTravelExtra = 3.5f;
         // The title exit and the water dive must read as one motion, so they
