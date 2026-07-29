@@ -1,9 +1,15 @@
 # Location Backgrounds
 
 `MV Elysium` 선내 장소 화면에 사용할 배경 스프라이트 모음입니다.
-전체 25개 장소를 모두 포함하며, 원본 이미지는 자르거나 비율을 통일하지 않고 보존합니다.
+원본 25개 배경 파일과 후속 증거 variant를 보존합니다. 런타임의 정규 계약은
+30개 장소 자산, 24개 플레이 가능 장소, Deck 6의 6개 비사용 장소이며 일부
+장소는 전용 이미지가 완성될 때까지 같은 원본 배경을 공유합니다.
 
-## 포함된 장소
+아래 파일명의 `d5`, `d6`, `d7`, `d8` 표기는 제작 당시의 레거시 이름이므로
+현재 Deck을 결정하지 않습니다. 실제 장소 코드와 Deck, 사용 상태, 적용 파일은
+`CanonicalLocationCatalog`를 단일 진실 원천으로 사용합니다.
+
+## 원본 25개 배경 파일
 
 | Deck | Location | Asset |
 | --- | --- | --- |
@@ -34,6 +40,11 @@
 | 5 | Workshop | `bg_location_d5_4_workshop.png` |
 
 Horizon Room은 자정의 사건 현장이 포함된 최신 배경으로 교체되었습니다.
+
+현재 정규 구조에서 Engine Control, Ballast Control Annex, Crew Stairs와
+Service Rail은 Deck 7에 속합니다. Medbay와 Claire Cabin은 Deck 8,
+Vault·Archive는 Deck 10에 속합니다. 파일명 변경은 Unity GUID와 기존 참조를
+깨뜨릴 수 있으므로 레거시 파일명만 유지합니다.
 
 ## Unity 임포트 기준
 

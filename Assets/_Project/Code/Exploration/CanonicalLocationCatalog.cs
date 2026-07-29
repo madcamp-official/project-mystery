@@ -137,8 +137,13 @@ namespace Wake.Exploration
         {
             string normalized = code?.Trim();
             return Definitions.FirstOrDefault(definition =>
-                string.Equals(definition.Code, normalized, StringComparison.Ordinal) ||
-                definition.NarrativeAliases.Contains(normalized, StringComparer.Ordinal));
+                string.Equals(
+                    definition.Code,
+                    normalized,
+                    StringComparison.OrdinalIgnoreCase) ||
+                definition.NarrativeAliases.Contains(
+                    normalized,
+                    StringComparer.OrdinalIgnoreCase));
         }
 
         public static IReadOnlyList<LocationCatalogDiagnostic> Validate(

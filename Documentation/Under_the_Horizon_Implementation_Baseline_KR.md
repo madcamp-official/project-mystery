@@ -20,7 +20,7 @@
 - 공식 게임명: `Under the Horizon`
 - 배경 선박: `MV Elysium`
 - 문서 언어: 한국어
-- 기준 개정일: `2026-07-27`
+- 기준 개정일: `2026-07-30`
 - Unity 프로젝트 진입 장면: `UI Basic Scene`
 - 공식 원본 디렉터리: `Documentation/Source`
 
@@ -222,74 +222,83 @@ Horizon Room은 시신 발견 장소이며 실제 살해 장소가 아니다.
 
 ## 7. 장소와 배경 계약
 
-프로젝트는 25개의 정규 물리 장소를 사용한다.
+프로젝트는 30개의 정규 물리 장소 자산을 사용한다.
+
+이 중 24개는 플레이 가능한 장소이고, Deck 6의 6개 하부 설비 장소는
+명시적인 비사용 장소다. 모든 프로덕션 장면은 플레이 가능한 장소만 참조한다.
 
 각 장소는 `CanonicalLocationCatalog`의 코드, Deck, 방 코드, 배경 파일을 따른다.
 
-### 7.1 Deck 10 및 외부
+### 7.1 외부 및 항구
 
 - `PORT`
 - `GANGWAY`
+
+### 7.2 Deck 10
+
 - `RICHARD_SUITE`
 - `VIP_LOUNGE`
+- `BRIDGE`
+- `VAULT`
+- `ARCHIVE`
+- `INTERVIEW`
 - `OPEN_DECK`
 
-### 7.2 Deck 9
+### 7.3 Deck 9
 
 - `BALLROOM`
 - `DINING`
 - `PROMENADE`
 - `HORIZON`
 
-### 7.3 Deck 8
+### 7.4 Deck 8
 
 - `ATRIUM`
 - `NEWS_LOUNGE`
 - `SECURITY`
+- `MEDBAY`
+- `CABIN_CLAIRE`
+
+### 7.5 Deck 7
+
+- `CABIN_DANIEL`
+- `SERVICE7`
+- `ENGINE_CONTROL`
+- `BALLAST_CONTROL_ANNEX`
+- `CREW_STAIRS`
 - `SERVICE_RAIL`
 
-### 7.4 Deck 7
+### 7.6 Deck 6 — 비사용
 
-- `MEDBAY`
-- `BALLAST_CONTROL_ANNEX`
-- `ENGINE_CONTROL`
-- `CREW_STAIRS`
-
-### 7.5 Deck 6
-
-- `VAULT`
-- `ARCHIVE`
 - `LAUNDRY`
 - `SERVICE_HUB`
-
-### 7.6 Deck 5
-
 - `STABILIZERS`
 - `BALLAST_TANKS`
 - `GENERATOR`
 - `WORKSHOP`
 
-원본 대사 위치 코드는 정규 물리 장소와 다를 수 있다.
+Deck 6의 위 장소는 원본 배경 자산과 구조 기록 보존을 위해 카탈로그에 남지만,
+지도 층 선택, 프로덕션 장면, 자유 이동 및 `LocationLoader` 진입 대상이 아니다.
+
+원본 대사 위치 코드는 정규 물리 장소의 별칭일 수 있다.
 
 다음 별칭은 정규 장소로 해석한다.
 
 | 원본 별칭 | 정규 장소 |
 | --- | --- |
 | DECK10_SUITE | RICHARD_SUITE |
-| CABIN_CLAIRE | VIP_LOUNGE |
 | STERN | OPEN_DECK |
 | DECK9_BALLROOM | BALLROOM |
 | DECK9_DINING | DINING |
 | DECK8_ATRIUM | ATRIUM |
-| CABIN_DANIEL | NEWS_LOUNGE |
 | EVIDENCE_BOARD | NEWS_LOUNGE |
-| INTERVIEW | SECURITY |
 | FORENSIC | MEDBAY |
 | BALLAST | BALLAST_CONTROL_ANNEX |
 | ENGINE_CTRL | ENGINE_CONTROL |
-| BRIDGE | ENGINE_CONTROL |
 | STAIR_B | CREW_STAIRS |
-| SERVICE7 | CREW_STAIRS |
+
+`CABIN_CLAIRE`, `CABIN_DANIEL`, `INTERVIEW`, `BRIDGE`, `SERVICE7`은 더 이상 다른
+장소로 합치는 별칭이 아니라 독립된 정규 장소 코드다.
 
 모든 41개 장면은 경고 없는 정규 배경 위치를 가져야 한다.
 
@@ -466,7 +475,8 @@ C와 Bad는 D8-03 귀항 흐름으로 진행한다.
 - 공식 원본 네 파일의 해시가 manifest와 일치한다.
 - 9개 XLSX 시트를 모두 읽을 수 있다.
 - 수식 오류 표식이 없어야 한다.
-- 41개 장면과 25개 장소가 모두 연결된다.
+- 41개 장면이 24개 플레이 가능 장소 중 하나로 연결된다.
+- 30개 정규 장소 자산의 코드·Deck·사용 상태가 카탈로그와 일치한다.
 - C-01부터 C-18까지 증거가 모두 존재한다.
 - 최종 심문은 정확히 6단계다.
 - 엔딩 집합은 A, B, C, Bad다.
@@ -549,7 +559,8 @@ dotnet build Wake.PlayModeTests.csproj --no-restore --nologo
 - 공식 게임명이 모든 사용자용 문서와 UI에 반영된다.
 - 공식 XLSX의 1,063개 대사와 90개 선택지가 실행된다.
 - 41개 장면을 처음부터 끝까지 진행할 수 있다.
-- 25개 정규 배경이 장면 위치와 연결된다.
+- 41개 장면이 24개 플레이 가능 장소의 유효한 배경과 연결된다.
+- 6개 비사용 장소가 장면·지도 이동·런타임 로딩에서 제외된다.
 - 18개 증거를 수집하고 열람할 수 있다.
 - 필수 퍼즐을 진행하고 피드백을 받을 수 있다.
 - D8-01의 6단계 최종 심문이 동작한다.

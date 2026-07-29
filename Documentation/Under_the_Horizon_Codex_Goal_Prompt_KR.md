@@ -152,7 +152,10 @@ Unity용 생성 파일:
 - 선택 분기가 있어도 최종 장면 도달이 끊기지 않아야 한다.
 
 배경 및 장소:
-- 프로젝트의 25개 정규 장소를 실제 장면과 연결한다.
+- 프로젝트의 30개 정규 장소 자산을 관리한다.
+- 24개 플레이 가능 장소만 실제 장면과 지도 이동에 연결한다.
+- Deck 6의 LAUNDRY, SERVICE_HUB, STABILIZERS, BALLAST_TANKS, GENERATOR,
+  WORKSHOP은 비사용 장소로 유지하고 프로덕션 장면과 런타임 이동에서 제외한다.
 - CanonicalLocationCatalog를 단일 정규 장소 계약으로 사용한다.
 - 각 장소에 location code, Deck, room code, sprite를 연결한다.
 - 대사집의 서사 위치 별칭을 정규 장소로 변환한다.
@@ -162,20 +165,16 @@ Unity용 생성 파일:
 
 장소 별칭:
 - DECK10_SUITE는 RICHARD_SUITE다.
-- CABIN_CLAIRE는 VIP_LOUNGE다.
 - STERN은 OPEN_DECK다.
 - DECK9_BALLROOM은 BALLROOM이다.
 - DECK9_DINING은 DINING이다.
 - DECK8_ATRIUM은 ATRIUM이다.
-- CABIN_DANIEL은 NEWS_LOUNGE다.
 - EVIDENCE_BOARD는 NEWS_LOUNGE다.
-- INTERVIEW는 SECURITY다.
 - FORENSIC는 MEDBAY다.
 - BALLAST는 BALLAST_CONTROL_ANNEX다.
 - ENGINE_CTRL은 ENGINE_CONTROL이다.
-- BRIDGE는 ENGINE_CONTROL이다.
 - STAIR_B는 CREW_STAIRS다.
-- SERVICE7은 CREW_STAIRS다.
+- CABIN_CLAIRE, CABIN_DANIEL, INTERVIEW, BRIDGE, SERVICE7은 독립된 정규 장소다.
 
 UI 기준:
 - UI Basic Scene을 제품 플레이 진입점으로 사용한다.
@@ -395,7 +394,7 @@ PR 크기:
 - 증거 18개를 확인한다.
 - 엔딩 4개를 확인한다.
 - 최종 심문 6단계를 확인한다.
-- 위치 25개를 확인한다.
+- 정규 장소 자산 30개, 플레이 가능 장소 24개, 비사용 장소 6개를 확인한다.
 - 모든 장면의 배경 연결을 확인한다.
 - 모든 다음 장면 참조를 확인한다.
 - 오래된 게임명 잔존을 검색한다.
