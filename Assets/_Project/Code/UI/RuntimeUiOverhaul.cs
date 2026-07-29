@@ -519,6 +519,17 @@ namespace Wake.UI
         // keep in sync. Only the risen height is a pure animation choice
         // with no scene counterpart.
         private const float WaterRisenY = -7f;
+        // Water audio cues (sloshing on dive, splash on surfacing) fire when
+        // the water plane crosses this height, not at the animation's start
+        // or end, so they land on the visual moment rather than the timer.
+        private const float WaterAudioTriggerY = -40f;
+        // BGM muffle is scaled so it already reads as "fully muffled" by the
+        // time the water crosses this height, instead of only reaching that
+        // feeling at the very end of the dive/rise.
+        private const float WaterMuffleSaturationY = -30f;
+        // On the rise, muffle stays fully saturated until the water climbs
+        // above this height, then clears gradually the rest of the way home.
+        private const float WaterMuffleClearStartY = -30f;
 
         private GameObject overlay;
         private GameObject confirmation;
@@ -642,17 +653,52 @@ namespace Wake.UI
 
         private IEnumerator MoveWater(
             Vector3 from, Vector3 to, Func<float, float> ease,
-            float duration, bool intensityRising)
+            float duration, bool intensityRising,
+            Action<float> onDepth = null,
+            float? triggerY = null,
+            Action onTriggerY = null)
         {
+            bool triggered = false;
+            bool ascending = to.y >= from.y;
+            float lowY = Mathf.Min(from.y, to.y);
+            float highY = Mathf.Max(from.y, to.y);
+            float muffleSaturationDepth = Mathf.InverseLerp(
+                lowY, highY, WaterMuffleSaturationY);
+            float muffleClearStartDepth = Mathf.InverseLerp(
+                lowY, highY, WaterMuffleClearStartY);
             return RunSegment(duration, ease, t =>
             {
+                Vector3 current = Vector3.LerpUnclamped(from, to, t);
                 if (water != null)
                 {
-                    water.position = Vector3.LerpUnclamped(from, to, t);
+                    water.position = current;
                 }
                 float depth = intensityRising ? t : 1f - t;
                 lightShaft?.SetIntensity(depth);
                 lobbyBackdrop?.SetDepth(depth);
+                // Diving saturates quickly (muffleSaturationDepth) so the
+                // muffle feels sudden right past the surface. Surfacing
+                // stays fully muffled until the water climbs back above
+                // muffleClearStartDepth, then clears the rest of the way -
+                // same shape, later reference point, so it reads slower.
+                float muffleReferenceDepth = intensityRising
+                    ? muffleSaturationDepth
+                    : muffleClearStartDepth;
+                float muffleDepth = muffleReferenceDepth > 0f
+                    ? Mathf.Clamp01(depth / muffleReferenceDepth)
+                    : depth;
+                onDepth?.Invoke(muffleDepth);
+                if (!triggered && triggerY.HasValue)
+                {
+                    bool crossed = ascending
+                        ? current.y >= triggerY.Value
+                        : current.y <= triggerY.Value;
+                    if (crossed)
+                    {
+                        triggered = true;
+                        onTriggerY?.Invoke();
+                    }
+                }
             });
         }
 
@@ -705,7 +751,11 @@ namespace Wake.UI
                 Coroutine lobbyExit = StartCoroutine(MoveRect(
                     lobbyContent, lobbyFrom, lobbyTo, WaterTrapezoid, LobbyExitDuration));
                 yield return new WaitForSecondsRealtime(LobbyLeadIn);
-                yield return MoveWater(waterFrom, waterTo, WaterTrapezoid, DiveDuration, true);
+                yield return MoveWater(
+                    waterFrom, waterTo, WaterTrapezoid, DiveDuration, true,
+                    depth => AudioManager.Instance?.SetUnderwaterMuffle(depth),
+                    WaterAudioTriggerY,
+                    () => AudioManager.Instance?.PlayWaterSloshing());
                 yield return lobbyExit;
                 yield return MoveRect(
                     contentRect, slotFrom, slotTo, EaseOutQuint, RiseDuration);
@@ -715,7 +765,11 @@ namespace Wake.UI
                 yield return MoveRect(
                     contentRect, slotFrom, slotTo, EaseInQuint, RiseDuration);
                 Coroutine waterSurface = StartCoroutine(
-                    MoveWater(waterFrom, waterTo, WaterTrapezoid, DiveDuration, false));
+                    MoveWater(
+                        waterFrom, waterTo, WaterTrapezoid, DiveDuration, false,
+                        depth => AudioManager.Instance?.SetUnderwaterMuffle(depth),
+                        WaterAudioTriggerY,
+                        () => AudioManager.Instance?.PlayWaterSplashOut()));
                 yield return new WaitForSecondsRealtime(LobbyLeadIn);
                 Coroutine lobbyEnter = StartCoroutine(MoveRect(
                     lobbyContent, lobbyFrom, lobbyTo, WaterTrapezoid, LobbyExitDuration));
@@ -1029,6 +1083,13 @@ namespace Wake.UI
         // lobby - same slot-exit -> water-surface -> tail-entrance shape.
         private IEnumerator EnterGameRoutine(int slot, bool continuing)
         {
+            // This dive doesn't drive the underwater muffle (unlike
+            // TransitionRoutine's), but if the player dove into the slot
+            // list without surfacing back out first, the low-pass filter
+            // is still left muffled from that dive - clear it so gameplay
+            // BGM never starts muffled.
+            AudioManager.Instance?.SetUnderwaterMuffle(0f);
+            AudioManager.Instance?.StopMusicForGameEntry();
             StartCoroutine(DelayedFadeIn(
                 FadeInDelay, RevealDuration - FadeInDelay, Color.white));
 
@@ -1066,7 +1127,10 @@ namespace Wake.UI
             yield return MoveRect(
                 contentRect, slotShown, slotHidden, EaseInQuint, RiseDuration);
             Coroutine waterSurface = StartCoroutine(MoveWater(
-                WaterRisen, WaterHome, WaterTrapezoid, DiveDuration, false));
+                WaterRisen, WaterHome, WaterTrapezoid, DiveDuration, false,
+                null,
+                WaterAudioTriggerY,
+                () => AudioManager.Instance?.PlayWaterSplashOut()));
             yield return new WaitForSecondsRealtime(LobbyLeadIn);
             Coroutine ingameEnter = ingamePanel != null
                 ? StartCoroutine(MoveRect(
