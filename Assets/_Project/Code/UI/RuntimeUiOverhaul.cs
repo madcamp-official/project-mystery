@@ -1083,6 +1083,12 @@ namespace Wake.UI
         // lobby - same slot-exit -> water-surface -> tail-entrance shape.
         private IEnumerator EnterGameRoutine(int slot, bool continuing)
         {
+            // This dive doesn't drive the underwater muffle (unlike
+            // TransitionRoutine's), but if the player dove into the slot
+            // list without surfacing back out first, the low-pass filter
+            // is still left muffled from that dive - clear it so gameplay
+            // BGM never starts muffled.
+            AudioManager.Instance?.SetUnderwaterMuffle(0f);
             StartCoroutine(DelayedFadeIn(
                 FadeInDelay, RevealDuration - FadeInDelay, Color.white));
 
