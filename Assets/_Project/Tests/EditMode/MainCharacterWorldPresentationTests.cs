@@ -94,6 +94,22 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void DanielSearch_KeepsLastLocationButShowsOnlyTheWitness()
+        {
+            ScenePresenceCatalog.TryGet(
+                "D1-04",
+                out ScenePresenceRecord search);
+
+            Assert.That(search.GetLocation("DANIEL"), Is.EqualTo("SERVICE7"));
+            Assert.That(search.ContextSpeaker, Is.EqualTo("CREW_ATTENDANT"));
+            Assert.That(
+                ScenePresencePresentationPolicy
+                    .SelectVisible(search, "SERVICE7", visibleLimit: 5)
+                    .Select(entry => entry.CharacterId),
+                Does.Not.Contain("DANIEL"));
+        }
+
+        [Test]
         public void CrowdedBallroom_PreservesLogicalCastButCapsForeground()
         {
             ScenePresenceCatalog.TryGet(

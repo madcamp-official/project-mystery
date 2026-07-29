@@ -44,7 +44,7 @@ namespace Wake.Exploration
                     ["D1-01"] = C("EVELYN", "MARCUS", "HELENA"),
                     ["D1-02"] = C("DANIEL", "EVELYN"),
                     ["D1-03"] = C("DANIEL", "EVELYN", "RICHARD"),
-                    ["D1-04"] = C("DANIEL"),
+                    ["D1-04"] = C(),
                     ["D1-05"] = C("RICHARD", "EVELYN"),
                     ["D1-06"] = C("HELENA"),
                     ["D1-07"] = C("THOMAS", "MARCUS", "HELENA"),
@@ -79,6 +79,15 @@ namespace Wake.Exploration
                     ["D8-01"] = C("EVELYN", "RICHARD", "CLAIRE"),
                     ["D8-02"] = C("EVELYN", "MARCUS"),
                     ["D8-03"] = C("RICHARD", "CLAIRE", "MARCUS")
+                };
+
+        private static readonly IReadOnlyDictionary<string, string[]>
+            SceneHiddenCharacters =
+                new Dictionary<string, string[]>(StringComparer.Ordinal)
+                {
+                    // D1-04 keeps Daniel's last confirmed location as story
+                    // data, while the player sees only the witness who remains.
+                    ["D1-04"] = C("DANIEL")
                 };
 
         public static IReadOnlyList<SceneWorldCharacter> Select(
@@ -135,6 +144,14 @@ namespace Wake.Exploration
             ScenePresenceRecord scene,
             string character)
         {
+            if (SceneHiddenCharacters.TryGetValue(
+                    scene.SceneId,
+                    out string[] hidden) &&
+                hidden.Contains(character, StringComparer.Ordinal))
+            {
+                return false;
+            }
+
             if (string.Equals(
                     character,
                     "ADRIAN",

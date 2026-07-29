@@ -30,6 +30,32 @@ namespace Wake.Exploration
         public bool IsDefault => SceneIds.Count == 0;
     }
 
+    public readonly struct LocationBackgroundSelection
+    {
+        private readonly string variantKey;
+        private readonly string semanticProfileId;
+
+        public LocationBackgroundSelection(
+            Sprite sprite,
+            string variantKey,
+            string semanticProfileId,
+            bool usesSerializedFallback)
+        {
+            Sprite = sprite;
+            this.variantKey = variantKey?.Trim() ?? string.Empty;
+            this.semanticProfileId =
+                semanticProfileId?.Trim() ?? string.Empty;
+            UsesSerializedFallback =
+                usesSerializedFallback && sprite != null;
+        }
+
+        public Sprite Sprite { get; }
+        public string VariantKey => variantKey ?? string.Empty;
+        public string SemanticProfileId =>
+            semanticProfileId ?? string.Empty;
+        public bool UsesSerializedFallback { get; }
+    }
+
     /// <summary>
     /// Selects approved location art without replacing the original serialized
     /// location sprite. Exact scene bindings win; a location default is used
@@ -38,6 +64,7 @@ namespace Wake.Exploration
     public static class LocationBackgroundVariantCatalog
     {
         public const string ResourceRoot = "LocationBackgroundVariants";
+        public const string SerializedVariantPrefix = "serialized:";
 
         private static readonly LocationBackgroundVariantBinding[] Entries =
         {
@@ -233,23 +260,70 @@ namespace Wake.Exploration
             Sprite serializedFallback,
             IEnumerable<string> completedSceneIds = null)
         {
+            return ResolveSelection(
+                    locationCode,
+                    sceneId,
+                    serializedFallback,
+                    completedSceneIds)
+                .Sprite;
+        }
+
+        public static LocationBackgroundSelection ResolveSelection(
+            string locationCode,
+            string sceneId,
+            Sprite serializedFallback,
+            IEnumerable<string> completedSceneIds = null)
+        {
             string resourceKey =
                 ResolveResourceKey(
                     locationCode,
                     sceneId,
                     completedSceneIds);
-            if (string.IsNullOrEmpty(resourceKey))
-            {
-                return serializedFallback;
-            }
-
-            if (!SpriteCache.TryGetValue(resourceKey, out Sprite sprite))
+            if (!string.IsNullOrEmpty(resourceKey) &&
+                !SpriteCache.TryGetValue(resourceKey, out Sprite sprite))
             {
                 sprite = Resources.Load<Sprite>(resourceKey);
                 SpriteCache[resourceKey] = sprite;
             }
 
-            return sprite != null ? sprite : serializedFallback;
+            if (!string.IsNullOrEmpty(resourceKey) &&
+                SpriteCache.TryGetValue(resourceKey, out Sprite selected) &&
+                selected != null)
+            {
+                return new LocationBackgroundSelection(
+                    selected,
+                    resourceKey,
+                    ResolveSemanticProfileId(resourceKey),
+                    usesSerializedFallback: false);
+            }
+
+            string fallbackProfileId =
+                serializedFallback?.name?.Trim() ?? string.Empty;
+            string fallbackKey = !string.IsNullOrEmpty(fallbackProfileId)
+                ? SerializedVariantPrefix + fallbackProfileId
+                : string.Empty;
+            return new LocationBackgroundSelection(
+                serializedFallback,
+                fallbackKey,
+                fallbackProfileId,
+                usesSerializedFallback: true);
+        }
+
+        private static string ResolveSemanticProfileId(string variantKey)
+        {
+            string normalized = variantKey?.Trim() ?? string.Empty;
+            if (normalized.StartsWith(
+                    SerializedVariantPrefix,
+                    StringComparison.Ordinal))
+            {
+                return normalized.Substring(
+                    SerializedVariantPrefix.Length);
+            }
+
+            int separator = normalized.LastIndexOf('/');
+            return separator >= 0 && separator < normalized.Length - 1
+                ? normalized.Substring(separator + 1)
+                : normalized;
         }
 
         private static LocationBackgroundVariantBinding Default(

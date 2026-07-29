@@ -74,6 +74,23 @@ namespace Wake.Tests
             }
         }
 
+        [Test]
+        public void DanielTrackingObjective_ExplainsWhyThePlayerReturnsToBallroom()
+        {
+            ProductionObjectiveDefinition tracking =
+                ProductionObjectiveCatalog.All.Single(item =>
+                    item.SceneId == "D1-04");
+
+            Assert.That(tracking.Title, Does.Contain("마지막 동선"));
+            Assert.That(
+                tracking.DetailText,
+                Does.Contain("행사 운영 계정")
+                    .And.Contain("볼룸"));
+            Assert.That(
+                tracking.Steps,
+                Has.Some.Contains("볼룸의 행사 운영 관계자"));
+        }
+
         [TestCase("P-01", "DANIEL", true)]
         [TestCase("P-01", "RICHARD", false)]
         [TestCase("D1-01", "OWEN", true)]

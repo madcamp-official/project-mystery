@@ -69,6 +69,22 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void DanielTrackingIndex_RecordsAttendantAndBallroomReturn()
+        {
+            SceneIndexRecord tracking = scenes.Records.Single(record =>
+                record.SceneId == "D1-04");
+
+            Assert.That(tracking.Characters, Is.EqualTo("객실 승무원"));
+            Assert.That(
+                tracking.Objective,
+                Does.Contain("볼룸으로 복귀")
+                    .And.Contain("행사 운영 계정"));
+            Assert.That(tracking.NextScene, Is.EqualTo("D1-05"));
+            Assert.That(tracking.DialogueLineCount, Is.EqualTo(22));
+            Assert.That(tracking.VoicedLineCount, Is.EqualTo(13));
+        }
+
+        [Test]
         public void SupplementalRecords_ReferenceRegisteredScenes()
         {
             var sceneIds = scenes.Records

@@ -1,0 +1,2507 @@
+{
+    "schemaVersion": "1.0",
+    "generatedAtUtc": "2026-07-29T18:27:07Z",
+    "playableLocationCodes": [
+        "ARCHIVE",
+        "ATRIUM",
+        "BALLAST_CONTROL_ANNEX",
+        "BALLROOM",
+        "BRIDGE",
+        "CABIN_CLAIRE",
+        "CABIN_DANIEL",
+        "CREW_STAIRS",
+        "DINING",
+        "ENGINE_CONTROL",
+        "GANGWAY",
+        "HORIZON",
+        "INTERVIEW",
+        "MEDBAY",
+        "NEWS_LOUNGE",
+        "OPEN_DECK",
+        "PORT",
+        "PROMENADE",
+        "RICHARD_SUITE",
+        "SECURITY",
+        "SERVICE7",
+        "SERVICE_RAIL",
+        "VAULT",
+        "VIP_LOUNGE"
+    ],
+    "excludedUnusedLocationCodes": [
+        "BALLAST_TANKS",
+        "GENERATOR",
+        "LAUNDRY",
+        "SERVICE_HUB",
+        "STABILIZERS",
+        "WORKSHOP"
+    ],
+    "backgrounds": [
+        {
+            "profileId": "bg_atrium_default_champagne",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_atrium_default_champagne.png",
+            "sourceSha256": "244030aeb2d062120c00beca0d21902ac56b6be38964c5b1ac5904bcd998ee91",
+            "width": 1536,
+            "height": 864,
+            "locationCodes": [
+                "ATRIUM"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_atrium_default_champagne"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_ballast_annex_d6_subtle",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_ballast_annex_d6_subtle.png",
+            "sourceSha256": "81fdb18febd19922f0bb24dc68c28bf3b4523569c0254caf553682d46c5d1651",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "BALLAST_CONTROL_ANNEX"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_ballast_annex_d6_subtle"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_ballroom_default_mask",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_ballroom_default_mask.png",
+            "sourceSha256": "4f829055e7ab3558057b9213a99dc55736af89802b508e3cc45acd0bb00d9dec",
+            "width": 1536,
+            "height": 864,
+            "locationCodes": [
+                "BALLROOM"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_ballroom_default_mask"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_bridge_d3_day",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_bridge_d3_day.png",
+            "sourceSha256": "d224b27838d75aa7c762da748a209322719c242f4adefcc681a024cb5dba6d45",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "BRIDGE"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_bridge_d3_day"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_cabin_claire_d5_dismantled",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_cabin_claire_d5_dismantled.png",
+            "sourceSha256": "891b8b25d87c98067f3565084355d980f2b613841437ed911dcd3e5cf5a86eb5",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "CABIN_CLAIRE"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_cabin_claire_d5_dismantled"
+            ],
+            "sceneIds": [
+                "D5-02"
+            ]
+        },
+        {
+            "profileId": "bg_cabin_claire_d5_smoke",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_cabin_claire_d5_smoke.png",
+            "sourceSha256": "d28f2631b0f37fa3ba7ba8dec493baac07fc0ddec7b4eef036983b5e17b9a144",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "CABIN_CLAIRE"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_cabin_claire_d5_smoke"
+            ],
+            "sceneIds": [
+                "D5-01"
+            ]
+        },
+        {
+            "profileId": "bg_cabin_claire_default_morning",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_cabin_claire_default_morning.png",
+            "sourceSha256": "947d0ab2544ae7c8d155f0b8406138bc5f70ef366e25d6d9d8d42dbd08fd31e7",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "CABIN_CLAIRE"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_cabin_claire_default_morning"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_cabin_daniel_d2_late_afternoon",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_cabin_daniel_d2_late_afternoon.png",
+            "sourceSha256": "ce6c2f9bf52cd503dd2fd8dd1632143e88e66f460a6e22717cd1da8531fea426",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "CABIN_DANIEL"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_cabin_daniel_d2_late_afternoon"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_crew_stairs_d4_reconstruction",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_crew_stairs_d4_reconstruction.png",
+            "sourceSha256": "4aec122adb3d8e36cb3860cda8ea746e8979e15259025968a099bd59dd38273d",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "CREW_STAIRS"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_crew_stairs_d4_reconstruction"
+            ],
+            "sceneIds": [
+                "D4-03"
+            ]
+        },
+        {
+            "profileId": "bg_crew_stairs_d4_wet",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_crew_stairs_d4_wet.png",
+            "sourceSha256": "ed5bb21fe8bdd71b62f07657051c128c217f6b00169501659313b3d769421a14",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "CREW_STAIRS"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_crew_stairs_d4_wet"
+            ],
+            "sceneIds": [
+                "D4-02"
+            ]
+        },
+        {
+            "profileId": "bg_crew_stairs_default",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_crew_stairs_default.png",
+            "sourceSha256": "0389bc42fd9c44ff7b49b44b1dfc5a7a231a1a62dfd9c5d339087e2f81e683a4",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "CREW_STAIRS",
+                "SERVICE7"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_crew_stairs_default"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_gangway_default_luggage",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_gangway_default_luggage.png",
+            "sourceSha256": "3300633db75beed1e24652a704b9f44fac3605637c11750d3d3cec4b82756781",
+            "width": 1536,
+            "height": 864,
+            "locationCodes": [
+                "GANGWAY"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_gangway_default_luggage"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_horizon_cleared_day",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_horizon_cleared_day.png",
+            "sourceSha256": "9885039d169192a4c709682fe16d1ea934e8bb3c91f807cd99605b417c279d24",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "HORIZON"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_horizon_cleared_day"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_horizon_d1_discovery",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_horizon_d1_discovery.png",
+            "sourceSha256": "8327680e005064e2268a34cb4037662c06991df68e46c8f8c3da28b83e6c1516",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "HORIZON"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_horizon_d1_discovery"
+            ],
+            "sceneIds": [
+                "D1-06"
+            ]
+        },
+        {
+            "profileId": "bg_horizon_d8_finale",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_horizon_d8_finale.png",
+            "sourceSha256": "d895f4252f4ca001ff92b56b2a229919147ce9a9076cdf4bfb99b6c91c99ea1f",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "HORIZON"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_horizon_d8_finale"
+            ],
+            "sceneIds": [
+                "D8-01"
+            ]
+        },
+        {
+            "profileId": "bg_interview_d5_day",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_interview_d5_day.png",
+            "sourceSha256": "3f27edd6d3e1e400618175e8fb3a00e3997b7cdd8ee579dc830beb85ae2e7e9a",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "INTERVIEW"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_interview_d5_day"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_medbay_baseline",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_medbay_baseline.png",
+            "sourceSha256": "cd7907b6d751a347467bb285811fa1cfed3cbe3328f005149fa643878331d8cb",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "MEDBAY"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_medbay_baseline"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_medbay_dna",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_medbay_dna.png",
+            "sourceSha256": "dcd511c2ea0dddd8ece8dd5819c7052199df7099171d9532d0e3a46f87edd0ba",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "MEDBAY"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_medbay_dna"
+            ],
+            "sceneIds": [
+                "D7-02"
+            ]
+        },
+        {
+            "profileId": "bg_medbay_forensic",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_medbay_forensic.png",
+            "sourceSha256": "95fd5e454572262312f4ff50104001d4e6d1f7223370a7d10f5298e577b7d6d0",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "MEDBAY"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_medbay_forensic"
+            ],
+            "sceneIds": [
+                "D4-04",
+                "D6-04"
+            ]
+        },
+        {
+            "profileId": "bg_news_lounge_d3",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_news_lounge_d3.png",
+            "sourceSha256": "48258b7644dbf1623955556041e99e53179393b0d7849de3a42c31ddc996dde5",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "NEWS_LOUNGE"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_news_lounge_d3"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_news_lounge_d6_evidence_board",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_news_lounge_d6_evidence_board.png",
+            "sourceSha256": "38e9fc13386e9736fac0997027c21ff04da41257314ddc9a744124dec9f2fd03",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "NEWS_LOUNGE"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_news_lounge_d6_evidence_board"
+            ],
+            "sceneIds": [
+                "D6-05"
+            ]
+        },
+        {
+            "profileId": "bg_open_deck_d8_morning",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_open_deck_d8_morning.png",
+            "sourceSha256": "2daf31211ebb0825aa9019c814da64a0df74f607d2a65f33b061880df376c422",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "OPEN_DECK"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_open_deck_d8_morning"
+            ],
+            "sceneIds": [
+                "D8-02"
+            ]
+        },
+        {
+            "profileId": "bg_port_d8_epilogue",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_port_d8_epilogue.png",
+            "sourceSha256": "c22857a5da58ca1dbe361b370bd128abc9de1a9a855ff754e83047121804e266",
+            "width": 1536,
+            "height": 864,
+            "locationCodes": [
+                "PORT"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_port_d8_epilogue"
+            ],
+            "sceneIds": [
+                "D8-03"
+            ]
+        },
+        {
+            "profileId": "bg_promenade_d3_night",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_promenade_d3_night.png",
+            "sourceSha256": "6ba30533ff3572faeb8d76891487179d3fe2b7d241b96470393ebb8857a036f2",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "PROMENADE"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_promenade_d3_night"
+            ],
+            "sceneIds": [
+                "D3-05"
+            ]
+        },
+        {
+            "profileId": "bg_service_rail_d6_subtle",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_service_rail_d6_subtle.png",
+            "sourceSha256": "9b008533c18305b11e3712f8bada7ea433620889f0659064d3528c4bb999d30f",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "SERVICE_RAIL"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_service_rail_d6_subtle"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_vault_d7_damaged",
+            "sourceKind": "ApprovedVariant",
+            "assetPath": "Assets/_Project/Resources/LocationBackgroundVariants/bg_vault_d7_damaged.png",
+            "sourceSha256": "7e3176ffcd81e41ee40edcd6e3b5ce23428d977dfdfa852e81dcdb5f1e00506f",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "VAULT"
+            ],
+            "variantKeys": [
+                "LocationBackgroundVariants/bg_vault_d7_damaged"
+            ],
+            "sceneIds": [
+                "D7-01"
+            ]
+        },
+        {
+            "profileId": "bg_location_d10_1_richard_suite",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_d10_1_richard_suite.png",
+            "sourceSha256": "462662134e7087b2c45d2773fa86f209539cf4d63f430df6fcc404a560396f64",
+            "width": 1536,
+            "height": 1024,
+            "locationCodes": [
+                "RICHARD_SUITE"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_d10_1_richard_suite"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_d10_2_vip_lounge",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_d10_2_vip_lounge.png",
+            "sourceSha256": "b4a2f5f2692e1312cd68091cda1fdb40541221e0ab46fcf21e757acc9d617c46",
+            "width": 1536,
+            "height": 1024,
+            "locationCodes": [
+                "CABIN_CLAIRE",
+                "VIP_LOUNGE"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_d10_2_vip_lounge"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_d10_3_open_deck",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_d10_3_open_deck.png",
+            "sourceSha256": "8481e21e87db57303a85c5fca5fd5c9941a12ce2cf2baadf9feee3d707f435dd",
+            "width": 1536,
+            "height": 1024,
+            "locationCodes": [
+                "OPEN_DECK"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_d10_3_open_deck"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_d6_1_vault",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_d6_1_vault.png",
+            "sourceSha256": "af916a276b575938b9829834eee974dddfa1de3f0bbd4da9b3b03c9ff1d37730",
+            "width": 1448,
+            "height": 1086,
+            "locationCodes": [
+                "VAULT"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_d6_1_vault"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_d6_2_archive",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_d6_2_archive.png",
+            "sourceSha256": "743dc3befc696c7731ae60fc8a83a49ad6083a6152766ee087f454f04cb6dc16",
+            "width": 1672,
+            "height": 941,
+            "locationCodes": [
+                "ARCHIVE"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_d6_2_archive"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_d7_1_medbay_evidence",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_1_medbay_evidence.png",
+            "sourceSha256": "850457c73e468f02b6b5f762eaf7540a489b4df43cc30dbcc57481f1478b960b",
+            "width": 1448,
+            "height": 1086,
+            "locationCodes": [
+                "MEDBAY"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_d7_1_medbay_evidence"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_d7_2_ballast_control_annex_evidence",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_2_ballast_control_annex_evidence.png",
+            "sourceSha256": "978c0dc83633b9e739ac0c91cd6d6e69b158aa74129c9be1a24d1253f036b47c",
+            "width": 1536,
+            "height": 1024,
+            "locationCodes": [
+                "BALLAST_CONTROL_ANNEX"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_d7_2_ballast_control_annex_evidence"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_d7_3_engine_control_evidence",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_3_engine_control_evidence.png",
+            "sourceSha256": "f507597d0d777b5bf76bd780ca7bbabb5ee50506db9dc5bf80db8dc5b8f5e933",
+            "width": 1536,
+            "height": 1024,
+            "locationCodes": [
+                "BRIDGE",
+                "ENGINE_CONTROL"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_d7_3_engine_control_evidence"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_d7_4_crew_stairs",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_4_crew_stairs.png",
+            "sourceSha256": "2ac307183357aff52d53982d4a0083dbf8869e1f434e84c606977147d3baac66",
+            "width": 1536,
+            "height": 1024,
+            "locationCodes": [
+                "CREW_STAIRS",
+                "SERVICE7"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_d7_4_crew_stairs"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_d8_1_atrium",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_1_atrium.png",
+            "sourceSha256": "594fe6d18e22481d0c48d94b66e7f1e66e51eadf4460251e56c711e8fc120622",
+            "width": 1536,
+            "height": 1024,
+            "locationCodes": [
+                "ATRIUM"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_d8_1_atrium"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_d8_2_news_lounge_evidence",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_2_news_lounge_evidence.png",
+            "sourceSha256": "fc3efa21e58369f2c33ecb43cec2affe98eb2c7dc340327c1c8b3c1d50f3e1a7",
+            "width": 1448,
+            "height": 1086,
+            "locationCodes": [
+                "CABIN_DANIEL",
+                "NEWS_LOUNGE"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_d8_2_news_lounge_evidence"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_d8_3_security_evidence",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_3_security_evidence.png",
+            "sourceSha256": "081f96f54681e46f2743379b4b9d3ea0b138ebe328ecc074008b58a1a6af8624",
+            "width": 1536,
+            "height": 1024,
+            "locationCodes": [
+                "INTERVIEW",
+                "SECURITY"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_d8_3_security_evidence"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_d8_4_service_rail",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_4_service_rail.png",
+            "sourceSha256": "d3ef41216c55ff34d6f8a39326877484b56aa4815a1b6232355a2fa691fe865c",
+            "width": 1536,
+            "height": 1024,
+            "locationCodes": [
+                "SERVICE_RAIL"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_d8_4_service_rail"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_d9_1_ballroom",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_d9_1_ballroom.png",
+            "sourceSha256": "7feb1f8b4f6092a800cc527fb3e20f315227ab77428c9059562d23e0f92588f0",
+            "width": 1536,
+            "height": 1024,
+            "locationCodes": [
+                "BALLROOM"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_d9_1_ballroom"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_d9_2_dining",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_d9_2_dining.png",
+            "sourceSha256": "19e8f52e798a715cf40d59b91b59fca210d5d425e3f48482fad677c6c9e43f2d",
+            "width": 1536,
+            "height": 1024,
+            "locationCodes": [
+                "DINING"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_d9_2_dining"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_d9_3_promenade_evidence",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_d9_3_promenade_evidence.png",
+            "sourceSha256": "78894e0f55be2e51cbe9258ae5e5ab1027bea3cb787c6b95c0f96ed57fbfb962",
+            "width": 1536,
+            "height": 1024,
+            "locationCodes": [
+                "PROMENADE"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_d9_3_promenade_evidence"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_d9_4_horizon_room_evidence",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_d9_4_horizon_room_evidence.png",
+            "sourceSha256": "dfa412bbf3d89d174c66e0c888fcd02ad5eb77a4a314be516fffee376e262137",
+            "width": 1536,
+            "height": 1024,
+            "locationCodes": [
+                "HORIZON"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_d9_4_horizon_room_evidence"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_gangway",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_gangway.png",
+            "sourceSha256": "9dd7dd02e382c627aaffcda6c4c3f1b5c862c415d51302ebb2613c83ed167723",
+            "width": 1536,
+            "height": 1024,
+            "locationCodes": [
+                "GANGWAY"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_gangway"
+            ],
+            "sceneIds": []
+        },
+        {
+            "profileId": "bg_location_port_evidence",
+            "sourceKind": "LegacyBase",
+            "assetPath": "Assets/_Project/Art/Backgrounds/Locations/bg_location_port_evidence.png",
+            "sourceSha256": "7a6a17faa06f3d0e16e386261c87778eac032579276888531c8f092378f0d4ec",
+            "width": 1536,
+            "height": 1024,
+            "locationCodes": [
+                "PORT"
+            ],
+            "variantKeys": [
+                "serialized:bg_location_port_evidence"
+            ],
+            "sceneIds": []
+        }
+    ],
+    "protections": [
+        {
+            "locationCode": "ARCHIVE",
+            "objectId": "C-17",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.5699999928474426,
+                "y": 0.21000000834465028,
+                "width": 0.20000000298023225,
+                "height": 0.20000000298023225
+            },
+            "availableFromScene": "D7-03",
+            "requiredEnding": "",
+            "argumentRole": "과거 진실",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "D7-03"
+            ]
+        },
+        {
+            "locationCode": "ATRIUM",
+            "objectId": "PROP_CHAMPAGNE",
+            "kind": "Inspectable",
+            "priority": "Soft",
+            "displayName": "마시다 만 샴페인",
+            "description": "립스틱 자국이 선명하다. 파티가 시작되기도 전에 자리를 옮긴 승객이 있었던 모양이다. 수사와는 관계없다.",
+            "normalizedRect": {
+                "x": 0.125,
+                "y": 0.1849999874830246,
+                "width": 0.15000000596046449,
+                "height": 0.15000000596046449
+            },
+            "availableFromScene": "",
+            "requiredEnding": "",
+            "argumentRole": "",
+            "coverage": "",
+            "sourceScenes": []
+        },
+        {
+            "locationCode": "BALLAST_CONTROL_ANNEX",
+            "objectId": "C-06",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.15000000596046449,
+                "y": 0.030000004917383195,
+                "width": 0.14000000059604646,
+                "height": 0.11999999731779099
+            },
+            "availableFromScene": "D6-03",
+            "requiredEnding": "",
+            "argumentRole": "실제 현장",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "D6-03"
+            ]
+        },
+        {
+            "locationCode": "BALLAST_CONTROL_ANNEX",
+            "objectId": "C-12",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.559999942779541,
+                "y": 0.42000001668930056,
+                "width": 0.18000000715255738,
+                "height": 0.25999999046325686
+            },
+            "availableFromScene": "D6-03",
+            "requiredEnding": "",
+            "argumentRole": "살해 수법",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "D6-03",
+                "D6-04"
+            ]
+        },
+        {
+            "locationCode": "BALLROOM",
+            "objectId": "PROP_MASK",
+            "kind": "Inspectable",
+            "priority": "Soft",
+            "displayName": "갈라 가면",
+            "description": "화려하지만 값싼 장식이다. 이블린이라면 의상 소품의 금박이 고르지 않다며 사용하지 않았을 것이다.",
+            "normalizedRect": {
+                "x": 0.824999988079071,
+                "y": 0.2149999886751175,
+                "width": 0.15000000596046449,
+                "height": 0.15000000596046449
+            },
+            "availableFromScene": "",
+            "requiredEnding": "",
+            "argumentRole": "",
+            "coverage": "",
+            "sourceScenes": []
+        },
+        {
+            "locationCode": "ENGINE_CONTROL",
+            "objectId": "C-09",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.015000000596046448,
+                "y": 0.25999999046325686,
+                "width": 0.17000000178813935,
+                "height": 0.23999999463558198
+            },
+            "availableFromScene": "D6-01",
+            "requiredEnding": "",
+            "argumentRole": "시신 이동",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "D6-01"
+            ]
+        },
+        {
+            "locationCode": "ENGINE_CONTROL",
+            "objectId": "PROP_CLIPBOARD",
+            "kind": "Inspectable",
+            "priority": "Soft",
+            "displayName": "정비 체크보드",
+            "description": "기관실 교대자가 그린 배의 단면 옆에 커피 얼룩이 번져 있다. 오언은 '중요한 도면에는 절대 잔을 올리지 않는다'고 강조한다.",
+            "normalizedRect": {
+                "x": 0.034999996423721316,
+                "y": 0.19500000774860383,
+                "width": 0.15000000596046449,
+                "height": 0.15000000596046449
+            },
+            "availableFromScene": "",
+            "requiredEnding": "",
+            "argumentRole": "",
+            "coverage": "",
+            "sourceScenes": []
+        },
+        {
+            "locationCode": "GANGWAY",
+            "objectId": "PROP_LUGGAGE",
+            "kind": "Inspectable",
+            "priority": "Soft",
+            "displayName": "주인 잃은 여행가방",
+            "description": "여행 태그가 여러 장 붙어 있다. 직원은 주인이 기념품 가게에서 시간을 잊었을 뿐이라고 말한다.",
+            "normalizedRect": {
+                "x": 0.36500000953674319,
+                "y": 0.02499999850988388,
+                "width": 0.15000000596046449,
+                "height": 0.15000000596046449
+            },
+            "availableFromScene": "",
+            "requiredEnding": "",
+            "argumentRole": "",
+            "coverage": "",
+            "sourceScenes": []
+        },
+        {
+            "locationCode": "HORIZON",
+            "objectId": "C-02",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.15000000596046449,
+                "y": 0.375,
+                "width": 0.10000000149011612,
+                "height": 0.23000000417232514
+            },
+            "availableFromScene": "D1-06",
+            "requiredEnding": "",
+            "argumentRole": "밀실 명제",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "D1-06"
+            ]
+        },
+        {
+            "locationCode": "HORIZON",
+            "objectId": "C-03",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.38999998569488528,
+                "y": 0.44999998807907107,
+                "width": 0.11999999731779099,
+                "height": 0.10000000149011612
+            },
+            "availableFromScene": "D2-01",
+            "requiredEnding": "",
+            "argumentRole": "출구 미사용",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "D2-01"
+            ]
+        },
+        {
+            "locationCode": "HORIZON",
+            "objectId": "C-04",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.0,
+                "y": 0.75,
+                "width": 0.07999999821186066,
+                "height": 0.10000000149011612
+            },
+            "availableFromScene": "D2-01",
+            "requiredEnding": "",
+            "argumentRole": "출구 미사용",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "D2-01"
+            ]
+        },
+        {
+            "locationCode": "HORIZON",
+            "objectId": "C-05",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.14000001549720765,
+                "y": 0.41999998688697817,
+                "width": 0.07999999821186066,
+                "height": 0.11999999731779099
+            },
+            "availableFromScene": "D2-01",
+            "requiredEnding": "",
+            "argumentRole": "출구 미사용",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "D2-01"
+            ]
+        },
+        {
+            "locationCode": "HORIZON",
+            "objectId": "C-07",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.4749999940395355,
+                "y": 0.21000000834465028,
+                "width": 0.17000000178813935,
+                "height": 0.14000000059604646
+            },
+            "availableFromScene": "D1-06",
+            "requiredEnding": "",
+            "argumentRole": "시신 투입",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "D2-02"
+            ]
+        },
+        {
+            "locationCode": "INTERVIEW",
+            "objectId": "C-13",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.46000003814697268,
+                "y": 0.42000001668930056,
+                "width": 0.1599999964237213,
+                "height": 0.14000000059604646
+            },
+            "availableFromScene": "D5-03",
+            "requiredEnding": "",
+            "argumentRole": "유인 동기",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "D2-06",
+                "D5-03"
+            ]
+        },
+        {
+            "locationCode": "MEDBAY",
+            "objectId": "C-11",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.059999994933605197,
+                "y": 0.044999994337558749,
+                "width": 0.14000000059604646,
+                "height": 0.15000000596046449
+            },
+            "availableFromScene": "D2-03",
+            "requiredEnding": "",
+            "argumentRole": "사망 시각 수정",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "D2-03"
+            ]
+        },
+        {
+            "locationCode": "MEDBAY",
+            "objectId": "C-15",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.8100000023841858,
+                "y": 0.16999998688697816,
+                "width": 0.1599999964237213,
+                "height": 0.14000000059604646
+            },
+            "availableFromScene": "D4-04",
+            "requiredEnding": "",
+            "argumentRole": "공범 연결",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "D3-04",
+                "D4-04"
+            ]
+        },
+        {
+            "locationCode": "MEDBAY",
+            "objectId": "C-16",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.7300000190734863,
+                "y": 0.13999998569488526,
+                "width": 0.18000000715255738,
+                "height": 0.20000000298023225
+            },
+            "availableFromScene": "D7-02",
+            "requiredEnding": "",
+            "argumentRole": "최종 물증",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "D7-02"
+            ]
+        },
+        {
+            "locationCode": "NEWS_LOUNGE",
+            "objectId": "PROP_COFFEE",
+            "kind": "Inspectable",
+            "priority": "Soft",
+            "displayName": "식어 버린 커피",
+            "description": "향보다 탄 맛이 먼저 올라온다. 다니엘이 기사 마감 때마다 이것을 세 잔씩 마셨다는 직원의 푸념이 떠오른다.",
+            "normalizedRect": {
+                "x": 0.5250000357627869,
+                "y": 0.4449999928474426,
+                "width": 0.15000000596046449,
+                "height": 0.15000000596046449
+            },
+            "availableFromScene": "",
+            "requiredEnding": "",
+            "argumentRole": "",
+            "coverage": "",
+            "sourceScenes": []
+        },
+        {
+            "locationCode": "OPEN_DECK",
+            "objectId": "PROP_TOKEN",
+            "kind": "Inspectable",
+            "priority": "Soft",
+            "displayName": "구명정 점검 토큰",
+            "description": "매일 점검을 마친 승무원이 뒤집어 두는 황동 표식이다. 오늘 날짜 면도 정상적으로 뒤집혀 있다.",
+            "normalizedRect": {
+                "x": 0.7450000047683716,
+                "y": 0.034999996423721316,
+                "width": 0.15000000596046449,
+                "height": 0.15000000596046449
+            },
+            "availableFromScene": "",
+            "requiredEnding": "",
+            "argumentRole": "",
+            "coverage": "",
+            "sourceScenes": []
+        },
+        {
+            "locationCode": "PORT",
+            "objectId": "C-01",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.004999998956918716,
+                "y": 0.11500000208616257,
+                "width": 0.10999999940395355,
+                "height": 0.10999999940395355
+            },
+            "availableFromScene": "P-01",
+            "requiredEnding": "",
+            "argumentRole": "초대 위조·유인",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "P-01",
+                "P-02",
+                "D7-04"
+            ]
+        },
+        {
+            "locationCode": "PORT",
+            "objectId": "C-18",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.16500000655651093,
+                "y": 0.13500000536441804,
+                "width": 0.12999999523162843,
+                "height": 0.12999999523162843
+            },
+            "availableFromScene": "D8-03",
+            "requiredEnding": "A",
+            "argumentRole": "완전 엔딩",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "D8-03"
+            ]
+        },
+        {
+            "locationCode": "PORT",
+            "objectId": "PROP_BROCHURE",
+            "kind": "Inspectable",
+            "priority": "Soft",
+            "displayName": "승선 안내서",
+            "description": "접힌 모서리마다 오늘 행사에 대한 기대가 묻어 있다. 누군가는 공연보다 선상 수영장을 더 기다린 듯하다.",
+            "normalizedRect": {
+                "x": 0.2449999898672104,
+                "y": 0.17499999701976777,
+                "width": 0.15000000596046449,
+                "height": 0.15000000596046449
+            },
+            "availableFromScene": "",
+            "requiredEnding": "",
+            "argumentRole": "",
+            "coverage": "",
+            "sourceScenes": []
+        },
+        {
+            "locationCode": "PROMENADE",
+            "objectId": "C-14",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.14000000059604646,
+                "y": 0.27000001072883608,
+                "width": 0.18000000715255738,
+                "height": 0.18000000715255738
+            },
+            "availableFromScene": "D3-05",
+            "requiredEnding": "",
+            "argumentRole": "제보자 식별",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "D3-05"
+            ]
+        },
+        {
+            "locationCode": "PROMENADE",
+            "objectId": "PROP_ROBOT",
+            "kind": "Inspectable",
+            "priority": "Soft",
+            "displayName": "와인 서비스 로봇",
+            "description": "정중한 전자음과 함께 잔을 권한다. 목적지를 물어보니 '가장 가까운 목마른 손님'이라고 답한다.",
+            "normalizedRect": {
+                "x": 0.5250000357627869,
+                "y": 0.2749999761581421,
+                "width": 0.15000000596046449,
+                "height": 0.15000000596046449
+            },
+            "availableFromScene": "",
+            "requiredEnding": "",
+            "argumentRole": "",
+            "coverage": "",
+            "sourceScenes": []
+        },
+        {
+            "locationCode": "SECURITY",
+            "objectId": "C-08",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.6000000238418579,
+                "y": 0.8299999833106995,
+                "width": 0.11999999731779099,
+                "height": 0.10000000149011612
+            },
+            "availableFromScene": "D2-04",
+            "requiredEnding": "",
+            "argumentRole": "이동 시각",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "D2-04",
+                "D5-04"
+            ]
+        },
+        {
+            "locationCode": "SERVICE_RAIL",
+            "objectId": "C-10",
+            "kind": "Evidence",
+            "priority": "Hard",
+            "displayName": "",
+            "description": "",
+            "normalizedRect": {
+                "x": 0.23499999940395356,
+                "y": 0.3700000047683716,
+                "width": 0.15000000596046449,
+                "height": 0.2199999988079071
+            },
+            "availableFromScene": "D6-02",
+            "requiredEnding": "",
+            "argumentRole": "운반 수단",
+            "coverage": "COVERED",
+            "sourceScenes": [
+                "D6-02",
+                "D6-04"
+            ]
+        },
+        {
+            "locationCode": "VIP_LOUNGE",
+            "objectId": "PROP_BELL",
+            "kind": "Inspectable",
+            "priority": "Soft",
+            "displayName": "서비스 벨",
+            "description": "두 번 누르자 멀리서 승무원이 '곧 가겠습니다'라고 답한다. 바쁜 밤이다.",
+            "normalizedRect": {
+                "x": 0.6450000405311585,
+                "y": 0.2850000262260437,
+                "width": 0.15000000596046449,
+                "height": 0.15000000596046449
+            },
+            "availableFromScene": "",
+            "requiredEnding": "",
+            "argumentRole": "",
+            "coverage": "",
+            "sourceScenes": []
+        }
+    ],
+    "scenes": [
+        {
+            "sceneId": "P-01",
+            "locationCode": "PORT",
+            "backgroundProfileId": "bg_location_port_evidence",
+            "variantKey": "",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "DOCK_PORTER",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "DANIEL",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "P-02",
+            "locationCode": "GANGWAY",
+            "backgroundProfileId": "bg_gangway_default_luggage",
+            "variantKey": "LocationBackgroundVariants/bg_gangway_default_luggage",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "CREW_SECURITY",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "DANIEL",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "RICHARD",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "EVELYN",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "P-03",
+            "locationCode": "RICHARD_SUITE",
+            "backgroundProfileId": "bg_location_d10_1_richard_suite",
+            "variantKey": "",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "SUITE_STEWARD",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "RICHARD",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D1-01",
+            "locationCode": "ATRIUM",
+            "backgroundProfileId": "bg_atrium_default_champagne",
+            "variantKey": "LocationBackgroundVariants/bg_atrium_default_champagne",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "ATRIUM_GUIDE",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "MARCUS",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "HELENA",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "CLAIRE",
+                    "role": "Main",
+                    "focus": false,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "OWEN",
+                    "role": "Main",
+                    "focus": false,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D1-02",
+            "locationCode": "DINING",
+            "backgroundProfileId": "bg_location_d9_2_dining",
+            "variantKey": "",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "DINING_SOMMELIER",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "DANIEL",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "EVELYN",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "CLAIRE",
+                    "role": "Main",
+                    "focus": false,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D1-03",
+            "locationCode": "BALLROOM",
+            "backgroundProfileId": "bg_ballroom_default_mask",
+            "variantKey": "LocationBackgroundVariants/bg_ballroom_default_mask",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "BALLROOM_MUSICIAN",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "DANIEL",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "EVELYN",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "RICHARD",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "CLAIRE",
+                    "role": "Main",
+                    "focus": false,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D1-04",
+            "locationCode": "SERVICE7",
+            "backgroundProfileId": "bg_crew_stairs_default",
+            "variantKey": "LocationBackgroundVariants/bg_crew_stairs_default",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "CREW_ATTENDANT",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                }
+            ]
+        },
+        {
+            "sceneId": "D1-05",
+            "locationCode": "BALLROOM",
+            "backgroundProfileId": "bg_ballroom_default_mask",
+            "variantKey": "LocationBackgroundVariants/bg_ballroom_default_mask",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "CREW_ATTENDANT",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "RICHARD",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "EVELYN",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "CLAIRE",
+                    "role": "Main",
+                    "focus": false,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D1-06",
+            "locationCode": "HORIZON",
+            "backgroundProfileId": "bg_horizon_d1_discovery",
+            "variantKey": "LocationBackgroundVariants/bg_horizon_d1_discovery",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "CREW_ATTENDANT",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "HELENA",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "RICHARD",
+                    "role": "Main",
+                    "focus": false,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D1-07",
+            "locationCode": "MEDBAY",
+            "backgroundProfileId": "bg_medbay_baseline",
+            "variantKey": "LocationBackgroundVariants/bg_medbay_baseline",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "SHIP_MEDIC",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "THOMAS",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "MARCUS",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "HELENA",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "RICHARD",
+                    "role": "Main",
+                    "focus": false,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D2-01",
+            "locationCode": "HORIZON",
+            "backgroundProfileId": "bg_horizon_cleared_day",
+            "variantKey": "LocationBackgroundVariants/bg_horizon_cleared_day",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "CREW_SECURITY",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "MARCUS",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D2-02",
+            "locationCode": "HORIZON",
+            "backgroundProfileId": "bg_horizon_cleared_day",
+            "variantKey": "LocationBackgroundVariants/bg_horizon_cleared_day",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "CREW_ATTENDANT",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "HELENA",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D2-03",
+            "locationCode": "MEDBAY",
+            "backgroundProfileId": "bg_medbay_baseline",
+            "variantKey": "LocationBackgroundVariants/bg_medbay_baseline",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "SHIP_MEDIC",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "HELENA",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D2-04",
+            "locationCode": "SECURITY",
+            "backgroundProfileId": "bg_location_d8_3_security_evidence",
+            "variantKey": "",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "SECURITY_OPERATOR",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "MARCUS",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D2-05",
+            "locationCode": "HORIZON",
+            "backgroundProfileId": "bg_horizon_cleared_day",
+            "variantKey": "LocationBackgroundVariants/bg_horizon_cleared_day",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "CREW_ENGINEER",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "OWEN",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D2-06",
+            "locationCode": "CABIN_DANIEL",
+            "backgroundProfileId": "bg_cabin_daniel_d2_late_afternoon",
+            "variantKey": "LocationBackgroundVariants/bg_cabin_daniel_d2_late_afternoon",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "PASSENGER_D",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                }
+            ]
+        },
+        {
+            "sceneId": "D3-01",
+            "locationCode": "NEWS_LOUNGE",
+            "backgroundProfileId": "bg_news_lounge_d3",
+            "variantKey": "LocationBackgroundVariants/bg_news_lounge_d3",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "PASSENGER_D",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "RICHARD",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "CLAIRE",
+                    "role": "Main",
+                    "focus": false,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D3-02",
+            "locationCode": "RICHARD_SUITE",
+            "backgroundProfileId": "bg_location_d10_1_richard_suite",
+            "variantKey": "",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "SUITE_STEWARD",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "RICHARD",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D3-03",
+            "locationCode": "BRIDGE",
+            "backgroundProfileId": "bg_bridge_d3_day",
+            "variantKey": "LocationBackgroundVariants/bg_bridge_d3_day",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "CHIEF_ENGINEER",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "THOMAS",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "OWEN",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D3-04",
+            "locationCode": "VAULT",
+            "backgroundProfileId": "bg_location_d6_1_vault",
+            "variantKey": "",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "VAULT_GUARD",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "EVELYN",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "MARCUS",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D3-05",
+            "locationCode": "PROMENADE",
+            "backgroundProfileId": "bg_promenade_d3_night",
+            "variantKey": "LocationBackgroundVariants/bg_promenade_d3_night",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "PASSENGER_D",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "CLAIRE",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D4-01",
+            "locationCode": "SECURITY",
+            "backgroundProfileId": "bg_location_d8_3_security_evidence",
+            "variantKey": "",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "SECURITY_OPERATOR",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "MARCUS",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D4-02",
+            "locationCode": "CREW_STAIRS",
+            "backgroundProfileId": "bg_crew_stairs_d4_wet",
+            "variantKey": "LocationBackgroundVariants/bg_crew_stairs_d4_wet",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "CREW_SECURITY",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "MARCUS",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Injured"
+                },
+                {
+                    "characterId": "EVELYN",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "HELENA",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D4-03",
+            "locationCode": "CREW_STAIRS",
+            "backgroundProfileId": "bg_crew_stairs_d4_reconstruction",
+            "variantKey": "LocationBackgroundVariants/bg_crew_stairs_d4_reconstruction",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "CREW_ENGINEER",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "OWEN",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D4-04",
+            "locationCode": "MEDBAY",
+            "backgroundProfileId": "bg_medbay_forensic",
+            "variantKey": "LocationBackgroundVariants/bg_medbay_forensic",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "SHIP_MEDIC",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "HELENA",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "MARCUS",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Injured"
+                }
+            ]
+        },
+        {
+            "sceneId": "D5-01",
+            "locationCode": "CABIN_CLAIRE",
+            "backgroundProfileId": "bg_cabin_claire_d5_smoke",
+            "variantKey": "LocationBackgroundVariants/bg_cabin_claire_d5_smoke",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "VIP_HOST",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "CLAIRE",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D5-02",
+            "locationCode": "CABIN_CLAIRE",
+            "backgroundProfileId": "bg_cabin_claire_d5_dismantled",
+            "variantKey": "LocationBackgroundVariants/bg_cabin_claire_d5_dismantled",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "ROBOTICS_TECH",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "CLAIRE",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D5-03",
+            "locationCode": "INTERVIEW",
+            "backgroundProfileId": "bg_interview_d5_day",
+            "variantKey": "LocationBackgroundVariants/bg_interview_d5_day",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "SECURITY_OPERATOR",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "CLAIRE",
+                    "role": "Main",
+                    "focus": false,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D5-04",
+            "locationCode": "HORIZON",
+            "backgroundProfileId": "bg_horizon_cleared_day",
+            "variantKey": "LocationBackgroundVariants/bg_horizon_cleared_day",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "CREW_ATTENDANT",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                }
+            ]
+        },
+        {
+            "sceneId": "D6-01",
+            "locationCode": "ENGINE_CONTROL",
+            "backgroundProfileId": "bg_location_d7_3_engine_control_evidence",
+            "variantKey": "",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "CHIEF_ENGINEER",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "THOMAS",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "OWEN",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D6-02",
+            "locationCode": "SERVICE_RAIL",
+            "backgroundProfileId": "bg_service_rail_d6_subtle",
+            "variantKey": "LocationBackgroundVariants/bg_service_rail_d6_subtle",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "RAIL_TECHNICIAN",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "OWEN",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D6-03",
+            "locationCode": "BALLAST_CONTROL_ANNEX",
+            "backgroundProfileId": "bg_ballast_annex_d6_subtle",
+            "variantKey": "LocationBackgroundVariants/bg_ballast_annex_d6_subtle",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "BALLAST_CONTROLLER",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "HELENA",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D6-04",
+            "locationCode": "MEDBAY",
+            "backgroundProfileId": "bg_medbay_forensic",
+            "variantKey": "LocationBackgroundVariants/bg_medbay_forensic",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "SHIP_MEDIC",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "HELENA",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D6-05",
+            "locationCode": "NEWS_LOUNGE",
+            "backgroundProfileId": "bg_news_lounge_d6_evidence_board",
+            "variantKey": "LocationBackgroundVariants/bg_news_lounge_d6_evidence_board",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "PASSENGER_D",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                }
+            ]
+        },
+        {
+            "sceneId": "D7-01",
+            "locationCode": "VAULT",
+            "backgroundProfileId": "bg_vault_d7_damaged",
+            "variantKey": "LocationBackgroundVariants/bg_vault_d7_damaged",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "VAULT_GUARD",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "EVELYN",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "THOMAS",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D7-02",
+            "locationCode": "MEDBAY",
+            "backgroundProfileId": "bg_medbay_dna",
+            "variantKey": "LocationBackgroundVariants/bg_medbay_dna",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "SHIP_MEDIC",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "HELENA",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D7-03",
+            "locationCode": "ARCHIVE",
+            "backgroundProfileId": "bg_location_d6_2_archive",
+            "variantKey": "",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "ARCHIVIST",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "RICHARD",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "THOMAS",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "OWEN",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D7-04",
+            "locationCode": "PROMENADE",
+            "backgroundProfileId": "bg_location_d9_3_promenade_evidence",
+            "variantKey": "",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "CREW_ATTENDANT",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "EVELYN",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D8-01",
+            "locationCode": "HORIZON",
+            "backgroundProfileId": "bg_horizon_d8_finale",
+            "variantKey": "LocationBackgroundVariants/bg_horizon_d8_finale",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "CREW_SECURITY",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "EVELYN",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "RICHARD",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "CLAIRE",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "THOMAS",
+                    "role": "Main",
+                    "focus": false,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D8-02",
+            "locationCode": "OPEN_DECK",
+            "backgroundProfileId": "bg_open_deck_d8_morning",
+            "variantKey": "LocationBackgroundVariants/bg_open_deck_d8_morning",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "CREW_SECURITY",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "EVELYN",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Detained"
+                },
+                {
+                    "characterId": "MARCUS",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                }
+            ]
+        },
+        {
+            "sceneId": "D8-03",
+            "locationCode": "PORT",
+            "backgroundProfileId": "bg_port_d8_epilogue",
+            "variantKey": "LocationBackgroundVariants/bg_port_d8_epilogue",
+            "coverFocus": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "coverZoom": 1.0,
+            "cast": [
+                {
+                    "characterId": "DOCK_PORTER",
+                    "role": "ContextNpc",
+                    "focus": false,
+                    "state": ""
+                },
+                {
+                    "characterId": "RICHARD",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "CLAIRE",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "MARCUS",
+                    "role": "Main",
+                    "focus": true,
+                    "state": "Normal"
+                },
+                {
+                    "characterId": "THOMAS",
+                    "role": "Main",
+                    "focus": false,
+                    "state": "Normal"
+                }
+            ]
+        }
+    ]
+}

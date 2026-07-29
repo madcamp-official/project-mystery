@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using TMPro;
@@ -257,6 +258,65 @@ namespace Wake.Tests.PlayMode
                 ambientButtons,
                 Has.Length.EqualTo(2),
                 "The port should expose only its location-specific characters.");
+            LocationLoader loader = LocationLoader.Instance;
+            Assert.That(loader, Is.Not.Null);
+            Assert.That(
+                loader.UsesApprovedSemanticCharacterPlacement,
+                Is.True,
+                "The approved PORT semantic profile must replace the legacy " +
+                "stage catalog at runtime.");
+            Assert.That(loader.HasApprovedSemanticSceneLayout, Is.True);
+            Assert.That(
+                loader.ApprovedSemanticCastMatches,
+                Is.True,
+                "The baked P-01 layout must match the cast spawned by the " +
+                "actual UI runtime.");
+            Assert.That(
+                ApprovedBackgroundSemanticResolver.TryResolve(
+                    loader.CurrentLocation.LocationCode,
+                    loader.ActiveBackgroundVariantKey,
+                    loader.ActiveBackgroundSprite,
+                    loader.NarrativeSceneContext,
+                    out BackgroundSemanticRuntimeResolution
+                        semanticResolution),
+                Is.True,
+                "The active sprite, exact variant key, and scene must resolve " +
+                "to the baked approved semantic data.");
+            Assert.That(semanticResolution.SceneLayout, Is.Not.Null);
+            Assert.That(
+                semanticResolution.Profile.ProfileId,
+                Is.EqualTo(loader.ActiveSemanticProfileId));
+            BackgroundCoverPresenter semanticBackground =
+                Object.FindFirstObjectByType<BackgroundCoverPresenter>(
+                    FindObjectsInactive.Include);
+            Rect visibleBackground = CalculateVisibleBackgroundRect(
+                semanticBackground.ContentRect,
+                semanticBackground.ViewportRect);
+            IEnumerable<BackgroundSemanticCharacterRequest>
+                semanticRequests =
+                    semanticResolution.SceneLayout.Assignments.Select(
+                        assignment =>
+                            new BackgroundSemanticCharacterRequest(
+                                assignment.CharacterId,
+                                assignment.Role));
+            BackgroundSemanticPlacementResult semanticPlacement =
+                BackgroundSemanticPlacementResolver.Resolve(
+                    semanticResolution,
+                    semanticRequests,
+                    visibleBackground,
+                    loader.ActiveBackgroundSprite.rect.width /
+                    loader.ActiveBackgroundSprite.rect.height);
+            Assert.That(semanticPlacement.IsValid, Is.True);
+            Assert.That(
+                semanticPlacement.Assignments,
+                Has.Count.EqualTo(ambientButtons.Length));
+            Assert.That(
+                BackgroundSemanticPlacementResolver.Validate(
+                    semanticPlacement.Assignments,
+                    visibleBackground,
+                    out string semanticDiagnostic),
+                Is.True,
+                semanticDiagnostic);
             RawImage[] groundShadows = Object.FindObjectsByType<RawImage>(
                     FindObjectsInactive.Exclude,
                     FindObjectsSortMode.None)
@@ -342,24 +402,29 @@ namespace Wake.Tests.PlayMode
                     Is.EqualTo(0f).Within(0.5f),
                     $"{button.name} visible feet must coincide with the " +
                     "location stage anchor.");
-                AmbientWorldStageProfile stage;
-                if (bark != null)
-                {
-                    Assert.That(
-                        AmbientWorldStageCatalog.TryGet(
-                            "PORT",
-                            bark.Speaker,
-                            out stage),
-                        Is.True);
-                }
-                else
-                {
-                    stage = AmbientWorldStageCatalog.GetLocationProfile(
-                        "PORT",
-                        characterIndex,
-                        ambientButtons.Length,
-                        mainCharacter: true);
-                }
+                BackgroundSemanticPlacementAssignment assignment =
+                    semanticPlacement.Assignments.Single(item =>
+                        item.Character.CharacterId == speaker);
+                BackgroundSemanticSlot slot = assignment.Slot;
+                Assert.That(
+                    BackgroundSemanticStageAdapter.TryCreate(
+                        semanticResolution.Binding,
+                        slot,
+                        out AmbientWorldStageProfile stage),
+                    Is.True);
+                Assert.That(
+                    rect.anchorMin.x,
+                    Is.EqualTo(slot.Anchor.x).Within(0.0001f),
+                    $"{button.name} must keep its approved semantic x anchor.");
+                Assert.That(
+                    rect.anchorMin.y,
+                    Is.EqualTo(slot.Anchor.y).Within(0.0001f),
+                    $"{button.name} must keep its approved semantic y anchor.");
+                Assert.That(
+                    rect.anchorMax,
+                    Is.EqualTo(rect.anchorMin),
+                    $"{button.name} must remain point-anchored after runtime " +
+                    "layout placeholders are applied.");
                 float visibleBodyHeight =
                     rect.rect.height * asset.VisibleVerticalSpan;
                 float expectedBodyHeight =
@@ -380,6 +445,44 @@ namespace Wake.Tests.PlayMode
                     groundShadow.rectTransform.parent.name,
                     Is.EqualTo("Cover Image"));
             }
+        }
+
+        private static Rect CalculateVisibleBackgroundRect(
+            RectTransform content,
+            RectTransform viewport)
+        {
+            Assert.That(content, Is.Not.Null);
+            Assert.That(viewport, Is.Not.Null);
+            Vector2 contentSize = content.rect.size;
+            Vector2 viewportSize = viewport.rect.size;
+            Assert.That(contentSize.x, Is.GreaterThan(0f));
+            Assert.That(contentSize.y, Is.GreaterThan(0f));
+            Assert.That(viewportSize.x, Is.GreaterThan(0f));
+            Assert.That(viewportSize.y, Is.GreaterThan(0f));
+
+            Vector2 offset = content.anchoredPosition;
+            Vector2 pivot = content.pivot;
+            float xMin =
+                (-viewportSize.x * .5f - offset.x) /
+                contentSize.x +
+                pivot.x;
+            float xMax =
+                (viewportSize.x * .5f - offset.x) /
+                contentSize.x +
+                pivot.x;
+            float yMin =
+                (-viewportSize.y * .5f - offset.y) /
+                contentSize.y +
+                pivot.y;
+            float yMax =
+                (viewportSize.y * .5f - offset.y) /
+                contentSize.y +
+                pivot.y;
+            return Rect.MinMaxRect(
+                Mathf.Clamp01(xMin),
+                Mathf.Clamp01(yMin),
+                Mathf.Clamp01(xMax),
+                Mathf.Clamp01(yMax));
         }
 
         [UnityTest]

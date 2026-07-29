@@ -114,6 +114,19 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void DanielSearch_UsesCabinAttendantAsTheRemainingWitness()
+        {
+            AmbientBarkRecord bark = SceneContextBarkCatalog.All.Single(
+                item => item.Id == "SCENE_D104_STAIRS");
+
+            Assert.That(bark.Speaker, Is.EqualTo("CREW_ATTENDANT"));
+            Assert.That(
+                bark.Text,
+                Does.Contain("제가 다니엘 머서 씨를 마지막으로 봤습니다")
+                    .And.Contain("아래층으로 내려갔어요"));
+        }
+
+        [Test]
         public void ExplicitActiveScene_IsNormalizedAndPreferred()
         {
             Assert.That(

@@ -1,0 +1,783 @@
+{
+  "profiles": [
+    {
+      "profileId": "bg_location_d10_1_richard_suite",
+      "analysisConfidence": 0.84,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.16, "y": 0.02 },
+            { "x": 0.74, "y": 0.02 },
+            { "x": 0.75, "y": 0.22 },
+            { "x": 0.61, "y": 0.34 },
+            { "x": 0.32, "y": 0.34 },
+            { "x": 0.19, "y": 0.22 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "foreground_trunks", "rect": { "x": 0.00, "y": 0.00, "width": 0.23, "height": 0.28 }, "points": null },
+        { "kind": "bed", "rect": { "x": 0.12, "y": 0.31, "width": 0.31, "height": 0.30 }, "points": null },
+        { "kind": "desk", "rect": { "x": 0.55, "y": 0.30, "width": 0.22, "height": 0.29 }, "points": null },
+        { "kind": "foreground_chair_and_table", "rect": { "x": 0.72, "y": 0.15, "width": 0.28, "height": 0.43 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "rug_depth_boundary", "rect": { "x": 0.22, "y": 0.05, "width": 0.46, "height": 0.23 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.43, "vanishingPoint": { "x": 0.51, "y": 0.43 }, "confidence": 0.78 },
+      "lighting": { "direction": { "x": -0.71, "y": -0.71 }, "temperatureKelvin": 5200, "note": "Warm daylight enters from the upper-right windows, with weaker amber practical fill." },
+      "candidateSlots": [
+        { "id": "near_left", "foot": { "x": 0.30, "y": 0.09 }, "depth": 0.12, "normalizedHeight": 0.64, "confidence": 0.87 },
+        { "id": "near_center", "foot": { "x": 0.45, "y": 0.10 }, "depth": 0.15, "normalizedHeight": 0.62, "confidence": 0.90 },
+        { "id": "near_right", "foot": { "x": 0.61, "y": 0.13 }, "depth": 0.23, "normalizedHeight": 0.57, "confidence": 0.80 },
+        { "id": "rear_center", "foot": { "x": 0.52, "y": 0.27 }, "depth": 0.52, "normalizedHeight": 0.49, "confidence": 0.68 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "richard_desk_documents", "kind": "SecondaryClue", "priority": "Hard", "rect": { "x": 0.55, "y": 0.30, "width": 0.22, "height": 0.20 }, "points": null, "note": "Keep Richard's desk papers and writing area readable." },
+        { "id": "richard_bed_and_luggage", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.00, "y": 0.00, "width": 0.43, "height": 0.61 }, "points": null, "note": "Preserve the suite-owner and departure context conveyed by the bed and luggage." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Locations: RICHARD_SUITE. Central carpet is the safest actor plane; avoid obscuring desk documents."
+    },
+    {
+      "profileId": "bg_location_d10_2_vip_lounge",
+      "analysisConfidence": 0.82,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.23, "y": 0.02 },
+            { "x": 0.70, "y": 0.02 },
+            { "x": 0.72, "y": 0.23 },
+            { "x": 0.62, "y": 0.39 },
+            { "x": 0.36, "y": 0.39 },
+            { "x": 0.24, "y": 0.25 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "bar", "rect": { "x": 0.00, "y": 0.27, "width": 0.35, "height": 0.51 }, "points": null },
+        { "kind": "foreground_left_furniture", "rect": { "x": 0.00, "y": 0.00, "width": 0.28, "height": 0.32 }, "points": null },
+        { "kind": "sofa_and_coffee_table", "rect": { "x": 0.55, "y": 0.27, "width": 0.35, "height": 0.28 }, "points": null },
+        { "kind": "foreground_right_furniture", "rect": { "x": 0.70, "y": 0.00, "width": 0.30, "height": 0.37 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "bar_stool_clearance", "rect": { "x": 0.30, "y": 0.30, "width": 0.09, "height": 0.18 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.45, "vanishingPoint": { "x": 0.50, "y": 0.47 }, "confidence": 0.80 },
+      "lighting": { "direction": { "x": 0.45, "y": -0.89 }, "temperatureKelvin": 3000, "note": "Mixed violet night ambience and warm table/bar practicals; grade actors toward a warm right-side key." },
+      "candidateSlots": [
+        { "id": "near_left", "foot": { "x": 0.33, "y": 0.09 }, "depth": 0.13, "normalizedHeight": 0.64, "confidence": 0.86 },
+        { "id": "near_center", "foot": { "x": 0.46, "y": 0.08 }, "depth": 0.12, "normalizedHeight": 0.65, "confidence": 0.90 },
+        { "id": "near_right", "foot": { "x": 0.60, "y": 0.11 }, "depth": 0.18, "normalizedHeight": 0.61, "confidence": 0.82 },
+        { "id": "rear_center", "foot": { "x": 0.44, "y": 0.29 }, "depth": 0.56, "normalizedHeight": 0.48, "confidence": 0.67 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "vip_bar_bottle_display", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.00, "y": 0.45, "width": 0.35, "height": 0.33 }, "points": null, "note": "Retain the VIP-lounge identity and bottle silhouettes." },
+        { "id": "vip_table_bottle_and_glasses", "kind": "SecondaryClue", "priority": "Soft", "rect": { "x": 0.58, "y": 0.28, "width": 0.23, "height": 0.18 }, "points": null, "note": "Do not cover the staged drink service on the central-right table." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Shared base sprite for locations: CABIN_CLAIRE, VIP_LOUNGE. The lounge semantics are weaker when reused as Claire's cabin."
+    },
+    {
+      "profileId": "bg_location_d10_3_open_deck",
+      "analysisConfidence": 0.79,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.12, "y": 0.02 },
+            { "x": 0.75, "y": 0.02 },
+            { "x": 0.79, "y": 0.22 },
+            { "x": 0.66, "y": 0.39 },
+            { "x": 0.33, "y": 0.40 },
+            { "x": 0.18, "y": 0.25 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "left_plant_and_lifebuoy", "rect": { "x": 0.00, "y": 0.12, "width": 0.22, "height": 0.43 }, "points": null },
+        { "kind": "telescope", "rect": { "x": 0.23, "y": 0.37, "width": 0.12, "height": 0.29 }, "points": null },
+        { "kind": "deck_chairs", "rect": { "x": 0.42, "y": 0.37, "width": 0.18, "height": 0.21 }, "points": null },
+        { "kind": "foreground_right_chair_and_table", "rect": { "x": 0.63, "y": 0.00, "width": 0.37, "height": 0.48 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "deck_hatch", "rect": { "x": 0.36, "y": 0.03, "width": 0.26, "height": 0.17 }, "points": null },
+        { "kind": "rear_stairs", "rect": { "x": 0.58, "y": 0.49, "width": 0.13, "height": 0.30 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.61, "vanishingPoint": { "x": 0.53, "y": 0.50 }, "confidence": 0.65 },
+      "lighting": { "direction": { "x": 0.91, "y": -0.41 }, "temperatureKelvin": 3900, "note": "Low sunset key enters from the left horizon with cooler sky fill." },
+      "candidateSlots": [
+        { "id": "near_left", "foot": { "x": 0.25, "y": 0.10 }, "depth": 0.12, "normalizedHeight": 0.65, "confidence": 0.83 },
+        { "id": "near_center", "foot": { "x": 0.39, "y": 0.11 }, "depth": 0.14, "normalizedHeight": 0.63, "confidence": 0.87 },
+        { "id": "mid_center", "foot": { "x": 0.55, "y": 0.23 }, "depth": 0.38, "normalizedHeight": 0.53, "confidence": 0.69 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "open_deck_telescope", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.23, "y": 0.37, "width": 0.12, "height": 0.29 }, "points": null, "note": "Preserve the observation motif and silhouette." },
+        { "id": "open_deck_lifebuoy", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.00, "y": 0.25, "width": 0.22, "height": 0.30 }, "points": null, "note": "Keep the maritime safety prop readable." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Locations: OPEN_DECK. The central hatch makes the near-right floor a lower-confidence standing plane."
+    },
+    {
+      "profileId": "bg_location_d6_1_vault",
+      "analysisConfidence": 0.86,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.10, "y": 0.01 },
+            { "x": 0.67, "y": 0.01 },
+            { "x": 0.70, "y": 0.25 },
+            { "x": 0.60, "y": 0.36 },
+            { "x": 0.30, "y": 0.35 },
+            { "x": 0.13, "y": 0.24 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "security_terminals", "rect": { "x": 0.00, "y": 0.17, "width": 0.45, "height": 0.40 }, "points": null },
+        { "kind": "vault_door", "rect": { "x": 0.45, "y": 0.42, "width": 0.28, "height": 0.43 }, "points": null },
+        { "kind": "evidence_cart", "rect": { "x": 0.63, "y": 0.00, "width": 0.37, "height": 0.42 }, "points": null },
+        { "kind": "right_shelves", "rect": { "x": 0.78, "y": 0.35, "width": 0.22, "height": 0.40 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "floor_emblem", "rect": { "x": 0.30, "y": 0.10, "width": 0.31, "height": 0.21 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.40, "vanishingPoint": { "x": 0.53, "y": 0.45 }, "confidence": 0.76 },
+      "lighting": { "direction": { "x": 0.00, "y": -1.00 }, "temperatureKelvin": 3200, "note": "Strong warm overhead practicals; metal surfaces add cool reflected fill." },
+      "candidateSlots": [
+        { "id": "near_left", "foot": { "x": 0.17, "y": 0.08 }, "depth": 0.11, "normalizedHeight": 0.65, "confidence": 0.72 },
+        { "id": "near_center", "foot": { "x": 0.32, "y": 0.07 }, "depth": 0.10, "normalizedHeight": 0.66, "confidence": 0.82 },
+        { "id": "mid_center", "foot": { "x": 0.48, "y": 0.23 }, "depth": 0.43, "normalizedHeight": 0.52, "confidence": 0.61 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "orpheus_master_module", "kind": "MacGuffin", "priority": "Hard", "rect": { "x": 0.76, "y": 0.00, "width": 0.24, "height": 0.30 }, "points": null, "note": "Critical Orpheus master module on the lower-right evidence cart." },
+        { "id": "vault_recorder_dossier", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.63, "y": 0.18, "width": 0.37, "height": 0.25 }, "points": null, "note": "Recorder, dossier, and evidence tape must remain unobscured." },
+        { "id": "vault_security_terminal", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.00, "y": 0.17, "width": 0.45, "height": 0.40 }, "points": null, "note": "Maintain the secure-system context." },
+        { "id": "vault_door_visual", "kind": "StoryObject", "priority": "Hard", "rect": { "x": 0.45, "y": 0.42, "width": 0.28, "height": 0.43 }, "points": null, "note": "The vault door is the scene's primary spatial landmark." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Locations: VAULT. Preserve the lower-right evidence cart even when characters enter from the right."
+    },
+    {
+      "profileId": "bg_location_d6_2_archive",
+      "analysisConfidence": 0.84,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.02, "y": 0.02 },
+            { "x": 0.49, "y": 0.02 },
+            { "x": 0.57, "y": 0.24 },
+            { "x": 0.51, "y": 0.36 },
+            { "x": 0.18, "y": 0.36 },
+            { "x": 0.04, "y": 0.25 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "foreground_evidence_desk", "rect": { "x": 0.34, "y": 0.00, "width": 0.66, "height": 0.45 }, "points": null },
+        { "kind": "left_archive_shelves", "rect": { "x": 0.00, "y": 0.32, "width": 0.53, "height": 0.54 }, "points": null },
+        { "kind": "recording_console", "rect": { "x": 0.55, "y": 0.43, "width": 0.31, "height": 0.27 }, "points": null },
+        { "kind": "right_archive_shelves", "rect": { "x": 0.85, "y": 0.30, "width": 0.15, "height": 0.60 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "foreground_carpet", "rect": { "x": 0.03, "y": 0.04, "width": 0.41, "height": 0.26 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.39, "vanishingPoint": { "x": 0.53, "y": 0.45 }, "confidence": 0.73 },
+      "lighting": { "direction": { "x": -0.55, "y": -0.83 }, "temperatureKelvin": 4300, "note": "Mixed right-window daylight and warm desk-lamp illumination." },
+      "candidateSlots": [
+        { "id": "near_left", "foot": { "x": 0.12, "y": 0.09 }, "depth": 0.12, "normalizedHeight": 0.64, "confidence": 0.78 },
+        { "id": "near_center", "foot": { "x": 0.24, "y": 0.10 }, "depth": 0.14, "normalizedHeight": 0.62, "confidence": 0.83 },
+        { "id": "rear_left", "foot": { "x": 0.22, "y": 0.27 }, "depth": 0.52, "normalizedHeight": 0.49, "confidence": 0.65 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "archive_original_recording_module", "kind": "MacGuffin", "priority": "Hard", "rect": { "x": 0.57, "y": 0.19, "width": 0.25, "height": 0.29 }, "points": null, "note": "The original Orpheus recording module must remain visible." },
+        { "id": "archive_transcript_casefiles", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.49, "y": 0.00, "width": 0.51, "height": 0.24 }, "points": null, "note": "Protect the transcript and case-file spread on the foreground desk." },
+        { "id": "C-17", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.57, "y": 0.21, "width": 0.20, "height": 0.20 }, "points": null, "note": "Catalog clue C-17; merge this visual estimate with the catalog record." },
+        { "id": "archive_reel_console", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.55, "y": 0.43, "width": 0.31, "height": 0.27 }, "points": null, "note": "Preserve the archival recording context." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Locations: ARCHIVE. The right half is evidence-dense; prefer actor placement in the left aisle."
+    },
+    {
+      "profileId": "bg_location_d7_1_medbay_evidence",
+      "analysisConfidence": 0.87,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.16, "y": 0.02 },
+            { "x": 0.73, "y": 0.02 },
+            { "x": 0.76, "y": 0.25 },
+            { "x": 0.62, "y": 0.37 },
+            { "x": 0.31, "y": 0.37 },
+            { "x": 0.18, "y": 0.24 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "foreground_instruments", "rect": { "x": 0.00, "y": 0.00, "width": 0.27, "height": 0.30 }, "points": null },
+        { "kind": "operating_bed", "rect": { "x": 0.42, "y": 0.34, "width": 0.26, "height": 0.29 }, "points": null },
+        { "kind": "right_gurney", "rect": { "x": 0.65, "y": 0.33, "width": 0.23, "height": 0.29 }, "points": null },
+        { "kind": "foreground_evidence_table", "rect": { "x": 0.55, "y": 0.00, "width": 0.45, "height": 0.32 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "medical_emblem_floor", "rect": { "x": 0.30, "y": 0.17, "width": 0.32, "height": 0.21 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.44, "vanishingPoint": { "x": 0.54, "y": 0.47 }, "confidence": 0.78 },
+      "lighting": { "direction": { "x": -0.15, "y": -0.99 }, "temperatureKelvin": 4800, "note": "Cool surgical overhead light mixed with softer daylight from the right." },
+      "candidateSlots": [
+        { "id": "near_left", "foot": { "x": 0.29, "y": 0.08 }, "depth": 0.10, "normalizedHeight": 0.65, "confidence": 0.80 },
+        { "id": "near_center", "foot": { "x": 0.35, "y": 0.09 }, "depth": 0.13, "normalizedHeight": 0.63, "confidence": 0.85 },
+        { "id": "mid_left", "foot": { "x": 0.32, "y": 0.28 }, "depth": 0.55, "normalizedHeight": 0.47, "confidence": 0.58 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "C-11", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.06, "y": 0.045, "width": 0.14, "height": 0.15 }, "points": null, "note": "Catalog clue C-11; preserve the foreground medical evidence." },
+        { "id": "C-15", "kind": "SecondaryClue", "priority": "Hard", "rect": { "x": 0.81, "y": 0.17, "width": 0.16, "height": 0.14 }, "points": null, "note": "Catalog clue C-15 within the right-side specimen/report grouping." },
+        { "id": "C-16", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.73, "y": 0.14, "width": 0.18, "height": 0.20 }, "points": null, "note": "Catalog clue C-16; keep the right evidence cluster readable." },
+        { "id": "medbay_sealed_evidence_bag", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.73, "y": 0.43, "width": 0.13, "height": 0.18 }, "points": null, "note": "The sealed evidence bag and coil on the gurney must not be covered." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Locations: MEDBAY. The scene has separate foreground and gurney evidence clusters; keep both clear."
+    },
+    {
+      "profileId": "bg_location_d7_2_ballast_control_annex_evidence",
+      "analysisConfidence": 0.86,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.16, "y": 0.02 },
+            { "x": 0.70, "y": 0.02 },
+            { "x": 0.69, "y": 0.26 },
+            { "x": 0.57, "y": 0.40 },
+            { "x": 0.30, "y": 0.39 },
+            { "x": 0.17, "y": 0.27 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "left_lab_cart", "rect": { "x": 0.00, "y": 0.03, "width": 0.18, "height": 0.37 }, "points": null },
+        { "kind": "control_console", "rect": { "x": 0.22, "y": 0.34, "width": 0.24, "height": 0.33 }, "points": null },
+        { "kind": "cylinders_and_sink", "rect": { "x": 0.59, "y": 0.32, "width": 0.25, "height": 0.37 }, "points": null },
+        { "kind": "evidence_bench", "rect": { "x": 0.56, "y": 0.00, "width": 0.44, "height": 0.28 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "blood_trail", "rect": { "x": 0.18, "y": 0.00, "width": 0.35, "height": 0.26 }, "points": null },
+        { "kind": "wet_grate", "rect": { "x": 0.45, "y": 0.12, "width": 0.23, "height": 0.30 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.41, "vanishingPoint": { "x": 0.52, "y": 0.43 }, "confidence": 0.82 },
+      "lighting": { "direction": { "x": -0.20, "y": -0.98 }, "temperatureKelvin": 3600, "note": "Warm overhead practicals with cool porthole fill and strong metallic reflections." },
+      "candidateSlots": [
+        { "id": "near_left_edge", "foot": { "x": 0.20, "y": 0.08 }, "depth": 0.11, "normalizedHeight": 0.65, "confidence": 0.48 },
+        { "id": "near_center", "foot": { "x": 0.43, "y": 0.08 }, "depth": 0.12, "normalizedHeight": 0.64, "confidence": 0.50 },
+        { "id": "rear_center", "foot": { "x": 0.51, "y": 0.34 }, "depth": 0.70, "normalizedHeight": 0.40, "confidence": 0.52 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "C-06", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.15, "y": 0.03, "width": 0.14, "height": 0.12 }, "points": null, "note": "Catalog clue C-06; preserve its floor-level evidence footprint." },
+        { "id": "C-12", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.56, "y": 0.42, "width": 0.18, "height": 0.26 }, "points": null, "note": "Catalog clue C-12; merge with the catalog record during review." },
+        { "id": "ballast_blood_trail", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.18, "y": 0.00, "width": 0.35, "height": 0.26 }, "points": null, "note": "Blood trail is a primary directional clue and must remain uninterrupted." },
+        { "id": "ballast_muddy_boot_report", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.57, "y": 0.03, "width": 0.43, "height": 0.25 }, "points": null, "note": "Protect the muddy boot sole, analyst report, and associated tools." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Locations: BALLAST_CONTROL_ANNEX. Actor confidence is deliberately lower because most safe floor intersects blood, wet grating, or evidence sightlines."
+    },
+    {
+      "profileId": "bg_location_d7_3_engine_control_evidence",
+      "analysisConfidence": 0.82,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.16, "y": 0.02 },
+            { "x": 0.74, "y": 0.02 },
+            { "x": 0.76, "y": 0.31 },
+            { "x": 0.65, "y": 0.41 },
+            { "x": 0.32, "y": 0.42 },
+            { "x": 0.18, "y": 0.29 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "left_control_console", "rect": { "x": 0.00, "y": 0.17, "width": 0.27, "height": 0.44 }, "points": null },
+        { "kind": "foreground_workbench", "rect": { "x": 0.55, "y": 0.00, "width": 0.45, "height": 0.28 }, "points": null },
+        { "kind": "turbine", "rect": { "x": 0.51, "y": 0.37, "width": 0.32, "height": 0.35 }, "points": null },
+        { "kind": "central_control_pedestal", "rect": { "x": 0.40, "y": 0.38, "width": 0.15, "height": 0.20 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "floor_hatch", "rect": { "x": 0.25, "y": 0.16, "width": 0.24, "height": 0.19 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.43, "vanishingPoint": { "x": 0.50, "y": 0.46 }, "confidence": 0.76 },
+      "lighting": { "direction": { "x": -0.65, "y": -0.76 }, "temperatureKelvin": 5600, "note": "Cool green backlight from machinery with warm local practical accents." },
+      "candidateSlots": [
+        { "id": "near_left", "foot": { "x": 0.23, "y": 0.08 }, "depth": 0.10, "normalizedHeight": 0.65, "confidence": 0.82 },
+        { "id": "near_center", "foot": { "x": 0.38, "y": 0.09 }, "depth": 0.12, "normalizedHeight": 0.64, "confidence": 0.88 },
+        { "id": "mid_right", "foot": { "x": 0.52, "y": 0.29 }, "depth": 0.52, "normalizedHeight": 0.49, "confidence": 0.63 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "C-09", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.015, "y": 0.26, "width": 0.17, "height": 0.24 }, "points": null, "note": "Catalog clue C-09, the engine-output chart at the left controls." },
+        { "id": "engine_turbine", "kind": "StoryObject", "priority": "Hard", "rect": { "x": 0.51, "y": 0.37, "width": 0.32, "height": 0.35 }, "points": null, "note": "The turbine is the scene's principal identity and scale landmark." },
+        { "id": "engine_foreground_tools", "kind": "SecondaryClue", "priority": "Soft", "rect": { "x": 0.55, "y": 0.00, "width": 0.45, "height": 0.28 }, "points": null, "note": "Keep the foreground maintenance tools and notes legible." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Shared base sprite for locations: BRIDGE, ENGINE_CONTROL. Visual semantics strongly describe engine control and are weaker for BRIDGE reuse."
+    },
+    {
+      "profileId": "bg_location_d7_4_crew_stairs",
+      "analysisConfidence": 0.70,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.18, "y": 0.00 },
+            { "x": 0.64, "y": 0.00 },
+            { "x": 0.62, "y": 0.16 },
+            { "x": 0.43, "y": 0.21 },
+            { "x": 0.23, "y": 0.17 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "stairs", "rect": { "x": 0.23, "y": 0.17, "width": 0.32, "height": 0.75 }, "points": null },
+        { "kind": "stairwell_void", "rect": { "x": 0.42, "y": 0.15, "width": 0.23, "height": 0.35 }, "points": null },
+        { "kind": "right_walkway_hazard", "rect": { "x": 0.64, "y": 0.00, "width": 0.26, "height": 0.47 }, "points": null },
+        { "kind": "caution_sign", "rect": { "x": 0.69, "y": 0.02, "width": 0.13, "height": 0.27 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "wet_bloodied_landing", "rect": { "x": 0.17, "y": 0.00, "width": 0.45, "height": 0.20 }, "points": null },
+        { "kind": "right_wet_route", "rect": { "x": 0.65, "y": 0.15, "width": 0.20, "height": 0.32 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.48, "vanishingPoint": { "x": 0.72, "y": 0.50 }, "confidence": 0.55 },
+      "lighting": { "direction": { "x": 0.65, "y": -0.76 }, "temperatureKelvin": 3000, "note": "Warm industrial practicals from the upper-left and right walkway; deep shadow in the stairwell." },
+      "candidateSlots": [
+        { "id": "near_left", "foot": { "x": 0.20, "y": 0.06 }, "depth": 0.10, "normalizedHeight": 0.64, "confidence": 0.48 },
+        { "id": "near_center", "foot": { "x": 0.34, "y": 0.07 }, "depth": 0.12, "normalizedHeight": 0.62, "confidence": 0.55 },
+        { "id": "near_right", "foot": { "x": 0.53, "y": 0.08 }, "depth": 0.16, "normalizedHeight": 0.59, "confidence": 0.42 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "crew_stairs_incident_report", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.03, "y": 0.35, "width": 0.17, "height": 0.28 }, "points": null, "note": "Protect the posted incident report on the left wall." },
+        { "id": "crew_stairs_blood_and_handprints", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.18, "y": 0.16, "width": 0.37, "height": 0.57 }, "points": null, "note": "Blood trail and handprints communicate the incident route." },
+        { "id": "crew_stairs_wet_floor_trail", "kind": "SecondaryClue", "priority": "Hard", "rect": { "x": 0.17, "y": 0.00, "width": 0.45, "height": 0.20 }, "points": null, "note": "Do not cover the wet-floor and blood continuity across the landing." },
+        { "id": "crew_stairs_caution_sign", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.69, "y": 0.02, "width": 0.13, "height": 0.27 }, "points": null, "note": "The caution sign reinforces the wet-floor reading." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Shared base sprite for locations: CREW_STAIRS, SERVICE7. This is a hazard-heavy composition; all actor slots require user review."
+    },
+    {
+      "profileId": "bg_location_d8_1_atrium",
+      "analysisConfidence": 0.84,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.10, "y": 0.02 },
+            { "x": 0.91, "y": 0.02 },
+            { "x": 0.86, "y": 0.18 },
+            { "x": 0.70, "y": 0.26 },
+            { "x": 0.30, "y": 0.26 },
+            { "x": 0.13, "y": 0.17 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "left_foliage", "rect": { "x": 0.00, "y": 0.00, "width": 0.16, "height": 0.55 }, "points": null },
+        { "kind": "right_foliage", "rect": { "x": 0.74, "y": 0.00, "width": 0.26, "height": 0.40 }, "points": null },
+        { "kind": "stairs", "rect": { "x": 0.20, "y": 0.24, "width": 0.29, "height": 0.37 }, "points": null },
+        { "kind": "elevator", "rect": { "x": 0.45, "y": 0.24, "width": 0.15, "height": 0.31 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "circular_mosaic", "rect": { "x": 0.17, "y": 0.03, "width": 0.67, "height": 0.24 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.37, "vanishingPoint": { "x": 0.50, "y": 0.38 }, "confidence": 0.75 },
+      "lighting": { "direction": { "x": 0.00, "y": -1.00 }, "temperatureKelvin": 3400, "note": "Warm overhead atrium practicals with balanced skylight fill." },
+      "candidateSlots": [
+        { "id": "near_left", "foot": { "x": 0.25, "y": 0.10 }, "depth": 0.15, "normalizedHeight": 0.62, "confidence": 0.90 },
+        { "id": "near_mid_left", "foot": { "x": 0.39, "y": 0.14 }, "depth": 0.28, "normalizedHeight": 0.57, "confidence": 0.84 },
+        { "id": "near_mid_right", "foot": { "x": 0.61, "y": 0.14 }, "depth": 0.28, "normalizedHeight": 0.57, "confidence": 0.84 },
+        { "id": "near_right", "foot": { "x": 0.69, "y": 0.10 }, "depth": 0.16, "normalizedHeight": 0.62, "confidence": 0.78 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "atrium_central_mosaic", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.17, "y": 0.03, "width": 0.67, "height": 0.24 }, "points": null, "note": "Preserve enough of the circular mosaic to keep the atrium landmark readable." },
+        { "id": "atrium_elevator_hourglass", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.45, "y": 0.24, "width": 0.15, "height": 0.43 }, "points": null, "note": "Keep the elevator and hourglass motif unobscured." },
+        { "id": "atrium_staircase", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.20, "y": 0.24, "width": 0.29, "height": 0.37 }, "points": null, "note": "Maintain the primary route cue provided by the stair." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Locations: ATRIUM. The broad mosaic supports multiple actors, but overlapping its center should be staged sparingly."
+    },
+    {
+      "profileId": "bg_location_d8_2_news_lounge_evidence",
+      "analysisConfidence": 0.84,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.12, "y": 0.02 },
+            { "x": 0.64, "y": 0.02 },
+            { "x": 0.68, "y": 0.25 },
+            { "x": 0.57, "y": 0.35 },
+            { "x": 0.30, "y": 0.35 },
+            { "x": 0.14, "y": 0.23 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "foreground_evidence_table", "rect": { "x": 0.48, "y": 0.00, "width": 0.52, "height": 0.29 }, "points": null },
+        { "kind": "newspaper_stand", "rect": { "x": 0.10, "y": 0.26, "width": 0.19, "height": 0.36 }, "points": null },
+        { "kind": "center_chairs_and_table", "rect": { "x": 0.42, "y": 0.31, "width": 0.34, "height": 0.27 }, "points": null },
+        { "kind": "right_stands", "rect": { "x": 0.78, "y": 0.18, "width": 0.22, "height": 0.35 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "foreground_rug", "rect": { "x": 0.12, "y": 0.02, "width": 0.52, "height": 0.25 }, "points": null },
+        { "kind": "headline_sightlines", "rect": { "x": 0.23, "y": 0.53, "width": 0.52, "height": 0.34 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.42, "vanishingPoint": { "x": 0.54, "y": 0.44 }, "confidence": 0.72 },
+      "lighting": { "direction": { "x": -0.25, "y": -0.97 }, "temperatureKelvin": 3400, "note": "Warm practicals dominate, with soft cool window and display fill." },
+      "candidateSlots": [
+        { "id": "near_left", "foot": { "x": 0.20, "y": 0.08 }, "depth": 0.10, "normalizedHeight": 0.65, "confidence": 0.82 },
+        { "id": "near_center", "foot": { "x": 0.34, "y": 0.07 }, "depth": 0.10, "normalizedHeight": 0.66, "confidence": 0.88 },
+        { "id": "mid_left", "foot": { "x": 0.35, "y": 0.25 }, "depth": 0.45, "normalizedHeight": 0.51, "confidence": 0.62 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "news_daniel_article_broadcast", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.22, "y": 0.54, "width": 0.25, "height": 0.24 }, "points": null, "note": "Keep Daniel's article/broadcast panel legible." },
+        { "id": "news_richard_suspect_board", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.42, "y": 0.54, "width": 0.31, "height": 0.31 }, "points": null, "note": "The Richard suspect board is a primary narrative read." },
+        { "id": "news_foreground_richard_newspaper", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.49, "y": 0.00, "width": 0.43, "height": 0.22 }, "points": null, "note": "Protect the foreground newspaper headline and photo." },
+        { "id": "news_table_tablet_documents", "kind": "SecondaryClue", "priority": "Hard", "rect": { "x": 0.53, "y": 0.36, "width": 0.16, "height": 0.18 }, "points": null, "note": "Keep the tablet and document grouping readable." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Shared base sprite for locations: CABIN_DANIEL, NEWS_LOUNGE. The news-lounge identity and clue board are semantically inconsistent with cabin reuse."
+    },
+    {
+      "profileId": "bg_location_d8_3_security_evidence",
+      "analysisConfidence": 0.81,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.14, "y": 0.02 },
+            { "x": 0.75, "y": 0.02 },
+            { "x": 0.75, "y": 0.25 },
+            { "x": 0.62, "y": 0.34 },
+            { "x": 0.31, "y": 0.34 },
+            { "x": 0.16, "y": 0.23 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "security_console", "rect": { "x": 0.05, "y": 0.27, "width": 0.40, "height": 0.38 }, "points": null },
+        { "kind": "operator_chair", "rect": { "x": 0.13, "y": 0.19, "width": 0.15, "height": 0.33 }, "points": null },
+        { "kind": "foreground_files", "rect": { "x": 0.68, "y": 0.00, "width": 0.32, "height": 0.30 }, "points": null },
+        { "kind": "security_door", "rect": { "x": 0.57, "y": 0.40, "width": 0.19, "height": 0.36 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "key_rack", "rect": { "x": 0.43, "y": 0.52, "width": 0.13, "height": 0.20 }, "points": null },
+        { "kind": "cctv_screen_sightline", "rect": { "x": 0.08, "y": 0.61, "width": 0.23, "height": 0.29 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.41, "vanishingPoint": { "x": 0.53, "y": 0.44 }, "confidence": 0.74 },
+      "lighting": { "direction": { "x": 0.25, "y": -0.97 }, "temperatureKelvin": 3800, "note": "Warm overhead key with green-blue monitor spill from the left." },
+      "candidateSlots": [
+        { "id": "near_left", "foot": { "x": 0.28, "y": 0.08 }, "depth": 0.10, "normalizedHeight": 0.65, "confidence": 0.85 },
+        { "id": "near_center", "foot": { "x": 0.42, "y": 0.09 }, "depth": 0.13, "normalizedHeight": 0.63, "confidence": 0.88 },
+        { "id": "near_right", "foot": { "x": 0.58, "y": 0.10 }, "depth": 0.16, "normalizedHeight": 0.61, "confidence": 0.80 },
+        { "id": "rear_center", "foot": { "x": 0.55, "y": 0.26 }, "depth": 0.52, "normalizedHeight": 0.49, "confidence": 0.59 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "C-08", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.60, "y": 0.83, "width": 0.12, "height": 0.10 }, "points": null, "note": "Catalog clue C-08; coordinate should be reconciled with the visible CCTV array during review." },
+        { "id": "C-13", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.46, "y": 0.42, "width": 0.16, "height": 0.14 }, "points": null, "note": "Catalog clue C-13 for the interview/security evidence mapping." },
+        { "id": "security_visible_cctv_array", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.08, "y": 0.61, "width": 0.23, "height": 0.29 }, "points": null, "note": "Preserve the visible CCTV screens independently of the catalog coordinate." },
+        { "id": "security_files_and_badge", "kind": "SecondaryClue", "priority": "Hard", "rect": { "x": 0.68, "y": 0.00, "width": 0.32, "height": 0.30 }, "points": null, "note": "Keep the foreground files and badge visible." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Shared base sprite for locations: INTERVIEW, SECURITY. Security-room semantics are inconsistent with INTERVIEW reuse; C-08 catalog placement also appears visually offset and needs manual reconciliation."
+    },
+    {
+      "profileId": "bg_location_d8_4_service_rail",
+      "analysisConfidence": 0.88,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.24, "y": 0.01 },
+            { "x": 0.72, "y": 0.01 },
+            { "x": 0.63, "y": 0.54 },
+            { "x": 0.48, "y": 0.54 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "left_trolley", "rect": { "x": 0.08, "y": 0.14, "width": 0.17, "height": 0.24 }, "points": null },
+        { "kind": "hanging_cargo", "rect": { "x": 0.24, "y": 0.38, "width": 0.14, "height": 0.29 }, "points": null },
+        { "kind": "moving_rail_track", "rect": { "x": 0.25, "y": 0.00, "width": 0.36, "height": 0.58 }, "points": null },
+        { "kind": "right_stairs_and_platform", "rect": { "x": 0.61, "y": 0.24, "width": 0.16, "height": 0.58 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "right_grated_walkway", "rect": { "x": 0.66, "y": 0.00, "width": 0.20, "height": 0.35 }, "points": null },
+        { "kind": "low_overhead_rail_clearance", "rect": { "x": 0.18, "y": 0.60, "width": 0.60, "height": 0.35 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.58, "vanishingPoint": { "x": 0.56, "y": 0.59 }, "confidence": 0.89 },
+      "lighting": { "direction": { "x": 0.00, "y": -1.00 }, "temperatureKelvin": 3200, "note": "Repeating warm industrial overhead lights create a strong corridor gradient." },
+      "candidateSlots": [
+        { "id": "mid_right_inner", "foot": { "x": 0.64, "y": 0.16 }, "depth": 0.28, "normalizedHeight": 0.57, "confidence": 0.42 },
+        { "id": "near_right_grate", "foot": { "x": 0.70, "y": 0.08 }, "depth": 0.10, "normalizedHeight": 0.64, "confidence": 0.68 },
+        { "id": "mid_right", "foot": { "x": 0.62, "y": 0.23 }, "depth": 0.45, "normalizedHeight": 0.52, "confidence": 0.58 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "C-10", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.235, "y": 0.37, "width": 0.15, "height": 0.22 }, "points": null, "note": "Catalog clue C-10 on or near the suspended cargo." },
+        { "id": "service_rail_route_map", "kind": "StoryObject", "priority": "Hard", "rect": { "x": 0.78, "y": 0.35, "width": 0.18, "height": 0.43 }, "points": null, "note": "Preserve the route map and service-navigation context." },
+        { "id": "service_rail_hanging_cargo", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.24, "y": 0.38, "width": 0.14, "height": 0.29 }, "points": null, "note": "Keep the hanging cargo silhouette visible." },
+        { "id": "service_rail_track_control", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.68, "y": 0.28, "width": 0.10, "height": 0.18 }, "points": null, "note": "Maintain the rail-control visual cue." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Locations: SERVICE_RAIL. Candidate slots on the central track are intentionally low-confidence; the right grate is the safest near plane."
+    },
+    {
+      "profileId": "bg_location_d9_1_ballroom",
+      "analysisConfidence": 0.89,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.20, "y": 0.07 },
+            { "x": 0.81, "y": 0.06 },
+            { "x": 0.84, "y": 0.25 },
+            { "x": 0.71, "y": 0.40 },
+            { "x": 0.32, "y": 0.40 },
+            { "x": 0.18, "y": 0.24 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "foreground_left_tables", "rect": { "x": 0.00, "y": 0.00, "width": 0.27, "height": 0.25 }, "points": null },
+        { "kind": "foreground_left_chairs", "rect": { "x": 0.24, "y": 0.00, "width": 0.12, "height": 0.20 }, "points": null },
+        { "kind": "foreground_right_tables_and_chairs", "rect": { "x": 0.60, "y": 0.00, "width": 0.40, "height": 0.29 }, "points": null },
+        { "kind": "stage_and_piano", "rect": { "x": 0.45, "y": 0.35, "width": 0.30, "height": 0.27 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "stage_lip", "rect": { "x": 0.43, "y": 0.34, "width": 0.33, "height": 0.09 }, "points": null },
+        { "kind": "glossy_dance_floor", "rect": { "x": 0.24, "y": 0.12, "width": 0.54, "height": 0.28 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.42, "vanishingPoint": { "x": 0.53, "y": 0.44 }, "confidence": 0.84 },
+      "lighting": { "direction": { "x": 0.00, "y": -1.00 }, "temperatureKelvin": 3400, "note": "Warm chandelier key with broad soft fill and strong floor reflections." },
+      "candidateSlots": [
+        { "id": "mid_left", "foot": { "x": 0.29, "y": 0.25 }, "depth": 0.40, "normalizedHeight": 0.53, "confidence": 0.86 },
+        { "id": "near_mid_left", "foot": { "x": 0.42, "y": 0.11 }, "depth": 0.14, "normalizedHeight": 0.64, "confidence": 0.93 },
+        { "id": "near_mid_right", "foot": { "x": 0.58, "y": 0.12 }, "depth": 0.15, "normalizedHeight": 0.63, "confidence": 0.93 },
+        { "id": "mid_right", "foot": { "x": 0.72, "y": 0.30 }, "depth": 0.54, "normalizedHeight": 0.49, "confidence": 0.68 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "ballroom_piano_stage", "kind": "StoryObject", "priority": "Hard", "rect": { "x": 0.45, "y": 0.35, "width": 0.30, "height": 0.27 }, "points": null, "note": "The piano and stage establish the ballroom's event context." },
+        { "id": "ballroom_torn_curtains", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.00, "y": 0.35, "width": 1.00, "height": 0.65 }, "points": null, "note": "Avoid large overlays that erase the damaged curtain silhouette." },
+        { "id": "ballroom_dance_floor", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.24, "y": 0.12, "width": 0.54, "height": 0.28 }, "points": null, "note": "Keep enough of the empty dance floor visible to preserve scale and mood." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Locations: BALLROOM. This is the cleanest multi-character stage among the base backgrounds."
+    },
+    {
+      "profileId": "bg_location_d9_2_dining",
+      "analysisConfidence": 0.83,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.20, "y": 0.02 },
+            { "x": 0.69, "y": 0.02 },
+            { "x": 0.70, "y": 0.24 },
+            { "x": 0.61, "y": 0.39 },
+            { "x": 0.34, "y": 0.39 },
+            { "x": 0.22, "y": 0.25 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "serving_cart", "rect": { "x": 0.00, "y": 0.00, "width": 0.29, "height": 0.35 }, "points": null },
+        { "kind": "foreground_right_table", "rect": { "x": 0.63, "y": 0.00, "width": 0.37, "height": 0.43 }, "points": null },
+        { "kind": "left_dining_tables", "rect": { "x": 0.20, "y": 0.38, "width": 0.31, "height": 0.24 }, "points": null },
+        { "kind": "right_dining_tables", "rect": { "x": 0.74, "y": 0.35, "width": 0.26, "height": 0.26 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "floor_medallion", "rect": { "x": 0.38, "y": 0.24, "width": 0.26, "height": 0.19 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.43, "vanishingPoint": { "x": 0.53, "y": 0.46 }, "confidence": 0.78 },
+      "lighting": { "direction": { "x": 0.35, "y": -0.94 }, "temperatureKelvin": 3300, "note": "Warm overhead dining lights with a low sunset accent from the left windows." },
+      "candidateSlots": [
+        { "id": "near_left", "foot": { "x": 0.31, "y": 0.09 }, "depth": 0.11, "normalizedHeight": 0.65, "confidence": 0.87 },
+        { "id": "near_center", "foot": { "x": 0.42, "y": 0.08 }, "depth": 0.10, "normalizedHeight": 0.66, "confidence": 0.90 },
+        { "id": "mid_center", "foot": { "x": 0.53, "y": 0.29 }, "depth": 0.58, "normalizedHeight": 0.47, "confidence": 0.68 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "dining_champagne_cart", "kind": "SecondaryClue", "priority": "Soft", "rect": { "x": 0.00, "y": 0.00, "width": 0.29, "height": 0.35 }, "points": null, "note": "Preserve the champagne service and dining-event context." },
+        { "id": "dining_service_tables", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.20, "y": 0.38, "width": 0.31, "height": 0.24 }, "points": null, "note": "Keep the formal table setting readable." },
+        { "id": "dining_central_medallion", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.38, "y": 0.24, "width": 0.26, "height": 0.19 }, "points": null, "note": "Retain the floor medallion as a spatial anchor." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Locations: DINING. Foreground furniture narrows the usable plane to a central aisle."
+    },
+    {
+      "profileId": "bg_location_d9_3_promenade_evidence",
+      "analysisConfidence": 0.91,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.18, "y": 0.02 },
+            { "x": 0.82, "y": 0.02 },
+            { "x": 0.64, "y": 0.60 },
+            { "x": 0.30, "y": 0.60 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "bench_and_evidence", "rect": { "x": 0.10, "y": 0.22, "width": 0.21, "height": 0.31 }, "points": null },
+        { "kind": "right_planter_and_lifebuoy", "rect": { "x": 0.61, "y": 0.25, "width": 0.18, "height": 0.24 }, "points": null },
+        { "kind": "foreground_left_plant", "rect": { "x": 0.00, "y": 0.00, "width": 0.13, "height": 0.43 }, "points": null },
+        { "kind": "right_rail_and_windows", "rect": { "x": 0.78, "y": 0.18, "width": 0.22, "height": 0.72 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "long_window_shadow", "rect": { "x": 0.24, "y": 0.08, "width": 0.55, "height": 0.50 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.53, "vanishingPoint": { "x": 0.31, "y": 0.53 }, "confidence": 0.92 },
+      "lighting": { "direction": { "x": -0.85, "y": -0.53 }, "temperatureKelvin": 6000, "note": "Bright cool daylight enters from the right windows and casts long leftward shadows." },
+      "candidateSlots": [
+        { "id": "near_left", "foot": { "x": 0.30, "y": 0.08 }, "depth": 0.10, "normalizedHeight": 0.65, "confidence": 0.85 },
+        { "id": "near_center", "foot": { "x": 0.48, "y": 0.09 }, "depth": 0.12, "normalizedHeight": 0.64, "confidence": 0.91 },
+        { "id": "near_right", "foot": { "x": 0.67, "y": 0.13 }, "depth": 0.20, "normalizedHeight": 0.59, "confidence": 0.84 },
+        { "id": "rear_center", "foot": { "x": 0.43, "y": 0.36 }, "depth": 0.63, "normalizedHeight": 0.44, "confidence": 0.72 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "C-14", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.14, "y": 0.27, "width": 0.18, "height": 0.18 }, "points": null, "note": "Catalog clue C-14 on the left bench." },
+        { "id": "promenade_tablet_question_papers", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.15, "y": 0.29, "width": 0.15, "height": 0.20 }, "points": null, "note": "Tablet and question papers must remain legible." },
+        { "id": "promenade_lifebuoy", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.66, "y": 0.25, "width": 0.12, "height": 0.22 }, "points": null, "note": "Preserve the maritime route landmark." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Locations: PROMENADE. Strong one-point corridor perspective provides reliable depth scaling."
+    },
+    {
+      "profileId": "bg_location_d9_4_horizon_room_evidence",
+      "analysisConfidence": 0.84,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.11, "y": 0.01 },
+            { "x": 0.89, "y": 0.01 },
+            { "x": 0.85, "y": 0.26 },
+            { "x": 0.74, "y": 0.43 },
+            { "x": 0.30, "y": 0.43 },
+            { "x": 0.13, "y": 0.28 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "corpse", "rect": { "x": 0.27, "y": 0.14, "width": 0.36, "height": 0.28 }, "points": null },
+        { "kind": "flooded_floor", "rect": { "x": 0.70, "y": 0.00, "width": 0.30, "height": 0.34 }, "points": null },
+        { "kind": "foreground_left_table", "rect": { "x": 0.00, "y": 0.00, "width": 0.26, "height": 0.31 }, "points": null },
+        { "kind": "right_sink_and_cabinet", "rect": { "x": 0.83, "y": 0.00, "width": 0.17, "height": 0.48 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "blood_pool", "rect": { "x": 0.51, "y": 0.27, "width": 0.14, "height": 0.15 }, "points": null },
+        { "kind": "dropped_evidence_items", "rect": { "x": 0.46, "y": 0.10, "width": 0.18, "height": 0.14 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.59, "vanishingPoint": { "x": 0.56, "y": 0.53 }, "confidence": 0.77 },
+      "lighting": { "direction": { "x": 0.55, "y": -0.84 }, "temperatureKelvin": 5000, "note": "Cool dusk/window backlight from the left-center with warm room practical fill." },
+      "candidateSlots": [
+        { "id": "near_right_edge", "foot": { "x": 0.67, "y": 0.12 }, "depth": 0.22, "normalizedHeight": 0.59, "confidence": 0.46 },
+        { "id": "rear_left", "foot": { "x": 0.265, "y": 0.38 }, "depth": 0.68, "normalizedHeight": 0.42, "confidence": 0.41 },
+        { "id": "rear_right", "foot": { "x": 0.67, "y": 0.40 }, "depth": 0.65, "normalizedHeight": 0.43, "confidence": 0.37 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "horizon_corpse", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.27, "y": 0.14, "width": 0.36, "height": 0.28 }, "points": null, "note": "The body is the discovery scene's primary narrative anchor." },
+        { "id": "horizon_blood_pool", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.51, "y": 0.27, "width": 0.14, "height": 0.15 }, "points": null, "note": "Maintain the blood pool's relation to the body." },
+        { "id": "horizon_phone_id_briefcase", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.46, "y": 0.08, "width": 0.20, "height": 0.18 }, "points": null, "note": "Protect the phone, identification, briefcase, and journal cluster." },
+        { "id": "horizon_flooded_sink", "kind": "SecondaryClue", "priority": "Hard", "rect": { "x": 0.70, "y": 0.00, "width": 0.30, "height": 0.34 }, "points": null, "note": "The flooded sink and wet floor form an important secondary causal clue." },
+        { "id": "horizon_telescope", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.23, "y": 0.40, "width": 0.15, "height": 0.30 }, "points": null, "note": "Preserve the telescope and horizon-room identity." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Locations: HORIZON. The body, dropped items, blood, and flooded floor leave no high-confidence near-center actor slot."
+    },
+    {
+      "profileId": "bg_location_gangway",
+      "analysisConfidence": 0.90,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.38, "y": 0.02 },
+            { "x": 0.88, "y": 0.02 },
+            { "x": 0.72, "y": 0.62 },
+            { "x": 0.54, "y": 0.62 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "registration_desk", "rect": { "x": 0.00, "y": 0.00, "width": 0.45, "height": 0.46 }, "points": null },
+        { "kind": "left_windows_and_rail", "rect": { "x": 0.00, "y": 0.45, "width": 0.47, "height": 0.55 }, "points": null },
+        { "kind": "right_wall_and_rail", "rect": { "x": 0.83, "y": 0.00, "width": 0.17, "height": 1.00 }, "points": null },
+        { "kind": "far_access_door", "rect": { "x": 0.57, "y": 0.62, "width": 0.14, "height": 0.30 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "reflective_corridor_floor", "rect": { "x": 0.44, "y": 0.02, "width": 0.40, "height": 0.61 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.70, "vanishingPoint": { "x": 0.64, "y": 0.72 }, "confidence": 0.91 },
+      "lighting": { "direction": { "x": 0.75, "y": -0.66 }, "temperatureKelvin": 4700, "note": "Daylight enters from the left windows with warm corridor practical fill." },
+      "candidateSlots": [
+        { "id": "near_left", "foot": { "x": 0.53, "y": 0.08 }, "depth": 0.10, "normalizedHeight": 0.65, "confidence": 0.84 },
+        { "id": "near_right", "foot": { "x": 0.70, "y": 0.06 }, "depth": 0.08, "normalizedHeight": 0.66, "confidence": 0.91 },
+        { "id": "mid_center", "foot": { "x": 0.65, "y": 0.28 }, "depth": 0.52, "normalizedHeight": 0.47, "confidence": 0.88 },
+        { "id": "rear_center", "foot": { "x": 0.63, "y": 0.52 }, "depth": 0.83, "normalizedHeight": 0.33, "confidence": 0.68 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "gangway_boarding_register", "kind": "SecondaryClue", "priority": "Hard", "rect": { "x": 0.00, "y": 0.20, "width": 0.45, "height": 0.26 }, "points": null, "note": "Protect the clipboard/register and terminal at the boarding desk." },
+        { "id": "gangway_access_door", "kind": "StoryObject", "priority": "Hard", "rect": { "x": 0.57, "y": 0.62, "width": 0.14, "height": 0.30 }, "points": null, "note": "Keep the far access door readable as the destination cue." },
+        { "id": "gangway_harbor_sightline", "kind": "StoryObject", "priority": "Soft", "rect": { "x": 0.00, "y": 0.55, "width": 0.54, "height": 0.45 }, "points": null, "note": "Preserve enough of the exterior harbor view to establish embarkation." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Locations: GANGWAY. Strong corridor perspective supports stable depth scaling; the left foreground is entirely reserved for the registration desk."
+    },
+    {
+      "profileId": "bg_location_port_evidence",
+      "analysisConfidence": 0.84,
+      "approvalStatus": "PendingUserReview",
+      "walkablePolygons": [
+        {
+          "rect": null,
+          "points": [
+            { "x": 0.08, "y": 0.01 },
+            { "x": 0.72, "y": 0.01 },
+            { "x": 0.74, "y": 0.23 },
+            { "x": 0.60, "y": 0.39 },
+            { "x": 0.25, "y": 0.39 },
+            { "x": 0.10, "y": 0.24 }
+          ]
+        }
+      ],
+      "forbiddenZones": [
+        { "kind": "water", "rect": { "x": 0.72, "y": 0.00, "width": 0.28, "height": 0.43 }, "points": null },
+        { "kind": "bench_and_evidence", "rect": { "x": 0.00, "y": 0.12, "width": 0.14, "height": 0.32 }, "points": null },
+        { "kind": "luggage_carts", "rect": { "x": 0.18, "y": 0.16, "width": 0.34, "height": 0.32 }, "points": null },
+        { "kind": "bollards_and_ropes", "rect": { "x": 0.55, "y": 0.08, "width": 0.23, "height": 0.32 }, "points": null }
+      ],
+      "uncertainZones": [
+        { "kind": "dock_tracks", "rect": { "x": 0.18, "y": 0.00, "width": 0.51, "height": 0.25 }, "points": null },
+        { "kind": "gangway_approach", "rect": { "x": 0.38, "y": 0.36, "width": 0.24, "height": 0.25 }, "points": null }
+      ],
+      "perspective": { "horizonY": 0.50, "vanishingPoint": { "x": 0.46, "y": 0.44 }, "confidence": 0.72 },
+      "lighting": { "direction": { "x": 0.82, "y": -0.57 }, "temperatureKelvin": 4400, "note": "Low warm sunset enters from the left, balanced by cool water and ship reflections." },
+      "candidateSlots": [
+        { "id": "near_left", "foot": { "x": 0.20, "y": 0.07 }, "depth": 0.09, "normalizedHeight": 0.66, "confidence": 0.83 },
+        { "id": "near_center", "foot": { "x": 0.36, "y": 0.09 }, "depth": 0.12, "normalizedHeight": 0.64, "confidence": 0.88 },
+        { "id": "near_right", "foot": { "x": 0.52, "y": 0.11 }, "depth": 0.16, "normalizedHeight": 0.61, "confidence": 0.85 },
+        { "id": "mid_right", "foot": { "x": 0.54, "y": 0.23 }, "depth": 0.36, "normalizedHeight": 0.54, "confidence": 0.68 }
+      ],
+      "narrativeProtectedZones": [
+        { "id": "C-01", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.005, "y": 0.115, "width": 0.11, "height": 0.11 }, "points": null, "note": "Catalog clue C-01 at the left dock bench." },
+        { "id": "C-18", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.165, "y": 0.135, "width": 0.13, "height": 0.13 }, "points": null, "note": "Catalog clue C-18 around the lower-left dock/luggage area." },
+        { "id": "port_visible_bench_envelope", "kind": "SecondaryClue", "priority": "Hard", "rect": { "x": 0.00, "y": 0.12, "width": 0.14, "height": 0.20 }, "points": null, "note": "Protect the visible envelope/document on the bench." },
+        { "id": "port_boarding_gangway", "kind": "StoryObject", "priority": "Hard", "rect": { "x": 0.38, "y": 0.36, "width": 0.24, "height": 0.25 }, "points": null, "note": "The boarding gangway is a critical route landmark." },
+        { "id": "port_ship_identity", "kind": "StoryObject", "priority": "Hard", "rect": { "x": 0.43, "y": 0.35, "width": 0.55, "height": 0.55 }, "points": null, "note": "Avoid overlays that obscure the ship silhouette and embarkation context." }
+      ],
+      "analysisNotes": "Bottom-left normalized visual estimate. Locations: PORT. Dock tracks and rope geometry lower actor confidence outside the three near-left/center slots."
+    }
+  ]
+}
