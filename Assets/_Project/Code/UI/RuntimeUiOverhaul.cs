@@ -527,6 +527,9 @@ namespace Wake.UI
         // time the water crosses this height, instead of only reaching that
         // feeling at the very end of the dive/rise.
         private const float WaterMuffleSaturationY = -30f;
+        // On the rise, muffle stays fully saturated until the water climbs
+        // above this height, then clears gradually the rest of the way home.
+        private const float WaterMuffleClearStartY = -25f;
 
         private GameObject overlay;
         private GameObject confirmation;
@@ -661,6 +664,8 @@ namespace Wake.UI
             float highY = Mathf.Max(from.y, to.y);
             float muffleSaturationDepth = Mathf.InverseLerp(
                 lowY, highY, WaterMuffleSaturationY);
+            float muffleClearStartDepth = Mathf.InverseLerp(
+                lowY, highY, WaterMuffleClearStartY);
             return RunSegment(duration, ease, t =>
             {
                 Vector3 current = Vector3.LerpUnclamped(from, to, t);
@@ -672,11 +677,15 @@ namespace Wake.UI
                 lightShaft?.SetIntensity(depth);
                 lobbyBackdrop?.SetDepth(depth);
                 // Diving saturates quickly (muffleSaturationDepth) so the
-                // muffle feels sudden right past the surface; surfacing uses
-                // the raw, unscaled depth so BGM clears back up gradually
-                // across the whole rise instead of mirroring that speed.
-                float muffleDepth = intensityRising && muffleSaturationDepth > 0f
-                    ? Mathf.Clamp01(depth / muffleSaturationDepth)
+                // muffle feels sudden right past the surface. Surfacing
+                // stays fully muffled until the water climbs back above
+                // muffleClearStartDepth, then clears the rest of the way -
+                // same shape, later reference point, so it reads slower.
+                float muffleReferenceDepth = intensityRising
+                    ? muffleSaturationDepth
+                    : muffleClearStartDepth;
+                float muffleDepth = muffleReferenceDepth > 0f
+                    ? Mathf.Clamp01(depth / muffleReferenceDepth)
                     : depth;
                 onDepth?.Invoke(muffleDepth);
                 if (!triggered && triggerY.HasValue)

@@ -50,7 +50,7 @@ namespace Wake.Core
             "SoundEffect/The_sound_of_water_splashing_in_a_bathtub";
         public const float WaterSplashOutStartOffset = 0.22f;
         public const float WaterSplashOutSeconds = 0.8f;
-        public const float WaterSplashOutFadeOutSeconds = 0.2f;
+        public const float WaterSplashOutFadeOutSeconds = 0.4f;
         public const float UnderwaterMuffledCutoffHz = 300f;
         public const float UnderwaterClearCutoffHz = 22000f;
 
