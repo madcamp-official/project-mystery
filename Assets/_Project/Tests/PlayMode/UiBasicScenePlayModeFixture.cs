@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
 using Wake.Core;
+using Wake.Exploration;
 using Wake.Narrative;
 using Wake.UI;
 
@@ -36,6 +37,7 @@ namespace Wake.Tests.PlayMode
         {
             runtimeErrors.Clear();
             Application.logMessageReceived += CaptureRuntimeError;
+            ExplorationHotspotFeedback.SetAccessibilityIndicators(false);
             PreserveSavedGame();
             ClearSavedGame();
 
@@ -71,6 +73,7 @@ namespace Wake.Tests.PlayMode
             yield return null;
             ClearSavedGame();
             RestoreSavedGame();
+            ExplorationHotspotFeedback.SetAccessibilityIndicators(false);
             AssertNoRuntimeErrors("씬 정리");
             Application.logMessageReceived -= CaptureRuntimeError;
         }
@@ -123,12 +126,8 @@ namespace Wake.Tests.PlayMode
                 yield break;
             }
 
-            Button daniel = Object.FindObjectsByType<Button>(
-                    FindObjectsInactive.Include,
-                    FindObjectsSortMode.None)
-                .First(button =>
-                    button.name.StartsWith("AmbientCharacter_DANIEL"));
-            yield return InvokeAndSettle(daniel);
+            yield return StartPreparedProductionSceneFromFocusCharacter(
+                ProductionSceneDirector.OpeningSceneId);
         }
 
         protected IEnumerator ContinueFromVisibleButton()
@@ -148,11 +147,24 @@ namespace Wake.Tests.PlayMode
                     "StartScene/Save Slot Selection/Start Confirmation/Confirm")
                 .GetComponent<Button>();
             yield return InvokeAndSettle(confirm);
+
+            float deadline = Time.realtimeSinceStartup + 8f;
+            while (Ui.ActivePanel != UiPrimaryPanel.Ingame &&
+                   Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+            Assert.That(
+                Ui.ActivePanel,
+                Is.EqualTo(UiPrimaryPanel.Ingame),
+                "저장된 수사를 선택하면 제한 시간 안에 탐색 화면이 열려야 합니다.");
         }
 
         protected IEnumerator InvokeAndSettle(Button button)
         {
             Assert.That(button, Is.Not.Null);
+            bool isAmbientCharacter =
+                button.name.StartsWith("AmbientCharacter_");
             Assert.That(
                 button.gameObject.activeInHierarchy,
                 Is.True,
@@ -165,6 +177,58 @@ namespace Wake.Tests.PlayMode
             button.onClick.Invoke();
             yield return null;
             yield return null;
+            if (isAmbientCharacter)
+                yield return new WaitForSecondsRealtime(0.75f);
+        }
+
+        protected IEnumerator StartPreparedProductionSceneFromFocusCharacter(
+            string sceneId)
+        {
+            Assert.That(
+                ScenePresenceCatalog.TryGet(sceneId, out ScenePresenceRecord scene),
+                Is.True,
+                $"{sceneId} 장면의 인물 배치 정보를 찾지 못했습니다.");
+            SceneWorldCharacter focus =
+                ScenePresencePresentationPolicy
+                    .SelectVisible(scene, scene.FocusLocation, 5)
+                    .FirstOrDefault(character =>
+                        character.IsFocusParticipant);
+            Assert.That(
+                focus.CharacterId,
+                Is.Not.Empty,
+                $"{sceneId} 장면의 대화 시작 인물을 찾지 못했습니다.");
+
+            Button target = null;
+            float deadline = Time.realtimeSinceStartup + 2f;
+            while (target == null && Time.realtimeSinceStartup < deadline)
+            {
+                target = Object.FindObjectsByType<Button>(
+                        FindObjectsInactive.Exclude,
+                        FindObjectsSortMode.None)
+                    .FirstOrDefault(button =>
+                        button.name.StartsWith(
+                            $"AmbientCharacter_{focus.CharacterId}"));
+                if (target == null)
+                    yield return null;
+            }
+
+            Assert.That(
+                target,
+                Is.Not.Null,
+                $"{sceneId} 장면의 {focus.CharacterId} 대화 대상을 찾지 못했습니다.");
+            yield return InvokeAndSettle(target);
+
+            deadline = Time.realtimeSinceStartup + 2f;
+            while (Dialogue.ActiveProductionSceneId != sceneId &&
+                   Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+
+            Assert.That(
+                Dialogue.ActiveProductionSceneId,
+                Is.EqualTo(sceneId),
+                $"{sceneId} 장면은 주요 인물을 클릭한 뒤 시작되어야 합니다.");
         }
 
         protected IEnumerator AdvanceToVisibleChoices(int maximumSteps = 200)
@@ -244,7 +308,12 @@ namespace Wake.Tests.PlayMode
         {
             yield return StartNewGameFromVisibleButton();
             yield return CompleteActiveProductionDialogue();
-            Assert.That(State.HasCompletedScene("P-01"), Is.True);
+            Assert.That(
+                State.HasCompletedScene("P-01"),
+                Is.True,
+                $"opening completion missing; busy={Dialogue.IsBusy}, " +
+                $"active={Dialogue.ActiveProductionSceneId}, " +
+                $"checkpoint={State.DialogueCheckpoint?.activeSceneId ?? "<none>"}");
         }
 
         protected GameObject RequireObject(string path)
