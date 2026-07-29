@@ -163,11 +163,11 @@ namespace Wake.Exploration
             bloomProfile.name = "Ambient Particle Bloom Profile";
             Bloom bloom = bloomProfile.Add<Bloom>(true);
             bloom.threshold.overrideState = true;
-            bloom.threshold.value = 0.25f;
+            bloom.threshold.value = 0.05f;
             bloom.intensity.overrideState = true;
-            bloom.intensity.value = 6f;
+            bloom.intensity.value = 18f;
             bloom.scatter.overrideState = true;
-            bloom.scatter.value = 0.7f;
+            bloom.scatter.value = 0.85f;
             volume.sharedProfile = bloomProfile;
         }
 
