@@ -690,8 +690,8 @@ namespace Wake.UI
         private static float WaterTrapezoid(float t)
         {
             const float accel = 0.3f;
-            const float hold = 0.3f;
-            const float decel = 1f - accel - hold;
+            const float decel = 0.25f;
+            const float hold = 1f - accel - decel;
             float vMax = 1f / (0.5f * accel + hold + 0.5f * decel);
 
             if (t < accel)
