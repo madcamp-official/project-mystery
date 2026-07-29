@@ -523,6 +523,10 @@ namespace Wake.UI
         // the water plane crosses this height, not at the animation's start
         // or end, so they land on the visual moment rather than the timer.
         private const float WaterAudioTriggerY = -40f;
+        // BGM muffle is scaled so it already reads as "fully muffled" by the
+        // time the water crosses this height, instead of only reaching that
+        // feeling at the very end of the dive/rise.
+        private const float WaterMuffleSaturationY = -30f;
 
         private GameObject overlay;
         private GameObject confirmation;
@@ -653,6 +657,10 @@ namespace Wake.UI
         {
             bool triggered = false;
             bool ascending = to.y >= from.y;
+            float lowY = Mathf.Min(from.y, to.y);
+            float highY = Mathf.Max(from.y, to.y);
+            float muffleSaturationDepth = Mathf.InverseLerp(
+                lowY, highY, WaterMuffleSaturationY);
             return RunSegment(duration, ease, t =>
             {
                 Vector3 current = Vector3.LerpUnclamped(from, to, t);
@@ -663,7 +671,10 @@ namespace Wake.UI
                 float depth = intensityRising ? t : 1f - t;
                 lightShaft?.SetIntensity(depth);
                 lobbyBackdrop?.SetDepth(depth);
-                onDepth?.Invoke(depth);
+                float muffleDepth = muffleSaturationDepth > 0f
+                    ? Mathf.Clamp01(depth / muffleSaturationDepth)
+                    : depth;
+                onDepth?.Invoke(muffleDepth);
                 if (!triggered && triggerY.HasValue)
                 {
                     bool crossed = ascending
