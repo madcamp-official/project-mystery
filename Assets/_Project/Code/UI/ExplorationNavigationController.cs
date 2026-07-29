@@ -262,7 +262,7 @@ namespace Wake.UI
                     owner != null ? owner.ShowEvidence : null,
                     Resources.Load<Sprite>(
                         "UI/Icons/Navigation/ui_icon_nav_evidence"),
-                    iconPadding: 14f);
+                    iconPadding: 20f);
             pauseButton =
                 CreateButton(
                     parent,
