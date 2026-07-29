@@ -5,6 +5,8 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using TMPro;
 using Wake.UI;
 
 namespace Wake.Tests
@@ -66,6 +68,15 @@ namespace Wake.Tests
                     "screen.reading.bottom",
                     "screen.primary.bottomRight",
                     "screen.content.center",
+                    "shell.puzzle.panel",
+                    "shell.puzzle.finalAccusation",
+                    "shell.ending.background",
+                    "shell.ending.logo",
+                    "shell.ending.route",
+                    "shell.ending.title",
+                    "shell.ending.epilogue",
+                    "shell.ending.reason",
+                    "shell.ending.primary",
                     "dialogue.focus-panel-left",
                     "dialogue.focus-panel-right",
                     "dialogue.focus-portrait-left",
@@ -174,16 +185,77 @@ namespace Wake.Tests
                     "evidence.panel",
                     "evidence.detail-image",
                     "evidence.title",
+                    "evidence.acquisition-place",
+                    "evidence.related-people",
+                    "evidence.reliability",
+                    "evidence.description-viewport",
                     "evidence.description",
                     "evidence.carousel",
-                    "evidence.previous",
-                    "evidence.next",
+                    "evidence.previous-record",
+                    "evidence.next-record",
+                    "evidence.compare",
+                    "evidence.view-previous",
+                    "evidence.view-next",
                     "evidence.back",
-                    "evidence.theory-board"
                 };
                 Assert.That(
                     evidenceSlotIds,
                     Is.SupersetOf(requiredEvidenceSlots));
+
+                Transform evidence = canvas.Find("Evidence");
+                Transform descriptionViewport =
+                    evidence.Find("Description Viewport");
+                Transform description =
+                    descriptionViewport?.Find("Description");
+                Assert.That(descriptionViewport, Is.Not.Null);
+                Assert.That(description, Is.Not.Null);
+                Assert.That(
+                    descriptionViewport.GetComponent<RectMask2D>(),
+                    Is.Not.Null);
+                ScrollRect descriptionScroll =
+                    descriptionViewport.GetComponent<ScrollRect>();
+                Assert.That(descriptionScroll, Is.Not.Null);
+                Assert.That(descriptionScroll.horizontal, Is.False);
+                Assert.That(descriptionScroll.vertical, Is.True);
+                Assert.That(
+                    descriptionScroll.viewport,
+                    Is.SameAs(descriptionViewport));
+                Assert.That(
+                    descriptionScroll.content,
+                    Is.SameAs(description));
+                Assert.That(
+                    description.GetComponent<ContentSizeFitter>(),
+                    Is.Not.Null);
+
+                string[] metadataNames =
+                {
+                    "Acquisition Place",
+                    "Related People",
+                    "Reliability"
+                };
+                Assert.That(
+                    metadataNames.All(name =>
+                    {
+                        Transform label = evidence.Find(name);
+                        return label != null &&
+                               label.GetComponent<TMP_Text>() != null &&
+                               label.GetComponent<RuntimeUiLayoutSlot>() != null;
+                    }),
+                    Is.True,
+                    "Evidence metadata must be visible and authored.");
+
+                HashSet<string> canvasSlotIds = canvas
+                    .GetComponentsInChildren<RuntimeUiLayoutSlot>(true)
+                    .Select(slot => slot.SlotId)
+                    .ToHashSet();
+                Assert.That(
+                    canvasSlotIds,
+                    Is.SupersetOf(new[]
+                    {
+                        "evidence.tabs",
+                        "evidence.people-panel"
+                    }),
+                    "Runtime notebook overlays must remain Inspector-authored.");
             }
             finally
             {

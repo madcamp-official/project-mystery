@@ -300,13 +300,14 @@ namespace Wake.UI
 
             root = MakeObject("Orpheus Audio Restoration", canvas, typeof(Image));
             RectTransform rootRect = root.GetComponent<RectTransform>();
-            rootRect.anchorMin = new Vector2(0.5f, 0.5f);
-            rootRect.anchorMax = new Vector2(0.5f, 0.5f);
-            rootRect.sizeDelta = new Vector2(960f, 640f);
-            RuntimeUiLayoutRegistry.CopyLayout(
+            ScreenShellRuntimePresenter.Place(
                 rootRect,
-                "modal.orpheus-restoration");
+                ScreenShellSlotIds.PuzzlePanel,
+                new Vector2(.04f, .08f),
+                new Vector2(.96f, .92f));
             root.GetComponent<Image>().color = Panel;
+            root.AddComponent<ScreenShellRuntimePresenter>()
+                .Configure(ScreenShellType.Puzzle);
 
             MakeText(
                 root.transform,
@@ -458,7 +459,9 @@ namespace Wake.UI
             target.GetComponent<Image>().color = Available;
             TMP_Text text = MakeText(target.transform, label, 0f, 1f, size, 0f, 1f);
             text.raycastTarget = false;
-            return target.GetComponent<Button>();
+            Button button = target.GetComponent<Button>();
+            ScreenShellRuntimePresenter.PrepareButton(button);
+            return button;
         }
     }
 

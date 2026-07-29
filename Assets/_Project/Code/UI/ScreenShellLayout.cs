@@ -38,6 +38,16 @@ namespace Wake.UI
         public const string Choices = "shell.choices";
         public const string ModalDim = "shell.modal.dim";
         public const string ModalPanel = "shell.modal.panel";
+        public const string PuzzlePanel = "shell.puzzle.panel";
+        public const string FinalAccusationPanel =
+            "shell.puzzle.finalAccusation";
+        public const string EndingBackground = "shell.ending.background";
+        public const string EndingLogo = "shell.ending.logo";
+        public const string EndingRoute = "shell.ending.route";
+        public const string EndingTitle = "shell.ending.title";
+        public const string EndingEpilogue = "shell.ending.epilogue";
+        public const string EndingReason = "shell.ending.reason";
+        public const string EndingPrimary = "shell.ending.primary";
     }
 
     [ExecuteAlways]

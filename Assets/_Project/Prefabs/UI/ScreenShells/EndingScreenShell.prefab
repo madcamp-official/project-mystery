@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: shell.modal.panel
   editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
@@ -98,9 +98,113 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: screen.reading.bottom
+  editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
+  showEditorFill: 1
+  showEditorLabel: 1
+--- !u!1 &1143779862522720845
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4398685412993264311}
+  - component: {fileID: 226951603276491380}
+  m_Layer: 0
+  m_Name: Ending Background
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &4398685412993264311
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1143779862522720845}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7347566687022908320}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &226951603276491380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1143779862522720845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
+  slotId: shell.ending.background
+  editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
+  showEditorFill: 1
+  showEditorLabel: 1
+--- !u!1 &1238161259654759553
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3615014896836356945}
+  - component: {fileID: 6362644759378762614}
+  m_Layer: 0
+  m_Name: Ending Primary
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &3615014896836356945
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1238161259654759553}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7347566687022908320}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.08, y: 0.04}
+  m_AnchorMax: {x: 0.31, y: 0.12}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &6362644759378762614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1238161259654759553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
+  slotId: shell.ending.primary
   editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
   showEditorFill: 1
   showEditorLabel: 1
@@ -150,7 +254,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: shell.choices
   editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
@@ -202,7 +306,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: screen.global.topRight
   editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
@@ -254,9 +358,113 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: screen.context.topLeft
+  editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
+  showEditorFill: 1
+  showEditorLabel: 1
+--- !u!1 &2533841485698066258
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2416590641595937148}
+  - component: {fileID: 8401908949195320986}
+  m_Layer: 0
+  m_Name: Ending Title
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2416590641595937148
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2533841485698066258}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7347566687022908320}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.07, y: 0.5}
+  m_AnchorMax: {x: 0.42, y: 0.61}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &8401908949195320986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2533841485698066258}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
+  slotId: shell.ending.title
+  editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
+  showEditorFill: 1
+  showEditorLabel: 1
+--- !u!1 &3652904920863448368
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3070095367790058308}
+  - component: {fileID: 3490667910506869467}
+  m_Layer: 0
+  m_Name: Ending Reason
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &3070095367790058308
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3652904920863448368}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7347566687022908320}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.075, y: 0.14}
+  m_AnchorMax: {x: 0.415, y: 0.35}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &3490667910506869467
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3652904920863448368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
+  slotId: shell.ending.reason
   editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
   showEditorFill: 1
   showEditorLabel: 1
@@ -306,9 +514,61 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: screen.tools.bottomLeft
+  editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
+  showEditorFill: 1
+  showEditorLabel: 1
+--- !u!1 &4162680011758368951
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5130999982848518228}
+  - component: {fileID: 511329698163025842}
+  m_Layer: 0
+  m_Name: Ending Logo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5130999982848518228
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4162680011758368951}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7347566687022908320}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.07, y: 0.7}
+  m_AnchorMax: {x: 0.38, y: 0.95}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &511329698163025842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4162680011758368951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
+  slotId: shell.ending.logo
   editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
   showEditorFill: 1
   showEditorLabel: 1
@@ -345,6 +605,13 @@ RectTransform:
   - {fileID: 8071944869369475933}
   - {fileID: 2347329275874108144}
   - {fileID: 6062625313406726817}
+  - {fileID: 4398685412993264311}
+  - {fileID: 5130999982848518228}
+  - {fileID: 4621256518033461008}
+  - {fileID: 2416590641595937148}
+  - {fileID: 361005200631967957}
+  - {fileID: 3070095367790058308}
+  - {fileID: 3615014896836356945}
   m_Father: {fileID: 1293673089680869070}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -414,7 +681,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e04792cd344663140b9aaf9246b56699, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutRegistry
 --- !u!114 &2733186726411239963
 MonoBehaviour:
@@ -426,7 +693,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba526aadcd9291240842eb694d02a026, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.ScreenRegionSet
   contextTopLeft: {fileID: 8036064247796023947}
   objectiveTop: {fileID: 301019069255326019}
@@ -445,7 +712,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 28640bbde26978647a7d87920926e0bd, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.ScreenShellLayout
   shellType: 5
   regions: {fileID: 2733186726411239963}
@@ -503,7 +770,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: shell.safeArea
   editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
@@ -597,9 +864,113 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: shell.portrait.left
+  editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
+  showEditorFill: 1
+  showEditorLabel: 1
+--- !u!1 &6774284257690152504
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4621256518033461008}
+  - component: {fileID: 6030130965233972682}
+  m_Layer: 0
+  m_Name: Ending Route
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &4621256518033461008
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6774284257690152504}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7347566687022908320}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.07, y: 0.61}
+  m_AnchorMax: {x: 0.42, y: 0.69}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &6030130965233972682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6774284257690152504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
+  slotId: shell.ending.route
+  editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
+  showEditorFill: 1
+  showEditorLabel: 1
+--- !u!1 &7293070944577158313
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 361005200631967957}
+  - component: {fileID: 7914279891263084934}
+  m_Layer: 0
+  m_Name: Ending Epilogue
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &361005200631967957
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7293070944577158313}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7347566687022908320}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.075, y: 0.37}
+  m_AnchorMax: {x: 0.415, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &7914279891263084934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7293070944577158313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
+  slotId: shell.ending.epilogue
   editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
   showEditorFill: 1
   showEditorLabel: 1
@@ -649,7 +1020,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: screen.content.center
   editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
@@ -701,7 +1072,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: shell.modal.dim
   editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
@@ -753,7 +1124,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: screen.objective.top
   editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
@@ -805,7 +1176,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: screen.primary.bottomRight
   editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}
@@ -857,7 +1228,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e7e0b3d58a84ece977434363223bb29, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RuntimeUiLayoutSlot
   slotId: shell.portrait.right
   editorColor: {r: 1, g: 0.5939999, b: 0.3, a: 0.85}

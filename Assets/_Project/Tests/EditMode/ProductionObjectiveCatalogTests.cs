@@ -43,12 +43,111 @@ namespace Wake.Tests
                 Is.EqualTo(ProductionSceneCatalog.All.Select(item => item.SceneId)));
             Assert.That(
                 ProductionObjectiveCatalog.All.All(item =>
-                    !string.IsNullOrWhiteSpace(item.Title) &&
-                    !string.IsNullOrWhiteSpace(item.Description)),
+                    !string.IsNullOrWhiteSpace(item.ObjectiveId) &&
+                    !string.IsNullOrWhiteSpace(item.DisplayText) &&
+                    !string.IsNullOrWhiteSpace(item.DetailText) &&
+                    item.Priority == ObjectivePriority.Main &&
+                    item.Steps.Count > 0),
                 Is.True);
             Assert.That(
                 ProductionObjectiveCatalog.All.Single(item => item.SceneId == "D8-01").Title,
-                Is.EqualTo("흔적 없는 밀실의 해답"));
+                Is.EqualTo("최종 논증 완성하기"));
+        }
+
+        [Test]
+        public void Catalog_ExposesOnlyNaturalLanguageInPlayerFacingFields()
+        {
+            foreach (ProductionObjectiveDefinition objective in
+                     ProductionObjectiveCatalog.All)
+            {
+                string visible =
+                    $"{objective.DisplayText} {objective.DetailText} " +
+                    string.Join(" ", objective.Steps);
+                Assert.That(visible, Does.Not.Contain(objective.SceneId));
+                Assert.That(visible, Does.Not.Match(@"\bC-\d+\b"));
+                Assert.That(visible, Does.Not.Contain("trust_"));
+                Assert.That(
+                    visible,
+                    Does.Not.Match("[A-Za-z]"),
+                    $"{objective.SceneId} 목표에 영문 표기가 남아 있습니다.");
+                Assert.That(objective.DisplayText, Does.EndWith("기"));
+            }
+        }
+
+        [TestCase("P-01", "DANIEL", true)]
+        [TestCase("P-01", "RICHARD", false)]
+        [TestCase("D1-01", "OWEN", true)]
+        [TestCase("D3-03", "THOMAS", true)]
+        public void NpcTargets_ContainOnlyAuthoredObjectiveCharacters(
+            string sceneId,
+            string characterId,
+            bool expected)
+        {
+            Assert.That(
+                ProductionObjectiveNpcTargets.Contains(
+                    sceneId,
+                    characterId),
+                Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void Presentation_UsesTravelGoalUntilDestinationIsReached()
+        {
+            state.RecordLocation("PORT");
+            state.RecordCompletedScene("P-01");
+
+            ProductionObjectivePresentation travel =
+                ProductionObjectiveViewModel.Resolve(state).Presentation.Value;
+            Assert.That(travel.IsTravel, Is.True);
+            Assert.That(travel.ActionType, Is.EqualTo(ObjectiveActionType.Move));
+            Assert.That(travel.DisplayText, Is.EqualTo("승선 통로로 향하기"));
+            Assert.That(travel.MarkerMode, Is.EqualTo(ObjectiveMarkerMode.Map));
+
+            state.RecordLocation("GANGWAY");
+            ProductionObjectivePresentation arrived =
+                ProductionObjectiveViewModel.Resolve(state).Presentation.Value;
+            Assert.That(arrived.IsTravel, Is.False);
+            Assert.That(arrived.DisplayText, Is.EqualTo("승선 명단의 오류 확인하기"));
+            Assert.That(arrived.MarkerMode, Is.EqualTo(ObjectiveMarkerMode.Hover));
+        }
+
+        [Test]
+        public void Presentation_UsesCorrectKoreanDirectionalParticle()
+        {
+            CompleteThrough("P-02");
+            state.RecordLocation("PORT");
+
+            ProductionObjectivePresentation presentation =
+                ProductionObjectiveViewModel.Resolve(state).Presentation.Value;
+
+            Assert.That(
+                presentation.DisplayText,
+                Is.EqualTo("리처드 스위트룸으로 향하기"));
+        }
+
+        [Test]
+        public void CompletedStory_RemovesActiveObjective()
+        {
+            CompleteThrough("D8-03");
+
+            Assert.That(
+                ProductionObjectiveViewModel.Resolve(state).Presentation,
+                Is.Null);
+        }
+
+        [Test]
+        public void EpilogueObjective_FollowsSupportedEndingRoute()
+        {
+            CompleteThrough("D8-01");
+            state.TryRecordFinalEnding(FinalAccusationResolver.CompleteEndingId);
+            state.RecordCompletedScene("D8-02");
+            state.RecordLocation("OPEN_DECK");
+
+            ProductionObjectivePresentation presentation =
+                ProductionObjectiveViewModel.Resolve(state).Presentation.Value;
+
+            Assert.That(presentation.Definition.SceneId, Is.EqualTo("D8-03"));
+            Assert.That(presentation.DisplayText, Is.EqualTo("항구로 향하기"));
         }
 
         [Test]

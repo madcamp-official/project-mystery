@@ -66,6 +66,9 @@ namespace Wake.Tests.PlayMode
                 ingame.GetComponents<ProductionEndingUIController>(),
                 Has.Length.EqualTo(1));
             Assert.That(
+                ingame.GetComponents<ObjectiveMapHUDController>(),
+                Has.Length.EqualTo(1));
+            Assert.That(
                 RequireObject("Evidence")
                     .GetComponents<EvidenceTheoryBoardController>(),
                 Has.Length.EqualTo(1));
@@ -82,6 +85,168 @@ namespace Wake.Tests.PlayMode
             Object.Destroy(duplicateHost);
             yield return null;
             AssertNoRuntimeErrors("UI 런타임 중복 초기화");
+        }
+
+        [UnityTest]
+        public IEnumerator EvidenceRecord_UsesAuthoredMetadataAndScrollViewport()
+        {
+            Assert.That(
+                EvidenceInventory.Instance.TryAddById("C-01"),
+                Is.True);
+
+            Ui.ShowEvidence();
+            yield return null;
+
+            TMP_Text title =
+                RequireComponent<TMP_Text>("Evidence/Text (TMP)");
+            TMP_Text acquisition =
+                RequireComponent<TMP_Text>("Evidence/Acquisition Place");
+            TMP_Text relatedPeople =
+                RequireComponent<TMP_Text>("Evidence/Related People");
+            TMP_Text reliability =
+                RequireComponent<TMP_Text>("Evidence/Reliability");
+            TMP_Text description =
+                RequireComponent<TMP_Text>(
+                    "Evidence/Description Viewport/Description");
+            ScrollRect scroll =
+                RequireComponent<ScrollRect>(
+                    "Evidence/Description Viewport");
+
+            Assert.That(title.text, Is.Not.Empty);
+            Assert.That(title.text, Does.Not.Contain("C-"));
+            Assert.That(acquisition.text, Does.Contain("획득 장소"));
+            Assert.That(relatedPeople.text, Does.Contain("관련 인물"));
+            Assert.That(reliability.text, Is.Not.Empty);
+            Assert.That(
+                description.overflowMode,
+                Is.EqualTo(TextOverflowModes.Overflow));
+            Assert.That(scroll.vertical, Is.True);
+            Assert.That(scroll.content, Is.SameAs(description.rectTransform));
+            Assert.That(
+                RequireObject("Evidence/Turn").activeSelf,
+                Is.False,
+                "Single-view evidence must not show a rotate control.");
+            Assert.That(
+                RequireObject("Evidence/Turn (1)").activeSelf,
+                Is.False,
+                "Single-view evidence must not show a rotate control.");
+            Assert.That(
+                RequireObject("Evidence").transform.Find("Turn (3)"),
+                Is.Null,
+                "The obsolete legacy Turn button must not be authored.");
+
+            RectTransform next =
+                RequireComponent<RectTransform>("Evidence/Next");
+            RectTransform compare =
+                RequireComponent<RectTransform>("Evidence/Turn (2)");
+            Assert.That(next.rect.width, Is.GreaterThan(240f));
+            Assert.That(compare.rect.width, Is.GreaterThan(240f));
+            Bounds descriptionBounds =
+                RectTransformUtility.CalculateRelativeRectTransformBounds(
+                    Canvas.transform,
+                    scroll.transform);
+            Bounds compareBounds =
+                RectTransformUtility.CalculateRelativeRectTransformBounds(
+                    Canvas.transform,
+                    compare);
+            Assert.That(
+                descriptionBounds.Intersects(compareBounds),
+                Is.False,
+                "Record comparison must not cover the description.");
+
+            TMP_Text carouselLabel =
+                RequireObject("Evidence/Evidences")
+                    .GetComponentsInChildren<TMP_Text>(false)
+                    .First();
+            Assert.That(carouselLabel.maxVisibleLines, Is.EqualTo(2));
+            Assert.That(
+                carouselLabel.overflowMode,
+                Is.EqualTo(TextOverflowModes.Ellipsis));
+            AssertNoRuntimeErrors("조사 기록 상세 화면");
+        }
+
+        [UnityTest]
+        public IEnumerator NewGame_ShowsNaturalLanguageObjectiveHud()
+        {
+            yield return StartNewGameFromVisibleButton(
+                startOpeningDialogue: false);
+            yield return null;
+
+            Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Ingame));
+            GameObject objective = RequireObject("Ingame/Objective HUD");
+            Assert.That(objective.activeInHierarchy, Is.True);
+            Assert.That(
+                objective.transform.Find("Title")
+                    ?.GetComponent<TMP_Text>()?.text,
+                Is.EqualTo("항구의 기자를 찾기"));
+            Assert.That(
+                objective.transform.Find("Progress")
+                    ?.GetComponent<TMP_Text>()?.text,
+                Does.StartWith("다음 목표 · 탐색"));
+            Assert.That(
+                objective.GetComponentsInChildren<TMP_Text>(true)
+                    .Select(text => text.text),
+                Has.None.Contains("P-01"));
+            Assert.That(
+                Dialogue.ActiveProductionSceneId,
+                Is.Empty,
+                "첫 장면 대사는 Daniel을 클릭하기 전까지 시작하면 안 됩니다.");
+            Assert.That(
+                RequireObject("Ingame/Line Panel").activeSelf,
+                Is.False);
+
+            yield return InvokeAndSettle(objective.GetComponent<Button>());
+            GameObject details =
+                RequireObject("Ingame/Objective HUD/Objective Details");
+            Assert.That(details.activeInHierarchy, Is.True);
+            Assert.That(
+                details.GetComponentInChildren<TMP_Text>(true).text,
+                Does.Contain("다니엘 머서 찾기"));
+
+            Button daniel = Object.FindObjectsByType<Button>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None)
+                .First(button =>
+                    button.name.StartsWith("AmbientCharacter_DANIEL"));
+            Transform talkMarker =
+                daniel.transform.Find("Objective Talk Marker");
+            Assert.That(talkMarker, Is.Not.Null);
+            Assert.That(talkMarker.gameObject.activeInHierarchy, Is.True);
+            Assert.That(
+                talkMarker.GetComponentInChildren<TMP_Text>(true).text,
+                Is.EqualTo("대화"));
+            yield return InvokeAndSettle(daniel);
+            Assert.That(
+                Dialogue.ActiveProductionSceneId,
+                Is.EqualTo("P-01"));
+        }
+
+        [UnityTest]
+        public IEnumerator SaveSlotTransition_KeepsObjectiveHudHidden()
+        {
+            Button startButton = RequireObject(
+                    "StartScene/Title Presentation")
+                .GetComponentsInChildren<Button>(true)
+                .First(button => button.name == "시작하기");
+            yield return InvokeAndSettle(startButton);
+            Button slot = RequireObject("StartScene/Save Slot Selection")
+                .GetComponentsInChildren<Button>(true)
+                .First(button =>
+                    button.name.StartsWith("Save Slot") &&
+                    button.GetComponentInChildren<TMP_Text>(true).text.Contains(
+                        "비어 있는 기록"));
+            yield return InvokeAndSettle(slot);
+            Button confirm = RequireObject(
+                    "StartScene/Save Slot Selection/Start Confirmation/Confirm")
+                .GetComponent<Button>();
+            yield return InvokeAndSettle(confirm);
+
+            GameObject objective = RequireObject("Ingame/Objective HUD");
+            Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Start));
+            Assert.That(
+                objective.activeInHierarchy,
+                Is.False,
+                "저장 슬롯 전환이 끝나기 전에는 목표 HUD가 보여서는 안 됩니다.");
         }
 
         [UnityTest]

@@ -184,6 +184,7 @@ namespace Wake.UI
                 ingamePanel));
             RegisterModal(EnsureComponent<EvidenceTheoryBoardController>(
                 evidencePanel));
+            EnsureComponent<ObjectiveMapHUDController>(ingamePanel);
             EnsureComponent<NarrativeLocationHUDController>(ingamePanel);
             EnsureComponent<EvidenceNotebookTabsController>(evidencePanel);
             EnsureComponent<RuntimeUiOverhaulController>(gameObject);

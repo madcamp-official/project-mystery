@@ -153,6 +153,7 @@ namespace Wake.Editor
                     new Vector2(.20f, .18f),
                     new Vector2(.80f, .82f),
                     color);
+                BuildTypeSpecificSlots(type, extended, color);
 
                 ScreenRegionSet regions =
                     root.GetComponent<ScreenRegionSet>();
@@ -190,6 +191,83 @@ namespace Wake.Editor
             {
                 UnityEngine.Object.DestroyImmediate(root);
             }
+        }
+
+        private static void BuildTypeSpecificSlots(
+            ScreenShellType type,
+            Transform parent,
+            Color color)
+        {
+            if (type == ScreenShellType.Puzzle)
+            {
+                Slot(
+                    parent,
+                    "Puzzle Panel",
+                    ScreenShellSlotIds.PuzzlePanel,
+                    new Vector2(.04f, .08f),
+                    new Vector2(.96f, .92f),
+                    color);
+                Slot(
+                    parent,
+                    "Final Accusation Panel",
+                    ScreenShellSlotIds.FinalAccusationPanel,
+                    new Vector2(.18f, .07f),
+                    new Vector2(.82f, .93f),
+                    color);
+            }
+
+            if (type != ScreenShellType.Ending)
+                return;
+
+            Slot(
+                parent,
+                "Ending Background",
+                ScreenShellSlotIds.EndingBackground,
+                Vector2.zero,
+                Vector2.one,
+                color);
+            Slot(
+                parent,
+                "Ending Logo",
+                ScreenShellSlotIds.EndingLogo,
+                new Vector2(.07f, .70f),
+                new Vector2(.38f, .95f),
+                color);
+            Slot(
+                parent,
+                "Ending Route",
+                ScreenShellSlotIds.EndingRoute,
+                new Vector2(.07f, .61f),
+                new Vector2(.42f, .69f),
+                color);
+            Slot(
+                parent,
+                "Ending Title",
+                ScreenShellSlotIds.EndingTitle,
+                new Vector2(.07f, .50f),
+                new Vector2(.42f, .61f),
+                color);
+            Slot(
+                parent,
+                "Ending Epilogue",
+                ScreenShellSlotIds.EndingEpilogue,
+                new Vector2(.075f, .37f),
+                new Vector2(.415f, .50f),
+                color);
+            Slot(
+                parent,
+                "Ending Reason",
+                ScreenShellSlotIds.EndingReason,
+                new Vector2(.075f, .14f),
+                new Vector2(.415f, .35f),
+                color);
+            Slot(
+                parent,
+                "Ending Primary",
+                ScreenShellSlotIds.EndingPrimary,
+                new Vector2(.08f, .04f),
+                new Vector2(.31f, .12f),
+                color);
         }
 
         private static RuntimeUiLayoutSlot Slot(

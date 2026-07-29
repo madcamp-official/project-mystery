@@ -571,11 +571,14 @@ namespace Wake.UI
             panel = new GameObject("Final Accusation", typeof(RectTransform), typeof(Image));
             panel.transform.SetParent(transform, false);
             RectTransform rect = panel.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.2f, 0.08f);
-            rect.anchorMax = new Vector2(0.8f, 0.92f);
-            rect.offsetMin = rect.offsetMax = Vector2.zero;
-            RuntimeUiLayoutRegistry.CopyLayout(rect, "modal.final-accusation");
+            ScreenShellRuntimePresenter.Place(
+                rect,
+                ScreenShellSlotIds.FinalAccusationPanel,
+                new Vector2(.18f, .07f),
+                new Vector2(.82f, .93f));
             panel.GetComponent<Image>().color = new Color(0.025f, 0.04f, 0.08f, 0.97f);
+            panel.AddComponent<ScreenShellRuntimePresenter>()
+                .Configure(ScreenShellType.Puzzle);
 
             var layout = panel.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(32, 32, 24, 24);
@@ -753,6 +756,7 @@ namespace Wake.UI
             Button button = node.GetComponent<Button>();
             button.onClick.AddListener(action);
             CreateText(label, 20).transform.SetParent(node.transform, false);
+            ScreenShellRuntimePresenter.PrepareButton(button);
             return button;
         }
     }

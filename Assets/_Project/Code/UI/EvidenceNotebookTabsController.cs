@@ -15,7 +15,7 @@ namespace Wake.UI
             "Evidences", "Image", "Text (TMP)", "Description",
             "Description Viewport", "Acquisition Place",
             "Related People", "Reliability",
-            "Next", "Next (1)", "Turn", "Turn (1)", "Turn (2)", "Turn (3)"
+            "Next", "Next (1)", "Turn", "Turn (1)", "Turn (2)"
         };
 
         private GameObject tabs;
