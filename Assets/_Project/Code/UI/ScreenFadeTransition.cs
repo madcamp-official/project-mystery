@@ -8,6 +8,8 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class ScreenFadeTransition : MonoBehaviour
     {
+        private static readonly Color DefaultColor = new Color32(3, 8, 18, 255);
+
         private CanvasGroup group;
         private Image blocker;
         private Coroutine transition;
@@ -33,17 +35,42 @@ namespace Wake.UI
             Action started = null,
             Action completed = null)
         {
-            EnsureOverlay();
             if (transition != null)
                 return false;
 
             started?.Invoke();
-            transition = StartCoroutine(Animate(
+            transition = StartCoroutine(RunSequence(
                 midpoint,
                 fadeOutSeconds,
                 fadeInSeconds,
                 completed));
             return true;
+        }
+
+        // Fades the overlay to fully covering the screen. Callers that
+        // start this in parallel with some other animation (rather than
+        // via Run(...)) are responsible for eventually calling FadeOut.
+        public Coroutine FadeIn(float duration, Color color)
+        {
+            EnsureOverlay();
+            blocker.color = color;
+            blocker.gameObject.SetActive(true);
+            blocker.transform.SetAsLastSibling();
+            group.blocksRaycasts = true;
+            return StartCoroutine(Fade(group.alpha, 1f, duration));
+        }
+
+        public Coroutine FadeOut(float duration)
+        {
+            EnsureOverlay();
+            return StartCoroutine(FadeOutSequence(duration));
+        }
+
+        private IEnumerator FadeOutSequence(float duration)
+        {
+            yield return Fade(group.alpha, 0f, duration);
+            group.blocksRaycasts = false;
+            blocker.gameObject.SetActive(false);
         }
 
         private void EnsureOverlay()
@@ -65,7 +92,7 @@ namespace Wake.UI
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
             blocker = overlay.GetComponent<Image>();
-            blocker.color = new Color32(3, 8, 18, 255);
+            blocker.color = DefaultColor;
             group = overlay.GetComponent<CanvasGroup>();
             group.alpha = 0f;
             group.interactable = false;
@@ -73,16 +100,13 @@ namespace Wake.UI
             overlay.SetActive(false);
         }
 
-        private IEnumerator Animate(
+        private IEnumerator RunSequence(
             Action midpoint,
             float fadeOutSeconds,
             float fadeInSeconds,
             Action completed)
         {
-            blocker.gameObject.SetActive(true);
-            blocker.transform.SetAsLastSibling();
-            group.blocksRaycasts = true;
-            yield return Fade(0f, 1f, fadeOutSeconds);
+            yield return FadeIn(fadeOutSeconds, DefaultColor);
             try
             {
                 midpoint?.Invoke();
@@ -92,9 +116,7 @@ namespace Wake.UI
                 Debug.LogException(exception);
             }
             blocker.transform.SetAsLastSibling();
-            yield return Fade(1f, 0f, fadeInSeconds);
-            group.blocksRaycasts = false;
-            blocker.gameObject.SetActive(false);
+            yield return FadeOut(fadeInSeconds);
             transition = null;
             completed?.Invoke();
         }
