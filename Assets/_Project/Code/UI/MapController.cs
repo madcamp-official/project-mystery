@@ -11,6 +11,8 @@ namespace Wake.UI
 {
     public class MapController : MonoBehaviour
     {
+        private const float MapTravelFadeSeconds = .45f;
+
         [SerializeField] private LocationGraph locationGraph;
         [SerializeField] private Sprite cruiseMapSprite;
         [SerializeField] private Sprite mapNodeSprite;
@@ -427,7 +429,21 @@ namespace Wake.UI
                 SelectEntry(entry);
                 return;
             }
-            transition.Run(() => SelectEntry(entry));
+            AudioManager audio = AudioManager.Instance;
+            transition.Run(
+                () =>
+                {
+                    audio?.CompleteMapTravelFadeOut();
+                    SelectEntry(entry);
+                    audio?.ResumeCurrentLocationIfTravelPending();
+                },
+                MapTravelFadeSeconds,
+                MapTravelFadeSeconds,
+                () => audio?.BeginMapTravelAudio(
+                    entry.Spec.Code,
+                    MapTravelFadeSeconds,
+                    MapTravelFadeSeconds),
+                () => audio?.EndMapTravelAudio());
         }
 
         private void SelectLocation(LocationDefinition location)

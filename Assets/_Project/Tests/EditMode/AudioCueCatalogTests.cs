@@ -69,5 +69,32 @@ namespace Wake.Tests.EditMode
             Assert.That(cue.MusicKey, Is.EqualTo("BGM/The_Horizon_Room"));
             Assert.That(cue.CrossfadeSeconds, Is.GreaterThan(0f));
         }
+
+        [TestCase("ATRIUM", FootstepSurface.Normal)]
+        [TestCase("GANGWAY", FootstepSurface.Wood)]
+        [TestCase("ENGINE_CONTROL", FootstepSurface.Metal)]
+        [TestCase("PORT", FootstepSurface.Stone)]
+        public void TravelFootsteps_MatchDestinationSurface(
+            string locationCode,
+            FootstepSurface expected)
+        {
+            FootstepSurface surface =
+                AudioCueCatalog.FootstepSurfaceFor(locationCode);
+            Assert.That(surface, Is.EqualTo(expected));
+            Assert.That(
+                AudioCueCatalog.FootstepKeyFor(surface),
+                Is.Not.Empty);
+            Assert.That(
+                AudioCueCatalog.FootstepPitchFor(surface),
+                Is.GreaterThan(1f));
+        }
+
+        [Test]
+        public void TravelFootsteps_PlayForOneAndAHalfSeconds()
+        {
+            Assert.That(
+                AudioCueCatalog.MapTravelFootstepSeconds,
+                Is.EqualTo(1.5f));
+        }
     }
 }

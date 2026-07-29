@@ -3,6 +3,14 @@ using System.Collections.Generic;
 
 namespace Wake.Core
 {
+    public enum FootstepSurface
+    {
+        Normal,
+        Wood,
+        Metal,
+        Stone
+    }
+
     public readonly struct LocationAudioCue
     {
         public LocationAudioCue(
@@ -34,6 +42,8 @@ namespace Wake.Core
 
     public static class AudioCueCatalog
     {
+        public const float MapTravelFootstepSeconds = 1.5f;
+
         public const string IronDoorKnockKey =
             "SoundEffect/The_sound_of_an_iron_door_knocking";
         public const string IronDoorToggleKey =
@@ -42,6 +52,10 @@ namespace Wake.Core
         // The former rough/metal footstep placeholder is intentionally routed
         // to the requested iron-door knock instead of Mountain Hiking Footsteps.
         public const string MetalFootstepReplacementKey = IronDoorKnockKey;
+        public const string NormalFootstepKey =
+            "SoundEffect/shoe_footsteps_sound_2";
+        public const string RoughFootstepKey =
+            "SoundEffect/Mountain Hiking Footsteps";
 
         private const string AdrianTheme =
             "BGM/Midnight_Latitude(Theme_Adrian_Vale)";
@@ -102,6 +116,30 @@ namespace Wake.Core
                     ["WORKSHOP"] = Cue(AdrianTheme, .43f, 1.8f)
                 };
 
+        private static readonly HashSet<string> WoodFootstepLocations =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                "GANGWAY",
+                "OPEN_DECK",
+                "PROMENADE"
+            };
+
+        private static readonly HashSet<string> MetalFootstepLocations =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                "SERVICE7",
+                "CREW_STAIRS",
+                "SERVICE_RAIL",
+                "ENGINE_CONTROL",
+                "BALLAST_CONTROL_ANNEX",
+                "LAUNDRY",
+                "SERVICE_HUB",
+                "STABILIZERS",
+                "BALLAST_TANKS",
+                "GENERATOR",
+                "WORKSHOP"
+            };
+
         public static bool TryGetLocationCue(
             string locationCode,
             out LocationAudioCue cue)
@@ -109,6 +147,43 @@ namespace Wake.Core
             string normalized = locationCode?.Trim() ?? string.Empty;
             return LocationCues.TryGetValue(normalized, out cue);
         }
+
+        public static FootstepSurface FootstepSurfaceFor(
+            string locationCode)
+        {
+            string normalized =
+                locationCode?.Trim() ?? string.Empty;
+            if (string.Equals(
+                    normalized,
+                    "PORT",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return FootstepSurface.Stone;
+            }
+            if (MetalFootstepLocations.Contains(normalized))
+                return FootstepSurface.Metal;
+            if (WoodFootstepLocations.Contains(normalized))
+                return FootstepSurface.Wood;
+            return FootstepSurface.Normal;
+        }
+
+        public static string FootstepKeyFor(FootstepSurface surface) =>
+            surface switch
+            {
+                FootstepSurface.Metal => MetalFootstepReplacementKey,
+                FootstepSurface.Wood => RoughFootstepKey,
+                FootstepSurface.Stone => RoughFootstepKey,
+                _ => NormalFootstepKey
+            };
+
+        public static float FootstepPitchFor(FootstepSurface surface) =>
+            surface switch
+            {
+                FootstepSurface.Metal => 1.18f,
+                FootstepSurface.Wood => 1.12f,
+                FootstepSurface.Stone => 1.08f,
+                _ => 1.2f
+            };
 
         private static LocationAudioCue Cue(
             string music,

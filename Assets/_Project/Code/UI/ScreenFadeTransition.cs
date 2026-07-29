@@ -29,16 +29,20 @@ namespace Wake.UI
         public bool Run(
             Action midpoint,
             float fadeOutSeconds = .25f,
-            float fadeInSeconds = .25f)
+            float fadeInSeconds = .25f,
+            Action started = null,
+            Action completed = null)
         {
             EnsureOverlay();
             if (transition != null)
                 return false;
 
+            started?.Invoke();
             transition = StartCoroutine(Animate(
                 midpoint,
                 fadeOutSeconds,
-                fadeInSeconds));
+                fadeInSeconds,
+                completed));
             return true;
         }
 
@@ -72,7 +76,8 @@ namespace Wake.UI
         private IEnumerator Animate(
             Action midpoint,
             float fadeOutSeconds,
-            float fadeInSeconds)
+            float fadeInSeconds,
+            Action completed)
         {
             blocker.gameObject.SetActive(true);
             blocker.transform.SetAsLastSibling();
@@ -91,6 +96,7 @@ namespace Wake.UI
             group.blocksRaycasts = false;
             blocker.gameObject.SetActive(false);
             transition = null;
+            completed?.Invoke();
         }
 
         private IEnumerator Fade(float from, float to, float duration)
