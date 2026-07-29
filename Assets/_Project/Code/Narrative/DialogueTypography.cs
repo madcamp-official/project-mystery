@@ -11,6 +11,23 @@ namespace Wake.Narrative
     /// </summary>
     public static class DialogueTypography
     {
+        // Choice buttons use the same font as the dialogue line itself,
+        // so the choice window doesn't read as a mix of fonts.
+        private const TypographyRole ChoiceTextRole = TypographyRole.Body;
+
+        // Unicode non-breaking space (U+00A0) - TMP will not wrap on this,
+        // so gluing the last two words together with it prevents a single
+        // trailing word/particle from being stranded alone on its own line.
+        private const char NonBreakingSpace = (char)0x00A0;
+
+        // Word Joiner (U+2060): zero-width and non-breaking, unlike
+        // NonBreakingSpace it introduces no visual gap, so it can glue
+        // two characters that never had a space between them (Korean
+        // choice text is often one continuous run with no spaces near
+        // the end at all, which made replacing the last space alone a
+        // no-op there).
+        private const char WordJoiner = (char)0x2060;
+
         public static int ApplySurface(
             TMP_Text line,
             TMP_Text speaker,
@@ -54,7 +71,7 @@ namespace Wake.Narrative
             {
                 if (TypographyService.Apply(
                         choiceLabels[i],
-                        TypographyRole.Choice))
+                        ChoiceTextRole))
                 {
                     applied++;
                 }
@@ -63,19 +80,34 @@ namespace Wake.Narrative
             return applied;
         }
 
-        public static bool ApplyChoice(TMP_Text label, string content)
+        public static bool ApplyChoice(TMP_Text label)
         {
-            return TypographyService.Apply(
-                label,
-                ResolveChoiceRole(content));
+            return TypographyService.Apply(label, ChoiceTextRole);
         }
 
-        public static TypographyRole ResolveChoiceRole(string content)
+        public static string PreventOrphanWrap(string content)
         {
-            return !string.IsNullOrEmpty(content) &&
-                content.Contains("농담", System.StringComparison.Ordinal)
-                    ? TypographyRole.SpecialComic
-                    : TypographyRole.Choice;
+            if (string.IsNullOrEmpty(content) || content.Length < 2)
+            {
+                return content;
+            }
+
+            string trimmed = content.TrimEnd();
+            if (trimmed.Length < 2)
+            {
+                return content;
+            }
+
+            // Glue the literal last two characters together - covers a
+            // trailing word/particle stranded after a space AND a
+            // trailing character stranded with no space at all, since
+            // Korean text often has neither near the end of a short
+            // choice label.
+            string glued = trimmed.Substring(0, trimmed.Length - 2) +
+                (trimmed[trimmed.Length - 2] == ' ' ? NonBreakingSpace : trimmed[trimmed.Length - 2]) +
+                WordJoiner +
+                trimmed[trimmed.Length - 1];
+            return glued + content.Substring(trimmed.Length);
         }
     }
 }
