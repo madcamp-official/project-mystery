@@ -50,6 +50,9 @@ namespace Wake.UI
         private RectTransform nextButton;
         private RectTransform choices;
         private TMP_Text lineText;
+        private Image panelBackground;
+        private Color panelBackgroundDefaultColor;
+        private Color lineTextDefaultColor;
         private Image backgroundDim;
         private CanvasGroup backgroundDimGroup;
         private Coroutine dimRoutine;
@@ -87,6 +90,13 @@ namespace Wake.UI
             speakerPlate = targetSpeakerText != null
                 ? targetSpeakerText.transform.parent as RectTransform
                 : null;
+            panelBackground = linePanel != null
+                ? linePanel.Find("Panel")?.GetComponent<Image>()
+                : null;
+            if (panelBackground != null)
+                panelBackgroundDefaultColor = panelBackground.color;
+            if (lineText != null)
+                lineTextDefaultColor = lineText.color;
             nextButton = targetNextButton;
             choices = targetChoices;
             backgroundDim = EnsureBackgroundDim();
@@ -126,10 +136,13 @@ namespace Wake.UI
             string panelSlot = PanelSlotFor(presentation);
             RuntimeUiLayoutRegistry.CopyLayout(linePanel, panelSlot);
             ApplyTextLayout(presentation);
+            ApplyNarrationStyle(presentation);
+            // Portrait must resolve before the speaker plate - the plate
+            // positions itself directly under the portrait's final rect.
+            ApplyPortrait(presentation);
             ApplySpeakerPlate(presentation);
             ApplyNextButton(presentation);
             ApplyChoiceLayout();
-            ApplyPortrait(presentation);
             lastScreen = new Vector2Int(Screen.width, Screen.height);
         }
 
@@ -325,6 +338,29 @@ namespace Wake.UI
             FitPortraitToSlot(presentation.PortraitHeightRatio);
         }
 
+        // Narration reads as plain white text over the (now much darker)
+        // background dim instead of sitting inside the same boxed panel
+        // used for character lines - the panel/text colors are shared
+        // objects across every mode, so non-narration modes must be
+        // restored explicitly here too.
+        private void ApplyNarrationStyle(DialoguePresentationSpec presentation)
+        {
+            bool isNarration =
+                presentation.Mode == DialoguePresentationMode.Narration;
+            if (panelBackground != null)
+            {
+                panelBackground.color = isNarration
+                    ? new Color(0f, 0f, 0f, 0f)
+                    : panelBackgroundDefaultColor;
+            }
+            if (lineText != null)
+            {
+                lineText.color = isNarration
+                    ? Color.white
+                    : lineTextDefaultColor;
+            }
+        }
+
         private void ApplyTextLayout(
             DialoguePresentationSpec presentation)
         {
@@ -361,6 +397,34 @@ namespace Wake.UI
             RuntimeUiLayoutRegistry.CopyWorldLayout(
                 speakerPlate,
                 SpeakerNameSlotFor(presentation));
+            if (presentation.ShowPortrait)
+                PositionSpeakerPlateBelowPortrait();
+        }
+
+        // Slot-copied layout puts the plate beside the dialogue text: pin
+        // it to the portrait's own rect instead so it always sits directly
+        // under the character image regardless of portrait size/position.
+        private void PositionSpeakerPlateBelowPortrait()
+        {
+            if (speakerPlate == null ||
+                portrait == null ||
+                !portrait.gameObject.activeSelf)
+            {
+                return;
+            }
+
+            const float gap = 8f;
+            Vector2 size = speakerPlate.rect.size;
+            Vector2 portraitAnchorCenter =
+                (portrait.anchorMin + portrait.anchorMax) * 0.5f;
+            speakerPlate.anchorMin = portraitAnchorCenter;
+            speakerPlate.anchorMax = portraitAnchorCenter;
+            speakerPlate.pivot = new Vector2(0.5f, 1f);
+            speakerPlate.sizeDelta = size;
+            speakerPlate.anchoredPosition = new Vector2(
+                portrait.anchoredPosition.x,
+                portrait.anchoredPosition.y -
+                    portrait.sizeDelta.y * 0.5f - gap);
         }
 
         private void ApplyNextButton(
