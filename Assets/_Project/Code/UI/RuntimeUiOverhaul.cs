@@ -365,7 +365,7 @@ namespace Wake.UI
             // Exactly twice the original 24% x 14% title-safe slot.
             // The right edge stops at screen center so it cannot cover the
             // character composition, and it remains well above the menu.
-            logoRect.anchorMin = new Vector2(0.00f, 0.70f);
+            logoRect.anchorMin = new Vector2(0.00f, 0.10f);
             logoRect.anchorMax = new Vector2(0.50f, 1.00f);
             logoRect.offsetMin = Vector2.zero;
             logoRect.offsetMax = Vector2.zero;
