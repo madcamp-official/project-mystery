@@ -57,19 +57,11 @@ namespace Wake.Tests
 
         [TestCase("invitation")]
         [TestCase("INVITATION")]
-        public void InvitationEvidence_UsesHandwrittenRole(
-            string category)
-        {
-            Assert.That(
-                EvidenceTypography.ResolveDetailRole(category),
-                Is.EqualTo(TypographyRole.Handwritten));
-        }
-
         [TestCase(null)]
         [TestCase("")]
         [TestCase("forensic")]
         [TestCase("communication")]
-        public void OtherEvidence_UsesRegularBodyRole(
+        public void AllEvidence_UsesRegularBodyRole(
             string category)
         {
             Assert.That(
@@ -78,7 +70,7 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void InvitationEvidence_AppliesHandwrittenFont()
+        public void InvitationEvidence_AppliesRegularBodyFont()
         {
             TMP_Text label = CreateLabel("Invitation");
 
@@ -87,7 +79,7 @@ namespace Wake.Tests
                 "invitation");
 
             Assert.That(applied, Is.True);
-            Assert.That(label.font, Is.SameAs(handwritten));
+            Assert.That(label.font, Is.SameAs(bodyRegular));
         }
 
         [Test]
@@ -174,15 +166,7 @@ namespace Wake.Tests
                 Is.EqualTo(content));
         }
 
-        [Test]
-        public void InvitationComparison_IgnoresCaseOnly()
-        {
-            Assert.That(
-                EvidenceTypography.ResolveDetailRole(" invitation "),
-                Is.EqualTo(TypographyRole.BodyRegular));
-        }
-
-        [Test]
+[Test]
         public void AlertToast_UsesSpecialAlertRole()
         {
             Assert.That(
