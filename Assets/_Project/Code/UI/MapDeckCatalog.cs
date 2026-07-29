@@ -54,7 +54,7 @@ namespace Wake.UI
         {
             P("PORT", 0, .28f, .52f, MapTravelTier.PublicFastTravel,
                 "엘리시움호가 정박한 출발 항구."),
-            P("GANGWAY", 0, .70f, .52f, MapTravelTier.PublicFastTravel,
+            P("GANGWAY", 0, .70f, .52f, MapTravelTier.RouteOnly,
                 "항구와 선내를 잇는 승선 통로."),
 
             P("RICHARD_SUITE", 10, .28f, .50f,
@@ -203,6 +203,8 @@ namespace Wake.UI
             IEnumerable<string> unlockedSceneIds)
         {
             if (placement == null || entry == null)
+                return false;
+            if (!entry.IsVisible)
                 return false;
             string current =
                 CanonicalLocationCatalog.FindSpec(currentLocationCode)?.Code ??

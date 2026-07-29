@@ -15,6 +15,7 @@ namespace Wake.Exploration
         SceneNotUnlocked,
         PrerequisiteSceneIncomplete,
         BoardingSequenceIncomplete,
+        NarrativeWindowClosed,
         RestrictedByPublicAnxiety,
         RouteRequired,
         LocationUndiscovered,
@@ -60,6 +61,9 @@ namespace Wake.Exploration
     public static class SceneTravelPolicy
     {
         public const string BoardingCompleteSceneId = "P-03";
+        public const string GangwayLocationCode = "GANGWAY";
+        public const string PortCompleteSceneId = "P-01";
+        public const string GangwayCompleteSceneId = "P-02";
 
         // Structure Map crew/service/technical spaces. Passenger spaces are intentionally absent.
         private static readonly HashSet<string> RestrictedLocationCodes =
@@ -178,6 +182,14 @@ namespace Wake.Exploration
                 .Where(value => !string.IsNullOrWhiteSpace(value))
                 .Select(value => value.Trim().ToUpperInvariant()),
                 StringComparer.Ordinal);
+            if (IsGangwayWindowClosed(location.LocationCode, completed))
+            {
+                return SceneTravelResult.Denied(
+                    SceneAccessDenialReason.NarrativeWindowClosed,
+                    "The gangway is only available while boarding in P-02.",
+                    location: location);
+            }
+
             if (CanReachDuringBoarding(location.LocationCode, completed))
             {
                 return locationResult;
@@ -245,10 +257,36 @@ namespace Wake.Exploration
             return basic;
         }
 
+        public static bool IsLocationVisibleOnMap(
+            string locationCode,
+            IEnumerable<string> completedSceneIds)
+        {
+            if (!string.Equals(
+                    locationCode?.Trim(),
+                    GangwayLocationCode,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            HashSet<string> completed = NormalizeSceneIds(completedSceneIds);
+            return completed.Contains(PortCompleteSceneId) &&
+                   !completed.Contains(GangwayCompleteSceneId);
+        }
+
         private static bool CanReachDuringBoarding(
             string locationCode,
             HashSet<string> completed)
         {
+            if (string.Equals(
+                    locationCode,
+                    GangwayLocationCode,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return completed.Contains(PortCompleteSceneId) &&
+                       !completed.Contains(GangwayCompleteSceneId);
+            }
+
             if (completed.Contains(BoardingCompleteSceneId))
             {
                 return true;
@@ -257,12 +295,28 @@ namespace Wake.Exploration
             return locationCode switch
             {
                 "PORT" => true,
-                "GANGWAY" => completed.Contains("P-01"),
                 "RICHARD_SUITE" =>
-                    completed.Contains("P-01") &&
-                    completed.Contains("P-02"),
+                    completed.Contains(PortCompleteSceneId) &&
+                    completed.Contains(GangwayCompleteSceneId),
                 _ => false
             };
         }
+
+        private static bool IsGangwayWindowClosed(
+            string locationCode,
+            HashSet<string> completed) =>
+            string.Equals(
+                locationCode,
+                GangwayLocationCode,
+                StringComparison.OrdinalIgnoreCase) &&
+            completed.Contains(GangwayCompleteSceneId);
+
+        private static HashSet<string> NormalizeSceneIds(
+            IEnumerable<string> sceneIds) =>
+            new(
+                (sceneIds ?? Array.Empty<string>())
+                    .Where(value => !string.IsNullOrWhiteSpace(value))
+                    .Select(value => value.Trim().ToUpperInvariant()),
+                StringComparer.Ordinal);
     }
 }

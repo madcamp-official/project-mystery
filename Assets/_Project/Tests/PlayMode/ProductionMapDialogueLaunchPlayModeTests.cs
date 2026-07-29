@@ -21,8 +21,7 @@ namespace Wake.Tests.PlayMode
             Assert.That(State.HasCompletedScene("P-01"), Is.True);
             Assert.That(Dialogue.IsBusy, Is.False);
 
-            Ui.ShowMap();
-            yield return WaitForMap();
+            yield return ShowOrRefreshMap();
             MapController map = RequireMap();
             Button gangway = RequireSceneButton("P-02");
             Assert.That(gangway.interactable, Is.True);
@@ -57,12 +56,8 @@ namespace Wake.Tests.PlayMode
             Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Ingame));
             Assert.That(State.DialogueCheckpoint, Is.Null);
 
-            Button daniel = Object.FindObjectsByType<Button>(
-                    FindObjectsInactive.Exclude,
-                    FindObjectsSortMode.None)
-                .Single(button =>
-                    button.name.StartsWith("AmbientCharacter_DANIEL"));
-            yield return InvokeAndSettle(daniel);
+            yield return StartPreparedProductionSceneFromFocusCharacter(
+                "P-02");
 
             Assert.That(Dialogue.IsBusy, Is.True);
             Assert.That(
@@ -94,15 +89,13 @@ namespace Wake.Tests.PlayMode
         [UnityTest]
         public IEnumerator LockedEntry_RejectsTravelBeforeLoadingOrDialogue()
         {
-            Ui.ShowMap();
-            yield return WaitForMap();
+            yield return ShowOrRefreshMap();
             MapController map = RequireMap();
             Button gangway = RequireSceneButton("P-02");
 
+            Assert.That(gangway.gameObject.activeSelf, Is.False);
             Assert.That(gangway.interactable, Is.False);
-            Assert.That(
-                gangway.GetComponentInChildren<TMP_Text>().text,
-                Is.EqualTo("승선 통로"));
+            Assert.That(HasLayeredGangwayNode(), Is.False);
 
             SceneTravelResult result = map.TryTravelToScene("P-02");
             yield return null;
@@ -119,31 +112,21 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
-        public IEnumerator CompletedEntry_RevisitsLocationWithoutReplay()
+        public IEnumerator CompletedEntry_HidesGangwayAndPreventsRevisit()
         {
             yield return CompleteOpeningScene();
             Assert.That(Dialogue.IsBusy, Is.False);
             State.RecordCompletedScene("P-02");
 
-            Ui.ShowMap();
-            yield return WaitForMap();
+            yield return ShowOrRefreshMap();
             Button gangway = RequireSceneButton("P-02");
-            Assert.That(gangway.interactable, Is.True);
-            Assert.That(
-                gangway.GetComponentInChildren<TMP_Text>().text,
-                Is.EqualTo("승선 통로"));
-
-            Button layeredGangway =
-                RequireLayeredLocationButton("GANGWAY");
-            yield return InvokeAndSettle(layeredGangway);
-            yield return InvokeAndSettle(RequireLayeredTravelButton());
-            yield return WaitForTravel(RequireMap(), "GANGWAY");
-
-            Assert.That(State.CurrentLocationCode, Is.EqualTo("GANGWAY"));
+            Assert.That(gangway.gameObject.activeSelf, Is.False);
+            Assert.That(HasLayeredGangwayNode(), Is.False);
+            Assert.That(State.CurrentLocationCode, Is.EqualTo("PORT"));
             Assert.That(Dialogue.IsBusy, Is.False);
             Assert.That(Dialogue.ActiveProductionSceneId, Is.Empty);
             Assert.That(State.DialogueCheckpoint, Is.Null);
-            Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Ingame));
+            Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Map));
             AssertNoRuntimeErrors("완료 장소 재방문");
         }
 
@@ -175,40 +158,58 @@ namespace Wake.Tests.PlayMode
         public IEnumerator PrologueMap_UnlocksGangwayThenSuiteBeforeFreeTravel()
         {
             yield return CompleteOpeningScene();
-            Ui.ShowMap();
-            yield return WaitForMap();
+            yield return ShowOrRefreshMap();
 
             Assert.That(RequireSceneButton("P-02").interactable, Is.True);
-            Button laundry = RequireLocationButton("LAUNDRY");
-            Assert.That(laundry.gameObject.activeSelf, Is.False);
+            Assert.That(HasLayeredGangwayNode(), Is.True);
 
             State.RecordCompletedScene("P-02");
             State.UnlockProductionScene("P-03");
-            Ui.ShowMap();
-            yield return WaitForMap();
+            yield return ShowOrRefreshMap();
 
             Button suite = RequireLocationButton("RICHARD_SUITE");
             Assert.That(suite.interactable, Is.True);
             Assert.That(
+                RequireSceneButton("P-02").gameObject.activeSelf,
+                Is.False);
+            Assert.That(HasLayeredGangwayNode(), Is.False);
+            Assert.That(
                 suite.GetComponentInChildren<TMP_Text>().text,
                 Is.EqualTo("리처드 스위트룸"));
-            Assert.That(
-                RequireLocationButton("LAUNDRY").gameObject.activeSelf,
-                Is.False);
-
             State.RecordCompletedScene("P-03");
-            Ui.ShowMap();
-            yield return WaitForMap();
+            yield return ShowOrRefreshMap();
 
-            laundry = RequireLocationButton("LAUNDRY");
-            Assert.That(laundry.gameObject.activeSelf, Is.False);
+            Assert.That(
+                RequireSceneButton("P-02").gameObject.activeSelf,
+                Is.False);
             AssertNoRuntimeErrors("프롤로그 순차 이동");
+        }
+
+        private static bool HasLayeredGangwayNode() =>
+            Object.FindObjectsByType<Button>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None)
+                .Any(button =>
+                    button.name == "Layered Map Node GANGWAY" &&
+                    button.gameObject.activeInHierarchy);
+
+        private IEnumerator ShowOrRefreshMap()
+        {
+            if (Ui.ActivePanel == UiPrimaryPanel.Map)
+            {
+                RequireMap().RefreshMap();
+            }
+            else
+            {
+                Ui.ShowMap();
+            }
+
+            yield return WaitForMap();
         }
 
         private IEnumerator WaitForMap()
         {
-            yield return null;
-            yield return null;
+            yield return WaitForUiTransition();
             Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Map));
             Assert.That(
                 RequireObject(
