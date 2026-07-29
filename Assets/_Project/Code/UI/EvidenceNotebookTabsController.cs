@@ -44,68 +44,111 @@ namespace Wake.UI
             }
             built = true;
             RectTransform root = transform as RectTransform;
-            tabs = new GameObject("Notebook Tabs", typeof(RectTransform));
-            tabs.transform.SetParent(root, false);
-            RectTransform tabsRect = tabs.GetComponent<RectTransform>();
-            if (!RuntimeUiLayoutRegistry.CopyWorldLayout(
-                    tabsRect,
-                    "evidence.tabs"))
+
+            Transform existingTabs = root.Find("Notebook Tabs");
+            RectTransform tabsRect;
+            if (existingTabs != null)
             {
-                Debug.LogError(
-                    "Evidence notebook is missing the authored tabs slot.");
+                tabs = existingTabs.gameObject;
+                tabsRect = tabs.GetComponent<RectTransform>();
+            }
+            else
+            {
+                tabs = new GameObject("Notebook Tabs", typeof(RectTransform));
+                tabs.transform.SetParent(root, false);
+                tabsRect = tabs.GetComponent<RectTransform>();
+                if (!RuntimeUiLayoutRegistry.CopyWorldLayout(
+                        tabsRect,
+                        "evidence.tabs"))
+                {
+                    Debug.LogError(
+                        "Evidence notebook is missing the authored tabs slot.");
+                }
+
+                Button evidence = SaveSlotSelectionController.MakeButton(
+                    tabsRect, "Evidence Tab", new Vector2(-155f, 0f), new Vector2(290f, 54f));
+                SaveSlotSelectionController.MakeText(
+                    evidence.transform as RectTransform, "조사 기록", 24f,
+                    Vector2.zero, new Vector2(250f, 44f));
+                Button people = SaveSlotSelectionController.MakeButton(
+                    tabsRect, "Characters Tab", new Vector2(155f, 0f), new Vector2(290f, 54f));
+                SaveSlotSelectionController.MakeText(
+                    people.transform as RectTransform, "인물 · 관계", 24f,
+                    Vector2.zero, new Vector2(250f, 44f));
             }
 
-            Button evidence = SaveSlotSelectionController.MakeButton(
-                tabsRect, "Evidence Tab", new Vector2(-155f, 0f), new Vector2(290f, 54f));
-            SaveSlotSelectionController.MakeText(
-                evidence.transform as RectTransform, "조사 기록", 24f,
-                Vector2.zero, new Vector2(250f, 44f));
-            evidence.onClick.AddListener(ShowEvidence);
-            Button people = SaveSlotSelectionController.MakeButton(
-                tabsRect, "Characters Tab", new Vector2(155f, 0f), new Vector2(290f, 54f));
-            SaveSlotSelectionController.MakeText(
-                people.transform as RectTransform, "인물 · 관계", 24f,
-                Vector2.zero, new Vector2(250f, 44f));
-            people.onClick.AddListener(ShowCharacters);
-
+            WireTabButtons(tabsRect);
             BuildCharacters(root);
+        }
+
+        private void WireTabButtons(RectTransform tabsRect)
+        {
+            Button evidence = tabsRect.Find("Evidence Tab")?.GetComponent<Button>();
+            if (evidence != null)
+            {
+                evidence.onClick.RemoveListener(ShowEvidence);
+                evidence.onClick.AddListener(ShowEvidence);
+            }
+            Button people = tabsRect.Find("Characters Tab")?.GetComponent<Button>();
+            if (people != null)
+            {
+                people.onClick.RemoveListener(ShowCharacters);
+                people.onClick.AddListener(ShowCharacters);
+            }
         }
 
         private void BuildCharacters(RectTransform root)
         {
-            characters = SaveSlotSelectionController.Panel(
-                root, "Characters And Relationships", new Color32(5, 15, 29, 235));
-            RectTransform panel = characters.GetComponent<RectTransform>();
-            if (!RuntimeUiLayoutRegistry.CopyWorldLayout(
-                    panel,
-                    "evidence.people-panel"))
+            Transform existingPanel = root.Find("Characters And Relationships");
+            RectTransform panel;
+            RectTransform content;
+            if (existingPanel != null)
             {
-                Debug.LogError(
-                    "Evidence notebook is missing the authored people slot.");
+                characters = existingPanel.gameObject;
+                panel = existingPanel.GetComponent<RectTransform>();
+                RuntimeUiLayoutRegistry.CopyWorldLayout(panel, "evidence.people-panel");
+                content = panel.Find("Viewport/Content") as RectTransform;
+                if (content != null && content.childCount > 0)
+                {
+                    return;
+                }
             }
+            else
+            {
+                characters = SaveSlotSelectionController.Panel(
+                    root, "Characters And Relationships", new Color32(5, 15, 29, 235));
+                panel = characters.GetComponent<RectTransform>();
+                if (!RuntimeUiLayoutRegistry.CopyWorldLayout(
+                        panel,
+                        "evidence.people-panel"))
+                {
+                    Debug.LogError(
+                        "Evidence notebook is missing the authored people slot.");
+                }
 
-            GameObject viewportObject = new(
-                "Viewport", typeof(RectTransform), typeof(Image),
-                typeof(RectMask2D), typeof(ScrollRect));
-            viewportObject.transform.SetParent(panel, false);
-            RectTransform viewport = viewportObject.GetComponent<RectTransform>();
-            SaveSlotSelectionController.Stretch(viewport);
-            viewport.offsetMin = new Vector2(25f, 25f);
-            viewport.offsetMax = new Vector2(-25f, -25f);
-            viewportObject.GetComponent<Image>().color = new Color(0, 0, 0, .08f);
+                GameObject viewportObject = new(
+                    "Viewport", typeof(RectTransform), typeof(Image),
+                    typeof(RectMask2D), typeof(ScrollRect));
+                viewportObject.transform.SetParent(panel, false);
+                RectTransform viewport = viewportObject.GetComponent<RectTransform>();
+                SaveSlotSelectionController.Stretch(viewport);
+                viewport.offsetMin = new Vector2(25f, 25f);
+                viewport.offsetMax = new Vector2(-25f, -25f);
+                viewportObject.GetComponent<Image>().color = new Color(0, 0, 0, .08f);
 
-            GameObject contentObject = new("Content", typeof(RectTransform));
-            contentObject.transform.SetParent(viewport, false);
-            RectTransform content = contentObject.GetComponent<RectTransform>();
-            content.anchorMin = new Vector2(0f, 1f);
-            content.anchorMax = new Vector2(1f, 1f);
-            content.pivot = new Vector2(.5f, 1f);
-            content.sizeDelta = new Vector2(0f, 1020f);
-            ScrollRect scroll = viewportObject.GetComponent<ScrollRect>();
-            scroll.viewport = viewport;
-            scroll.content = content;
-            scroll.horizontal = false;
-            scroll.vertical = true;
+                GameObject contentObject = new("Content", typeof(RectTransform));
+                contentObject.transform.SetParent(viewport, false);
+                content = contentObject.GetComponent<RectTransform>();
+                content.anchorMin = new Vector2(0f, 1f);
+                content.anchorMax = new Vector2(1f, 1f);
+                content.pivot = new Vector2(.5f, 1f);
+                content.sizeDelta = new Vector2(0f, 1020f);
+                ScrollRect scroll = viewportObject.GetComponent<ScrollRect>();
+                scroll.viewport = viewport;
+                scroll.content = content;
+                scroll.horizontal = false;
+                scroll.vertical = true;
+            }
 
             IReadOnlyList<DialoguePortraitDefinition> people =
                 DialoguePortraitCatalog.All;
