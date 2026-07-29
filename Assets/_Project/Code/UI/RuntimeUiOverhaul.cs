@@ -1089,6 +1089,7 @@ namespace Wake.UI
             // is still left muffled from that dive - clear it so gameplay
             // BGM never starts muffled.
             AudioManager.Instance?.SetUnderwaterMuffle(0f);
+            AudioManager.Instance?.StopMusicForGameEntry();
             StartCoroutine(DelayedFadeIn(
                 FadeInDelay, RevealDuration - FadeInDelay, Color.white));
 
@@ -1126,7 +1127,10 @@ namespace Wake.UI
             yield return MoveRect(
                 contentRect, slotShown, slotHidden, EaseInQuint, RiseDuration);
             Coroutine waterSurface = StartCoroutine(MoveWater(
-                WaterRisen, WaterHome, WaterTrapezoid, DiveDuration, false));
+                WaterRisen, WaterHome, WaterTrapezoid, DiveDuration, false,
+                null,
+                WaterAudioTriggerY,
+                () => AudioManager.Instance?.PlayWaterSplashOut()));
             yield return new WaitForSecondsRealtime(LobbyLeadIn);
             Coroutine ingameEnter = ingamePanel != null
                 ? StartCoroutine(MoveRect(

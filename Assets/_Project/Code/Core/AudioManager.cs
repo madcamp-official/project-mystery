@@ -223,6 +223,22 @@ namespace Wake.Core
             }
         }
 
+        public void StopMusicForGameEntry()
+        {
+            EnsureRuntimeSources();
+            StopTransitionFades();
+            if (musicSource != null)
+            {
+                musicSource.Stop();
+                musicSource.clip = null;
+            }
+            if (musicSourceB != null)
+            {
+                musicSourceB.Stop();
+                musicSourceB.clip = null;
+            }
+        }
+
         public void PlayWaterSplashOut()
         {
             EnsureRuntimeSources();
