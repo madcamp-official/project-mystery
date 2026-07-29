@@ -393,10 +393,7 @@ namespace Wake.UI
                     () => UIManager.Instance?.ShowIngame());
             else
                 node.Button.onClick.AddListener(() => SelectEntry(entry));
-            node.Label.text =
-                isObjectiveDestination && !current && !locked
-                    ? $"목표 · {entry.Spec.DisplayName}"
-                    : entry.Spec.DisplayName;
+            node.Label.text = entry.Spec.DisplayName;
             node.Label.color = locked
                 ? UiVisualThemeService.Resolve(UiColorToken.TextSecondary)
                 : current

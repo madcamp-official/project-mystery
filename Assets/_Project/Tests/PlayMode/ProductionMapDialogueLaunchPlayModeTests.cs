@@ -28,7 +28,7 @@ namespace Wake.Tests.PlayMode
             Assert.That(gangway.interactable, Is.True);
             Assert.That(
                 gangway.GetComponentInChildren<TMP_Text>().text,
-                Is.EqualTo("목표 · 승선 통로"));
+                Is.EqualTo("승선 통로"));
             Transform destinationArrow =
                 gangway.transform.Find("Objective Destination Arrow");
             Assert.That(destinationArrow, Is.Not.Null);

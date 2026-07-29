@@ -69,20 +69,20 @@ namespace Wake.Editor
                     "Context Top Left",
                     ScreenRegionIds.ContextTopLeft,
                     new Vector2(.02f, .84f),
-                    new Vector2(.26f, .98f),
+                    new Vector2(.24f, .98f),
                     color);
                 RuntimeUiLayoutSlot objective = Slot(
                     common,
                     "Objective Top",
                     ScreenRegionIds.ObjectiveTop,
                     new Vector2(.25f, .84f),
-                    new Vector2(.75f, .98f),
+                    new Vector2(.74f, .98f),
                     color);
                 RuntimeUiLayoutSlot global = Slot(
                     common,
                     "Global Top Right",
                     ScreenRegionIds.GlobalTopRight,
-                    new Vector2(.74f, .84f),
+                    new Vector2(.75f, .84f),
                     new Vector2(.98f, .98f),
                     color);
                 RuntimeUiLayoutSlot tools = Slot(

@@ -38,7 +38,7 @@ namespace Wake.Tests
                 .OrderBy(emotion => emotion)
                 .ToArray();
 
-            Assert.That(emotions, Has.Length.EqualTo(109));
+            Assert.That(emotions, Has.Length.EqualTo(108));
             Assert.That(
                 emotions.Where(emotion =>
                     !DialoguePresentationMap.IsKnownEmotion(emotion)),

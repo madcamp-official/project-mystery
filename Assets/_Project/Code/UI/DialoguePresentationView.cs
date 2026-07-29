@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -50,6 +51,8 @@ namespace Wake.UI
         private RectTransform choices;
         private TMP_Text lineText;
         private Image backgroundDim;
+        private CanvasGroup backgroundDimGroup;
+        private Coroutine dimRoutine;
         private Transform statusHud;
         private CanvasGroup locationContextGroup;
         private DialoguePresentationSpec active;
@@ -58,6 +61,12 @@ namespace Wake.UI
         private bool initialized;
 
         public DialoguePresentationSpec Active => active;
+
+        private void OnDisable()
+        {
+            ResetDimImmediate();
+            RestoreNavigationVisibility();
+        }
 
         public void Initialize(
             RectTransform targetIngameRoot,
@@ -224,6 +233,10 @@ namespace Wake.UI
             Image image = node.GetComponent<Image>();
             image.color = Color.clear;
             image.raycastTarget = false;
+            backgroundDimGroup = node.GetComponent<CanvasGroup>();
+            if (backgroundDimGroup == null)
+                backgroundDimGroup = node.AddComponent<CanvasGroup>();
+            backgroundDimGroup.alpha = 0f;
             node.SetActive(false);
             return image;
         }
@@ -236,12 +249,53 @@ namespace Wake.UI
             bool visible =
                 presentation.IsVisible &&
                 presentation.BackgroundDimAlpha > 0f;
-            backgroundDim.gameObject.SetActive(visible);
             backgroundDim.color = new Color(
                 0.025f,
                 0.035f,
                 0.075f,
                 presentation.BackgroundDimAlpha);
+            if (dimRoutine != null)
+                StopCoroutine(dimRoutine);
+            backgroundDim.gameObject.SetActive(true);
+            dimRoutine = StartCoroutine(FadeDim(
+                visible ? 1f : 0f,
+                visible));
+        }
+
+        private IEnumerator FadeDim(float target, bool keepVisible)
+        {
+            if (backgroundDimGroup == null)
+                yield break;
+
+            float start = backgroundDimGroup.alpha;
+            float elapsed = 0f;
+            const float duration = 0.18f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                backgroundDimGroup.alpha = Mathf.Lerp(
+                    start,
+                    target,
+                    Mathf.SmoothStep(0f, 1f, elapsed / duration));
+                yield return null;
+            }
+            backgroundDimGroup.alpha = target;
+            backgroundDim.gameObject.SetActive(keepVisible);
+            dimRoutine = null;
+        }
+
+        private void ResetDimImmediate()
+        {
+            if (dimRoutine != null)
+            {
+                StopCoroutine(dimRoutine);
+                dimRoutine = null;
+            }
+
+            if (backgroundDimGroup != null)
+                backgroundDimGroup.alpha = 0f;
+            if (backgroundDim != null)
+                backgroundDim.gameObject.SetActive(false);
         }
 
         private void ApplyPortrait(DialoguePresentationSpec presentation)
@@ -284,7 +338,7 @@ namespace Wake.UI
             lineText.fontSizeMax = DialogueTypographyMetrics.LineMaximum;
             lineText.lineSpacing = DialogueTypographyMetrics.BodyLineSpacing;
             lineText.textWrappingMode = TextWrappingModes.Normal;
-            lineText.overflowMode = TextOverflowModes.Overflow;
+            lineText.overflowMode = TextOverflowModes.Truncate;
             lineText.margin = new Vector4(12f, 8f, 12f, 8f);
         }
 
@@ -406,12 +460,7 @@ namespace Wake.UI
                     navigation.gameObject.SetActive(false);
             }
 
-            Transform canvas = ingameRoot.parent;
-            Transform globalNavigation =
-                canvas?.Find("Exploration Global Navigation");
-            if (globalNavigation != null &&
-                globalNavigation.gameObject.activeSelf != visible)
-                globalNavigation.gameObject.SetActive(visible);
+            UIManager.Instance?.SetExplorationNavigationSuppressed(!visible);
         }
 
         private static CanvasGroup EnsureCanvasGroup(Transform target)

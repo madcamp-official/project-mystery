@@ -76,7 +76,15 @@ namespace Wake.Core
             bool resumed;
             if (hasDialogueCheckpoint)
             {
-                resumed = director?.ResumeGame() ?? false;
+                ProductionDialogueCheckpoint checkpoint =
+                    state.DialogueCheckpoint;
+                resumed =
+                    !string.IsNullOrWhiteSpace(
+                        checkpoint.pendingInteractionId) &&
+                    Wake.UI.UIManager.Instance?.ResumePendingInteraction(
+                        checkpoint) == true;
+                if (!resumed)
+                    resumed = director?.ResumeGame() ?? false;
                 if (resumed)
                 {
                     AlignLocationWithActiveStoryScene();

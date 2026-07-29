@@ -227,6 +227,7 @@ namespace Wake.Tests.PlayMode
 
             yield return InvokeAndSettle(candidates[0]);
             Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Ingame));
+            yield return StartPreparedProductionSceneFromFocusCharacter(sceneId);
             Assert.That(Dialogue.IsBusy, Is.True);
         }
 
