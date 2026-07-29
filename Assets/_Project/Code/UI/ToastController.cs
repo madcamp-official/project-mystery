@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Wake.Core;
 
 namespace Wake.UI
 {
@@ -25,16 +26,46 @@ namespace Wake.UI
         private TMP_Text toastText;
         private Coroutine activeRoutine;
 
+        private GameStateManager boundState;
+
         private void Awake()
         {
             Instance = this;
             BuildToastUi();
         }
 
+        private void Start()
+        {
+            // Feedback (save confirmations, unlocks, etc.) is meant to
+            // reach the player regardless of which gameplay panel happens
+            // to be visible - it was previously relayed through
+            // StatusHUDController, whose enabled state depends on the HUD
+            // panel's own visibility (and which nothing currently ever
+            // re-activates once hidden), so messages silently never
+            // showed. ToastController lives for the whole session, so it
+            // binds directly instead.
+            boundState = GameStateManager.Instance;
+            if (boundState != null)
+            {
+                boundState.FeedbackRequested += Show;
+                boundState.BadEndTriggered += ShowBadEndFeedback;
+            }
+        }
+
         private void OnDestroy()
         {
+            if (boundState != null)
+            {
+                boundState.FeedbackRequested -= Show;
+                boundState.BadEndTriggered -= ShowBadEndFeedback;
+            }
             if (Instance == this)
                 Instance = null;
+        }
+
+        private void ShowBadEndFeedback(string message)
+        {
+            ShowAlert($"게임 종료 · {message}");
         }
 
         private void BuildToastUi()

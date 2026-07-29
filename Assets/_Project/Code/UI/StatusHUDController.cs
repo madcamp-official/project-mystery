@@ -86,21 +86,6 @@ namespace Wake.UI
 
         private void OnDisable()
         {
-            // Only StateChanged drives Refresh(), which touches this HUD's
-            // own now-inactive UI - that's fine to drop while hidden.
-            // FeedbackRequested/BadEndTriggered just forward to
-            // ToastController and must stay bound even while the HUD is
-            // hidden (e.g. behind the pause screen), or messages like the
-            // save confirmation silently never show. See UnbindState/
-            // TryBindState for where those two are actually managed.
-            if (state != null)
-            {
-                state.StateChanged -= Refresh;
-            }
-        }
-
-        private void OnDestroy()
-        {
             UnbindState();
         }
 
@@ -234,16 +219,9 @@ namespace Wake.UI
             {
                 UnbindState();
                 state = current;
-                state.FeedbackRequested += ShowFeedback;
-                state.BadEndTriggered += ShowBadEnd;
+                state.StateChanged += Refresh;
             }
 
-            // OnDisable only drops StateChanged (see its comment), so
-            // re-enabling needs to restore just that one - guard against
-            // double-subscribing since TryBindState can run again for the
-            // same still-bound instance (e.g. from Start() after OnEnable).
-            state.StateChanged -= Refresh;
-            state.StateChanged += Refresh;
             Refresh();
         }
 
@@ -255,8 +233,6 @@ namespace Wake.UI
             }
 
             state.StateChanged -= Refresh;
-            state.FeedbackRequested -= ShowFeedback;
-            state.BadEndTriggered -= ShowBadEnd;
             state = null;
         }
 
@@ -660,16 +636,6 @@ namespace Wake.UI
         {
             T component = target.GetComponent<T>();
             return component != null ? component : target.AddComponent<T>();
-        }
-
-        private void ShowFeedback(string message)
-        {
-            ToastController.Instance?.Show(message);
-        }
-
-        private void ShowBadEnd(string message)
-        {
-            ToastController.Instance?.ShowAlert($"게임 종료 · {message}");
         }
     }
 }
