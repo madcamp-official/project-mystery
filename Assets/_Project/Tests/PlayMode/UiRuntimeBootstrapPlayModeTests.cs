@@ -336,19 +336,21 @@ namespace Wake.Tests.PlayMode
                 RequireObject("Status HUD").activeSelf,
                 Is.False,
                 "숫자 상태 HUD는 탐색 중에도 화면에 표시하지 않습니다.");
-            string[] navigationButtonPaths =
+            string[] iconNavigationButtonPaths =
             {
                 "Exploration Global Navigation/Global Navigation/지도 버튼",
-                "Exploration Global Navigation/Global Navigation/조사 기록 버튼",
-                "Exploration Global Navigation/Global Navigation/일시정지 버튼"
+                "Exploration Global Navigation/Global Navigation/조사 기록 버튼"
             };
-            foreach (string path in navigationButtonPaths)
+            foreach (string path in iconNavigationButtonPaths)
             {
-                TMP_Text label = RequireObject(path)
-                    .GetComponentInChildren<TMP_Text>(true);
-                Assert.That(label, Is.Not.Null);
-                Assert.That(label.text, Is.Not.Empty);
+                Image icon = RequireComponent<Image>(path + "/Icon");
+                Assert.That(icon.sprite, Is.Not.Null);
             }
+            TMP_Text pauseLabel = RequireObject(
+                    "Exploration Global Navigation/Global Navigation/일시정지 버튼")
+                .GetComponentInChildren<TMP_Text>(true);
+            Assert.That(pauseLabel, Is.Not.Null);
+            Assert.That(pauseLabel.text, Is.Not.Empty);
             Assert.That(RequireObject("Ingame/Map Btn").activeSelf, Is.False);
             Assert.That(
                 RequireObject("Ingame/Evidence Btn").activeSelf,
