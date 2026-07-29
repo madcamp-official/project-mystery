@@ -61,6 +61,7 @@ namespace Wake.Narrative
         private bool choicesPendingAfterPages;
 
         public bool IsBusy { get; private set; }
+        public bool IsInputSuppressed { get; private set; }
         public DialoguePresentationSpec ActivePresentation { get; private set; } =
             DialoguePresentationPolicy.Hidden;
         public event Action<DialoguePresentationSpec> PresentationChanged;
@@ -177,7 +178,8 @@ namespace Wake.Narrative
 
         private void Update()
         {
-            if (!IsBusy ||
+            if (IsInputSuppressed ||
+                !IsBusy ||
                 linePanel == null ||
                 !linePanel.activeInHierarchy ||
                 choicesContainer == null ||
@@ -202,6 +204,11 @@ namespace Wake.Narrative
             {
                 OnNextClicked();
             }
+        }
+
+        public void SetInputSuppressed(bool suppressed)
+        {
+            IsInputSuppressed = suppressed;
         }
 
         private void SetLineText(string text, bool isNarrationOrSystem)
