@@ -22,6 +22,14 @@ namespace Wake.UI
             "BodyDiscovery/discovery4"
         };
 
+        private static readonly float[] FrameHoldSeconds =
+        {
+            1.2f,
+            1.35f,
+            1.3f,
+            1.75f
+        };
+
         private CanvasGroup rootGroup;
         private RawImage frameImage;
         private RectTransform frameRect;
@@ -165,10 +173,11 @@ namespace Wake.UI
                 stingerSource.Play();
             }
 
-            float[] holds = { .62f, .72f, .68f, 1.05f };
             for (int index = 0; index < frames.Length; index++)
             {
-                yield return PresentFrame(frames[index], holds[index]);
+                yield return PresentFrame(
+                    frames[index],
+                    FrameHoldSeconds[index]);
                 if (index < frames.Length - 1)
                     yield return FadeFrame(1f, 0f, .16f);
             }

@@ -579,10 +579,10 @@ namespace Wake.Core
             if (horn != null)
                 sfxSource?.PlayOneShot(horn, SfxVolume * .85f);
 
+            PlayChapterMusic();
             yield return WaitUnscaled(1.8f);
             if (chapterSfxSource != null && chapterSfxSource.isPlaying)
                 chapterSfxSource.volume = SfxVolume * .42f;
-            PlayChapterMusic();
             chapterAudioSequence = null;
         }
 

@@ -139,6 +139,20 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void ChapterTransitions_HaveLoadableBackgroundMusic()
+        {
+            foreach (ChapterTransitionRequest transition in
+                     ProductionChapterTransitionCatalog.All)
+            {
+                Assert.That(
+                    UnityEngine.Resources.Load<UnityEngine.AudioClip>(
+                        transition.MusicKey),
+                    Is.Not.Null,
+                    $"{transition.CompletedSceneId} chapter music");
+            }
+        }
+
+        [Test]
         public void Validator_AcceptsTheProductionCsvWithoutDiagnostics()
         {
             Assert.That(

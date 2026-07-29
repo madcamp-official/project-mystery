@@ -393,7 +393,7 @@ namespace Wake.Tests.PlayMode
             Assert.That(ingameInput.interactable, Is.False);
             Assert.That(Dialogue.IsInputSuppressed, Is.True);
 
-            yield return new WaitForSecondsRealtime(5.3f);
+            yield return new WaitForSecondsRealtime(7.9f);
 
             Assert.That(presenter.IsPlaying, Is.False);
             Assert.That(cinematic.activeSelf, Is.False);
