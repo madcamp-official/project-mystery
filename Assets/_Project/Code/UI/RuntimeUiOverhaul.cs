@@ -812,6 +812,10 @@ namespace Wake.UI
             UiVisualThemeService.ApplyText(
                 guide,
                 UiTextStyle.Body);
+            // The reading-bottom slot overlaps the delete buttons on each
+            // slot card; being a later sibling, this label's default
+            // raycastTarget swallowed clicks meant for them.
+            guide.raycastTarget = false;
 
             for (int index = 0; index < 3; index++)
             {
