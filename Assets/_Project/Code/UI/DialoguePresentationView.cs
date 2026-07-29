@@ -41,6 +41,10 @@ namespace Wake.UI
         private const string ChoicesRightSlot = "dialogue.choices-right";
         private const float PortraitSafeInset = 0.90f;
         private const float PortraitBottomPadding = 0.025f;
+        private const float NarrationFontSize = 40f;
+        private const float DialogueTextLeftMargin = 48f;
+        private static readonly Vector2 NarrationTextSize =
+            new(1200f, 360f);
 
         private RectTransform ingameRoot;
         private RectTransform linePanel;
@@ -53,6 +57,7 @@ namespace Wake.UI
         private Image panelBackground;
         private Color panelBackgroundDefaultColor;
         private Color lineTextDefaultColor;
+        private TextAlignmentOptions lineTextDefaultAlignment;
         private Image backgroundDim;
         private CanvasGroup backgroundDimGroup;
         private Coroutine dimRoutine;
@@ -96,13 +101,35 @@ namespace Wake.UI
             if (panelBackground != null)
                 panelBackgroundDefaultColor = panelBackground.color;
             if (lineText != null)
+            {
                 lineTextDefaultColor = lineText.color;
+                lineTextDefaultAlignment = lineText.alignment;
+            }
             nextButton = targetNextButton;
             choices = targetChoices;
             backgroundDim = EnsureBackgroundDim();
+            EnsureBelowWaterOverlay();
             RestoreNavigationVisibility();
             initialized = true;
             Apply(DialoguePresentationPolicy.Hidden);
+        }
+
+        // "Water Overlay" is a full-screen reflection effect from the
+        // lobby water feature that sits above Ingame in sibling order,
+        // washing out the dim filter (and dialogue contrast in general)
+        // with its white tint. Sink it below Ingame instead of moving
+        // Ingame, so other panels (Map/Evidence/Settings/Toast/etc.)
+        // that already render above Ingame keep their relative order.
+        private void EnsureBelowWaterOverlay()
+        {
+            if (ingameRoot == null || ingameRoot.parent == null)
+                return;
+            Transform waterOverlay = ingameRoot.parent.Find("Water Overlay");
+            if (waterOverlay == null)
+                return;
+            int ingameIndex = ingameRoot.GetSiblingIndex();
+            if (waterOverlay.GetSiblingIndex() > ingameIndex)
+                waterOverlay.SetSiblingIndex(ingameIndex);
         }
 
         public void SetChoicesVisible(bool visible)
@@ -367,20 +394,80 @@ namespace Wake.UI
             if (textRect == null)
                 return;
 
-            RuntimeUiLayoutRegistry.CopyWorldLayout(
-                textRect,
-                TextSlotFor(presentation));
+            bool isNarration =
+                presentation.Mode == DialoguePresentationMode.Narration;
+            if (isNarration)
+                PositionNarrationTextCentered();
+            else
+                RuntimeUiLayoutRegistry.CopyWorldLayout(
+                    textRect,
+                    TextSlotFor(presentation));
 
             if (lineText == null)
                 return;
 
-            lineText.enableAutoSizing = true;
-            lineText.fontSizeMin = DialogueTypographyMetrics.LineMinimum;
-            lineText.fontSizeMax = DialogueTypographyMetrics.LineMaximum;
+            if (isNarration)
+            {
+                // One fixed size instead of the auto-sizing range, so every
+                // narration line reads at the same size regardless of how
+                // short/long it is or how much room the centered box has.
+                lineText.enableAutoSizing = false;
+                lineText.fontSize = NarrationFontSize;
+                lineText.alignment = TextAlignmentOptions.Center;
+                lineText.margin = new Vector4(12f, 8f, 12f, 8f);
+            }
+            else
+            {
+                lineText.enableAutoSizing = true;
+                lineText.fontSizeMin = DialogueTypographyMetrics.LineMinimum;
+                lineText.fontSizeMax = DialogueTypographyMetrics.LineMaximum;
+                lineText.alignment = lineTextDefaultAlignment;
+                // Left margin gives the text breathing room from the
+                // panel's edge instead of starting flush against it.
+                lineText.margin = new Vector4(
+                    DialogueTextLeftMargin, 8f, 12f, 8f);
+            }
             lineText.lineSpacing = DialogueTypographyMetrics.BodyLineSpacing;
             lineText.textWrappingMode = TextWrappingModes.Normal;
             lineText.overflowMode = TextOverflowModes.Truncate;
-            lineText.margin = new Vector4(12f, 8f, 12f, 8f);
+        }
+
+        // Narration's text slot sits wherever it was authored (usually
+        // near the bottom, like normal dialogue), but narration should
+        // read as text floating in the middle of the dimmed screen - so
+        // this pins the text box to the screen's actual center instead,
+        // regardless of where its parent Panel currently is.
+        private void PositionNarrationTextCentered()
+        {
+            if (textRect == null ||
+                ingameRoot == null ||
+                textRect.parent is not RectTransform parent)
+            {
+                return;
+            }
+
+            Rect parentRect = parent.rect;
+            if (parentRect.width <= Mathf.Epsilon ||
+                parentRect.height <= Mathf.Epsilon)
+            {
+                return;
+            }
+
+            Vector3[] screenCorners = new Vector3[4];
+            ingameRoot.GetWorldCorners(screenCorners);
+            Vector2 localMin = parent.InverseTransformPoint(screenCorners[0]);
+            Vector2 localMax = parent.InverseTransformPoint(screenCorners[2]);
+            Vector2 centerFraction = new(
+                ((localMin.x + localMax.x) * 0.5f - parentRect.xMin) /
+                    parentRect.width,
+                ((localMin.y + localMax.y) * 0.5f - parentRect.yMin) /
+                    parentRect.height);
+
+            textRect.anchorMin = centerFraction;
+            textRect.anchorMax = centerFraction;
+            textRect.pivot = new Vector2(0.5f, 0.5f);
+            textRect.anchoredPosition = Vector2.zero;
+            textRect.sizeDelta = NarrationTextSize;
         }
 
         private void ApplySpeakerPlate(
@@ -408,23 +495,41 @@ namespace Wake.UI
         {
             if (speakerPlate == null ||
                 portrait == null ||
-                !portrait.gameObject.activeSelf)
+                !portrait.gameObject.activeSelf ||
+                speakerPlate.parent is not RectTransform parent)
             {
                 return;
             }
 
+            Rect parentRect = parent.rect;
+            if (parentRect.width <= Mathf.Epsilon ||
+                parentRect.height <= Mathf.Epsilon)
+            {
+                return;
+            }
+
+            // Portrait is parented under Ingame directly, while the
+            // speaker plate is nested under Line Panel - different parents
+            // means their anchors/anchoredPosition aren't in the same
+            // coordinate space, so the portrait's bottom-center has to be
+            // converted through world space (same technique as
+            // PositionNarrationTextCentered) rather than copied directly.
+            Vector3[] corners = new Vector3[4];
+            portrait.GetWorldCorners(corners);
+            Vector2 bottomCenterWorld = (corners[0] + corners[3]) * 0.5f;
+            Vector2 localPoint =
+                parent.InverseTransformPoint(bottomCenterWorld);
+            Vector2 anchorFraction = new(
+                (localPoint.x - parentRect.xMin) / parentRect.width,
+                (localPoint.y - parentRect.yMin) / parentRect.height);
+
             const float gap = 8f;
             Vector2 size = speakerPlate.rect.size;
-            Vector2 portraitAnchorCenter =
-                (portrait.anchorMin + portrait.anchorMax) * 0.5f;
-            speakerPlate.anchorMin = portraitAnchorCenter;
-            speakerPlate.anchorMax = portraitAnchorCenter;
+            speakerPlate.anchorMin = anchorFraction;
+            speakerPlate.anchorMax = anchorFraction;
             speakerPlate.pivot = new Vector2(0.5f, 1f);
             speakerPlate.sizeDelta = size;
-            speakerPlate.anchoredPosition = new Vector2(
-                portrait.anchoredPosition.x,
-                portrait.anchoredPosition.y -
-                    portrait.sizeDelta.y * 0.5f - gap);
+            speakerPlate.anchoredPosition = new Vector2(0f, -gap);
         }
 
         private void ApplyNextButton(
