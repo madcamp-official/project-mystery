@@ -255,6 +255,11 @@ namespace Wake.Tests.PlayMode
                         boundary.NextSceneId,
                         out ProductionSceneDefinition next),
                     Is.True);
+                Assert.That(
+                    ProductionChapterTransitionCatalog.TryGet(
+                        boundary.CompletedSceneId,
+                        out ChapterTransitionRequest chapter),
+                    Is.True);
                 InvestigationEventHub.Publish(
                     InvestigationEventKind.SceneCompleted,
                     boundary.CompletedSceneId,
@@ -285,8 +290,17 @@ namespace Wake.Tests.PlayMode
                         "Chapter Summary").text,
                     Is.Not.Empty);
 
+                Assert.That(continueButton.interactable, Is.False);
                 continueButton.onClick.Invoke();
-                yield return new WaitForSecondsRealtime(0.2f);
+                yield return null;
+                Assert.That(transition.activeInHierarchy, Is.True);
+
+                yield return new WaitForSecondsRealtime(
+                    chapter.MinimumDisplayTime + .1f);
+                Assert.That(continueButton.interactable, Is.True);
+                continueButton.onClick.Invoke();
+                continueButton.onClick.Invoke();
+                yield return new WaitForSecondsRealtime(0.6f);
                 yield return WaitForUiTransition();
 
                 Assert.That(transition.activeSelf, Is.False);
