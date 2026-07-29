@@ -18,7 +18,9 @@ namespace Wake.UI
         private static readonly Color HudOutline =
             new(0.015f, 0.035f, 0.06f, 0.96f);
         private static readonly Color HudDim =
-            new(0.008f, 0.02f, 0.04f, 0.78f);
+            new(0.008f, 0.02f, 0.04f, 0.86f);
+        private const string ObjectiveMarker =
+            "<color=#E3B859>◆</color>  ";
 
         private UIManager owner;
         private GameObject root;
@@ -222,11 +224,12 @@ namespace Wake.UI
                 parent,
                 "Current Location",
                 UiTextStyle.Heading,
-                36f);
+                40f);
+            locationLabel.color = HudGold;
             locationLabel.textWrappingMode = TextWrappingModes.NoWrap;
             locationLabel.enableAutoSizing = true;
-            locationLabel.fontSizeMin = 20f;
-            locationLabel.fontSizeMax = 36f;
+            locationLabel.fontSizeMin = 24f;
+            locationLabel.fontSizeMax = 42f;
             objectiveEyebrow = CreateText(
                 parent,
                 "Objective Eyebrow",
@@ -344,11 +347,12 @@ namespace Wake.UI
                     .Current;
             if (current.HasValue)
             {
-                objectiveLabel.text = current.Value.Definition.Title;
+                objectiveLabel.text =
+                    ObjectiveMarker + current.Value.Definition.Title;
             }
             else
             {
-                objectiveLabel.text = "자유 조사";
+                objectiveLabel.text = ObjectiveMarker + "자유 조사";
             }
         }
 
@@ -532,12 +536,37 @@ namespace Wake.UI
             RectTransform region,
             DimDirection direction)
         {
-            Image image = region != null
-                ? region.GetComponent<Image>()
-                : null;
-            if (image == null)
+            if (region == null)
                 return;
 
+            GameObject background = new(
+                "Dim Background",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(LayoutElement));
+            background.transform.SetParent(region, false);
+            background.transform.SetAsFirstSibling();
+            RectTransform rect =
+                background.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = direction switch
+            {
+                DimDirection.Left => new Vector2(-48f, -72f),
+                DimDirection.Right => new Vector2(-150f, -72f),
+                _ => new Vector2(-90f, -72f)
+            };
+            rect.offsetMax = direction switch
+            {
+                DimDirection.Left => new Vector2(150f, 28f),
+                DimDirection.Right => new Vector2(48f, 28f),
+                _ => new Vector2(90f, 28f)
+            };
+            LayoutElement layout =
+                background.GetComponent<LayoutElement>();
+            layout.ignoreLayout = true;
+            Image image = background.GetComponent<Image>();
             image.sprite = HudDimSpriteCache.Get(direction);
             image.type = Image.Type.Simple;
             image.color = HudDim;

@@ -392,12 +392,19 @@ namespace Wake.Tests.PlayMode
             Assert.That(currentLocation.gameObject.activeInHierarchy, Is.True);
             Assert.That(currentLocation.enableAutoSizing, Is.True);
             Assert.That(
+                currentLocation.fontSizeMax,
+                Is.EqualTo(42f).Within(0.01f));
+            Assert.That(currentLocation.color.r, Is.EqualTo(0.89f).Within(0.01f));
+            Assert.That(currentLocation.color.g, Is.EqualTo(0.72f).Within(0.01f));
+            Assert.That(currentLocation.color.b, Is.EqualTo(0.35f).Within(0.01f));
+            Assert.That(
                 currentLocation.textWrappingMode,
                 Is.EqualTo(TextWrappingModes.NoWrap));
             Assert.That(
                 context.transform.Find("Current Objective")
                     ?.GetComponent<TMP_Text>()?.text,
-                Is.EqualTo("항구의 기자를 찾기"));
+                Is.EqualTo(
+                    "<color=#E3B859>◆</color>  항구의 기자를 찾기"));
             Assert.That(
                 context.transform.Find("Objective Eyebrow")
                     ?.GetComponent<TMP_Text>()?.text,
@@ -502,7 +509,23 @@ namespace Wake.Tests.PlayMode
             string expectedSpriteName,
             bool sampleFromRight)
         {
-            Image dim = region.GetComponent<Image>();
+            RectTransform regionRect =
+                region.GetComponent<RectTransform>();
+            RectTransform dimRect = region.transform
+                .Find("Dim Background")
+                ?.GetComponent<RectTransform>();
+            Assert.That(dimRect, Is.Not.Null);
+            Assert.That(dimRect.anchorMin, Is.EqualTo(Vector2.zero));
+            Assert.That(dimRect.anchorMax, Is.EqualTo(Vector2.one));
+            Assert.That(dimRect.offsetMin.y, Is.LessThan(0f));
+            Assert.That(dimRect.offsetMax.y, Is.GreaterThan(0f));
+            Assert.That(
+                dimRect.rect.width,
+                Is.GreaterThan(regionRect.rect.width));
+            Assert.That(
+                dimRect.GetComponent<LayoutElement>().ignoreLayout,
+                Is.True);
+            Image dim = dimRect.GetComponent<Image>();
             Assert.That(dim, Is.Not.Null);
             Assert.That(dim.sprite, Is.Not.Null);
             Assert.That(dim.sprite.name, Is.EqualTo(expectedSpriteName));
