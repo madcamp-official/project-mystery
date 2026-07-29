@@ -1,0 +1,107 @@
+{
+  "version": "2.1",
+  "canvas": [
+    1448,
+    1086
+  ],
+  "files": {
+    "Deck07_Base.png": {
+      "size": [
+        1448,
+        1086
+      ],
+      "mode": "RGBA",
+      "bytes": 2602616
+    },
+    "Deck07_Restricted.png": {
+      "size": [
+        1448,
+        1086
+      ],
+      "mode": "RGBA",
+      "bytes": 19040
+    },
+    "Deck07_Composite_QA.png": {
+      "size": [
+        1448,
+        1086
+      ],
+      "mode": "RGBA",
+      "bytes": 2631642
+    },
+    "Deck08_Base.png": {
+      "size": [
+        1448,
+        1086
+      ],
+      "mode": "RGBA",
+      "bytes": 2926971
+    },
+    "Deck08_Restricted.png": {
+      "size": [
+        1448,
+        1086
+      ],
+      "mode": "RGBA",
+      "bytes": 13206
+    },
+    "Deck08_Composite_QA.png": {
+      "size": [
+        1448,
+        1086
+      ],
+      "mode": "RGBA",
+      "bytes": 2925412
+    },
+    "Deck09_Base.png": {
+      "size": [
+        1448,
+        1086
+      ],
+      "mode": "RGBA",
+      "bytes": 2824624
+    },
+    "Deck09_Restricted.png": {
+      "size": [
+        1448,
+        1086
+      ],
+      "mode": "RGBA",
+      "bytes": 14743
+    },
+    "Deck09_Composite_QA.png": {
+      "size": [
+        1448,
+        1086
+      ],
+      "mode": "RGBA",
+      "bytes": 2833424
+    },
+    "Deck10_Base.png": {
+      "size": [
+        1448,
+        1086
+      ],
+      "mode": "RGBA",
+      "bytes": 2681347
+    },
+    "Deck10_Restricted.png": {
+      "size": [
+        1448,
+        1086
+      ],
+      "mode": "RGBA",
+      "bytes": 19008
+    },
+    "Deck10_Composite_QA.png": {
+      "size": [
+        1448,
+        1086
+      ],
+      "mode": "RGBA",
+      "bytes": 2694343
+    }
+  },
+  "qa_report": "Map_Assets_v2_QA_Report.json",
+  "contact_sheet": "Map_Assets_v2_QA_Contact_Sheet.jpg"
+}

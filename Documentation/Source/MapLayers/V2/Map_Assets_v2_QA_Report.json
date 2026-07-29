@@ -1,0 +1,90 @@
+{
+  "canvas": [
+    1448,
+    1086
+  ],
+  "checks": {
+    "7": {
+      "size_match": true,
+      "base_fully_opaque": true,
+      "overlay_corners_transparent": true,
+      "overlay_footer_clear": true,
+      "alpha_bbox": [
+        69,
+        189,
+        1332,
+        757
+      ],
+      "public_points_clear": {
+        "Daniel Cabin": true,
+        "Elevator Lobby": true,
+        "Guest Cabin": true
+      },
+      "all_public_points_clear": true,
+      "composite_exact": true
+    },
+    "8": {
+      "size_match": true,
+      "base_fully_opaque": true,
+      "overlay_corners_transparent": true,
+      "overlay_footer_clear": true,
+      "alpha_bbox": [
+        304,
+        209,
+        1267,
+        722
+      ],
+      "public_points_clear": {
+        "News Lounge": true,
+        "Cafe": true,
+        "Atrium": true,
+        "Medbay public": true,
+        "Claire Cabin": true
+      },
+      "all_public_points_clear": true,
+      "composite_exact": true
+    },
+    "9": {
+      "size_match": true,
+      "base_fully_opaque": true,
+      "overlay_corners_transparent": true,
+      "overlay_footer_clear": true,
+      "alpha_bbox": [
+        59,
+        179,
+        1217,
+        847
+      ],
+      "public_points_clear": {
+        "Grand Ballroom": true,
+        "Dining Hall": true,
+        "Atrium": true,
+        "Lounge & Bar": true,
+        "Horizon Room": true
+      },
+      "all_public_points_clear": true,
+      "composite_exact": true
+    },
+    "10": {
+      "size_match": true,
+      "base_fully_opaque": true,
+      "overlay_corners_transparent": true,
+      "overlay_footer_clear": true,
+      "alpha_bbox": [
+        84,
+        177,
+        1192,
+        837
+      ],
+      "public_points_clear": {
+        "Richard Suite": true,
+        "Archive": true,
+        "Interview Lounge": true,
+        "Atrium": true,
+        "Bridge": true
+      },
+      "all_public_points_clear": true,
+      "composite_exact": true
+    }
+  }
+}
