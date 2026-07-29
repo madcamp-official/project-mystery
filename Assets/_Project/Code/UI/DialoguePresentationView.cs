@@ -232,7 +232,12 @@ namespace Wake.UI
             rect.SetAsFirstSibling();
             Image image = node.GetComponent<Image>();
             image.color = Color.clear;
-            image.raycastTarget = false;
+            // Blocks click/hover to whatever's underneath (evidence and
+            // inspectable hotspots on the background canvas don't hide
+            // themselves during dialogue the way ambient characters do) -
+            // it already renders full-screen above that canvas, it just
+            // never intercepted the raycast.
+            image.raycastTarget = true;
             backgroundDimGroup = node.GetComponent<CanvasGroup>();
             if (backgroundDimGroup == null)
                 backgroundDimGroup = node.AddComponent<CanvasGroup>();
