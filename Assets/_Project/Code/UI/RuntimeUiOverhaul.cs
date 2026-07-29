@@ -1292,9 +1292,15 @@ namespace Wake.UI
             {
                 return;
             }
-            Canvas canvas = FindFirstObjectByType<Canvas>();
+            // FindFirstObjectByType<Canvas>() is ambiguous now that the
+            // scene has more than one Canvas (e.g. AmbientRoomParticleOverlay's
+            // offscreen bloom canvas) - it can land on the wrong one, whose
+            // camera then bloats this panel's brightness through its bloom
+            // pass and composites it full-screen. Target the main UI canvas
+            // by name, matching every other runtime-built UI in this file.
+            Transform canvas = GameObject.Find("Canvas").transform;
             GameObject panel = SaveSlotSelectionController.Panel(
-                canvas.transform, "Evidence Acquired Notice",
+                canvas, "Evidence Acquired Notice",
                 new Color32(8, 20, 38, 248));
             notice = panel.GetComponent<RectTransform>();
             notice.anchorMin = notice.anchorMax = new Vector2(1f, .72f);
