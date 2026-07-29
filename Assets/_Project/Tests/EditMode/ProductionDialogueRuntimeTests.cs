@@ -186,6 +186,47 @@ namespace Wake.Tests
                 Is.EqualTo(new[] { "P-01" }));
         }
 
+        [TestCase("D1-07", "D1-06", "D2-01")]
+        [TestCase("D2-06", "D2-03", "D3-01")]
+        [TestCase("D3-05", "D3-04", "D4-01")]
+        [TestCase("D5-04", "D5-03", "D6-01")]
+        [TestCase("D7-04", "D7-03", "D8-01")]
+        public void CompletingDialogueAtDayBoundary_PublishesNextDayScene(
+            string completedSceneId,
+            string prerequisiteSceneId,
+            string expectedNextSceneId)
+        {
+            host = new GameObject($"DayBoundary_{completedSceneId}");
+            GameStateManager state = host.AddComponent<GameStateManager>();
+            state.RecordCompletedScene(prerequisiteSceneId);
+            var flow = new ProductionDialogueFlow(records, null, state);
+            InvestigationEvent captured = default;
+            int completionEvents = 0;
+
+            void Capture(InvestigationEvent item)
+            {
+                if (item.Kind != InvestigationEventKind.SceneCompleted)
+                    return;
+
+                captured = item;
+                completionEvents++;
+            }
+
+            InvestigationEventHub.Published += Capture;
+            try
+            {
+                CompleteScene(flow, completedSceneId);
+            }
+            finally
+            {
+                InvestigationEventHub.Published -= Capture;
+            }
+
+            Assert.That(completionEvents, Is.EqualTo(1));
+            Assert.That(captured.SubjectId, Is.EqualTo(completedSceneId));
+            Assert.That(captured.ContextId, Is.EqualTo(expectedNextSceneId));
+        }
+
         [Test]
         public void RestoredProgress_UnlocksDependentSceneInNewFlow()
         {

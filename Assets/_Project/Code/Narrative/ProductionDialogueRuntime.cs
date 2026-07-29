@@ -471,9 +471,24 @@ namespace Wake.Narrative
                     return;
                 }
 
-                completedScenes.Add(ActiveSceneId);
-                state?.RecordCompletedScene(ActiveSceneId);
+                bool newlyCompleted = completedScenes.Add(ActiveSceneId);
+                if (state != null)
+                {
+                    newlyCompleted =
+                        state.RecordCompletedScene(ActiveSceneId) ||
+                        newlyCompleted;
+                }
                 Phase = ProductionScenePhase.Completed;
+                if (newlyCompleted &&
+                    ProductionDayBoundaryCatalog.TryGet(
+                        ActiveSceneId,
+                        out ProductionDayBoundary boundary))
+                {
+                    InvestigationEventHub.Publish(
+                        InvestigationEventKind.SceneCompleted,
+                        boundary.CompletedSceneId,
+                        boundary.NextSceneId);
+                }
                 return;
             }
             if (activeScene[index].Speaker == "PLAYER_CHOICE")
