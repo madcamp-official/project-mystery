@@ -1214,8 +1214,12 @@ namespace Wake.UI
             Button button = value.AddComponent<Button>();
             button.targetGraphic = value.GetComponent<Image>();
             value.AddComponent<Outline>().effectColor = new Color32(241, 211, 145, 255);
+            button.onClick.AddListener(PlayClickSfx);
             return button;
         }
+
+        private static void PlayClickSfx() =>
+            AudioManager.Instance?.PlayButtonClick();
 
         internal static TMP_Text MakeText(
             RectTransform parent, string text, float size,

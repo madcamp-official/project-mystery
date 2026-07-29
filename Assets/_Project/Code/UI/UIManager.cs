@@ -252,8 +252,13 @@ namespace Wake.UI
 
             button.onClick.RemoveListener(action);
             button.onClick.AddListener(action);
+            button.onClick.RemoveListener(PlayClickSfx);
+            button.onClick.AddListener(PlayClickSfx);
             return true;
         }
+
+        private static void PlayClickSfx() =>
+            AudioManager.Instance?.PlayButtonClick();
 
         private static void SetStartButtonLabel(Transform button)
         {
