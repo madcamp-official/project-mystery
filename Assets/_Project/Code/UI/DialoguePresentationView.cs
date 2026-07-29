@@ -574,7 +574,14 @@ namespace Wake.UI
                     PortraitSafeInset);
             float availableHeight = slotSize.y * PortraitSafeInset;
             float availableWidth = slotSize.x * PortraitSafeInset;
-            float height = Mathf.Min(availableHeight, maximumHeight);
+            // idealHeight ignores the aspect/width clamp below - it's the
+            // height every character would get if their sprite were tall
+            // enough to fit availableWidth (Adrian Vale's portrait is,
+            // which is why his was the reference everyone else drifted
+            // from). Baseline is computed from this so the clamp only
+            // ever eats into a portrait's height from the top.
+            float idealHeight = Mathf.Min(availableHeight, maximumHeight);
+            float height = idealHeight;
             float width = height * aspect;
             if (width > availableWidth)
             {
@@ -586,9 +593,15 @@ namespace Wake.UI
                 (portrait.anchorMin + portrait.anchorMax) * 0.5f;
             portrait.anchorMin = anchorCenter;
             portrait.anchorMax = anchorCenter;
+            // Pivot on the feet, not the center, and anchor them to a
+            // baseline derived from idealHeight (not the clamped height)
+            // so every character's portrait - and the speaker plate
+            // pinned under it - lines up on the same floor regardless of
+            // how wide their sprite's aspect ratio is.
+            portrait.pivot = new Vector2(0.5f, 0f);
             portrait.anchoredPosition = new Vector2(
                 0f,
-                slotSize.y * PortraitBottomPadding);
+                slotSize.y * PortraitBottomPadding - idealHeight * 0.5f);
             portrait.sizeDelta = new Vector2(width, height);
             if (fitter != null)
                 fitter.aspectMode = AspectRatioFitter.AspectMode.None;
