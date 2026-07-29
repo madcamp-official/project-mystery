@@ -47,5 +47,22 @@ namespace Wake.Tests.EditMode
             Assert.That(gated[0].EvidenceId, Is.EqualTo("C-18"));
             Assert.That(gated[0].RequiredEnding, Is.EqualTo("A"));
         }
+
+        [TestCase("C-06", "BALLAST_CONTROL_ANNEX", "D6-03")]
+        [TestCase("C-13", "INTERVIEW", "D5-03")]
+        [TestCase("C-15", "MEDBAY", "D4-04")]
+        [TestCase("C-16", "MEDBAY", "D7-02")]
+        public void Catalog_ApprovedBackgroundEvidenceUsesExpectedScene(
+            string evidenceId,
+            string expectedLocation,
+            string expectedScene)
+        {
+            EvidenceLocationHotspotSpec entry =
+                EvidenceLocationHotspotCatalog.All.Single(
+                    candidate => candidate.EvidenceId == evidenceId);
+
+            Assert.That(entry.LocationCode, Is.EqualTo(expectedLocation));
+            Assert.That(entry.AvailableFromScene, Is.EqualTo(expectedScene));
+        }
     }
 }

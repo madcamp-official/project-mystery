@@ -62,7 +62,28 @@ namespace Wake.Exploration
         private static AmbientInspectableSpec I(
             string id, string location, string title, string description,
             Rect hotspot, Rect imageUv) =>
-            new(id, location, title, description, hotspot, imageUv);
+            new(
+                id,
+                location,
+                title,
+                description,
+                ApprovedBackgroundHotspot(id, hotspot),
+                imageUv);
+
+        private static Rect ApprovedBackgroundHotspot(
+            string id,
+            Rect fallback) =>
+            id switch
+            {
+                "PROP_CHAMPAGNE" => R(.20f, .26f),
+                "PROP_COFFEE" => R(.60f, .52f),
+                "PROP_ROBOT" => R(.60f, .35f),
+                "PROP_LUGGAGE" => R(.44f, .10f),
+                "PROP_MASK" => R(.90f, .29f),
+                "PROP_CLIPBOARD" => R(.11f, .27f),
+                "PROP_TOKEN" => R(.82f, .11f),
+                _ => fallback
+            };
 
         private static Rect R(float x, float y) =>
             new(x - .075f, y - .075f, .15f, .15f);
@@ -157,7 +178,12 @@ namespace Wake.Exploration
             foreach (GameObject target in spawned)
             {
                 if (target != null)
-                    Destroy(target);
+                {
+                    if (Application.isPlaying)
+                        Destroy(target);
+                    else
+                        DestroyImmediate(target);
+                }
             }
             spawned.Clear();
         }

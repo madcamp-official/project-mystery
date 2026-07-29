@@ -93,7 +93,7 @@ namespace Wake.Tests
             EvidencePanelItem item =
                 EvidencePanelPresentation.Create(inventory, 100).Items[0];
 
-            Assert.That(item.AcquisitionPlace, Does.Contain("금고실"));
+            Assert.That(item.AcquisitionPlace, Does.Contain("보안 금고"));
             Assert.That(item.AcquisitionPlace, Does.Contain("의무실"));
             Assert.That(item.RelatedPeople, Is.EqualTo("마커스 케인"));
             Assert.That(item.Detail, Does.Not.Contain(item.Id));

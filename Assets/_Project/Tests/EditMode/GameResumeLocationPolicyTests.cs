@@ -193,6 +193,21 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void UnusedSavedLocation_FallsBackToGraphStartingLocation()
+        {
+            state.RecordLocation("LAUNDRY");
+
+            LocationDefinition location =
+                GameResumeLocationPolicy.ResolveLocation(
+                    graph,
+                    state,
+                    string.Empty);
+
+            Assert.That(location, Is.SameAs(graph.StartingLocation));
+            Assert.That(location.LocationCode, Is.EqualTo("PORT"));
+        }
+
+        [Test]
         public void NullGraph_ReturnsNoLocationWithoutThrowing()
         {
             Assert.That(

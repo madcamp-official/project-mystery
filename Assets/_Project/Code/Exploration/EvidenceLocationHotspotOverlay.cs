@@ -46,19 +46,19 @@ namespace Wake.Exploration
             E("HORIZON", "C-02", R(.20f, .49f, .10f, .23f), "D1-06"),
             E("HORIZON", "C-03", R(.45f, .50f, .12f, .10f), "D2-01"),
             E("HORIZON", "C-04", R(.04f, .80f, .08f, .10f), "D2-01"),
-            E("HORIZON", "C-05", R(.23f, .58f, .08f, .12f), "D2-01"),
+            E("HORIZON", "C-05", R(.18f, .48f, .08f, .12f), "D2-01"),
             E("HORIZON", "C-07", R(.56f, .28f, .17f, .14f), "D1-06"),
 
-            E("BALLAST_CONTROL_ANNEX", "C-06", R(.75f, .22f, .18f, .15f), "D6-03"),
+            E("BALLAST_CONTROL_ANNEX", "C-06", R(.22f, .09f, .14f, .12f), "D6-03"),
             E("BALLAST_CONTROL_ANNEX", "C-12", R(.65f, .55f, .18f, .26f), "D6-03"),
             E("SECURITY", "C-08", R(.66f, .88f, .12f, .10f), "D2-04"),
             E("ENGINE_CONTROL", "C-09", R(.10f, .38f, .17f, .24f), "D6-01"),
             E("SERVICE_RAIL", "C-10", R(.31f, .48f, .15f, .22f), "D6-02"),
-            E("MEDBAY", "C-11", R(.08f, .09f, .14f, .15f), "D2-03"),
-            E("NEWS_LOUNGE", "C-13", R(.58f, .48f, .16f, .12f), "D2-06"),
+            E("MEDBAY", "C-11", R(.13f, .12f, .14f, .15f), "D2-03"),
+            E("INTERVIEW", "C-13", R(.54f, .49f, .16f, .14f), "D5-03"),
             E("PROMENADE", "C-14", R(.23f, .36f, .18f, .18f), "D3-05"),
-            E("MEDBAY", "C-15", R(.73f, .11f, .15f, .11f), "D3-04"),
-            E("MEDBAY", "C-16", R(.73f, .51f, .18f, .16f), "D7-02"),
+            E("MEDBAY", "C-15", R(.89f, .24f, .16f, .14f), "D4-04"),
+            E("MEDBAY", "C-16", R(.82f, .24f, .18f, .20f), "D7-02"),
             E("ARCHIVE", "C-17", R(.67f, .31f, .20f, .20f), "D7-03")
         };
 
@@ -222,7 +222,10 @@ namespace Wake.Exploration
             {
                 if (target != null)
                 {
-                    Destroy(target);
+                    if (Application.isPlaying)
+                        Destroy(target);
+                    else
+                        DestroyImmediate(target);
                 }
             }
             spawned.Clear();
