@@ -601,9 +601,9 @@ namespace Wake.UI
     [DisallowMultipleComponent]
     public sealed class SaveSlotSelectionController : MonoBehaviour
     {
-        private const float RevealDuration = 5.2f;
-        private const float DiveDuration = 3f;
-        private const float RiseDuration = RevealDuration - DiveDuration;
+        private const float RiseDuration = 2.2f;
+        private const float DiveDuration = 4f;
+        private const float RevealDuration = RiseDuration + DiveDuration;
         private const float FadeInDelay = 1f;
         private const float PanelTravelExtra = 2.8f;
         private const float LobbyTravelExtra = 3.5f;
@@ -616,7 +616,7 @@ namespace Wake.UI
         // its dive depth only means moving it there, no hardcoded copy to
         // keep in sync. Only the risen height is a pure animation choice
         // with no scene counterpart.
-        private const float WaterRisenY = -4f;
+        private const float WaterRisenY = -7f;
 
         private GameObject overlay;
         private GameObject confirmation;
