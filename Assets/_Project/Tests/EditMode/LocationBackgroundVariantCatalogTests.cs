@@ -204,6 +204,69 @@ namespace Wake.Tests
                 Is.Empty);
         }
 
+        [Test]
+        public void ResolveSelection_DescribesExactApprovedSemanticVariant()
+        {
+            LocationDefinition horizon =
+                AssetDatabase.LoadAssetAtPath<LocationDefinition>(
+                    "Assets/_Project/Content/Locations/" +
+                    "LocationDefinition_Horizon.asset");
+
+            LocationBackgroundSelection selection =
+                LocationBackgroundVariantCatalog.ResolveSelection(
+                    "HORIZON",
+                    "D1-06",
+                    horizon.BackgroundSprite);
+
+            Assert.That(
+                selection.Sprite?.name,
+                Is.EqualTo("bg_horizon_d1_discovery"));
+            Assert.That(
+                selection.VariantKey,
+                Is.EqualTo(
+                    "LocationBackgroundVariants/" +
+                    "bg_horizon_d1_discovery"));
+            Assert.That(
+                selection.SemanticProfileId,
+                Is.EqualTo("bg_horizon_d1_discovery"));
+            Assert.That(selection.UsesSerializedFallback, Is.False);
+            Assert.That(
+                LocationBackgroundVariantCatalog.Resolve(
+                    "HORIZON",
+                    "D1-06",
+                    horizon.BackgroundSprite),
+                Is.SameAs(selection.Sprite));
+        }
+
+        [Test]
+        public void ResolveSelection_IdentifiesSerializedFallbackProfile()
+        {
+            LocationDefinition dining =
+                AssetDatabase.LoadAssetAtPath<LocationDefinition>(
+                    "Assets/_Project/Content/Locations/" +
+                    "LocationDefinition_DINING.asset");
+
+            LocationBackgroundSelection selection =
+                LocationBackgroundVariantCatalog.ResolveSelection(
+                    "DINING",
+                    "D1-02",
+                    dining.BackgroundSprite);
+
+            Assert.That(
+                selection.Sprite,
+                Is.SameAs(dining.BackgroundSprite));
+            Assert.That(
+                selection.VariantKey,
+                Is.EqualTo(
+                    LocationBackgroundVariantCatalog
+                        .SerializedVariantPrefix +
+                    dining.BackgroundSprite.name));
+            Assert.That(
+                selection.SemanticProfileId,
+                Is.EqualTo(dining.BackgroundSprite.name));
+            Assert.That(selection.UsesSerializedFallback, Is.True);
+        }
+
         [TestCase(
             "HORIZON",
             "D1-06",

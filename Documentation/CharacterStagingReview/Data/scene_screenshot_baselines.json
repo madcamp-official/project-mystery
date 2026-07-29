@@ -1,0 +1,217 @@
+{
+    "schemaVersion":  "1.0",
+    "runtimeConnected":  true,
+    "approvalStatus":  "Approved",
+    "reviewer":  "project-owner",
+    "revision":  1,
+    "approvedAtUtc":  "2026-07-29T18:34:18Z",
+    "canvasWidth":  960,
+    "canvasHeight":  540,
+    "scenes":  [
+                   {
+                       "sceneId":  "P-01",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/P_01_PORT.png",
+                       "sha256":  "7b1d0a5cd1cb27fdaf62e24e327fea2f09caf9a127d702c3b28055b4573427e8"
+                   },
+                   {
+                       "sceneId":  "P-02",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/P_02_GANGWAY.png",
+                       "sha256":  "bde71288bdfe66fe51d9ba90f3741776e730a81ed8c82c978b7a52f3419cf26d"
+                   },
+                   {
+                       "sceneId":  "P-03",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/P_03_RICHARD_SUITE.png",
+                       "sha256":  "117af82f43caaee112da01d4bbcd6765c564f67ad891ff53d0218bab60230e8a"
+                   },
+                   {
+                       "sceneId":  "D1-01",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D1_01_ATRIUM.png",
+                       "sha256":  "4604383cc63c0ba0445b9dc99776e17d1a1b317ce87ec66e823196f6000d06cd"
+                   },
+                   {
+                       "sceneId":  "D1-02",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D1_02_DINING.png",
+                       "sha256":  "ca1badadd50ca1610488a0a2fd8012f2ff36c796c81c8803473475b983cc8253"
+                   },
+                   {
+                       "sceneId":  "D1-03",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D1_03_BALLROOM.png",
+                       "sha256":  "15a8c6aa9c81ee84a46812b38701f72ab4b40fef37d78e231c075b9e4066a26d"
+                   },
+                   {
+                       "sceneId":  "D1-04",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D1_04_SERVICE7.png",
+                       "sha256":  "eaacca1a1f8ddff3412e3e4414a45f4c678cebeebfbf73c5991e9d051642eb16"
+                   },
+                   {
+                       "sceneId":  "D1-05",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D1_05_BALLROOM.png",
+                       "sha256":  "dfa5cddfe633d0b1a869d58785c3b05dfbec6d405ec4d872b095a31beb289424"
+                   },
+                   {
+                       "sceneId":  "D1-06",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D1_06_HORIZON.png",
+                       "sha256":  "9a70c5275a2ea16d796e7a8de6ea2e51ea60a00b39717e9d7bd2ac3f1e56de36"
+                   },
+                   {
+                       "sceneId":  "D1-07",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D1_07_MEDBAY.png",
+                       "sha256":  "1d2b3b65090c845c2f8beba6403d94fe0bcd4353c53a7c08d12d3b868d47db6e"
+                   },
+                   {
+                       "sceneId":  "D2-01",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D2_01_HORIZON.png",
+                       "sha256":  "9342f9ab866a70a3dc0221c7343af722c06012372ec17302c15ff6d1b287fb8e"
+                   },
+                   {
+                       "sceneId":  "D2-02",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D2_02_HORIZON.png",
+                       "sha256":  "c1721bc0346fe845a76a2ca10657e8ee6a615090ad0cd2768d5b0509de6bb274"
+                   },
+                   {
+                       "sceneId":  "D2-03",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D2_03_MEDBAY.png",
+                       "sha256":  "87c42243d6c4d3d0a230e6b69d7644045cf572f505bc79f46cfa66e10f37871c"
+                   },
+                   {
+                       "sceneId":  "D2-04",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D2_04_SECURITY.png",
+                       "sha256":  "e67a4c2cb26fc75163a2d41fc9b596c5a418c567552d060756ad58a475427f01"
+                   },
+                   {
+                       "sceneId":  "D2-05",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D2_05_HORIZON.png",
+                       "sha256":  "2200cb84323a6b51271d9f761113f5c7c70e5fd3816cb802b960a4153f984c39"
+                   },
+                   {
+                       "sceneId":  "D2-06",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D2_06_CABIN_DANIEL.png",
+                       "sha256":  "def227d5a335004cb6d4db8c3edd116d7a49124a1cf8da2010e4ce969a93b827"
+                   },
+                   {
+                       "sceneId":  "D3-01",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D3_01_NEWS_LOUNGE.png",
+                       "sha256":  "87edbfc1115eab039879b1c3e84249274ba6f4331141ceb881ae2168460df635"
+                   },
+                   {
+                       "sceneId":  "D3-02",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D3_02_RICHARD_SUITE.png",
+                       "sha256":  "ae89265f76df671a3f36c8a55f6dedcb0d840843169de1f3674ce5f7006271b9"
+                   },
+                   {
+                       "sceneId":  "D3-03",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D3_03_BRIDGE.png",
+                       "sha256":  "8514a8a848f5005d2c87ff302ea4b572707ff4568bdbd4d1496ad563d1d30e8d"
+                   },
+                   {
+                       "sceneId":  "D3-04",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D3_04_VAULT.png",
+                       "sha256":  "c736157e363e875461a891225e6c9f5b0d2b827466ea1f74d58fecb4eaddcc16"
+                   },
+                   {
+                       "sceneId":  "D3-05",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D3_05_PROMENADE.png",
+                       "sha256":  "beb119e24e460c04c6f25de0fffa692c07c094ef9306f3573fac16b3916a9cf1"
+                   },
+                   {
+                       "sceneId":  "D4-01",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D4_01_SECURITY.png",
+                       "sha256":  "202216a60d5d9dc40c49ecd885242e2d697354fb0d3e4f894dd85b450d39b49c"
+                   },
+                   {
+                       "sceneId":  "D4-02",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D4_02_CREW_STAIRS.png",
+                       "sha256":  "dc8b5d4320e7e856466c7c1a100b9c69cdc5edc9c3576c88fd48d3012a785f86"
+                   },
+                   {
+                       "sceneId":  "D4-03",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D4_03_CREW_STAIRS.png",
+                       "sha256":  "ac2d86f45413d459d517686df19199c3c14ca119d6a44ad1ee45321b461c590e"
+                   },
+                   {
+                       "sceneId":  "D4-04",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D4_04_MEDBAY.png",
+                       "sha256":  "fd991556571a00091fd733abe5f6e8f66aa78b0f4a2996c66695900492d43195"
+                   },
+                   {
+                       "sceneId":  "D5-01",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D5_01_CABIN_CLAIRE.png",
+                       "sha256":  "4f9ed885e8cdaf5d16f46d36d7ec2af84db729a30c96de8d1c538fc32fb963c1"
+                   },
+                   {
+                       "sceneId":  "D5-02",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D5_02_CABIN_CLAIRE.png",
+                       "sha256":  "7cfa94f84ae85cc9e45b4883433e73b1f37c14cc50855ce0e03a75faa3935a35"
+                   },
+                   {
+                       "sceneId":  "D5-03",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D5_03_INTERVIEW.png",
+                       "sha256":  "422720978e32e8ca1f6ac76e41188e9d0f48fc5a76e5f597b7c6219f68f9b3c7"
+                   },
+                   {
+                       "sceneId":  "D5-04",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D5_04_HORIZON.png",
+                       "sha256":  "4eb9be3bccb006020713a0f4f5e3d61a5e9482b6ff0ae70f981c73a890d720a6"
+                   },
+                   {
+                       "sceneId":  "D6-01",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D6_01_ENGINE_CONTROL.png",
+                       "sha256":  "2eff051fb77ef6bd0c02aceb7f457d7ae8a3fc3b7689f795bb59a6dc3c4ca263"
+                   },
+                   {
+                       "sceneId":  "D6-02",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D6_02_SERVICE_RAIL.png",
+                       "sha256":  "f17d434061a3a88e42ab90a545cd9ce22b1a64a3fd4d987a8cabf80ca7200395"
+                   },
+                   {
+                       "sceneId":  "D6-03",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D6_03_BALLAST_CONTROL_ANNEX.png",
+                       "sha256":  "6b0643a899013875b0d8130740284f3cf057278013deba42098b6ee219c37c16"
+                   },
+                   {
+                       "sceneId":  "D6-04",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D6_04_MEDBAY.png",
+                       "sha256":  "48ef7f3e951657d8c348a9d72b4243faf92ef5473a69d3464b5be1c40de474df"
+                   },
+                   {
+                       "sceneId":  "D6-05",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D6_05_NEWS_LOUNGE.png",
+                       "sha256":  "ffdcfd7a17c70885b4bebeb78f94d371049bd8d6014a79cef9aa12dbbac4a5bf"
+                   },
+                   {
+                       "sceneId":  "D7-01",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D7_01_VAULT.png",
+                       "sha256":  "82abe67902d04288988fcbf7c9c1489ebc7bb54464c95219bfe00ac16a90ccdb"
+                   },
+                   {
+                       "sceneId":  "D7-02",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D7_02_MEDBAY.png",
+                       "sha256":  "4e232f977af407f779238eea87cb20bdc28e2419a9b0ae8eda4cd1e1e0f327bf"
+                   },
+                   {
+                       "sceneId":  "D7-03",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D7_03_ARCHIVE.png",
+                       "sha256":  "6ee0b90c40a976ed133856957f25a8c9354590f4c9e9ddde3eb5cfc85f220a96"
+                   },
+                   {
+                       "sceneId":  "D7-04",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D7_04_PROMENADE.png",
+                       "sha256":  "f3aaaf488110c7019f8b0e777d5936b452e457558e10ac21cc9fc588e1dc5480"
+                   },
+                   {
+                       "sceneId":  "D8-01",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D8_01_HORIZON.png",
+                       "sha256":  "52b8f6d0859acaaf539870892e83d6ecbf5e99e917902dd0076855bee683c432"
+                   },
+                   {
+                       "sceneId":  "D8-02",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D8_02_OPEN_DECK.png",
+                       "sha256":  "016fdaa500d1d1625b47f49fe6e0d37efcaca242a83d2c71b29a0454d3d8c2d2"
+                   },
+                   {
+                       "sceneId":  "D8-03",
+                       "path":  "Documentation/CharacterStagingReview/Scenes/D8_03_PORT.png",
+                       "sha256":  "a2a9b86de8409998a50ec06bc3147a0ace668139206f75ffe16f52760f8c8287"
+                   }
+               ]
+}

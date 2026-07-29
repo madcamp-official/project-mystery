@@ -11,7 +11,9 @@ namespace Wake.Exploration
             Rect uvRect,
             float cellAspectRatio,
             float visibleBottomMargin,
-            float visibleTopMargin)
+            float visibleTopMargin,
+            float visibleLeftMargin = 0f,
+            float visibleRightMargin = 0f)
         {
             ResourcePath = resourcePath ?? string.Empty;
             UvRect = uvRect;
@@ -24,6 +26,14 @@ namespace Wake.Exploration
                 visibleTopMargin,
                 0f,
                 0.25f);
+            VisibleLeftMargin = Mathf.Clamp(
+                visibleLeftMargin,
+                0f,
+                0.45f);
+            VisibleRightMargin = Mathf.Clamp(
+                visibleRightMargin,
+                0f,
+                0.45f);
         }
 
         public string ResourcePath { get; }
@@ -31,6 +41,12 @@ namespace Wake.Exploration
         public float CellAspectRatio { get; }
         public float VisibleBottomMargin { get; }
         public float VisibleTopMargin { get; }
+        public float VisibleLeftMargin { get; }
+        public float VisibleRightMargin { get; }
+        public float VisibleHorizontalSpan =>
+            Mathf.Max(
+                0.1f,
+                1f - VisibleLeftMargin - VisibleRightMargin);
         public float VisibleVerticalSpan =>
             Mathf.Max(
                 0.5f,
@@ -58,6 +74,58 @@ namespace Wake.Exploration
 
     public static class AmbientWorldCharacterCatalog
     {
+        private static readonly IReadOnlyDictionary<string, Vector2>
+            ExpressionVisibleHorizontalMargins =
+                new Dictionary<string, Vector2>(
+                    StringComparer.OrdinalIgnoreCase)
+                {
+                    ["crew_attendant"] = Vector2.zero,
+                    ["crew_engineer"] = new(.018f, .186f),
+                    ["crew_security"] = new(.071f, .123f),
+                    ["passenger_a"] = new(.038f, .061f),
+                    ["passenger_b"] = new(.071f, .093f),
+                    ["passenger_c"] = new(.026f, .089f),
+                    ["passenger_d"] = new(.126f, .042f),
+                    ["passenger_e"] = Vector2.zero,
+                    ["passenger_f"] = new(.078f, .134f)
+                };
+
+        private static readonly IReadOnlyDictionary<string, Vector2>
+            SpecialistVisibleHorizontalMargins =
+                new Dictionary<string, Vector2>(
+                    StringComparer.OrdinalIgnoreCase)
+                {
+                    ["dock_porter"] = new(.092f, .261f),
+                    ["VIP_host"] = new(.109f, .196f),
+                    ["ballroom_musician"] = new(.296f, .270f),
+                    ["dining_sommelier"] = new(.200f, .261f),
+                    ["atrium_guide"] = new(.158f, .262f),
+                    ["security_operator"] = new(.207f, .344f),
+                    ["rail_technician"] = new(.200f, 0f),
+                    ["ship_medic"] = new(.189f, .395f),
+                    ["ballast_controller"] = new(.174f, .329f),
+                    ["chief_engineer"] = new(.240f, .384f),
+                    ["suite_steward"] = new(.200f, .307f),
+                    ["archivist"] = new(.178f, .340f),
+                    ["robotics_tech"] = new(.199f, .332f)
+                };
+
+        private static readonly IReadOnlyDictionary<string, Vector2>
+            MainVisibleHorizontalMargins =
+                new Dictionary<string, Vector2>(
+                    StringComparer.OrdinalIgnoreCase)
+                {
+                    ["adrian_vale"] = new(.225f, .283f),
+                    ["claire_hawthorne"] = new(.273f, .324f),
+                    ["daniel_mercer"] = new(.258f, .321f),
+                    ["evelyn_shaw"] = new(.219f, .288f),
+                    ["helena_ward"] = new(.321f, .341f),
+                    ["marcus_bell"] = new(.234f, .222f),
+                    ["owen_price"] = new(.237f, .296f),
+                    ["richard_hawthorne"] = new(.173f, .293f),
+                    ["thomas_reed"] = new(.202f, .291f)
+                };
+
         private static readonly IReadOnlyDictionary<string, AmbientWorldCharacterAsset>
             Assets = new Dictionary<string, AmbientWorldCharacterAsset>(
                 StringComparer.OrdinalIgnoreCase)
@@ -67,6 +135,8 @@ namespace Wake.Exploration
                 ["CREW_ENGINEER"] = ExpressionFigure(
                     "crew_engineer", 0.6255f, 0.0416f, 0.0391f),
                 ["CREW_SECURITY"] = ExpressionFigure(
+                    "crew_security", 0.7500f, 0.0442f, 0.0262f),
+                ["VAULT_GUARD"] = ExpressionFigure(
                     "crew_security", 0.7500f, 0.0442f, 0.0262f),
                 ["PASSENGER_A"] = ExpressionFigure(
                     "passenger_a", 0.6255f, 0.0000f, 0.0328f),
@@ -187,12 +257,17 @@ namespace Wake.Exploration
             float bottomMargin,
             float topMargin)
         {
+            ExpressionVisibleHorizontalMargins.TryGetValue(
+                resourceName,
+                out Vector2 horizontalMargins);
             return new AmbientWorldCharacterAsset(
                 $"AmbientCharacters/{resourceName}_expressions",
                 new Rect(0f, 0f, 0.25f, 1f),
                 aspectRatio,
                 bottomMargin,
-                topMargin);
+                topMargin,
+                horizontalMargins.x,
+                horizontalMargins.y);
         }
 
         private static AmbientWorldCharacterAsset Specialist(
@@ -200,12 +275,17 @@ namespace Wake.Exploration
             float bottomMargin = 0.02f,
             float topMargin = 0.02f)
         {
+            SpecialistVisibleHorizontalMargins.TryGetValue(
+                resourceName,
+                out Vector2 horizontalMargins);
             return new AmbientWorldCharacterAsset(
                 $"AmbientCharacters/{resourceName}",
                 new Rect(0f, 0f, 1f, 1f),
                 0.7f,
                 bottomMargin,
-                topMargin);
+                topMargin,
+                horizontalMargins.x,
+                horizontalMargins.y);
         }
 
         private static AmbientWorldCharacterAsset Main(
@@ -214,12 +294,17 @@ namespace Wake.Exploration
             float bottomMargin,
             float topMargin)
         {
+            MainVisibleHorizontalMargins.TryGetValue(
+                resourceName,
+                out Vector2 horizontalMargins);
             return new AmbientWorldCharacterAsset(
                 $"WorldMainCharacters/{resourceName}",
                 new Rect(0f, 0f, 1f, 1f),
                 aspectRatio,
                 bottomMargin,
-                topMargin);
+                topMargin,
+                horizontalMargins.x,
+                horizontalMargins.y);
         }
 
     }

@@ -477,7 +477,7 @@ namespace Wake.Narrative
             O("D1-01", ObjectiveActionType.Talk, "주요 승객들과 이야기하기", "아트리움에 있는 주요 승객들을 차례로 만나보자.", ObjectiveMarkerMode.Npc, "클레어와 이야기하기", "마커스와 이야기하기", "헬레나와 이야기하기", "오웬과 이야기하기"),
             O("D1-02", ObjectiveActionType.Inspect, "다니엘과 클레어의 언쟁 살펴보기", "언쟁이 벌어지는 테이블 주변을 살펴보자.", ObjectiveMarkerMode.Area, "언쟁이 벌어지는 테이블로 다가가기", "끼어들거나 관찰하기", "익명 제보에 관한 말을 확인하기"),
             O("D1-03", ObjectiveActionType.Inspect, "파티장의 동선 조사하기", "카메라와 출입구를 직접 살펴 동선을 확인하자.", ObjectiveMarkerMode.Hover, "카메라 위치 확인하기", "출입구 동선 살펴보기", "다니엘을 추적하거나 파티 인물을 탐문하기"),
-            O("D1-04", ObjectiveActionType.Find, "다니엘의 행방 찾기", "서비스 구역에서 다니엘의 이동 흔적을 찾아보자.", ObjectiveMarkerMode.Area, "승무원과 이야기하기", "서비스 출입문 살펴보기", "개폐 로그 확인하기", "경비에게 알릴지 결정하기"),
+            O("D1-04", ObjectiveActionType.Find, "다니엘의 마지막 동선 확인하기", "서비스 구역에서 다니엘의 마지막 이동을 확인하고, 행사 운영 계정을 조사하기 위해 볼룸으로 돌아갈 근거를 찾자.", ObjectiveMarkerMode.Area, "객실 승무원과 이야기하기", "서비스 출입문 살펴보기", "개폐 로그 확인하기", "경비에게 알릴지 결정하기", "볼룸의 행사 운영 관계자 확인하기"),
             O("D1-05", ObjectiveActionType.Inspect, "리처드에게 전달된 호출 확인하기", "이블린과 리처드를 통해 호출 내용을 확인하자.", ObjectiveMarkerMode.Npc, "이블린과 리처드의 대화 듣기", "리처드 명의 메시지 확인하기", "메시지 원문을 요구하기"),
             O("D1-06", ObjectiveActionType.Inspect, "호라이즌 룸의 상황 확인하기", "방 안의 인물과 주변 흔적을 차분히 확인하자.", ObjectiveMarkerMode.Area, "방 안으로 들어가기", "다니엘의 상태 확인하기", "현장을 봉쇄할지 결정하기", "열린 문과 주변 흔적 조사하기"),
             O("D1-07", ObjectiveActionType.Decide, "비밀 수사의 조건 정하기", "관련 인물들의 설명을 듣고 수사 조건을 정하자.", ObjectiveMarkerMode.Npc, "관련 인물들과 이야기하기", "공식 발표 확인하기", "수락 또는 제한 조건 결정하기"),

@@ -28,6 +28,19 @@ namespace Wake.Exploration
         public RectTransform BackgroundRect => backgroundPresenter?.ViewportRect;
         public Sprite ActiveBackgroundSprite =>
             backgroundPresenter?.Sprite;
+        public string ActiveBackgroundVariantKey =>
+            activeBackgroundSelection.VariantKey;
+        public string ActiveSemanticProfileId =>
+            !string.IsNullOrEmpty(
+                ambientCharacters?.ActiveSemanticProfileId)
+                ? ambientCharacters.ActiveSemanticProfileId
+                : activeBackgroundSelection.SemanticProfileId;
+        public bool UsesApprovedSemanticCharacterPlacement =>
+            ambientCharacters?.UsesApprovedSemanticPlacement == true;
+        public bool HasApprovedSemanticSceneLayout =>
+            ambientCharacters?.HasApprovedSceneLayout == true;
+        public bool ApprovedSemanticCastMatches =>
+            ambientCharacters?.ActiveSceneLayoutFingerprintMatched == true;
         public string ActiveBackgroundAnimationProfileId =>
             backgroundAnimations?.ActiveProfileId ?? string.Empty;
         public bool IsAmbientMotionPaused =>
@@ -41,6 +54,7 @@ namespace Wake.Exploration
         private AmbientCharacterHotspotOverlay ambientCharacters;
         private AmbientInspectableOverlay ambientInspectables;
         private AmbientRoomParticleOverlay ambientParticles;
+        private LocationBackgroundSelection activeBackgroundSelection;
         private bool systemMotionPaused;
         private bool reducedMotion;
 
@@ -134,13 +148,15 @@ namespace Wake.Exploration
             currentInstance = location.ContentPrefab != null
                 ? Instantiate(location.ContentPrefab, container)
                 : null;
-            Sprite backgroundSprite =
-                LocationBackgroundVariantCatalog.Resolve(
+            LocationBackgroundSelection backgroundSelection =
+                LocationBackgroundVariantCatalog.ResolveSelection(
                     location.LocationCode,
                     NarrativeSceneContext,
                     location.BackgroundSprite,
                     GameStateManager.Instance?
                         .CompletedProductionSceneIds);
+            activeBackgroundSelection = backgroundSelection;
+            Sprite backgroundSprite = backgroundSelection.Sprite;
             backgroundPresenter.Show(
                 backgroundSprite,
                 location.BackgroundFocus,
@@ -150,7 +166,8 @@ namespace Wake.Exploration
             evidenceHotspots?.Show(location.LocationCode);
             ambientCharacters?.Show(
                 location.LocationCode,
-                NarrativeSceneContext);
+                NarrativeSceneContext,
+                backgroundSelection);
             ambientInspectables?.Show(location.LocationCode);
             ambientParticles?.Show(
                 backgroundAnimations?.ResolveAmbientParticleTint(
@@ -177,13 +194,15 @@ namespace Wake.Exploration
             if (CurrentLocation == null)
                 return;
 
-            Sprite backgroundSprite =
-                LocationBackgroundVariantCatalog.Resolve(
+            LocationBackgroundSelection backgroundSelection =
+                LocationBackgroundVariantCatalog.ResolveSelection(
                     CurrentLocation.LocationCode,
                     NarrativeSceneContext,
                     CurrentLocation.BackgroundSprite,
                     GameStateManager.Instance?
                         .CompletedProductionSceneIds);
+            activeBackgroundSelection = backgroundSelection;
+            Sprite backgroundSprite = backgroundSelection.Sprite;
             if (backgroundPresenter?.Sprite != backgroundSprite)
             {
                 backgroundPresenter?.Show(
@@ -194,7 +213,8 @@ namespace Wake.Exploration
             evidenceHotspots?.Show(CurrentLocation.LocationCode);
             ambientCharacters?.Show(
                 CurrentLocation.LocationCode,
-                NarrativeSceneContext);
+                NarrativeSceneContext,
+                backgroundSelection);
             ambientInspectables?.Show(CurrentLocation.LocationCode);
             ambientParticles?.Show(
                 backgroundAnimations?.ResolveAmbientParticleTint(
@@ -236,7 +256,9 @@ namespace Wake.Exploration
             // Ambient characters belong to the photographed space. Parenting
             // them to the cover image keeps their feet and scale aligned when
             // the background is cropped, focused, or zoomed.
-            ambientCharacters.Initialize(backgroundPresenter.ContentRect);
+            ambientCharacters.Initialize(
+                backgroundPresenter.ContentRect,
+                backgroundPresenter.ViewportRect);
             ambientInspectables =
                 presenterObject.AddComponent<AmbientInspectableOverlay>();
             ambientInspectables.Initialize(backgroundPresenter.ContentRect);

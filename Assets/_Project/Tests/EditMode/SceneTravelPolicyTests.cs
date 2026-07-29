@@ -189,6 +189,12 @@ namespace Wake.Tests
             Assert.That(loader.TryLoadLocation(graph.StartingLocation, out _), Is.True);
             Assert.That(loader.CurrentLocation.LocationCode, Is.EqualTo("PORT"));
             Assert.That(state.CurrentLocationCode, Is.EqualTo("PORT"));
+            Assert.That(
+                loader.ActiveBackgroundVariantKey,
+                Is.EqualTo("serialized:bg_location_port_evidence"));
+            Assert.That(
+                loader.ActiveSemanticProfileId,
+                Is.EqualTo("bg_location_port_evidence"));
 
             Object.DestroyImmediate(empty);
             Object.DestroyImmediate(loaderHost);
@@ -211,11 +217,27 @@ namespace Wake.Tests
             Assert.That(
                 loader.ActiveBackgroundSprite?.name,
                 Is.EqualTo("bg_horizon_d1_discovery"));
+            Assert.That(
+                loader.ActiveBackgroundVariantKey,
+                Is.EqualTo(
+                    "LocationBackgroundVariants/" +
+                    "bg_horizon_d1_discovery"));
+            Assert.That(
+                loader.ActiveSemanticProfileId,
+                Is.EqualTo("bg_horizon_d1_discovery"));
 
             state.RecordCompletedScene("D1-06");
             loader.PrepareNarrativeScene("D2-01");
             Assert.That(
                 loader.ActiveBackgroundSprite?.name,
+                Is.EqualTo("bg_horizon_cleared_day"));
+            Assert.That(
+                loader.ActiveBackgroundVariantKey,
+                Is.EqualTo(
+                    "LocationBackgroundVariants/" +
+                    "bg_horizon_cleared_day"));
+            Assert.That(
+                loader.ActiveSemanticProfileId,
                 Is.EqualTo("bg_horizon_cleared_day"));
 
             Object.DestroyImmediate(loaderHost);

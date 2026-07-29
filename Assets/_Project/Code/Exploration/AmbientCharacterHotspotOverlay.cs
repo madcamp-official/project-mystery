@@ -1,5 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -33,6 +36,9 @@ namespace Wake.Exploration
             public Material BlendMaterial;
             public Color BaseTint;
             public UiCharacterIdleMotion IdleMotion;
+            public bool SemanticVisible = true;
+            public BackgroundSemanticPlacementAssignment
+                SemanticAssignment;
         }
 
         private static readonly Dictionary<string, Texture2D> TextureCache =
@@ -42,9 +48,17 @@ namespace Wake.Exploration
 
         private readonly List<WorldCharacterView> spawned = new();
         private RectTransform contentRect;
+        private RectTransform viewportRect;
         private Vector2 lastContentSize;
         private string currentLocationCode = string.Empty;
         private string currentSceneId = string.Empty;
+        private string currentVariantKey = string.Empty;
+        private Sprite currentBackgroundSprite;
+        private BackgroundSemanticRuntimeResolution
+            activeSemanticResolution;
+        private BackgroundSemanticPlacementResult
+            activeSemanticPlacement;
+        private bool activeSceneLayoutFingerprintMatched;
         private DialogueController boundDialogue;
         private bool dialoguePresentationVisible;
         private bool modalPresentationSuppressed;
@@ -54,16 +68,60 @@ namespace Wake.Exploration
         public bool IsModalPresentationSuppressed =>
             modalPresentationSuppressed;
         public bool IsMotionSuppressed => motionSuppressed;
+        public bool UsesApprovedSemanticPlacement =>
+            activeSemanticResolution != null;
+        public string ActiveSemanticProfileId =>
+            activeSemanticResolution?.Profile?.ProfileId ?? string.Empty;
+        public bool HasApprovedSceneLayout =>
+            activeSemanticResolution?.HasFixedSceneLayout == true;
+        public bool ActiveSceneLayoutFingerprintMatched =>
+            activeSceneLayoutFingerprintMatched;
+        public IReadOnlyList<string> SemanticPlacementDiagnostics =>
+            activeSemanticPlacement?.Diagnostics ??
+            System.Array.Empty<string>();
 
         public void Initialize(RectTransform backgroundContentRect)
         {
+            Initialize(backgroundContentRect, null);
+        }
+
+        public void Initialize(
+            RectTransform backgroundContentRect,
+            RectTransform backgroundViewportRect)
+        {
             contentRect = backgroundContentRect;
+            viewportRect = backgroundViewportRect;
             BindDialogue();
         }
 
         public void Show(
             string locationCode,
             string narrativeSceneId = null)
+        {
+            ShowInternal(
+                locationCode,
+                narrativeSceneId,
+                variantKey: string.Empty,
+                backgroundSprite: null);
+        }
+
+        public void Show(
+            string locationCode,
+            string narrativeSceneId,
+            LocationBackgroundSelection backgroundSelection)
+        {
+            ShowInternal(
+                locationCode,
+                narrativeSceneId,
+                backgroundSelection.VariantKey,
+                backgroundSelection.Sprite);
+        }
+
+        private void ShowInternal(
+            string locationCode,
+            string narrativeSceneId,
+            string variantKey,
+            Sprite backgroundSprite)
         {
             Clear();
             if (contentRect == null)
@@ -76,9 +134,19 @@ namespace Wake.Exploration
                 : AmbientBarkCatalog.ResolveCurrentSceneId(
                     Wake.Core.GameStateManager.Instance,
                     DialogueController.Instance?.ActiveProductionSceneId);
+            currentVariantKey = variantKey?.Trim() ?? string.Empty;
+            currentBackgroundSprite = backgroundSprite;
+            bool hasScenePresence = ScenePresenceCatalog.TryGet(
+                currentSceneId,
+                out ScenePresenceRecord scene);
+            string presentationLocationCode =
+                hasScenePresence &&
+                !string.IsNullOrWhiteSpace(scene.FocusLocation)
+                    ? scene.FocusLocation
+                    : currentLocationCode;
             IReadOnlyList<AmbientBarkRecord> barks =
                 AmbientBarkCatalog.GetAvailable(
-                    currentLocationCode,
+                    presentationLocationCode,
                     Wake.Core.GameStateManager.Instance,
                     currentSceneId,
                     maximum: 1);
@@ -87,21 +155,19 @@ namespace Wake.Exploration
                 CreateAmbientCharacter(barks[index]);
             }
 
-            if (ScenePresenceCatalog.TryGet(
-                    currentSceneId,
-                    out ScenePresenceRecord scene))
+            if (hasScenePresence)
             {
                 int mainLimit = Mathf.Max(0, 5 - spawned.Count);
                 IReadOnlyList<SceneWorldCharacter> characters =
                     ScenePresencePresentationPolicy.SelectVisible(
                         scene,
-                        currentLocationCode,
+                        presentationLocationCode,
                         mainLimit);
                 foreach (SceneWorldCharacter character in characters)
                     CreateMainCharacter(character);
             }
 
-            PrioritizeInteractionTargets();
+            ResolveApprovedSemanticProfile();
             RefreshLayout();
             ApplyDialogueVisibility();
         }
@@ -229,6 +295,186 @@ namespace Wake.Exploration
             button.onClick.AddListener(
                 () => BeginCharacterInteraction(view, onClick));
             spawned.Add(view);
+        }
+
+        private void ResolveApprovedSemanticProfile()
+        {
+            activeSemanticResolution = null;
+            activeSemanticPlacement = null;
+            activeSceneLayoutFingerprintMatched = false;
+            if (currentBackgroundSprite == null ||
+                string.IsNullOrEmpty(currentVariantKey))
+            {
+                return;
+            }
+
+            string castFingerprint = ComputeRuntimeCastFingerprint();
+            if (ApprovedBackgroundSemanticResolver.TryResolve(
+                currentLocationCode,
+                currentVariantKey,
+                currentBackgroundSprite,
+                currentSceneId,
+                expectedSourceImageHash: string.Empty,
+                expectedCastFingerprint: castFingerprint,
+                out activeSemanticResolution))
+            {
+                activeSceneLayoutFingerprintMatched =
+                    activeSemanticResolution.HasFixedSceneLayout;
+                return;
+            }
+
+            // A story/cast change invalidates only the fixed arrangement.
+            // Continue to use this background's approved candidate slots so
+            // stale narrative data can never reactivate hard-coded positions.
+            ApprovedBackgroundSemanticResolver.TryResolve(
+                currentLocationCode,
+                currentVariantKey,
+                currentBackgroundSprite,
+                sceneId: string.Empty,
+                out activeSemanticResolution);
+        }
+
+        private string ComputeRuntimeCastFingerprint()
+        {
+            string payload = string.Join(
+                "|",
+                spawned
+                    .Where(view => view != null)
+                    .Select(view =>
+                        $"{view.Speaker}/" +
+                        $"{(view.IsMainCharacter ? "Main" : "ContextNpc")}/" +
+                        $"{view.IsFocusParticipant.ToString().ToLowerInvariant()}")
+                    .OrderBy(value =>
+                        value,
+                        System.StringComparer.Ordinal));
+            using SHA256 sha = SHA256.Create();
+            byte[] hash = sha.ComputeHash(
+                Encoding.UTF8.GetBytes(payload));
+            var result = new StringBuilder(hash.Length * 2);
+            foreach (byte value in hash)
+                result.Append(value.ToString("x2"));
+            return result.ToString();
+        }
+
+        private void RefreshApprovedSemanticPlacement()
+        {
+            if (activeSemanticResolution == null)
+            {
+                activeSemanticPlacement = null;
+                foreach (WorldCharacterView view in spawned)
+                {
+                    if (view == null)
+                        continue;
+
+                    view.SemanticVisible = true;
+                    view.SemanticAssignment = null;
+                }
+                return;
+            }
+
+            var requests =
+                new List<BackgroundSemanticCharacterRequest>(
+                    spawned.Count);
+            foreach (WorldCharacterView view in spawned)
+            {
+                if (view == null)
+                    continue;
+
+                requests.Add(
+                    new BackgroundSemanticCharacterRequest(
+                        view.Speaker,
+                        ResolveSemanticRole(view),
+                        view.Asset));
+                view.SemanticVisible = false;
+                view.SemanticAssignment = null;
+            }
+
+            activeSemanticPlacement =
+                BackgroundSemanticPlacementResolver.Resolve(
+                    activeSemanticResolution,
+                    requests,
+                    CalculateVisibleNormalizedRect(),
+                    CalculateBackgroundAspectRatio());
+
+            var assignedViews = new HashSet<WorldCharacterView>();
+            foreach (BackgroundSemanticPlacementAssignment assignment in
+                     activeSemanticPlacement.Assignments)
+            {
+                WorldCharacterView view = spawned.FirstOrDefault(candidate =>
+                    candidate != null &&
+                    !assignedViews.Contains(candidate) &&
+                    string.Equals(
+                        candidate.Speaker,
+                        assignment.Character.CharacterId,
+                        System.StringComparison.OrdinalIgnoreCase));
+                if (view == null)
+                    continue;
+
+                view.SemanticVisible = true;
+                view.SemanticAssignment = assignment;
+                assignedViews.Add(view);
+            }
+        }
+
+        private static BackgroundSemanticCharacterRole ResolveSemanticRole(
+            WorldCharacterView view)
+        {
+            if (view?.IsFocusParticipant == true)
+                return BackgroundSemanticCharacterRole.Focus;
+            return view?.IsMainCharacter == true
+                ? BackgroundSemanticCharacterRole.Main
+                : BackgroundSemanticCharacterRole.Context;
+        }
+
+        private Rect CalculateVisibleNormalizedRect()
+        {
+            if (contentRect == null || viewportRect == null)
+                return new Rect(0f, 0f, 1f, 1f);
+
+            Vector2 contentSize = contentRect.rect.size;
+            Vector2 viewportSize = viewportRect.rect.size;
+            if (contentSize.x <= 0f ||
+                contentSize.y <= 0f ||
+                viewportSize.x <= 0f ||
+                viewportSize.y <= 0f)
+            {
+                return new Rect(0f, 0f, 1f, 1f);
+            }
+
+            Vector2 offset = contentRect.anchoredPosition;
+            Vector2 pivot = contentRect.pivot;
+            float xMin =
+                (-viewportSize.x * .5f - offset.x) /
+                contentSize.x +
+                pivot.x;
+            float xMax =
+                (viewportSize.x * .5f - offset.x) /
+                contentSize.x +
+                pivot.x;
+            float yMin =
+                (-viewportSize.y * .5f - offset.y) /
+                contentSize.y +
+                pivot.y;
+            float yMax =
+                (viewportSize.y * .5f - offset.y) /
+                contentSize.y +
+                pivot.y;
+            return Rect.MinMaxRect(
+                Mathf.Clamp01(xMin),
+                Mathf.Clamp01(yMin),
+                Mathf.Clamp01(xMax),
+                Mathf.Clamp01(yMax));
+        }
+
+        private float CalculateBackgroundAspectRatio()
+        {
+            Sprite sprite =
+                activeSemanticResolution?.Binding?.SourceSprite ??
+                currentBackgroundSprite;
+            return sprite != null &&
+                   sprite.rect.height > Mathf.Epsilon
+                ? sprite.rect.width / sprite.rect.height
+                : 16f / 9f;
         }
 
         private void PrioritizeInteractionTargets()
@@ -404,7 +650,8 @@ namespace Wake.Exploration
             {
                 foreach (WorldCharacterView item in spawned)
                 {
-                    if (item?.Button != null)
+                    if (item?.Button != null &&
+                        item.SemanticVisible)
                         item.Button.interactable = true;
                 }
             }
@@ -500,6 +747,27 @@ namespace Wake.Exploration
 
             Wake.Core.GameStateManager state =
                 Wake.Core.GameStateManager.Instance;
+            if (IsContextBarkProductionEntry(bark, state))
+            {
+                Wake.Core.ProductionDialogueCheckpoint checkpoint =
+                    state?.DialogueCheckpoint;
+                if (checkpoint != null &&
+                    string.Equals(
+                        checkpoint.activeSceneId,
+                        currentSceneId,
+                        System.StringComparison.OrdinalIgnoreCase) &&
+                    dialogue.RestoreProductionScene(checkpoint))
+                {
+                    return;
+                }
+
+                if (dialogue.CanStartProductionScene(currentSceneId) &&
+                    dialogue.StartProductionScene(currentSceneId))
+                {
+                    return;
+                }
+            }
+
             bool completed =
                 state?.HasCompletedNpcInteraction(interactionId) == true;
             string text = completed
@@ -514,6 +782,31 @@ namespace Wake.Exploration
                 state?.RecordCompletedNpcInteraction(interactionId);
                 RefreshCompletionPresentation();
             }
+        }
+
+        private bool IsContextBarkProductionEntry(
+            AmbientBarkRecord bark,
+            Wake.Core.GameStateManager state)
+        {
+            if (bark == null ||
+                state?.HasCompletedScene(currentSceneId) == true ||
+                !ScenePresenceCatalog.TryGet(
+                    currentSceneId,
+                    out ScenePresenceRecord scene) ||
+                !string.Equals(
+                    scene.ContextBarkId,
+                    bark.Id,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            return !ScenePresencePresentationPolicy
+                .SelectVisible(
+                    scene,
+                    scene.FocusLocation,
+                    visibleLimit: 5)
+                .Any(character => character.IsFocusParticipant);
         }
 
         private void LateUpdate()
@@ -597,9 +890,12 @@ namespace Wake.Exploration
                 !modalPresentationSuppressed;
             foreach (WorldCharacterView view in spawned)
             {
-                view?.Target?.SetActive(visible);
-                view?.GroundShadowObject?.SetActive(visible);
-                if (!visible || view?.Target == null)
+                bool characterVisible =
+                    visible &&
+                    (view?.SemanticVisible ?? false);
+                view?.Target?.SetActive(characterVisible);
+                view?.GroundShadowObject?.SetActive(characterVisible);
+                if (!characterVisible || view?.Target == null)
                     continue;
 
                 if (view.Button != null)
@@ -625,6 +921,7 @@ namespace Wake.Exploration
             if (contentSize.x <= 0f || contentSize.y <= 0f)
                 return;
 
+            RefreshApprovedSemanticPlacement();
             for (int index = 0; index < spawned.Count; index++)
             {
                 WorldCharacterView view = spawned[index];
@@ -634,7 +931,12 @@ namespace Wake.Exploration
                 ApplyStage(view, index, spawned.Count);
             }
 
+            if (UsesApprovedSemanticPlacement)
+                ApplySemanticDepthOrder();
+            else
+                PrioritizeInteractionTargets();
             lastContentSize = contentSize;
+            ApplyDialogueVisibility();
         }
 
         private void ApplyStage(
@@ -643,7 +945,22 @@ namespace Wake.Exploration
             int count)
         {
             AmbientWorldStageProfile stage;
-            if (count == 1 &&
+            if (activeSemanticResolution != null)
+            {
+                if (!view.SemanticVisible ||
+                    view.SemanticAssignment == null ||
+                    !BackgroundSemanticStageAdapter.TryCreate(
+                        activeSemanticResolution.Binding,
+                        view.SemanticAssignment.Slot,
+                        out stage))
+                {
+                    view.SemanticVisible = false;
+                    view.Target?.SetActive(false);
+                    view.GroundShadowObject?.SetActive(false);
+                    return;
+                }
+            }
+            else if (count == 1 &&
                 AmbientWorldStageCatalog.TryGet(
                     currentLocationCode,
                     view.Speaker,
@@ -660,7 +977,8 @@ namespace Wake.Exploration
                     view.IsMainCharacter);
             }
 
-            if (RuntimeUiLayoutRegistry.TryGetNormalizedRect(
+            if (activeSemanticResolution == null &&
+                RuntimeUiLayoutRegistry.TryGetNormalizedRect(
                     $"location.{currentLocationCode}.character.{view.Speaker}",
                     out Rect placeholder))
             {
@@ -728,6 +1046,33 @@ namespace Wake.Exploration
                 view.IdleMotion?.StopAndRestore();
         }
 
+        private void ApplySemanticDepthOrder()
+        {
+            foreach (WorldCharacterView view in spawned
+                         .Where(candidate =>
+                             candidate?.SemanticAssignment == null)
+                         .OrderBy(candidate =>
+                             candidate?.Speaker,
+                             System.StringComparer.Ordinal))
+            {
+                view.GroundShadowObject?.transform.SetAsLastSibling();
+                view.Target?.transform.SetAsLastSibling();
+            }
+
+            foreach (WorldCharacterView view in spawned
+                         .Where(candidate =>
+                             candidate?.SemanticAssignment != null)
+                         .OrderBy(candidate =>
+                             candidate.SemanticAssignment.Slot.Depth01)
+                         .ThenBy(candidate =>
+                             candidate.Speaker,
+                             System.StringComparer.Ordinal))
+            {
+                view.GroundShadowObject?.transform.SetAsLastSibling();
+                view.Target?.transform.SetAsLastSibling();
+            }
+        }
+
         private void RefreshCompletionPresentation()
         {
             Wake.Core.GameStateManager state =
@@ -762,6 +1107,7 @@ namespace Wake.Exploration
                     AmbientInteractionPresentation.CharacterSpriteColors(tint);
                 view.ObjectiveMarker?.SetActive(
                     view.IsMainCharacter &&
+                    view.SemanticVisible &&
                     !completed &&
                     !dialoguePresentationVisible &&
                     !modalPresentationSuppressed);
@@ -951,6 +1297,11 @@ namespace Wake.Exploration
                     DestroyOwnedObject(view.BlendMaterial);
             }
             spawned.Clear();
+            activeSemanticResolution = null;
+            activeSemanticPlacement = null;
+            activeSceneLayoutFingerprintMatched = false;
+            currentVariantKey = string.Empty;
+            currentBackgroundSprite = null;
         }
 
         private static void DestroyOwnedObject(UnityEngine.Object target)

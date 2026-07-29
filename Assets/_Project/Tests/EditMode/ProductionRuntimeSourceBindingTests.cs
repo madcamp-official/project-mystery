@@ -148,6 +148,36 @@ namespace Wake.Tests
                     "지나치게 새것처럼 빛나고 있었다."));
         }
 
+        [Test]
+        public void DayOneContinuity_CallsHelenaAndExplainsBallroomReturn()
+        {
+            DialogueRecord[] records = DialogueCsvParser.Parse(
+                    LoadText(ProductionContentPreflight.CsvPath))
+                .Records.ToArray();
+            DialogueRecord returnDecision = records.Single(record =>
+                record.LineId == "D1-04_021");
+            DialogueRecord branchUnlock = records.Single(record =>
+                record.LineId == "D1-03_028");
+            DialogueRecord call = records.Single(record =>
+                record.LineId == "D1-06_003");
+            DialogueRecord arrival = records.Single(record =>
+                record.LineId == "D1-06_004");
+
+            Assert.That(
+                returnDecision.TextKo,
+                Does.Contain("볼룸으로 돌아가")
+                    .And.Contain("행사 운영 계정"));
+            Assert.That(
+                branchUnlock.NextOrEffect,
+                Is.EqualTo("scene_unlock:D1-04,D1-05"));
+            Assert.That(
+                call.TextKo,
+                Does.Contain("헬레나")
+                    .And.Contain("지금 당장"));
+            Assert.That(arrival.Order, Is.EqualTo(call.Order + 1));
+            Assert.That(arrival.Speaker, Is.EqualTo("HELENA"));
+        }
+
         private static void AssertAssetExists(string path)
         {
             Assert.That(
