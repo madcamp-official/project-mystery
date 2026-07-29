@@ -519,6 +519,10 @@ namespace Wake.UI
         // keep in sync. Only the risen height is a pure animation choice
         // with no scene counterpart.
         private const float WaterRisenY = -7f;
+        // Water audio cues (sloshing on dive, splash on surfacing) fire when
+        // the water plane crosses this height, not at the animation's start
+        // or end, so they land on the visual moment rather than the timer.
+        private const float WaterAudioTriggerY = -40f;
 
         private GameObject overlay;
         private GameObject confirmation;
@@ -643,18 +647,34 @@ namespace Wake.UI
         private IEnumerator MoveWater(
             Vector3 from, Vector3 to, Func<float, float> ease,
             float duration, bool intensityRising,
-            Action<float> onDepth = null)
+            Action<float> onDepth = null,
+            float? triggerY = null,
+            Action onTriggerY = null)
         {
+            bool triggered = false;
+            bool ascending = to.y >= from.y;
             return RunSegment(duration, ease, t =>
             {
+                Vector3 current = Vector3.LerpUnclamped(from, to, t);
                 if (water != null)
                 {
-                    water.position = Vector3.LerpUnclamped(from, to, t);
+                    water.position = current;
                 }
                 float depth = intensityRising ? t : 1f - t;
                 lightShaft?.SetIntensity(depth);
                 lobbyBackdrop?.SetDepth(depth);
                 onDepth?.Invoke(depth);
+                if (!triggered && triggerY.HasValue)
+                {
+                    bool crossed = ascending
+                        ? current.y >= triggerY.Value
+                        : current.y <= triggerY.Value;
+                    if (crossed)
+                    {
+                        triggered = true;
+                        onTriggerY?.Invoke();
+                    }
+                }
             });
         }
 
@@ -707,10 +727,11 @@ namespace Wake.UI
                 Coroutine lobbyExit = StartCoroutine(MoveRect(
                     lobbyContent, lobbyFrom, lobbyTo, WaterTrapezoid, LobbyExitDuration));
                 yield return new WaitForSecondsRealtime(LobbyLeadIn);
-                AudioManager.Instance?.PlayWaterSloshing();
                 yield return MoveWater(
                     waterFrom, waterTo, WaterTrapezoid, DiveDuration, true,
-                    depth => AudioManager.Instance?.SetUnderwaterMuffle(depth));
+                    depth => AudioManager.Instance?.SetUnderwaterMuffle(depth),
+                    WaterAudioTriggerY,
+                    () => AudioManager.Instance?.PlayWaterSloshing());
                 yield return lobbyExit;
                 yield return MoveRect(
                     contentRect, slotFrom, slotTo, EaseOutQuint, RiseDuration);
@@ -722,12 +743,13 @@ namespace Wake.UI
                 Coroutine waterSurface = StartCoroutine(
                     MoveWater(
                         waterFrom, waterTo, WaterTrapezoid, DiveDuration, false,
-                        depth => AudioManager.Instance?.SetUnderwaterMuffle(depth)));
+                        depth => AudioManager.Instance?.SetUnderwaterMuffle(depth),
+                        WaterAudioTriggerY,
+                        () => AudioManager.Instance?.PlayWaterSplashOut()));
                 yield return new WaitForSecondsRealtime(LobbyLeadIn);
                 Coroutine lobbyEnter = StartCoroutine(MoveRect(
                     lobbyContent, lobbyFrom, lobbyTo, WaterTrapezoid, LobbyExitDuration));
                 yield return waterSurface;
-                AudioManager.Instance?.PlayWaterSplashOut();
                 yield return lobbyEnter;
             }
 
