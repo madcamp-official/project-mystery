@@ -106,6 +106,16 @@ namespace Wake.UI
             reducedMotion = value;
         }
 
+        // For panels driven exclusively by UiScreenTransitionCoordinator,
+        // which already calls PlayIn explicitly after activating the panel -
+        // the automatic OnEnable trigger would race that explicit call,
+        // flashing the panel at rest position before the real animation
+        // takes over. Call this once while the panel is still inactive.
+        public void DisableAutoPlayIn()
+        {
+            playInOnEnable = false;
+        }
+
         public void PlayOut(
             UiTransitionProfile overrideProfile = null,
             Action completed = null)
