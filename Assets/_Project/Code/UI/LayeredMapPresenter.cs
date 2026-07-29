@@ -15,6 +15,8 @@ namespace Wake.UI
         private readonly Dictionary<int, Button> deckButtons = new();
         private readonly Dictionary<MapLayerMode, Button> layerButtons = new();
         private readonly List<GameObject> nodeObjects = new();
+        private readonly MapRestrictedAreaRenderer restrictedAreaRenderer =
+            new();
 
         private RectTransform root;
         private RectTransform mapFrame;
@@ -108,8 +110,9 @@ namespace Wake.UI
             mapAspect.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
             mapAspect.aspectRatio = 1448f / 1086f;
             baseMap = LayerImage(mapFrame, "Base Map");
+            restrictedAreaRenderer.Build(mapFrame);
             restrictedOverlay =
-                LayerImage(mapFrame, "Restricted Overlay");
+                LayerImage(mapFrame, "Investigation Overlay Fallback");
             technicalOverlay =
                 LayerImage(mapFrame, "Technical Overlay");
             nodeLayer = new GameObject(
@@ -252,6 +255,7 @@ namespace Wake.UI
             selectedLayer = mode;
             RefreshLayerButtons();
             ApplyLayerSprites();
+            RefreshRestrictedAreas();
         }
 
         private void RefreshLayerButtons()
@@ -286,6 +290,7 @@ namespace Wake.UI
                     ? "항구 · 승선 구역"
                     : $"{MapDeckCatalog.DeckLabel(selectedDeck)} · 층별 설계도";
             ApplyLayerSprites();
+            RefreshRestrictedAreas();
 
             foreach (GameObject node in nodeObjects)
                 UnityEngine.Object.Destroy(node);
@@ -341,7 +346,8 @@ namespace Wake.UI
             baseMap.enabled = baseMap.sprite != null;
             restrictedOverlay.enabled =
                 selectedLayer >= MapLayerMode.Investigation &&
-                restrictedOverlay.sprite != null;
+                restrictedOverlay.sprite != null &&
+                MapAreaCatalog.ForDeck(selectedDeck).Count == 0;
             technicalOverlay.enabled =
                 selectedLayer >= MapLayerMode.Technical &&
                 technicalOverlay.sprite != null;
@@ -353,6 +359,59 @@ namespace Wake.UI
             return string.IsNullOrEmpty(key)
                 ? null
                 : Resources.Load<Sprite>(key);
+        }
+
+        private void RefreshRestrictedAreas()
+        {
+            restrictedAreaRenderer.Refresh(
+                selectedDeck,
+                selectedLayer >= MapLayerMode.Investigation,
+                viewModel,
+                state,
+                SelectArea);
+        }
+
+        private void SelectArea(MapAreaShape area)
+        {
+            if (area == null || viewModel == null)
+                return;
+
+            ProductionMapEntry entry = viewModel.Entries.FirstOrDefault(item =>
+                string.Equals(
+                    item.Spec.Code,
+                    area.AreaId,
+                    StringComparison.Ordinal));
+            MapLocationPlacement placement =
+                MapDeckCatalog.Find(area.AreaId);
+            if (entry != null && placement != null)
+            {
+                string current =
+                    CanonicalLocationCatalog.FindSpec(
+                        state?.CurrentLocationCode)?.Code ??
+                    state?.CurrentLocationCode;
+                SelectEntry(
+                    entry,
+                    placement,
+                    string.Equals(
+                        area.AreaId,
+                        current,
+                        StringComparison.OrdinalIgnoreCase));
+                return;
+            }
+
+            selectedEntry = null;
+            placeName.text = area.DisplayName;
+            placeMeta.text =
+                $"{MapDeckCatalog.DeckLabel(area.Deck)} · 확인된 제한 구역";
+            placeDescription.text =
+                "수사로 확인된 승무원 전용 구역입니다.";
+            knownPeople.text = "알려진 인물 · 없음";
+            accessDescription.text =
+                state?.HasFlag("restricted_areas_closed") == true
+                    ? "승객 불안으로 일시 폐쇄되었습니다."
+                    : "출입구에서 별도의 접근 권한이 필요합니다.";
+            travelButton.interactable = false;
+            travelLabel.text = "이동 불가";
         }
 
         private void CreateNode(
