@@ -67,6 +67,10 @@ namespace Wake.UI
                     "승선 완료 후 이동 가능",
                 SceneAccessDenialReason.RestrictedByPublicAnxiety =>
                     "승객 불안으로 폐쇄",
+                SceneAccessDenialReason.RouteRequired =>
+                    "인접 경로로만 진입 가능",
+                SceneAccessDenialReason.LocationUndiscovered =>
+                    "이동 경로 미발견",
                 SceneAccessDenialReason.LocationVisualMissing =>
                     "배경 누락",
                 _ => "이동 불가"
@@ -163,7 +167,7 @@ namespace Wake.UI
             var entries = new List<ProductionMapEntry>();
 
             foreach (CanonicalLocationSpec spec in
-                     CanonicalLocationCatalog.StoryRelevant)
+                     CanonicalLocationCatalog.All)
             {
                 LocationDefinition location = graph?.FindByCode(spec.Code);
                 ProductionSceneDefinition[] scenes = ProductionSceneCatalog.All
@@ -178,9 +182,10 @@ namespace Wake.UI
                 if (target == null)
                 {
                     SceneTravelResult locationResult =
-                        SceneTravelPolicy.EvaluateFreeTravel(
+                        SceneTravelPolicy.EvaluateMapTravel(
                             location,
                             completed,
+                            unlocked,
                             publicAnxiety);
                     entries.Add(new ProductionMapEntry(
                         spec,
@@ -203,16 +208,28 @@ namespace Wake.UI
                     completed.Contains(target.SceneId) ||
                     unlocked == null ||
                     unlocked.Contains(target.SceneId);
+                bool isCompleted = completed.Contains(target.SceneId);
+                SceneTravelResult completedMapTravel = isCompleted
+                    ? SceneTravelPolicy.EvaluateMapTravel(
+                        location,
+                        completed,
+                        unlocked,
+                        publicAnxiety)
+                    : default;
                 entries.Add(new ProductionMapEntry(
                     spec,
                     location,
                     target.SceneId,
-                    completed.Contains(target.SceneId)
-                        ? ProductionMapEntryStatus.Completed
+                    isCompleted
+                        ? completedMapTravel.IsAllowed
+                            ? ProductionMapEntryStatus.Completed
+                            : ProductionMapEntryStatus.Locked
                         : isUnlocked && result.IsAllowed
                             ? ProductionMapEntryStatus.Available
                             : ProductionMapEntryStatus.Locked,
-                    !isUnlocked
+                    isCompleted
+                        ? completedMapTravel.DenialReason
+                        : !isUnlocked
                         ? SceneAccessDenialReason.SceneNotUnlocked
                         : result.DenialReason));
             }

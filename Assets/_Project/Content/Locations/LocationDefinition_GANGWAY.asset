@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LocationDefinition_GANGWAY
   m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
   locationCode: GANGWAY
-  displayName: Gangway
+  displayName: 승선 통로
   deck: 0
   roomCode:
   backgroundSprite: {fileID: 21300000, guid: 4d6cab773a7d1a44196f5021a0009dc7, type: 3}

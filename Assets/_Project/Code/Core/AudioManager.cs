@@ -67,6 +67,15 @@ namespace Wake.Core
             UnbindState();
         }
 
+        private void OnDestroy()
+        {
+            UnbindState();
+            if (Instance == this)
+            {
+                Instance = null;
+            }
+        }
+
         private void BindState()
         {
             state = GameStateManager.Instance;

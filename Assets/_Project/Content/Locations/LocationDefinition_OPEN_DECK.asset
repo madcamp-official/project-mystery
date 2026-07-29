@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: LocationDefinition_OPEN_DECK
   m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
   locationCode: OPEN_DECK
-  displayName: Open Deck
+  displayName: 야외 갑판
   deck: 10
-  roomCode: D10-3
+  roomCode: D10-7
   backgroundSprite: {fileID: 21300000, guid: aaa0e470bbfac2446b19fcd2555f833c, type: 3}
   narrativeAliases:
   - STERN

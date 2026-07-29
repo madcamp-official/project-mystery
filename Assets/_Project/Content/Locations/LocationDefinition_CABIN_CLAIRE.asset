@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2580e2253d06483f804af34405ef6f19, type: 3}
+  m_Name: LocationDefinition_CABIN_CLAIRE
+  m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
+  locationCode: CABIN_CLAIRE
+  displayName: 클레어 객실
+  deck: 8
+  roomCode: D8-5
+  backgroundSprite: {fileID: 21300000, guid: 06c92c0e9b92c344bb6706aa3eb3dcd2, type: 3}
+  narrativeAliases: []
+  contentPrefab: {fileID: 0}
+  connectedLocations: []

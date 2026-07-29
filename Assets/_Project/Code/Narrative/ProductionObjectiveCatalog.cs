@@ -456,6 +456,15 @@ namespace Wake.Narrative
             return ByScene.TryGetValue(scene, out string[] targets) &&
                    targets.Contains(character, StringComparer.Ordinal);
         }
+
+        public static IReadOnlyList<string> ForScene(string sceneId)
+        {
+            string scene = sceneId?.Trim().ToUpperInvariant() ??
+                           string.Empty;
+            return ByScene.TryGetValue(scene, out string[] targets)
+                ? targets
+                : Array.Empty<string>();
+        }
     }
 
     public static class ProductionObjectiveCatalog

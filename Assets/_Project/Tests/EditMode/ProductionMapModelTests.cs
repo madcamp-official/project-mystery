@@ -23,28 +23,24 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void ViewModel_ContainsOnlyNineteenStoryRelevantLocations()
+        public void ViewModel_ContainsAllThirtyPhysicalLocations()
         {
             ProductionMapViewModel model =
                 ProductionMapViewModel.Create(graph, null, 15);
 
-            Assert.That(model.Entries, Has.Count.EqualTo(19));
+            Assert.That(model.Entries, Has.Count.EqualTo(30));
             Assert.That(model.Entries.Select(entry => entry.Spec.Code), Is.Unique);
             Assert.That(
                 model.Entries.Select(entry => entry.Location).All(item => item != null),
                 Is.True);
             Assert.That(
-                model.Entries.All(entry =>
-                    CanonicalLocationCatalog.IsStoryRelevant(entry.Spec.Code)),
-                Is.True);
-            Assert.That(
                 model.Entries.Select(entry => entry.Spec.Code),
-                Does.Not.Contain("LAUNDRY")
-                    .And.Not.Contain("SERVICE_HUB")
-                    .And.Not.Contain("STABILIZERS")
-                    .And.Not.Contain("BALLAST_TANKS")
-                    .And.Not.Contain("GENERATOR")
-                    .And.Not.Contain("WORKSHOP"));
+                Does.Contain("LAUNDRY")
+                    .And.Contain("SERVICE_HUB")
+                    .And.Contain("STABILIZERS")
+                    .And.Contain("BALLAST_TANKS")
+                    .And.Contain("GENERATOR")
+                    .And.Contain("WORKSHOP"));
         }
 
         [Test]
@@ -102,9 +98,9 @@ namespace Wake.Tests
                     entry => entry.Spec.Code == "GANGWAY").Status,
                 Is.EqualTo(ProductionMapEntryStatus.Available));
             Assert.That(
-                afterPort.Entries.Any(
-                    entry => entry.Spec.Code == "LAUNDRY"),
-                Is.False);
+                afterPort.Entries.Single(
+                    entry => entry.Spec.Code == "LAUNDRY").Status,
+                Is.EqualTo(ProductionMapEntryStatus.Locked));
 
             ProductionMapViewModel afterGangway =
                 ProductionMapViewModel.Create(
@@ -118,9 +114,9 @@ namespace Wake.Tests
                     entry => entry.Spec.Code == "RICHARD_SUITE").Status,
                 Is.EqualTo(ProductionMapEntryStatus.Available));
             Assert.That(
-                afterGangway.Entries.Any(
-                    entry => entry.Spec.Code == "LAUNDRY"),
-                Is.False);
+                afterGangway.Entries.Single(
+                    entry => entry.Spec.Code == "LAUNDRY").Status,
+                Is.EqualTo(ProductionMapEntryStatus.Locked));
 
             ProductionMapViewModel afterBoarding =
                 ProductionMapViewModel.Create(
@@ -128,9 +124,9 @@ namespace Wake.Tests
                     new[] { "P-01", "P-02", "P-03" },
                     15);
             Assert.That(
-                afterBoarding.Entries.Any(
-                    entry => entry.Spec.Code == "LAUNDRY"),
-                Is.False);
+                afterBoarding.Entries.Single(
+                    entry => entry.Spec.Code == "LAUNDRY").Status,
+                Is.EqualTo(ProductionMapEntryStatus.Locked));
         }
 
         [Test]
@@ -170,14 +166,14 @@ namespace Wake.Tests
                 Is.True);
         }
 
-        [TestCase("CABIN_CLAIRE", "VIP_LOUNGE")]
+        [TestCase("CABIN_CLAIRE", "CABIN_CLAIRE")]
         [TestCase("STERN", "OPEN_DECK")]
-        [TestCase("CABIN_DANIEL", "NEWS_LOUNGE")]
+        [TestCase("CABIN_DANIEL", "CABIN_DANIEL")]
         [TestCase("EVIDENCE_BOARD", "NEWS_LOUNGE")]
-        [TestCase("INTERVIEW", "SECURITY")]
+        [TestCase("INTERVIEW", "INTERVIEW")]
         [TestCase("FORENSIC", "MEDBAY")]
-        [TestCase("BRIDGE", "ENGINE_CONTROL")]
-        [TestCase("SERVICE7", "CREW_STAIRS")]
+        [TestCase("BRIDGE", "BRIDGE")]
+        [TestCase("SERVICE7", "SERVICE7")]
         public void NarrativeAlias_AppearsUnderMappedPhysicalLocation(
             string narrativeCode,
             string expectedPhysicalCode)

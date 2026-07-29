@@ -23,6 +23,32 @@ Unity가 PDF와 XLSX를 불필요하게 임포트하지 않도록 원본 파일�
 사용자에게 보이는 UI 표현에 한해 기존 프로덕션 매뉴얼과 내부 문서의 오래된
 UI 설명보다 우선한다.
 
+## 오디오 구현 문서
+
+오디오 관련 자료는 `Audio` 디렉터리에서 다음 순서로 읽는다.
+
+1. `Under_the_Horizon_Audio_Implementation_Guide_KR_v2.md`
+   - 런타임 소스 구성, 큐 우선순위와 필수 QA 항목
+2. `Under_the_Horizon_Audio_Cue_Config_v2.json`
+   - 리소스 키, 장소 기본값, 장면·이벤트 큐의 기계 판독 원본
+3. `Under_the_Horizon_Scene_Audio_Cues_v2.csv`
+   - 41개 프로덕션 장면의 BGM·앰비언스·SFX 배정표
+4. `Under_the_Horizon_Audio_Cue_Sheet_KR_v2.xlsx`
+   - 사람이 검토하고 조정하기 위한 통합 오디오 작업표
+
+Unity 런타임의 장소 기본 큐는
+`Assets/_Project/Code/Core/AudioCueCatalog.cs`에서 관리한다. 문서의 큐를
+변경할 때는 카탈로그와 관련 테스트도 함께 갱신한다.
+
+## 맵 시스템 문서
+
+맵 개편의 물리 장소 계약, 레이어 해금 시점, 이동 등급과 스토리 검수 기준은
+`Map/Under_the_Horizon_Map_System_Overhaul_KR.md`에서 확인한다.
+
+원본 층별 레이어 ZIP, 매니페스트와 제작 안내는
+`Source/MapLayers`에 보관한다. Unity 런타임에는 이 중 Base, Restricted,
+Technical 레이어만 Sprite 자산으로 복사한다.
+
 ## 내부 UI 구현 문서
 
 UI 문서는 다음 순서로 읽는다.

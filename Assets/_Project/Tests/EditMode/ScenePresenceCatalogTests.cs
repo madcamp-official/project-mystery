@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Wake.Exploration;
+using Wake.Narrative;
 
 namespace Wake.Tests
 {
@@ -79,7 +80,7 @@ namespace Wake.Tests
                 Is.EquivalentTo(ScenePresenceCatalog.MainCharacterIds));
             Assert.That(
                 stairs.GetLocation("DANIEL"),
-                Is.EqualTo("CREW_STAIRS"));
+                Is.EqualTo("SERVICE7"));
             Assert.That(
                 stairs.GetLocation("EVELYN"),
                 Is.EqualTo("VIP_LOUNGE"));
@@ -168,6 +169,28 @@ namespace Wake.Tests
                 Is.True);
             Assert.That(scene.FocusLocation, Is.EqualTo(location));
             Assert.That(scene.ContextSpeaker, Is.EqualTo(speaker));
+        }
+
+        [Test]
+        public void EveryPresenceFocus_MatchesDialogueAndObjectiveMapLocation()
+        {
+            foreach (ScenePresenceRecord presence in ScenePresenceCatalog.All)
+            {
+                ProductionSceneDefinition scene = ProductionSceneCatalog.All
+                    .Single(item => item.SceneId == presence.SceneId);
+                CanonicalLocationSpec focus =
+                    CanonicalLocationCatalog.FindSpec(presence.FocusLocation);
+                CanonicalLocationSpec narrative =
+                    CanonicalLocationCatalog.FindSpec(
+                        scene.NarrativeLocationCode);
+
+                Assert.That(focus, Is.Not.Null, presence.SceneId);
+                Assert.That(narrative, Is.Not.Null, presence.SceneId);
+                Assert.That(
+                    focus.Code,
+                    Is.EqualTo(narrative.Code),
+                    presence.SceneId);
+            }
         }
 
         [Test]

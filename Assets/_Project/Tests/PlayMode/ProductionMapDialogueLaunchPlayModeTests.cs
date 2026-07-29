@@ -32,12 +32,20 @@ namespace Wake.Tests.PlayMode
             Transform destinationArrow =
                 gangway.transform.Find("Objective Destination Arrow");
             Assert.That(destinationArrow, Is.Not.Null);
-            Assert.That(destinationArrow.gameObject.activeInHierarchy, Is.True);
+            Assert.That(destinationArrow.gameObject.activeSelf, Is.True);
             Assert.That(
                 destinationArrow.GetComponentsInChildren<Image>(true),
                 Has.Length.EqualTo(3));
 
-            yield return InvokeAndSettle(gangway);
+            Button layeredGangway =
+                RequireLayeredLocationButton("GANGWAY");
+            yield return InvokeAndSettle(layeredGangway);
+            Assert.That(
+                State.CurrentLocationCode,
+                Is.EqualTo("PORT"),
+                "목적지를 선택하는 것만으로 이동하면 안 됩니다.");
+            yield return InvokeAndSettle(RequireLayeredTravelButton());
+            yield return WaitForTravel(map, "GANGWAY");
 
             Assert.That(map.LastTravelResult.IsAllowed, Is.True);
             Assert.That(
@@ -125,7 +133,11 @@ namespace Wake.Tests.PlayMode
                 gangway.GetComponentInChildren<TMP_Text>().text,
                 Is.EqualTo("승선 통로"));
 
-            yield return InvokeAndSettle(gangway);
+            Button layeredGangway =
+                RequireLayeredLocationButton("GANGWAY");
+            yield return InvokeAndSettle(layeredGangway);
+            yield return InvokeAndSettle(RequireLayeredTravelButton());
+            yield return WaitForTravel(RequireMap(), "GANGWAY");
 
             Assert.That(State.CurrentLocationCode, Is.EqualTo("GANGWAY"));
             Assert.That(Dialogue.IsBusy, Is.False);
@@ -238,6 +250,43 @@ namespace Wake.Tests.PlayMode
             return RequireComponent<Button>(
                 "Map/Rooms/Dynamic Location Viewport/" +
                 $"Dynamic Location Content/Map Node {locationCode}");
+        }
+
+        private Button RequireLayeredLocationButton(string locationCode)
+        {
+            return RequireComponent<Button>(
+                "Map/Rooms/Layered Map Surface/Deck Map/" +
+                "Map Location Nodes/" +
+                $"Layered Map Node {locationCode}");
+        }
+
+        private Button RequireLayeredTravelButton()
+        {
+            GameObject detail = RequireObject(
+                "Map/Rooms/Layered Map Surface/Location Detail");
+            Button[] buttons =
+                detail.GetComponentsInChildren<Button>(true);
+            Assert.That(
+                buttons,
+                Has.Length.EqualTo(1),
+                "장소 상세 패널에는 이동 확인 버튼이 하나여야 합니다.");
+            return buttons[0];
+        }
+
+        private static IEnumerator WaitForTravel(
+            MapController map,
+            string locationCode)
+        {
+            float deadline = Time.realtimeSinceStartup + 3f;
+            while ((!map.LastTravelResult.IsAllowed ||
+                    !string.Equals(
+                        map.LastTravelResult.Location?.LocationCode,
+                        locationCode,
+                        System.StringComparison.Ordinal)) &&
+                   Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
         }
     }
 }

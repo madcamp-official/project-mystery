@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: LocationDefinition_STABILIZERS
   m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
   locationCode: STABILIZERS
-  displayName: Stabilizers
-  deck: 5
-  roomCode: D5-1
+  displayName: 안정기실
+  deck: 6
+  roomCode: D6-3
   backgroundSprite: {fileID: 21300000, guid: 5d19159dfa77da44caa6c3769f38dd8c, type: 3}
   narrativeAliases: []
   contentPrefab: {fileID: 0}

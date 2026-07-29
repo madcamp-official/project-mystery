@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LocationDefinition_PROMENADE
   m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
   locationCode: PROMENADE
-  displayName: Promenade
+  displayName: 산책 갑판
   deck: 9
   roomCode: D9-3
   backgroundSprite: {fileID: 21300000, guid: 3a3c6861160c4cd686b017b0c83ef5aa, type: 3}

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using Wake.Core;
 using Wake.Evidence;
@@ -41,6 +42,7 @@ namespace Wake.UI
         private SystemScreenFlowController systemScreens;
         private ExplorationNavigationController explorationNavigation;
         private bool hasShownBoot;
+        private UiPrimaryPanel mapReturnPanel = UiPrimaryPanel.Ingame;
         private readonly List<IRuntimeModalController> runtimeModals = new();
 
         public bool IsInitialized { get; private set; }
@@ -85,6 +87,32 @@ namespace Wake.UI
             if (Instance == this)
             {
                 Instance = null;
+            }
+        }
+
+        private void Update()
+        {
+            if (!IsInitialized ||
+                Keyboard.current == null ||
+                ActivePanel == UiPrimaryPanel.Start ||
+                IsSettingsOpen ||
+                ActiveSystemScreen != SystemScreenState.None)
+            {
+                return;
+            }
+
+            if (Keyboard.current.mKey.wasPressedThisFrame)
+            {
+                if (ActivePanel == UiPrimaryPanel.Map)
+                    CloseMap();
+                else
+                    ShowMap();
+            }
+            else if (
+                ActivePanel == UiPrimaryPanel.Map &&
+                Keyboard.current.escapeKey.wasPressedThisFrame)
+            {
+                CloseMap();
             }
         }
 
@@ -136,7 +164,7 @@ namespace Wake.UI
                 BindButton(canvas, "Ingame/Map Btn", ShowMap) &
                 BindButton(canvas, "Ingame/Evidence Btn", ShowEvidence) &
                 BindButton(canvas, "Ingame/Settings Btn", OpenSettings) &
-                BindButton(canvas, "Map/Back Btn", ShowIngame);
+                BindButton(canvas, "Map/Back Btn", CloseMap);
             if (!buttonsBound)
             {
                 IsInitialized = false;
@@ -343,8 +371,23 @@ namespace Wake.UI
 
         public void ShowMap()
         {
+            if (ActivePanel != UiPrimaryPanel.Map)
+            {
+                mapReturnPanel =
+                    ActivePanel == UiPrimaryPanel.Evidence
+                        ? UiPrimaryPanel.Evidence
+                        : UiPrimaryPanel.Ingame;
+            }
             SetActivePanel(mapPanel, UiPrimaryPanel.Map);
             FindFirstObjectByType<MapController>()?.RefreshMap();
+        }
+
+        public void CloseMap()
+        {
+            if (mapReturnPanel == UiPrimaryPanel.Evidence)
+                ShowEvidence();
+            else
+                ShowIngame();
         }
 
         public void ShowEvidence()

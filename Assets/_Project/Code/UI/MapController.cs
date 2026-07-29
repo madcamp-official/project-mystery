@@ -23,6 +23,7 @@ namespace Wake.UI
         private ScrollRect deckScroll;
         private Image cruiseMapImage;
         private TMP_Text screenTitle;
+        private readonly LayeredMapPresenter layeredPresenter = new();
         private readonly Dictionary<string, MapNodeView> mapNodes =
             new(StringComparer.Ordinal);
         private bool initialized;
@@ -78,6 +79,12 @@ namespace Wake.UI
                         StringComparison.Ordinal);
                 ApplyEntry(node, entry, isObjectiveDestination);
             }
+
+            layeredPresenter.Refresh(
+                CurrentViewModel,
+                state,
+                objective?.TargetLocation ?? string.Empty,
+                objective?.Definition.SceneId ?? string.Empty);
         }
 
         private bool EnsureInitialized()
@@ -155,6 +162,8 @@ namespace Wake.UI
             }
 
             BindAuthoredNodes();
+            layeredPresenter.Build(roomsContainer, BeginConfirmedTravel);
+            viewport.gameObject.SetActive(false);
             initialized = true;
             return true;
         }
@@ -198,6 +207,66 @@ namespace Wake.UI
                     label,
                     destinationMarker);
             }
+
+            foreach (CanonicalLocationSpec spec in
+                     CanonicalLocationCatalog.StoryRelevant)
+            {
+                if (!mapNodes.ContainsKey(spec.Code))
+                {
+                    MapNodeView compatibilityNode =
+                        CreateCompatibilityNode(spec);
+                    mapNodes[spec.Code] = compatibilityNode;
+                }
+            }
+        }
+
+        private MapNodeView CreateCompatibilityNode(
+            CanonicalLocationSpec spec)
+        {
+            GameObject nodeObject = new(
+                $"Map Node {spec.Code}",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(Button),
+                typeof(Outline));
+            nodeObject.transform.SetParent(dynamicContent, false);
+            RectTransform rect =
+                nodeObject.GetComponent<RectTransform>();
+            Vector2 position =
+                CruiseMapLayoutCatalog.PositionFor(spec.Code);
+            rect.anchorMin = position;
+            rect.anchorMax = position;
+            rect.pivot = new Vector2(.5f, .5f);
+            rect.sizeDelta = new Vector2(154f, 58f);
+
+            GameObject labelObject = new(
+                "Label",
+                typeof(RectTransform),
+                typeof(TextMeshProUGUI));
+            labelObject.transform.SetParent(nodeObject.transform, false);
+            RectTransform labelRect =
+                labelObject.GetComponent<RectTransform>();
+            labelRect.anchorMin = Vector2.zero;
+            labelRect.anchorMax = Vector2.one;
+            labelRect.offsetMin = new Vector2(8f, 4f);
+            labelRect.offsetMax = new Vector2(-8f, -4f);
+            TMP_Text label =
+                labelObject.GetComponent<TMP_Text>();
+            label.alignment = TextAlignmentOptions.Center;
+            label.enableAutoSizing = true;
+            label.fontSizeMin = 12f;
+            label.fontSizeMax = 21f;
+            label.raycastTarget = false;
+            MapTypography.ApplyLocation(label);
+
+            return new MapNodeView(
+                nodeObject,
+                nodeObject.GetComponent<Image>(),
+                nodeObject.GetComponent<Button>(),
+                nodeObject.GetComponent<Outline>(),
+                label,
+                EnsureDestinationMarker(nodeObject.transform));
         }
 
         private static GameObject EnsureDestinationMarker(Transform node)
@@ -349,12 +418,25 @@ namespace Wake.UI
             }
         }
 
+        private void BeginConfirmedTravel(ProductionMapEntry entry)
+        {
+            ScreenFadeTransition transition =
+                ScreenFadeTransition.Ensure();
+            if (transition == null)
+            {
+                SelectEntry(entry);
+                return;
+            }
+            transition.Run(() => SelectEntry(entry));
+        }
+
         private void SelectLocation(LocationDefinition location)
         {
             GameStateManager state = GameStateManager.Instance;
-            LastTravelResult = SceneTravelPolicy.EvaluateFreeTravel(
+            LastTravelResult = SceneTravelPolicy.EvaluateMapTravel(
                 location,
                 state?.CompletedProductionSceneIds,
+                state?.UnlockedProductionSceneIds,
                 state != null ? state.PublicAnxiety : 0);
             if (TryLoadAllowedDestination(LastTravelResult))
             {

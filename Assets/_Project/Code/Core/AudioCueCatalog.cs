@@ -68,6 +68,7 @@ namespace Wake.Core
                     ["GANGWAY"] = Cue(PassageToPort, .52f, 1.5f, Engine, .28f, Crowd, .24f),
                     ["RICHARD_SUITE"] = Cue(MahoganyTheme, .48f, 2f),
                     ["VIP_LOUNGE"] = Cue(AdrianTheme, .45f, 2f),
+                    ["CABIN_CLAIRE"] = Cue(AdrianTheme, .45f, 2f),
                     ["OPEN_DECK"] = Cue(ThomasTheme, .5f, 2.5f, Wind, .43f, Waves, .34f),
                     ["BALLROOM"] = Cue(LastWaltz, .62f, 2f, Crowd, .34f),
                     ["DINING"] = Cue(LastWaltz, .52f, 2f, Crowd, .3f),
@@ -75,13 +76,18 @@ namespace Wake.Core
                     ["HORIZON"] = Cue(HorizonRoom, .56f, 2.2f),
                     ["ATRIUM"] = Cue(PassageToPort, .52f, 2f, Crowd, .34f),
                     ["NEWS_LOUNGE"] = Cue(AdrianTheme, .46f, 2f, Crowd, .22f),
+                    ["CABIN_DANIEL"] = Cue(AdrianTheme, .46f, 2f),
                     ["SECURITY"] = Cue(AdrianTheme, .47f, 1.8f),
+                    ["INTERVIEW"] = Cue(AdrianTheme, .47f, 1.8f),
                     ["SERVICE_RAIL"] = Cue(HorizonRoom, .54f, 1.8f, Fan, .3f),
                     ["MEDBAY"] = Cue(AdrianTheme, .42f, 1.8f),
                     ["BALLAST_CONTROL_ANNEX"] =
                         Cue(HorizonRoom, .57f, 1.6f, Fan, .34f, Engine, .12f),
                     ["ENGINE_CONTROL"] =
                         Cue(ThomasTheme, .48f, 2f, Fan, .32f, Engine, .22f),
+                    ["BRIDGE"] =
+                        Cue(ThomasTheme, .48f, 2f, Fan, .12f, Engine, .18f),
+                    ["SERVICE7"] = Cue(AdrianTheme, .5f, 1.2f, Fan, .12f),
                     ["CREW_STAIRS"] = Cue(AdrianTheme, .5f, 1.2f, Fan, .12f),
                     ["VAULT"] = Cue(MahoganyTheme, .52f, 1.8f),
                     ["ARCHIVE"] = Cue(ThomasTheme, .48f, 2f),

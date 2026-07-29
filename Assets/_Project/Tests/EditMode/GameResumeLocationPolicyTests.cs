@@ -86,7 +86,7 @@ namespace Wake.Tests
                     storySceneId);
 
             Assert.That(storySceneId, Is.EqualTo("D1-04"));
-            Assert.That(location.LocationCode, Is.EqualTo("CREW_STAIRS"));
+            Assert.That(location.LocationCode, Is.EqualTo("SERVICE7"));
             Assert.That(location.MatchesCode("SERVICE7"), Is.True);
         }
 

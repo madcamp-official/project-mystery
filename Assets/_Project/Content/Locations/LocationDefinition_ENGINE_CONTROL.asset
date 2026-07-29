@@ -13,12 +13,11 @@ MonoBehaviour:
   m_Name: LocationDefinition_ENGINE_CONTROL
   m_EditorClassIdentifier: Wake.Runtime::Wake.Exploration.LocationDefinition
   locationCode: ENGINE_CONTROL
-  displayName: Engine Control
+  displayName: 기관 제어실
   deck: 7
   roomCode: D7-3
   backgroundSprite: {fileID: 21300000, guid: 45cb03f7bcad4fcc98ab5d393c7243ae, type: 3}
   narrativeAliases:
   - ENGINE_CTRL
-  - BRIDGE
   contentPrefab: {fileID: 0}
   connectedLocations: []
