@@ -66,20 +66,19 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void Toast_DefaultIsAppliedThroughVisualThemeService()
+        public void Toast_RuntimeSurfaceRemainsDisabled()
         {
             string source = ReadRuntimeSource("UI/ToastController.cs");
 
             Assert.That(
                 source,
-                Does.Contain(
-                    "UiVisualThemeService.ApplyText("));
+                Does.Contain("RuntimeSurfaceEnabled => false"));
             Assert.That(
                 source,
-                Does.Contain("UiTextStyle.Body"));
+                Does.Not.Contain("new GameObject(\"Toast\""));
             Assert.That(
                 source,
-                Does.Not.Contain("RuntimeKoreanFont"));
+                Does.Not.Contain("BuildToastUi"));
         }
 
         [Test]

@@ -277,8 +277,6 @@ namespace Wake.UI
             continueButton.gameObject.SetActive(true);
             locationButton.gameObject.SetActive(false);
             videoOnlyButton.gameObject.SetActive(false);
-            ToastController.Instance?.Show(
-                "천장 조사 개방 · 단서 C-08 화재감지기 오류");
             Refresh();
             return result;
         }
