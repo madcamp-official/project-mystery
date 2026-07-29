@@ -196,6 +196,53 @@ namespace Wake.Tests
             }
         }
 
+        [Test]
+        public void Pause_StopsBloomRenderingButKeepsFrozenCompositeVisible()
+        {
+            GameObject contentObject =
+                new("Content", typeof(RectTransform));
+            GameObject overlayObject =
+                new("Overlay", typeof(AmbientRoomParticleOverlay));
+            try
+            {
+                AmbientRoomParticleOverlay overlay =
+                    overlayObject.GetComponent<AmbientRoomParticleOverlay>();
+                overlay.Initialize(
+                    contentObject.GetComponent<RectTransform>());
+
+                overlay.SetPaused(true);
+
+                Assert.That(
+                    GetPrivateField<GameObject>(
+                        overlay, "bloomCameraObject").activeSelf,
+                    Is.False);
+                Assert.That(
+                    GetPrivateField<GameObject>(
+                        overlay, "bloomVolumeObject").activeSelf,
+                    Is.False);
+                Assert.That(
+                    GetPrivateField<GameObject>(
+                        overlay, "particleCanvasObject").activeSelf,
+                    Is.False);
+                Assert.That(
+                    GetPrivateField<GameObject>(
+                        overlay, "compositeObject").activeSelf,
+                    Is.True);
+
+                overlay.SetPaused(false);
+
+                Assert.That(
+                    GetPrivateField<GameObject>(
+                        overlay, "bloomCameraObject").activeSelf,
+                    Is.True);
+            }
+            finally
+            {
+                Object.DestroyImmediate(overlayObject);
+                Object.DestroyImmediate(contentObject);
+            }
+        }
+
         // Regression test for a bug where multiplying the raw (dark)
         // sampled background color into the particle crushed brightness to
         // near-invisible. NormalizeForGlow must keep hue but force the

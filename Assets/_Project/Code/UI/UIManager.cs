@@ -48,6 +48,8 @@ namespace Wake.UI
         private UiTransitionProfile runtimeModalTransitionProfile;
         private ExplorationNavigationController explorationNavigation;
         private bool suppressRuntimeModalAnimations;
+        private bool systemScreenPausesAmbientMotion;
+        private bool settingsPauseAmbientMotion;
         private bool hasShownBoot;
         private UiPrimaryPanel mapReturnPanel = UiPrimaryPanel.Ingame;
         private readonly List<IRuntimeModalController> runtimeModals = new();
@@ -553,9 +555,8 @@ namespace Wake.UI
                 return;
             }
 
-            // Settings is opened only from the pause menu, which should
-            // stay visible underneath it - closing it first would flash
-            // the gameplay screen behind pause before settings slides in.
+            // A pause screen stays visible underneath settings when present.
+            // Settings can also be opened directly from the in-game chrome.
             CloseRuntimeModals();
             BeginOpenSettings();
         }
@@ -566,6 +567,9 @@ namespace Wake.UI
                 return;
 
             systemScreens?.OnSettingsOpened();
+            settingsPauseAmbientMotion =
+                ActivePanel != UiPrimaryPanel.Start;
+            ApplyAmbientMotionPausePolicy();
             SetPrimaryInteraction(false);
             if (statusHud != null)
             {
@@ -631,6 +635,8 @@ namespace Wake.UI
             {
                 settingsPopup.SetActive(false);
                 systemScreens?.OnSettingsClosed();
+                settingsPauseAmbientMotion = false;
+                ApplyAmbientMotionPausePolicy();
                 statusHud?.SetActive(false);
                 explorationNavigation?.SetInteractionEnabled(true);
                 SetPrimaryInteraction(true);
@@ -838,6 +844,15 @@ namespace Wake.UI
             SetPrimaryInteraction(!active);
             statusHud?.SetActive(false);
             explorationNavigation?.SetInteractionEnabled(!active);
+            systemScreenPausesAmbientMotion = active;
+            ApplyAmbientMotionPausePolicy();
+        }
+
+        private void ApplyAmbientMotionPausePolicy()
+        {
+            LocationLoader.Instance?.SetAmbientMotionPaused(
+                systemScreenPausesAmbientMotion ||
+                settingsPauseAmbientMotion);
         }
 
         internal void SetExplorationNavigationSuppressed(bool suppressed)
