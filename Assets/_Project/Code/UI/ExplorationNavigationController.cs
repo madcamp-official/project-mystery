@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -43,6 +44,10 @@ namespace Wake.UI
         private string renderedTemporalKey = string.Empty;
         private bool interactionEnabled = true;
         private bool presentationSuppressed;
+        private bool wasPresented;
+        private Coroutine presentationRoutine;
+        private const float SlideInDuration = 0.35f;
+        private const float SlideInDistance = 70f;
 
         public GameObject Root => root;
         public TMP_Text LocationLabel => locationLabel;
@@ -72,6 +77,11 @@ namespace Wake.UI
         private void OnDisable()
         {
             UnbindRuntime();
+            // Coroutines are killed by Unity when this GameObject
+            // disables, so this reference would otherwise dangle and
+            // the next OnEnable would think the HUD was already showing.
+            presentationRoutine = null;
+            wasPresented = false;
         }
 
         private void LateUpdate()
@@ -152,9 +162,66 @@ namespace Wake.UI
             if (canvasGroup == null)
                 return;
 
-            canvasGroup.alpha = presented ? 1f : 0f;
             canvasGroup.interactable = presented && interactionEnabled;
             canvasGroup.blocksRaycasts = presented && interactionEnabled;
+
+            bool risingEdge = presented && !wasPresented;
+            wasPresented = presented;
+
+            if (!presented)
+            {
+                if (presentationRoutine != null)
+                {
+                    StopCoroutine(presentationRoutine);
+                    presentationRoutine = null;
+                }
+                canvasGroup.alpha = 0f;
+                RectTransform rootRect = root.transform as RectTransform;
+                if (rootRect != null)
+                {
+                    rootRect.anchoredPosition = Vector2.zero;
+                }
+                return;
+            }
+
+            if (!risingEdge)
+            {
+                canvasGroup.alpha = 1f;
+                return;
+            }
+
+            // Slides down from above rather than snapping in, most
+            // noticeably when dialogue ends and this HUD reappears.
+            if (presentationRoutine != null)
+            {
+                StopCoroutine(presentationRoutine);
+            }
+            presentationRoutine = StartCoroutine(SlideIn());
+        }
+
+        private IEnumerator SlideIn()
+        {
+            RectTransform rootRect = root.transform as RectTransform;
+            float elapsed = 0f;
+            while (elapsed < SlideInDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.SmoothStep(
+                    0f, 1f, Mathf.Clamp01(elapsed / SlideInDuration));
+                canvasGroup.alpha = t;
+                if (rootRect != null)
+                {
+                    rootRect.anchoredPosition =
+                        new Vector2(0f, SlideInDistance * (1f - t));
+                }
+                yield return null;
+            }
+            canvasGroup.alpha = 1f;
+            if (rootRect != null)
+            {
+                rootRect.anchoredPosition = Vector2.zero;
+            }
+            presentationRoutine = null;
         }
 
         private void BuildUi()
