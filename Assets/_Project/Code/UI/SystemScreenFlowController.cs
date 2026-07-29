@@ -163,11 +163,6 @@ namespace Wake.UI
             Close(null);
         }
 
-        internal void CloseAnimated(Action afterClosed)
-        {
-            Close(afterClosed);
-        }
-
         private void Close(Action afterClosed)
         {
             if (!IsOverlayOpen)

@@ -106,11 +106,6 @@ namespace Wake.UI
                 RefreshContext(panel);
                 RefreshObjective(panel);
             }
-            SetSelectedState(mapButton, panel == UiPrimaryPanel.Map);
-            SetSelectedState(
-                evidenceButton,
-                panel == UiPrimaryPanel.Evidence);
-
             if (force)
                 Canvas.ForceUpdateCanvases();
         }
@@ -269,6 +264,16 @@ namespace Wake.UI
                     "일시정지",
                     owner != null ? owner.OpenPause : null,
                     Resources.Load<Sprite>("UI/Icons/Badges/ui_badge_settings"));
+            // Unlike map/evidence, the pause button must stay clickable
+            // while paused so it can toggle pause back off - a nested
+            // CanvasGroup ignoring the shared nav bar group (which
+            // SetInteractionEnabled(false) disables while any system
+            // screen is open) keeps it interactable regardless.
+            CanvasGroup pauseGroup =
+                pauseButton.gameObject.AddComponent<CanvasGroup>();
+            pauseGroup.ignoreParentGroups = true;
+            pauseGroup.interactable = true;
+            pauseGroup.blocksRaycasts = true;
         }
 
         private void BindNavigationActions()
@@ -546,13 +551,6 @@ namespace Wake.UI
                 button.onClick.AddListener(action);
             target.AddComponent<UiHoverFeedback>();
             return button;
-        }
-
-        private static void SetSelectedState(Button button, bool selected)
-        {
-            if (button == null)
-                return;
-            button.interactable = !selected;
         }
 
         private static void Stretch(RectTransform rect, float inset = 0f)
