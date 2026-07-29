@@ -295,6 +295,18 @@ namespace Wake.Exploration
             text.raycastTarget = false;
             text.outlineWidth = 0.18f;
             text.outlineColor = Color.white;
+            // TMP's outline alone only gives the white ring - a second,
+            // wider black ring behind it (via the underlay layer, dilated
+            // and with zero offset/softness so it renders as a crisp
+            // outline rather than a soft drop shadow) keeps the mark
+            // legible against light backgrounds too.
+            Material material = text.fontMaterial;
+            material.EnableKeyword(ShaderUtilities.Keyword_Underlay);
+            material.SetColor(ShaderUtilities.ID_UnderlayColor, Color.black);
+            material.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, 0f);
+            material.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, 0f);
+            material.SetFloat(ShaderUtilities.ID_UnderlayDilate, 1f);
+            material.SetFloat(ShaderUtilities.ID_UnderlaySoftness, 0f);
             marker.SetActive(false);
             return marker;
         }
