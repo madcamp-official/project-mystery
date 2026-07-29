@@ -1120,6 +1120,67 @@ namespace Wake.Tests.PlayMode
             AssertNoRuntimeErrors("설정 모달 입력 복구");
         }
 
+        [UnityTest]
+        public IEnumerator CharacterRelationshipCards_ShowDetailsAndKeepBackClickable()
+        {
+            yield return StartNewGameFromVisibleButton(false);
+            Ui.ShowEvidence();
+            yield return WaitForUiTransition();
+
+            Button peopleTab = RequireComponent<Button>(
+                "Evidence/Notebook Tabs/Characters Tab");
+            yield return InvokeAndSettle(peopleTab);
+
+            RectTransform peoplePanel = RequireComponent<RectTransform>(
+                "Evidence/Characters And Relationships");
+            RectTransform backRect = RequireComponent<RectTransform>(
+                "Evidence/Back Btn");
+            Assert.That(
+                ScreenRect(peoplePanel).Overlaps(ScreenRect(backRect)),
+                Is.False,
+                "인물 관계도와 돌아가기 버튼 영역이 겹치면 안 됩니다.");
+            Assert.That(
+                backRect.GetSiblingIndex(),
+                Is.EqualTo(backRect.parent.childCount - 1),
+                "돌아가기 버튼은 관계도보다 위에서 입력을 받아야 합니다.");
+
+            Button adrian = RequireComponent<Button>(
+                "Evidence/Characters And Relationships/Viewport/Content/ADRIAN");
+            Assert.That(adrian.interactable, Is.True);
+            yield return InvokeAndSettle(adrian);
+
+            GameObject detail = RequireObject(
+                "Evidence/Characters And Relationships/Character Detail");
+            Assert.That(detail.activeInHierarchy, Is.True);
+            Assert.That(
+                RequireText(
+                    "Evidence/Characters And Relationships/" +
+                    "Character Detail/Name").text,
+                Is.EqualTo("아드리안 베일"));
+            Assert.That(
+                RequireText(
+                    "Evidence/Characters And Relationships/" +
+                    "Character Detail/Role").text,
+                Does.Contain("사립 탐정"));
+            Assert.That(
+                RequireText(
+                    "Evidence/Characters And Relationships/" +
+                    "Character Detail/Summary").text,
+                Does.Contain("MV Elysium"));
+
+            yield return InvokeAndSettle(
+                RequireComponent<Button>(
+                    "Evidence/Characters And Relationships/" +
+                    "Character Detail/Back To Character List"));
+            Assert.That(detail.activeSelf, Is.False);
+            Assert.That(adrian.gameObject.activeInHierarchy, Is.True);
+
+            yield return InvokeAndSettle(
+                RequireComponent<Button>("Evidence/Back Btn"));
+            AssertOnlyPanel(UiPrimaryPanel.Ingame);
+            AssertNoRuntimeErrors("인물 관계도 상세 정보와 돌아가기");
+        }
+
         private Button AssertStyledMapBackButton()
         {
             Button button =
@@ -1141,6 +1202,17 @@ namespace Wake.Tests.PlayMode
                 button.transform.GetSiblingIndex(),
                 Is.EqualTo(button.transform.parent.childCount - 1));
             return button;
+        }
+
+        private static Rect ScreenRect(RectTransform rect)
+        {
+            var corners = new Vector3[4];
+            rect.GetWorldCorners(corners);
+            return Rect.MinMaxRect(
+                corners[0].x,
+                corners[0].y,
+                corners[2].x,
+                corners[2].y);
         }
 
         private void AssertOnlyPanel(UiPrimaryPanel expected)
