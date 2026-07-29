@@ -106,11 +106,6 @@ namespace Wake.UI
                 RefreshContext(panel);
                 RefreshObjective(panel);
             }
-            SetSelectedState(mapButton, panel == UiPrimaryPanel.Map);
-            SetSelectedState(
-                evidenceButton,
-                panel == UiPrimaryPanel.Evidence);
-
             if (force)
                 Canvas.ForceUpdateCanvases();
         }
@@ -556,13 +551,6 @@ namespace Wake.UI
                 button.onClick.AddListener(action);
             target.AddComponent<UiHoverFeedback>();
             return button;
-        }
-
-        private static void SetSelectedState(Button button, bool selected)
-        {
-            if (button == null)
-                return;
-            button.interactable = !selected;
         }
 
         private static void Stretch(RectTransform rect, float inset = 0f)
