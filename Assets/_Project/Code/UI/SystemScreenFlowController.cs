@@ -248,6 +248,11 @@ namespace Wake.UI
             Canvas overlayCanvas = root.AddComponent<Canvas>();
             overlayCanvas.overrideSorting = true;
             overlayCanvas.sortingOrder = 150;
+            // A Graphic registers itself under its nearest ancestor
+            // Canvas, so once this became one, its buttons stopped being
+            // visible to the root Canvas's GraphicRaycaster - it needs
+            // its own to be clickable again.
+            root.AddComponent<GraphicRaycaster>();
 
             BuildBoot();
             BuildLoading();
