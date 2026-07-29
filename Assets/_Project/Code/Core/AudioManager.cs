@@ -234,7 +234,10 @@ namespace Wake.Core
 
             waterSplashSource.Stop();
             waterSplashSource.clip = clip;
-            waterSplashSource.time = 0f;
+            waterSplashSource.time = Mathf.Clamp(
+                AudioCueCatalog.WaterSplashOutStartOffset,
+                0f,
+                Mathf.Max(0f, clip.length - 0.05f));
             waterSplashSource.Play();
             if (waterSplashStop != null)
             {

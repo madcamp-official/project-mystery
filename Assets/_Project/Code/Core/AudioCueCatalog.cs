@@ -48,8 +48,9 @@ namespace Wake.Core
             "SoundEffect/sound_of_water_sloshing";
         public const string WaterSplashOutKey =
             "SoundEffect/The_sound_of_water_splashing_in_a_bathtub";
-        public const float WaterSplashOutSeconds = 1.6f;
-        public const float UnderwaterMuffledCutoffHz = 600f;
+        public const float WaterSplashOutStartOffset = 0.22f;
+        public const float WaterSplashOutSeconds = 0.5f;
+        public const float UnderwaterMuffledCutoffHz = 300f;
         public const float UnderwaterClearCutoffHz = 22000f;
 
         public const string IronDoorKnockKey =
