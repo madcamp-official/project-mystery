@@ -366,6 +366,38 @@ namespace Wake.Exploration
 
         // Bright, tight core with a soft extended tail rather than a flat
         // disc, so the particle reads as a glow even without real bloom.
+        private static readonly Vector2[] PentagonVertices = BuildPentagonVertices();
+
+        private static Vector2[] BuildPentagonVertices()
+        {
+            var vertices = new Vector2[5];
+            for (int i = 0; i < 5; i++)
+            {
+                float angle = -Mathf.PI / 2f + i * (2f * Mathf.PI / 5f);
+                vertices[i] = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+            }
+            return vertices;
+        }
+
+        // Signed inset (positive = inside) to the nearest edge of a convex
+        // polygon whose vertices are wound counter-clockwise, used both as
+        // the inside/outside test and as a cheap distance field for a soft
+        // 1px antialiased edge.
+        private static float PentagonInset(Vector2 point)
+        {
+            float minInset = float.PositiveInfinity;
+            for (int i = 0; i < PentagonVertices.Length; i++)
+            {
+                Vector2 a = PentagonVertices[i];
+                Vector2 b = PentagonVertices[(i + 1) % PentagonVertices.Length];
+                Vector2 edge = b - a;
+                Vector2 outwardNormal = new Vector2(edge.y, -edge.x).normalized;
+                float inset = -Vector2.Dot(point - a, outwardNormal);
+                minInset = Mathf.Min(minInset, inset);
+            }
+            return minInset;
+        }
+
         private static void EnsureGlowSprite()
         {
             if (glowSprite != null)
@@ -391,15 +423,13 @@ namespace Wake.Exploration
                 for (int x = 0; x < GlowTextureSize; x++)
                 {
                     float nx = (x + 0.5f) / GlowTextureSize * 2f - 1f;
-                    float radius = Mathf.Sqrt(nx * nx + ny * ny);
-                    // Solid disc with a 1px antialiased edge - the bloom
+                    // Solid pentagon with a 1px antialiased edge - the bloom
                     // pass provides the glow/soft tail now, so the source
-                    // shape itself just needs to be a plain circle.
+                    // shape itself just needs to be a plain filled pentagon.
+                    float inset = PentagonInset(new Vector2(nx, ny));
                     float edge = 1f / (GlowTextureSize * 0.5f);
-                    float coverage = 1f - Mathf.InverseLerp(
-                        1f - edge, 1f, radius);
-                    byte alpha = (byte)Mathf.RoundToInt(
-                        Mathf.Clamp01(coverage) * 255f);
+                    float coverage = Mathf.Clamp01(inset / edge);
+                    byte alpha = (byte)Mathf.RoundToInt(coverage * 255f);
                     pixels[y * GlowTextureSize + x] =
                         new Color32(255, 255, 255, alpha);
                 }
