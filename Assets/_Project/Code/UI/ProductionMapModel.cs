@@ -76,6 +76,8 @@ namespace Wake.UI
                     "인접 경로로만 진입 가능",
                 SceneAccessDenialReason.LocationUndiscovered =>
                     "이동 경로 미발견",
+                SceneAccessDenialReason.LocationUnused =>
+                    "비사용 장소",
                 SceneAccessDenialReason.LocationVisualMissing =>
                     "배경 누락",
                 _ => "이동 불가"
@@ -172,7 +174,7 @@ namespace Wake.UI
             var entries = new List<ProductionMapEntry>();
 
             foreach (CanonicalLocationSpec spec in
-                     CanonicalLocationCatalog.All)
+                     CanonicalLocationCatalog.Playable)
             {
                 bool isVisible = SceneTravelPolicy.IsLocationVisibleOnMap(
                     spec.Code,

@@ -5,6 +5,12 @@ using Wake.Narrative;
 
 namespace Wake.Exploration
 {
+    public enum CanonicalLocationUsage
+    {
+        Playable,
+        Unused
+    }
+
     public sealed class CanonicalLocationSpec
     {
         public CanonicalLocationSpec(
@@ -13,6 +19,7 @@ namespace Wake.Exploration
             int deck,
             string roomCode,
             string spriteFileName,
+            CanonicalLocationUsage usage,
             params string[] narrativeAliases)
         {
             Code = code;
@@ -20,6 +27,7 @@ namespace Wake.Exploration
             Deck = deck;
             RoomCode = roomCode;
             SpriteFileName = spriteFileName;
+            Usage = usage;
             NarrativeAliases = narrativeAliases ?? Array.Empty<string>();
         }
 
@@ -28,6 +36,8 @@ namespace Wake.Exploration
         public int Deck { get; }
         public string RoomCode { get; }
         public string SpriteFileName { get; }
+        public CanonicalLocationUsage Usage { get; }
+        public bool IsPlayable => Usage == CanonicalLocationUsage.Playable;
         public IReadOnlyList<string> NarrativeAliases { get; }
     }
 
@@ -84,18 +94,23 @@ namespace Wake.Exploration
             L("BALLAST_CONTROL_ANNEX", "밸러스트 제어 별실", 7, "D7-4", "bg_location_d7_2_ballast_control_annex_evidence.png", "BALLAST"),
             L("CREW_STAIRS", "승무원 계단 B", 7, "D7-5", "bg_location_d7_4_crew_stairs.png", "STAIR_B"),
             L("SERVICE_RAIL", "서비스 레일", 7, "D7-6", "bg_location_d8_4_service_rail.png"),
-            L("LAUNDRY", "세탁실", 6, "D6-1", "bg_location_d6_3_laundry.png"),
-            L("SERVICE_HUB", "서비스 허브", 6, "D6-2", "bg_location_d6_4_service_hub.png"),
-            L("STABILIZERS", "안정기실", 6, "D6-3", "bg_location_d5_1_stabilizers.png"),
-            L("BALLAST_TANKS", "밸러스트 탱크", 6, "D6-4", "bg_location_d5_2_ballast_tanks.png"),
-            L("GENERATOR", "발전기실", 6, "D6-5", "bg_location_d5_3_generator.png"),
-            L("WORKSHOP", "작업실", 6, "D6-6", "bg_location_d5_4_workshop.png")
+            U("LAUNDRY", "세탁실", 6, "D6-1", "bg_location_d6_3_laundry.png"),
+            U("SERVICE_HUB", "서비스 허브", 6, "D6-2", "bg_location_d6_4_service_hub.png"),
+            U("STABILIZERS", "안정기실", 6, "D6-3", "bg_location_d5_1_stabilizers.png"),
+            U("BALLAST_TANKS", "밸러스트 탱크", 6, "D6-4", "bg_location_d5_2_ballast_tanks.png"),
+            U("GENERATOR", "발전기실", 6, "D6-5", "bg_location_d5_3_generator.png"),
+            U("WORKSHOP", "작업실", 6, "D6-6", "bg_location_d5_4_workshop.png")
         };
 
         public static IReadOnlyList<CanonicalLocationSpec> All => Definitions;
+        public static IReadOnlyList<CanonicalLocationSpec> Playable =>
+            Definitions.Where(spec => spec.IsPlayable).ToArray();
+        public static IReadOnlyList<CanonicalLocationSpec> Unused =>
+            Definitions.Where(spec => !spec.IsPlayable).ToArray();
         public static IReadOnlyList<CanonicalLocationSpec> StoryRelevant =>
             Definitions
-                .Where(spec => ProductionSceneCatalog.All.Any(scene =>
+                .Where(spec => spec.IsPlayable &&
+                    ProductionSceneCatalog.All.Any(scene =>
                     FindSpec(scene.NarrativeLocationCode)?.Code == spec.Code))
                 .ToArray();
         public static IReadOnlyCollection<string> UnresolvedCodes =>
@@ -104,8 +119,18 @@ namespace Wake.Exploration
         public static bool IsStoryRelevant(string code)
         {
             CanonicalLocationSpec spec = FindSpec(code);
-            return spec != null && ProductionSceneCatalog.All.Any(scene =>
+            return spec?.IsPlayable == true &&
+                   ProductionSceneCatalog.All.Any(scene =>
                 FindSpec(scene.NarrativeLocationCode)?.Code == spec.Code);
+        }
+
+        public static bool IsPlayable(string code) =>
+            FindSpec(code)?.IsPlayable == true;
+
+        public static bool IsUnused(string code)
+        {
+            CanonicalLocationSpec spec = FindSpec(code);
+            return spec != null && !spec.IsPlayable;
         }
 
         public static CanonicalLocationSpec FindSpec(string code)
@@ -151,7 +176,9 @@ namespace Wake.Exploration
             foreach (ProductionSceneDefinition scene in scenes ?? Array.Empty<ProductionSceneDefinition>())
             {
                 string narrativeCode = scene.NarrativeLocationCode;
-                if (FindSpec(narrativeCode) != null)
+                CanonicalLocationSpec narrativeLocation =
+                    FindSpec(narrativeCode);
+                if (narrativeLocation?.IsPlayable == true)
                 {
                     continue;
                 }
@@ -159,7 +186,9 @@ namespace Wake.Exploration
                 diagnostics.Add(new LocationCatalogDiagnostic(
                     LocationCatalogDiagnosticSeverity.Error,
                     narrativeCode,
-                    $"Narrative location '{narrativeCode}' is not documented."));
+                    narrativeLocation == null
+                        ? $"Narrative location '{narrativeCode}' is not documented."
+                        : $"Narrative location '{narrativeCode}' is marked unused."));
             }
 
             return diagnostics
@@ -201,7 +230,28 @@ namespace Wake.Exploration
             string room,
             string sprite,
             params string[] aliases) =>
-            new(code, name, deck, room, sprite, aliases);
+            new(
+                code,
+                name,
+                deck,
+                room,
+                sprite,
+                CanonicalLocationUsage.Playable,
+                aliases);
+
+        private static CanonicalLocationSpec U(
+            string code,
+            string name,
+            int deck,
+            string room,
+            string sprite) =>
+            new(
+                code,
+                name,
+                deck,
+                room,
+                sprite,
+                CanonicalLocationUsage.Unused);
 
         private static LocationCatalogDiagnostic Error(string code, string message) =>
             new(LocationCatalogDiagnosticSeverity.Error, code, message);

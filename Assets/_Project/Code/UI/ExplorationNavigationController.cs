@@ -39,6 +39,11 @@ namespace Wake.UI
         private RectTransform contextRegion;
         private RectTransform objectiveRegion;
         private RectTransform globalRegion;
+        private VerticalLayoutGroup contextLayoutGroup;
+        private Coroutine objectiveTransitionRoutine;
+        private string lastObjectiveText = string.Empty;
+        private const float ObjectiveTransitionDuration = 0.22f;
+        private const float ObjectiveTransitionDistance = 24f;
         private UiPrimaryPanel renderedPanel = UiPrimaryPanel.None;
         private string renderedLocationCode = string.Empty;
         private string renderedObjectiveKey = string.Empty;
@@ -83,6 +88,24 @@ namespace Wake.UI
             // the next OnEnable would think the HUD was already showing.
             presentationRoutine = null;
             wasPresented = false;
+            // Same reasoning for the objective slide - if it was cut off
+            // mid-animation, leave the layout group re-enabled so the next
+            // Refresh() doesn't inherit a disabled layout or a stale
+            // offset position.
+            if (objectiveTransitionRoutine != null)
+            {
+                objectiveTransitionRoutine = null;
+                if (contextLayoutGroup != null)
+                {
+                    contextLayoutGroup.enabled = true;
+                }
+                if (objectiveLabel != null)
+                {
+                    objectiveLabel.rectTransform.anchoredPosition =
+                        Vector2.zero;
+                    objectiveLabel.alpha = 1f;
+                }
+            }
         }
 
         private void LateUpdate()
@@ -267,28 +290,31 @@ namespace Wake.UI
                 root.transform,
                 "Exploration Context",
                 ScreenRegionIds.ContextTopLeft);
-            ApplyDim(contextRegion, DimDirection.Left);
             CreateContext(contextRegion);
 
             objectiveRegion = CreateRegion(
                 root.transform,
                 "Objective Guidance",
                 ScreenRegionIds.ObjectiveTop);
-            ApplyDim(objectiveRegion, DimDirection.Center);
             CreateGuidance(objectiveRegion);
 
             globalRegion = CreateRegion(
                 root.transform,
                 "Global Navigation",
                 ScreenRegionIds.GlobalTopRight);
-            ApplyDim(globalRegion, DimDirection.Right);
             CreateGlobalNavigation(globalRegion);
+
+            // One dim band behind all three regions instead of three
+            // separate gradients that had to be carefully offset to blend
+            // into each other at the seams.
+            ApplyUnifiedDim(rootRect);
         }
 
         private void CreateContext(RectTransform parent)
         {
             VerticalLayoutGroup layout =
                 parent.gameObject.AddComponent<VerticalLayoutGroup>();
+            contextLayoutGroup = layout;
             layout.padding = new RectOffset(20, 20, 12, 12);
             layout.spacing = 2f;
             layout.childAlignment = TextAnchor.MiddleLeft;
@@ -439,15 +465,80 @@ namespace Wake.UI
                 ProductionObjectiveViewModel
                     .Resolve(GameStateManager.Instance)
                     .Current;
-            if (current.HasValue)
+            string newText = current.HasValue
+                ? ObjectiveMarker + current.Value.Definition.Title
+                : ObjectiveMarker + "자유 조사";
+
+            if (newText == lastObjectiveText)
             {
-                objectiveLabel.text =
-                    ObjectiveMarker + current.Value.Definition.Title;
+                return;
             }
-            else
+
+            bool isFirstRender = string.IsNullOrEmpty(lastObjectiveText);
+            lastObjectiveText = newText;
+            if (isFirstRender || !objectiveLabel.gameObject.activeInHierarchy)
             {
-                objectiveLabel.text = ObjectiveMarker + "자유 조사";
+                objectiveLabel.text = newText;
+                return;
             }
+
+            if (objectiveTransitionRoutine != null)
+            {
+                StopCoroutine(objectiveTransitionRoutine);
+            }
+            objectiveTransitionRoutine =
+                StartCoroutine(AnimateObjectiveChange(newText));
+        }
+
+        // Old objective slides up and out, then the new one slides down
+        // into place - the layout group is disabled for the duration so
+        // it doesn't reset the manual position/text-driven relayout mid
+        // animation.
+        private IEnumerator AnimateObjectiveChange(string newText)
+        {
+            if (contextLayoutGroup != null)
+            {
+                contextLayoutGroup.enabled = false;
+            }
+
+            RectTransform rect = objectiveLabel.rectTransform;
+            Vector2 restPosition = rect.anchoredPosition;
+            float elapsed = 0f;
+            while (elapsed < ObjectiveTransitionDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01(elapsed / ObjectiveTransitionDuration);
+                float eased = t * t;
+                rect.anchoredPosition = restPosition +
+                    new Vector2(0f, ObjectiveTransitionDistance * eased);
+                objectiveLabel.alpha = 1f - eased;
+                yield return null;
+            }
+
+            objectiveLabel.text = newText;
+            rect.anchoredPosition = restPosition +
+                new Vector2(0f, -ObjectiveTransitionDistance);
+            objectiveLabel.alpha = 0f;
+
+            elapsed = 0f;
+            while (elapsed < ObjectiveTransitionDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01(elapsed / ObjectiveTransitionDuration);
+                float eased = 1f - Mathf.Pow(1f - t, 3f);
+                rect.anchoredPosition = restPosition + new Vector2(
+                    0f, -ObjectiveTransitionDistance * (1f - eased));
+                objectiveLabel.alpha = eased;
+                yield return null;
+            }
+
+            rect.anchoredPosition = restPosition;
+            objectiveLabel.alpha = 1f;
+            if (contextLayoutGroup != null)
+            {
+                contextLayoutGroup.enabled = true;
+            }
+            objectiveTransitionRoutine = null;
         }
 
         private void RefreshGuidance()
@@ -626,42 +717,58 @@ namespace Wake.UI
             return rect;
         }
 
-        private static void ApplyDim(
-            RectTransform region,
-            DimDirection direction)
+        // Spans the union of all three top regions instead of three
+        // separate per-region gradients that needed carefully matched
+        // offsets to blend into one continuous band at the seams.
+        private void ApplyUnifiedDim(RectTransform rootRect)
         {
-            if (region == null)
+            if (rootRect == null ||
+                contextRegion == null ||
+                objectiveRegion == null ||
+                globalRegion == null)
+            {
                 return;
+            }
+
+            Vector3[] corners = new Vector3[4];
+            Vector2 min = new(float.MaxValue, float.MaxValue);
+            Vector2 max = new(float.MinValue, float.MinValue);
+            RectTransform[] regions =
+                { contextRegion, objectiveRegion, globalRegion };
+            foreach (RectTransform region in regions)
+            {
+                region.GetWorldCorners(corners);
+                for (int index = 0; index < corners.Length; index++)
+                {
+                    Vector2 local =
+                        rootRect.InverseTransformPoint(corners[index]);
+                    min = Vector2.Min(min, local);
+                    max = Vector2.Max(max, local);
+                }
+            }
+
+            Rect rootLocalRect = rootRect.rect;
+            Vector2 anchorMin = new(
+                (min.x - rootLocalRect.xMin) / rootLocalRect.width,
+                (min.y - rootLocalRect.yMin) / rootLocalRect.height);
+            Vector2 anchorMax = new(
+                (max.x - rootLocalRect.xMin) / rootLocalRect.width,
+                (max.y - rootLocalRect.yMin) / rootLocalRect.height);
 
             GameObject background = new(
                 "Dim Background",
                 typeof(RectTransform),
                 typeof(CanvasRenderer),
-                typeof(Image),
-                typeof(LayoutElement));
-            background.transform.SetParent(region, false);
+                typeof(Image));
+            background.transform.SetParent(rootRect, false);
             background.transform.SetAsFirstSibling();
-            RectTransform rect =
-                background.GetComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = direction switch
-            {
-                DimDirection.Left => new Vector2(-48f, -72f),
-                DimDirection.Right => new Vector2(-150f, -72f),
-                _ => new Vector2(-90f, -72f)
-            };
-            rect.offsetMax = direction switch
-            {
-                DimDirection.Left => new Vector2(150f, 28f),
-                DimDirection.Right => new Vector2(48f, 28f),
-                _ => new Vector2(90f, 28f)
-            };
-            LayoutElement layout =
-                background.GetComponent<LayoutElement>();
-            layout.ignoreLayout = true;
+            RectTransform rect = background.GetComponent<RectTransform>();
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = new Vector2(-48f, -72f);
+            rect.offsetMax = new Vector2(48f, 28f);
             Image image = background.GetComponent<Image>();
-            image.sprite = HudDimSpriteCache.Get(direction);
+            image.sprite = HudDimSpriteCache.Get();
             image.type = Image.Type.Simple;
             image.color = HudDim;
             image.raycastTarget = false;
@@ -809,28 +916,19 @@ namespace Wake.UI
             rect.offsetMax = new Vector2(-inset, -inset);
         }
 
-        private enum DimDirection
-        {
-            Left,
-            Center,
-            Right
-        }
-
         private static class HudDimSpriteCache
         {
-            private const int Width = 64;
+            private const int Width = 128;
             private const int Height = 32;
-            private static readonly Sprite[] Sprites = new Sprite[3];
+            private static Sprite cached;
 
-            public static Sprite Get(DimDirection direction)
+            public static Sprite Get()
             {
-                int index = (int)direction;
-                if (Sprites[index] == null)
-                    Sprites[index] = Create(direction);
-                return Sprites[index];
+                cached ??= Create();
+                return cached;
             }
 
-            private static Sprite Create(DimDirection direction)
+            private static Sprite Create()
             {
                 Texture2D texture = new(
                     Width,
@@ -838,7 +936,7 @@ namespace Wake.UI
                     TextureFormat.RGBA32,
                     false)
                 {
-                    name = $"HUD Dim {direction}",
+                    name = "HUD Dim",
                     filterMode = FilterMode.Bilinear,
                     wrapMode = TextureWrapMode.Clamp,
                     hideFlags = HideFlags.HideAndDontSave
@@ -853,23 +951,10 @@ namespace Wake.UI
                     for (int x = 0; x < Width; x++)
                     {
                         float normalizedX = x / (Width - 1f);
-                        float horizontal = direction switch
-                        {
-                            DimDirection.Left =>
-                                1f - Mathf.SmoothStep(
-                                    0.15f,
-                                    1f,
-                                    normalizedX),
-                            DimDirection.Right =>
-                                Mathf.SmoothStep(
-                                    0f,
-                                    0.85f,
-                                    normalizedX),
-                            _ => 1f - Mathf.SmoothStep(
-                                0.1f,
-                                0.5f,
-                                Mathf.Abs(normalizedX - 0.5f))
-                        };
+                        float horizontal = 1f - Mathf.SmoothStep(
+                            0.1f,
+                            0.5f,
+                            Mathf.Abs(normalizedX - 0.5f));
                         byte alpha = (byte)Mathf.RoundToInt(
                             255f * horizontal * vertical);
                         pixels[y * Width + x] =
@@ -883,7 +968,7 @@ namespace Wake.UI
                     new Rect(0f, 0f, Width, Height),
                     new Vector2(0.5f, 0.5f),
                     100f);
-                sprite.name = $"HUD Dim {direction}";
+                sprite.name = "HUD Dim";
                 sprite.hideFlags = HideFlags.HideAndDontSave;
                 return sprite;
             }

@@ -76,6 +76,13 @@ namespace Wake.Core
                     "확인",
                     InvestigationFeedbackSeverity.Warning,
                     result.Detail),
+                SceneAccessDenialReason.LocationUnused => Create(
+                    "location_unused",
+                    "사용하지 않는 장소",
+                    "현재 이야기와 플레이 동선에서는 사용하지 않는 장소입니다.",
+                    "확인",
+                    InvestigationFeedbackSeverity.Information,
+                    result.Detail),
                 SceneAccessDenialReason.PrerequisiteSceneIncomplete => Create(
                     "prerequisite_incomplete",
                     "선행 조사 필요",

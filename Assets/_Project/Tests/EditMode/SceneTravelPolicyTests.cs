@@ -177,11 +177,47 @@ namespace Wake.Tests
             Assert.That(loader.TryLoadLocation(empty, out LocationLoader.LoadFailure emptyFailure),
                 Is.False);
             Assert.That(emptyFailure, Is.EqualTo(LocationLoader.LoadFailure.MissingVisualContent));
+            LocationDefinition unused = graph.FindByCode("LAUNDRY");
+            Assert.That(
+                loader.TryLoadLocation(
+                    unused,
+                    out LocationLoader.LoadFailure unusedFailure),
+                Is.False);
+            Assert.That(
+                unusedFailure,
+                Is.EqualTo(LocationLoader.LoadFailure.UnusedLocation));
             Assert.That(loader.TryLoadLocation(graph.StartingLocation, out _), Is.True);
             Assert.That(loader.CurrentLocation.LocationCode, Is.EqualTo("PORT"));
             Assert.That(state.CurrentLocationCode, Is.EqualTo("PORT"));
 
             Object.DestroyImmediate(empty);
+            Object.DestroyImmediate(loaderHost);
+        }
+
+        [Test]
+        public void LocationLoader_RefreshesApprovedBackgroundForSceneState()
+        {
+            GameObject loaderHost =
+                new("LocationLoaderBackgroundVariantTest");
+            LocationLoader loader =
+                loaderHost.AddComponent<LocationLoader>();
+            EnsureAwake(loader, LocationLoader.Instance);
+            LocationDefinition horizon = graph.FindByCode("HORIZON");
+
+            loader.PrepareNarrativeScene("D1-06");
+            Assert.That(
+                loader.TryLoadLocation(horizon, out _),
+                Is.True);
+            Assert.That(
+                loader.ActiveBackgroundSprite?.name,
+                Is.EqualTo("bg_horizon_d1_discovery"));
+
+            state.RecordCompletedScene("D1-06");
+            loader.PrepareNarrativeScene("D2-01");
+            Assert.That(
+                loader.ActiveBackgroundSprite?.name,
+                Is.EqualTo("bg_horizon_cleared_day"));
+
             Object.DestroyImmediate(loaderHost);
         }
 
@@ -243,11 +279,36 @@ namespace Wake.Tests
         [Test]
         public void RestrictedCatalog_ContainsOnlyPhysicalLocations()
         {
-            Assert.That(SceneTravelPolicy.RestrictedLocations, Has.Count.EqualTo(16));
+            Assert.That(SceneTravelPolicy.RestrictedLocations, Has.Count.EqualTo(10));
             Assert.That(SceneTravelPolicy.RestrictedLocations.All(code =>
-                CanonicalLocationCatalog.FindSpec(code) != null), Is.True);
+                CanonicalLocationCatalog.IsPlayable(code)), Is.True);
             Assert.That(SceneTravelPolicy.RestrictedLocations, Does.Not.Contain("DINING"));
             Assert.That(SceneTravelPolicy.RestrictedLocations, Does.Not.Contain("HORIZON"));
+        }
+
+        [Test]
+        public void UnusedLocations_AreDeniedBeforeOtherTravelRules()
+        {
+            foreach (CanonicalLocationSpec unused in
+                     CanonicalLocationCatalog.Unused)
+            {
+                LocationDefinition location =
+                    graph.FindByCode(unused.Code);
+                SceneTravelResult result =
+                    SceneTravelPolicy.EvaluateMapTravel(
+                        location,
+                        ProductionSceneCatalog.All.Select(
+                            scene => scene.SceneId),
+                        ProductionSceneCatalog.All.Select(
+                            scene => scene.SceneId),
+                        0);
+
+                Assert.That(result.IsAllowed, Is.False, unused.Code);
+                Assert.That(
+                    result.DenialReason,
+                    Is.EqualTo(SceneAccessDenialReason.LocationUnused),
+                    unused.Code);
+            }
         }
 
         private static void DestroyExisting<T>() where T : Component

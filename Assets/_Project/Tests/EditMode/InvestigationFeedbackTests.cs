@@ -33,6 +33,9 @@ namespace Wake.Tests
             SceneAccessDenialReason.PhysicalLocationUnresolved,
             "장소가 아직 확정되지 않았습니다")]
         [TestCase(
+            SceneAccessDenialReason.LocationUnused,
+            "사용하지 않는 장소")]
+        [TestCase(
             SceneAccessDenialReason.PrerequisiteSceneIncomplete,
             "선행 조사를 완료")]
         [TestCase(

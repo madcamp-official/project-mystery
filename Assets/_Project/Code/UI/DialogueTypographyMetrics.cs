@@ -7,8 +7,8 @@ namespace Wake.UI
     {
         public const float LineMinimum = 32f;
         public const float LineMaximum = 56f;
-        public const float ChoiceMinimum = 34f;
-        public const float ChoiceMaximum = 48f;
+        public const float ChoiceMinimum = 40f;
+        public const float ChoiceMaximum = 40f;
         public const float SpeakerMinimum = 36f;
         public const float SpeakerMaximum = 46f;
 

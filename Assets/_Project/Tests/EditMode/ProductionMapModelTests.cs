@@ -23,24 +23,24 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void ViewModel_ContainsAllThirtyPhysicalLocations()
+        public void ViewModel_ContainsOnlyTwentyFourPlayableLocations()
         {
             ProductionMapViewModel model =
                 ProductionMapViewModel.Create(graph, null, 15);
 
-            Assert.That(model.Entries, Has.Count.EqualTo(30));
+            Assert.That(model.Entries, Has.Count.EqualTo(24));
             Assert.That(model.Entries.Select(entry => entry.Spec.Code), Is.Unique);
             Assert.That(
                 model.Entries.Select(entry => entry.Location).All(item => item != null),
                 Is.True);
             Assert.That(
                 model.Entries.Select(entry => entry.Spec.Code),
-                Does.Contain("LAUNDRY")
-                    .And.Contain("SERVICE_HUB")
-                    .And.Contain("STABILIZERS")
-                    .And.Contain("BALLAST_TANKS")
-                    .And.Contain("GENERATOR")
-                    .And.Contain("WORKSHOP"));
+                Is.EquivalentTo(
+                    CanonicalLocationCatalog.Playable.Select(item => item.Code)));
+            Assert.That(
+                model.Entries.Any(entry =>
+                    CanonicalLocationCatalog.IsUnused(entry.Spec.Code)),
+                Is.False);
         }
 
         [Test]
@@ -104,9 +104,10 @@ namespace Wake.Tests
                     entry => entry.Spec.Code == "GANGWAY").IsVisible,
                 Is.True);
             Assert.That(
-                afterPort.Entries.Single(
-                    entry => entry.Spec.Code == "LAUNDRY").Status,
-                Is.EqualTo(ProductionMapEntryStatus.Locked));
+                afterPort.Entries.Any(
+                    entry => CanonicalLocationCatalog.IsUnused(
+                        entry.Spec.Code)),
+                Is.False);
 
             ProductionMapViewModel afterGangway =
                 ProductionMapViewModel.Create(
@@ -124,19 +125,16 @@ namespace Wake.Tests
                     entry => entry.Spec.Code == "GANGWAY").IsVisible,
                 Is.False);
             Assert.That(
-                afterGangway.Entries.Single(
-                    entry => entry.Spec.Code == "LAUNDRY").Status,
-                Is.EqualTo(ProductionMapEntryStatus.Locked));
+                afterGangway.Entries.Any(
+                    entry => CanonicalLocationCatalog.IsUnused(
+                        entry.Spec.Code)),
+                Is.False);
 
             ProductionMapViewModel afterBoarding =
                 ProductionMapViewModel.Create(
                     graph,
                     new[] { "P-01", "P-02", "P-03" },
                     15);
-            Assert.That(
-                afterBoarding.Entries.Single(
-                    entry => entry.Spec.Code == "LAUNDRY").Status,
-                Is.EqualTo(ProductionMapEntryStatus.Locked));
             Assert.That(
                 afterBoarding.Entries.Single(
                     entry => entry.Spec.Code == "VIP_LOUNGE").Status,

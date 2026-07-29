@@ -48,7 +48,7 @@ namespace Wake.UI
 
     public static class MapDeckCatalog
     {
-        public static readonly int[] DeckOrder = { 10, 9, 8, 7, 6, 0 };
+        public static readonly int[] DeckOrder = { 10, 9, 8, 7, 0 };
 
         private static readonly MapLocationPlacement[] Placements =
         {
@@ -118,8 +118,13 @@ namespace Wake.UI
                 "승무원 전용 계단 B."),
             P("SERVICE_RAIL", 7, .88f, .27f,
                 MapTravelTier.RouteOnly,
-                "천장 화물 레일의 유지보수 접근 구역."),
+                "천장 화물 레일의 유지보수 접근 구역.")
+        };
 
+        // Preserved as authored structure-map metadata, but intentionally
+        // excluded from active map lookup and travel.
+        private static readonly MapLocationPlacement[] UnusedPlacements =
+        {
             P("LAUNDRY", 6, .18f, .44f, MapTravelTier.RouteOnly,
                 "승무원용 세탁·정비 구역."),
             P("SERVICE_HUB", 6, .36f, .44f, MapTravelTier.RouteOnly,
@@ -140,6 +145,8 @@ namespace Wake.UI
                 StringComparer.Ordinal);
 
         public static IReadOnlyList<MapLocationPlacement> All => Placements;
+        public static IReadOnlyList<MapLocationPlacement> Unused =>
+            UnusedPlacements;
 
         public static IReadOnlyList<MapLocationPlacement> ForDeck(int deck) =>
             Placements.Where(item => item.Deck == deck).ToArray();
