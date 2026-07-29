@@ -245,8 +245,9 @@ namespace Wake.Tests
                     Is.True,
                     "Evidence metadata must be visible and authored.");
 
-                HashSet<string> canvasSlotIds = canvas
-                    .GetComponentsInChildren<RuntimeUiLayoutSlot>(true)
+                RuntimeUiLayoutSlot[] canvasSlots = canvas
+                    .GetComponentsInChildren<RuntimeUiLayoutSlot>(true);
+                HashSet<string> canvasSlotIds = canvasSlots
                     .Select(slot => slot.SlotId)
                     .ToHashSet();
                 Assert.That(
@@ -257,6 +258,29 @@ namespace Wake.Tests
                         "evidence.people-panel"
                     }),
                     "Runtime notebook overlays must remain Inspector-authored.");
+
+                RuntimeUiLayoutSlot peopleSlot = canvasSlots
+                    .Single(slot =>
+                        slot.SlotId == "evidence.people-panel");
+                RuntimeUiLayoutSlot backSlot = canvasSlots
+                    .Single(slot =>
+                        slot.SlotId == "evidence.back");
+                RectTransform peopleRect =
+                    peopleSlot.transform as RectTransform;
+                RectTransform backRect =
+                    backSlot.transform as RectTransform;
+                Assert.That(peopleRect, Is.Not.Null);
+                Assert.That(backRect, Is.Not.Null);
+                bool overlaps =
+                    peopleRect.anchorMin.x < backRect.anchorMax.x &&
+                    peopleRect.anchorMax.x > backRect.anchorMin.x &&
+                    peopleRect.anchorMin.y < backRect.anchorMax.y &&
+                    peopleRect.anchorMax.y > backRect.anchorMin.y;
+                Assert.That(
+                    overlaps,
+                    Is.False,
+                    "The authored character panel must leave the evidence " +
+                    "back-button footer unobstructed.");
             }
             finally
             {
