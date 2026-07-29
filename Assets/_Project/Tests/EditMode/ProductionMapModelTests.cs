@@ -57,6 +57,7 @@ namespace Wake.Tests
             Assert.That(port.Status, Is.EqualTo(ProductionMapEntryStatus.Available));
             Assert.That(gangway.SceneId, Is.EqualTo("P-02"));
             Assert.That(gangway.Status, Is.EqualTo(ProductionMapEntryStatus.Locked));
+            Assert.That(gangway.IsVisible, Is.False);
             Assert.That(
                 gangway.DenialReason,
                 Is.EqualTo(SceneAccessDenialReason.PrerequisiteSceneIncomplete));
@@ -76,6 +77,7 @@ namespace Wake.Tests
 
             Assert.That(gangway.SceneId, Is.EqualTo("P-02"));
             Assert.That(gangway.Status, Is.EqualTo(ProductionMapEntryStatus.Locked));
+            Assert.That(gangway.IsVisible, Is.True);
             Assert.That(
                 gangway.DenialReason,
                 Is.EqualTo(SceneAccessDenialReason.SceneNotUnlocked));
@@ -99,6 +101,10 @@ namespace Wake.Tests
                 Is.EqualTo(ProductionMapEntryStatus.Available));
             Assert.That(
                 afterPort.Entries.Single(
+                    entry => entry.Spec.Code == "GANGWAY").IsVisible,
+                Is.True);
+            Assert.That(
+                afterPort.Entries.Single(
                     entry => entry.Spec.Code == "LAUNDRY").Status,
                 Is.EqualTo(ProductionMapEntryStatus.Locked));
 
@@ -113,6 +119,10 @@ namespace Wake.Tests
                 afterGangway.Entries.Single(
                     entry => entry.Spec.Code == "RICHARD_SUITE").Status,
                 Is.EqualTo(ProductionMapEntryStatus.Available));
+            Assert.That(
+                afterGangway.Entries.Single(
+                    entry => entry.Spec.Code == "GANGWAY").IsVisible,
+                Is.False);
             Assert.That(
                 afterGangway.Entries.Single(
                     entry => entry.Spec.Code == "LAUNDRY").Status,
@@ -131,6 +141,10 @@ namespace Wake.Tests
                 afterBoarding.Entries.Single(
                     entry => entry.Spec.Code == "VIP_LOUNGE").Status,
                 Is.EqualTo(ProductionMapEntryStatus.LocationOnly));
+            Assert.That(
+                afterBoarding.Entries.Single(
+                    entry => entry.Spec.Code == "GANGWAY").IsVisible,
+                Is.False);
             foreach (string futureStoryLocation in new[]
                      {
                          "HORIZON",

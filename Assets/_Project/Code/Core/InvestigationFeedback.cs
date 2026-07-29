@@ -90,6 +90,13 @@ namespace Wake.Core
                     "프롤로그 계속하기",
                     InvestigationFeedbackSeverity.Warning,
                     result.Detail),
+                SceneAccessDenialReason.NarrativeWindowClosed => Create(
+                    "narrative_window_closed",
+                    "이미 통과한 경로입니다",
+                    "승선 통로는 승선 절차 중에만 이용할 수 있습니다.",
+                    "현재 목표 보기",
+                    InvestigationFeedbackSeverity.Information,
+                    result.Detail),
                 SceneAccessDenialReason.RestrictedByPublicAnxiety => Create(
                     "restricted_by_anxiety",
                     "제한구역 폐쇄",

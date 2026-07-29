@@ -22,13 +22,15 @@ namespace Wake.UI
             LocationDefinition location,
             string sceneId,
             ProductionMapEntryStatus status,
-            SceneAccessDenialReason denialReason)
+            SceneAccessDenialReason denialReason,
+            bool isVisible = true)
         {
             Spec = spec;
             Location = location;
             SceneId = sceneId ?? string.Empty;
             Status = status;
             DenialReason = denialReason;
+            IsVisible = isVisible;
         }
 
         public CanonicalLocationSpec Spec { get; }
@@ -36,6 +38,7 @@ namespace Wake.UI
         public string SceneId { get; }
         public ProductionMapEntryStatus Status { get; }
         public SceneAccessDenialReason DenialReason { get; }
+        public bool IsVisible { get; }
         public bool UsesSceneTravel => !string.IsNullOrEmpty(SceneId);
         public bool StartsProductionScene =>
             UsesSceneTravel && Status == ProductionMapEntryStatus.Available;
@@ -65,6 +68,8 @@ namespace Wake.UI
                     "선행 장면 필요",
                 SceneAccessDenialReason.BoardingSequenceIncomplete =>
                     "승선 완료 후 이동 가능",
+                SceneAccessDenialReason.NarrativeWindowClosed =>
+                    "현재 이용할 수 없음",
                 SceneAccessDenialReason.RestrictedByPublicAnxiety =>
                     "승객 불안으로 폐쇄",
                 SceneAccessDenialReason.RouteRequired =>
@@ -169,6 +174,9 @@ namespace Wake.UI
             foreach (CanonicalLocationSpec spec in
                      CanonicalLocationCatalog.All)
             {
+                bool isVisible = SceneTravelPolicy.IsLocationVisibleOnMap(
+                    spec.Code,
+                    completed);
                 LocationDefinition location = graph?.FindByCode(spec.Code);
                 ProductionSceneDefinition[] scenes = ProductionSceneCatalog.All
                     .Where(scene =>
@@ -194,7 +202,8 @@ namespace Wake.UI
                         locationResult.IsAllowed
                             ? ProductionMapEntryStatus.LocationOnly
                             : ProductionMapEntryStatus.Locked,
-                        locationResult.DenialReason));
+                        locationResult.DenialReason,
+                        isVisible));
                     continue;
                 }
 
@@ -231,7 +240,8 @@ namespace Wake.UI
                         ? completedMapTravel.DenialReason
                         : !isUnlocked
                         ? SceneAccessDenialReason.SceneNotUnlocked
-                        : result.DenialReason));
+                        : result.DenialReason,
+                    isVisible));
             }
 
             return new ProductionMapViewModel(

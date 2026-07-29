@@ -98,6 +98,54 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void Gangway_IsVisibleOnlyWhileP02IsPending()
+        {
+            Assert.That(
+                SceneTravelPolicy.IsLocationVisibleOnMap(
+                    "GANGWAY",
+                    System.Array.Empty<string>()),
+                Is.False);
+            Assert.That(
+                SceneTravelPolicy.IsLocationVisibleOnMap(
+                    "GANGWAY",
+                    new[] { "P-01" }),
+                Is.True);
+            Assert.That(
+                SceneTravelPolicy.IsLocationVisibleOnMap(
+                    "GANGWAY",
+                    new[] { "P-01", "P-02" }),
+                Is.False);
+            Assert.That(
+                SceneTravelPolicy.IsLocationVisibleOnMap(
+                    "PORT",
+                    new[] { "P-01", "P-02" }),
+                Is.True);
+        }
+
+        [Test]
+        public void Gangway_FreeTravelClosesAfterP02()
+        {
+            LocationDefinition gangway = graph.FindByCode("GANGWAY");
+
+            SceneTravelResult duringBoarding =
+                SceneTravelPolicy.EvaluateFreeTravel(
+                    gangway,
+                    new[] { "P-01" },
+                    15);
+            SceneTravelResult afterBoarding =
+                SceneTravelPolicy.EvaluateFreeTravel(
+                    gangway,
+                    new[] { "P-01", "P-02", "P-03" },
+                    15);
+
+            Assert.That(duringBoarding.IsAllowed, Is.True);
+            Assert.That(afterBoarding.IsAllowed, Is.False);
+            Assert.That(
+                afterBoarding.DenialReason,
+                Is.EqualTo(SceneAccessDenialReason.NarrativeWindowClosed));
+        }
+
+        [Test]
         public void NarrativeAlias_ResolvesToRegisteredPhysicalLocation()
         {
             SceneTravelResult result = SceneTravelPolicy.EvaluateScene(

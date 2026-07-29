@@ -349,13 +349,21 @@ namespace Wake.UI
             ProductionMapEntry entry,
             bool isObjectiveDestination)
         {
+            node.Root.SetActive(entry.IsVisible);
+            if (!entry.IsVisible)
+            {
+                node.Button.interactable = false;
+                node.Button.onClick.RemoveAllListeners();
+                node.DestinationMarker.SetActive(false);
+                return;
+            }
+
             bool locked =
                 entry.Status == ProductionMapEntryStatus.Locked;
             bool current = string.Equals(
                 entry.Spec.Code,
                 GameStateManager.Instance?.CurrentLocationCode,
                 StringComparison.OrdinalIgnoreCase);
-            node.Root.SetActive(true);
             node.Image.sprite = mapNodeSprite;
             node.Image.type = mapNodeSprite != null
                 ? Image.Type.Sliced
