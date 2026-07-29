@@ -239,6 +239,15 @@ namespace Wake.UI
             RectTransform rootRect = root.GetComponent<RectTransform>();
             Stretch(rootRect);
             root.transform.SetAsLastSibling();
+            // Ambient world markers (e.g. the dialogue speech bubble, the
+            // interaction notice) use their own overridden-sorting Canvas
+            // so they can render above other in-game content - sibling
+            // order alone can't beat that, so every system screen
+            // (pause, settings, etc.) needs a higher override too, or
+            // those markers poke through it.
+            Canvas overlayCanvas = root.AddComponent<Canvas>();
+            overlayCanvas.overrideSorting = true;
+            overlayCanvas.sortingOrder = 150;
 
             BuildBoot();
             BuildLoading();
