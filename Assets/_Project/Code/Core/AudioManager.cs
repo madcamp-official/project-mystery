@@ -210,10 +210,12 @@ namespace Wake.Core
         {
             EnsureRuntimeSources();
             float depth = Mathf.Clamp01(depth01);
+            float shaped = Mathf.Pow(
+                depth, AudioCueCatalog.UnderwaterMuffleCurveExponent);
             float cutoff = Mathf.Lerp(
                 AudioCueCatalog.UnderwaterClearCutoffHz,
                 AudioCueCatalog.UnderwaterMuffledCutoffHz,
-                depth * depth);
+                shaped);
             if (musicLowPassA != null)
             {
                 musicLowPassA.cutoffFrequency = cutoff;
