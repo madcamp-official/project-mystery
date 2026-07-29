@@ -577,7 +577,40 @@ namespace Wake.Narrative
             linePanel.SetActive(true);
             FindFirstObjectByType<NarrativeLocationHUDController>()
                 ?.ShowScene(productionFlow.ActiveSceneId);
+            // Restoring can jump straight into an awaiting-choice
+            // checkpoint. RenderProduction() only ever sets the line text
+            // for the non-choice record right before entering a choice
+            // block (relying on that render having already happened this
+            // session), so without this the line UI is stuck showing its
+            // scene-authored placeholder text the whole time choices are
+            // up. Render the preceding prompt line once, up front.
+            if (productionFlow.IsAwaitingChoice &&
+                productionFlow.ChoicePromptRecord != null)
+            {
+                PresentPromptRecord(productionFlow.ChoicePromptRecord);
+            }
             RenderProduction();
+        }
+
+        private void PresentPromptRecord(DialogueRecord record)
+        {
+            DialogueSpeakerIdentity speaker =
+                DialoguePresentationMap.GetSpeaker(
+                    record.Speaker,
+                    record.LineType);
+            ApplyPresentation(
+                DialoguePresentationPolicy.ForProduction(speaker));
+            speakerText.text =
+                DialoguePresentationMap.GetSpeakerLabel(record.Speaker, speaker);
+            bool isNarrationOrSystem =
+                speaker.Kind == DialogueSpeakerKind.Narration;
+            SetLineText(record.TextKo, isNarrationOrSystem);
+            responsiveLayout?.ResetTextScroll();
+            ShowPortrait(
+                speaker.PortraitId,
+                DialoguePresentationMap.GetEmotion(record.Emotion));
+            FindFirstObjectByType<StatusHUDController>()
+                ?.SetContextCharacter(speaker.PortraitId);
         }
 
         private void RenderProduction()
@@ -671,23 +704,7 @@ namespace Wake.Narrative
                 return;
             }
 
-            DialogueRecord record = productionFlow.Current;
-            DialogueSpeakerIdentity speaker =
-                DialoguePresentationMap.GetSpeaker(
-                    record.Speaker,
-                    record.LineType);
-            ApplyPresentation(
-                DialoguePresentationPolicy.ForProduction(speaker));
-            speakerText.text =
-                DialoguePresentationMap.GetSpeakerLabel(record.Speaker, speaker);
-            bool isNarrationOrSystem =
-                speaker.Kind == DialogueSpeakerKind.Narration;
-            SetLineText(record.TextKo, isNarrationOrSystem);
-            responsiveLayout?.ResetTextScroll();
-            ShowPortrait(
-                speaker.PortraitId,
-                DialoguePresentationMap.GetEmotion(record.Emotion));
-            FindFirstObjectByType<StatusHUDController>()?.SetContextCharacter(speaker.PortraitId);
+            PresentPromptRecord(productionFlow.Current);
         }
 
         private void DispatchSystemEvent(DialogueRecord record)
