@@ -15,6 +15,7 @@ namespace Wake.Evidence
 
         private const float ItemSpacing = 330f;
         private const float SelectedScale = 1.08f;
+        private const float CarouselBorderThickness = 3f;
 
         private const float SnapDuration = .28f;
 
@@ -167,6 +168,85 @@ namespace Wake.Evidence
                 carouselContainer.gameObject
                     .AddComponent<EvidenceCarouselDragEndRelay>();
             relay.DragEnded = SnapToSelected;
+
+            ConfigureCarouselBorder();
+        }
+
+        // Frames the carousel viewport with four thin bars instead of a
+        // sliced sprite, since no bordered panel art exists for this list
+        // and a plain tinted Image would cover the item thumbnails.
+        private void ConfigureCarouselBorder()
+        {
+            Transform existing = carouselContainer.Find("Border");
+            RectTransform borderRoot = existing != null
+                ? existing.GetComponent<RectTransform>()
+                : new GameObject("Border", typeof(RectTransform))
+                    .GetComponent<RectTransform>();
+            borderRoot.SetParent(carouselContainer, false);
+            borderRoot.SetAsLastSibling();
+            borderRoot.anchorMin = Vector2.zero;
+            borderRoot.anchorMax = Vector2.one;
+            borderRoot.offsetMin = Vector2.zero;
+            borderRoot.offsetMax = Vector2.zero;
+
+            Color color = UiVisualThemeService.Resolve(UiColorToken.Brass);
+            CreateBorderEdge(
+                borderRoot,
+                "Top",
+                new Vector2(0f, 1f),
+                new Vector2(1f, 1f),
+                new Vector2(0.5f, 1f),
+                new Vector2(0f, CarouselBorderThickness),
+                color);
+            CreateBorderEdge(
+                borderRoot,
+                "Bottom",
+                new Vector2(0f, 0f),
+                new Vector2(1f, 0f),
+                new Vector2(0.5f, 0f),
+                new Vector2(0f, CarouselBorderThickness),
+                color);
+            CreateBorderEdge(
+                borderRoot,
+                "Left",
+                new Vector2(0f, 0f),
+                new Vector2(0f, 1f),
+                new Vector2(0f, 0.5f),
+                new Vector2(CarouselBorderThickness, 0f),
+                color);
+            CreateBorderEdge(
+                borderRoot,
+                "Right",
+                new Vector2(1f, 0f),
+                new Vector2(1f, 1f),
+                new Vector2(1f, 0.5f),
+                new Vector2(CarouselBorderThickness, 0f),
+                color);
+        }
+
+        private static void CreateBorderEdge(
+            RectTransform parent,
+            string name,
+            Vector2 anchorMin,
+            Vector2 anchorMax,
+            Vector2 pivot,
+            Vector2 size,
+            Color color)
+        {
+            Transform existing = parent.Find(name);
+            GameObject edge = existing != null
+                ? existing.gameObject
+                : new GameObject(name, typeof(RectTransform), typeof(Image));
+            RectTransform rect = edge.GetComponent<RectTransform>();
+            rect.SetParent(parent, false);
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.pivot = pivot;
+            rect.sizeDelta = size;
+            rect.anchoredPosition = Vector2.zero;
+            Image image = edge.GetComponent<Image>();
+            image.color = color;
+            image.raycastTarget = false;
         }
 
         // ScrollRect only exposes drag begin/end through its own
