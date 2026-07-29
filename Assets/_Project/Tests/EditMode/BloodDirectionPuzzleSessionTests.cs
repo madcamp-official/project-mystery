@@ -1,11 +1,38 @@
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using Wake.Puzzles;
+using Wake.UI;
 
 namespace Wake.Tests.EditMode
 {
     public sealed class BloodDirectionPuzzleSessionTests
     {
+        [Test]
+        public void PieceView_RegistersCompleteDragEventContract()
+        {
+            var target = new GameObject(
+                "Blood Piece",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image));
+            try
+            {
+                BloodPuzzlePieceView view =
+                    target.AddComponent<BloodPuzzlePieceView>();
+
+                Assert.That(view, Is.InstanceOf<IDragHandler>());
+                Assert.That(
+                    ExecuteEvents.GetEventHandler<IDragHandler>(target),
+                    Is.SameAs(target));
+            }
+            finally
+            {
+                Object.DestroyImmediate(target);
+            }
+        }
+
         [Test]
         public void Reconstruction_RequiresCorrectPieceAndRotation()
         {

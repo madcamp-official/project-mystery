@@ -3,6 +3,7 @@ using System.Linq;
 using NUnit.Framework;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
 using Wake.Core;
@@ -79,6 +80,97 @@ namespace Wake.Tests.PlayMode
             Object.Destroy(duplicateHost);
             yield return null;
             AssertNoRuntimeErrors("UI 런타임 중복 초기화");
+        }
+
+        [UnityTest]
+        public IEnumerator BloodPuzzle_DragSwapsPiecesAndClickStillRotates()
+        {
+            BloodDirectionPuzzleUIController controller =
+                RequireObject("Ingame")
+                    .GetComponent<BloodDirectionPuzzleUIController>();
+            Assert.That(controller, Is.Not.Null);
+            Assert.That(controller.Open(), Is.True);
+            yield return null;
+            UnityEngine.Canvas.ForceUpdateCanvases();
+
+            BloodPuzzlePieceView[] pieces =
+                Object.FindObjectsByType<BloodPuzzlePieceView>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None);
+            BloodPuzzlePieceView source = pieces.Single(
+                item => item.name.EndsWith("Slot 1"));
+            BloodPuzzlePieceView destination = pieces.Single(
+                item => item.name.EndsWith("Slot 2"));
+            Assert.That(source, Is.InstanceOf<IDragHandler>());
+
+            int firstPiece = controller.Puzzle.Pieces[0];
+            int secondPiece = controller.Puzzle.Pieces[1];
+            Canvas canvas = source.GetComponentInParent<Canvas>().rootCanvas;
+            Camera eventCamera = canvas.renderMode ==
+                                 RenderMode.ScreenSpaceOverlay
+                ? null
+                : canvas.worldCamera;
+            Vector2 sourcePosition =
+                RectTransformUtility.WorldToScreenPoint(
+                    eventCamera,
+                    source.transform.position);
+            Vector2 destinationPosition =
+                RectTransformUtility.WorldToScreenPoint(
+                    eventCamera,
+                    destination.transform.position);
+            var eventData = new PointerEventData(EventSystem.current)
+            {
+                button = PointerEventData.InputButton.Left,
+                position = sourcePosition,
+                pressPosition = sourcePosition,
+                pointerDrag = source.gameObject
+            };
+
+            ExecuteEvents.Execute(
+                source.gameObject,
+                eventData,
+                ExecuteEvents.pointerDownHandler);
+            ExecuteEvents.Execute(
+                source.gameObject,
+                eventData,
+                ExecuteEvents.beginDragHandler);
+            eventData.position = destinationPosition;
+            ExecuteEvents.Execute(
+                source.gameObject,
+                eventData,
+                ExecuteEvents.dragHandler);
+            ExecuteEvents.Execute(
+                source.gameObject,
+                eventData,
+                ExecuteEvents.endDragHandler);
+            yield return null;
+
+            Assert.That(controller.Puzzle.Pieces[0], Is.EqualTo(secondPiece));
+            Assert.That(controller.Puzzle.Pieces[1], Is.EqualTo(firstPiece));
+            Assert.That(
+                GameObject.Find("Blood Piece Drag Preview"),
+                Is.Null);
+
+            int rotationBeforeClick = controller.Puzzle.Rotations[0];
+            var clickData = new PointerEventData(EventSystem.current)
+            {
+                button = PointerEventData.InputButton.Left,
+                position = sourcePosition
+            };
+            ExecuteEvents.Execute(
+                source.gameObject,
+                clickData,
+                ExecuteEvents.pointerDownHandler);
+            ExecuteEvents.Execute(
+                source.gameObject,
+                clickData,
+                ExecuteEvents.pointerClickHandler);
+            Assert.That(
+                controller.Puzzle.Rotations[0],
+                Is.EqualTo((rotationBeforeClick + 1) % 4));
+
+            controller.Close();
+            AssertNoRuntimeErrors("혈흔 퍼즐 드래그와 클릭 입력");
         }
 
         [UnityTest]
