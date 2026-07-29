@@ -44,6 +44,14 @@ namespace Wake.Core
     {
         public const float MapTravelFootstepSeconds = 1.5f;
 
+        public const string WaterSloshingKey =
+            "SoundEffect/sound_of_water_sloshing";
+        public const string WaterSplashOutKey =
+            "SoundEffect/The_sound_of_water_splashing_in_a_bathtub";
+        public const float WaterSplashOutSeconds = 1.6f;
+        public const float UnderwaterMuffledCutoffHz = 600f;
+        public const float UnderwaterClearCutoffHz = 22000f;
+
         public const string IronDoorKnockKey =
             "SoundEffect/The_sound_of_an_iron_door_knocking";
         public const string IronDoorToggleKey =

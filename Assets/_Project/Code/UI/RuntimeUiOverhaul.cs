@@ -642,7 +642,8 @@ namespace Wake.UI
 
         private IEnumerator MoveWater(
             Vector3 from, Vector3 to, Func<float, float> ease,
-            float duration, bool intensityRising)
+            float duration, bool intensityRising,
+            Action<float> onDepth = null)
         {
             return RunSegment(duration, ease, t =>
             {
@@ -653,6 +654,7 @@ namespace Wake.UI
                 float depth = intensityRising ? t : 1f - t;
                 lightShaft?.SetIntensity(depth);
                 lobbyBackdrop?.SetDepth(depth);
+                onDepth?.Invoke(depth);
             });
         }
 
@@ -705,7 +707,10 @@ namespace Wake.UI
                 Coroutine lobbyExit = StartCoroutine(MoveRect(
                     lobbyContent, lobbyFrom, lobbyTo, WaterTrapezoid, LobbyExitDuration));
                 yield return new WaitForSecondsRealtime(LobbyLeadIn);
-                yield return MoveWater(waterFrom, waterTo, WaterTrapezoid, DiveDuration, true);
+                AudioManager.Instance?.PlayWaterSloshing();
+                yield return MoveWater(
+                    waterFrom, waterTo, WaterTrapezoid, DiveDuration, true,
+                    depth => AudioManager.Instance?.SetUnderwaterMuffle(depth));
                 yield return lobbyExit;
                 yield return MoveRect(
                     contentRect, slotFrom, slotTo, EaseOutQuint, RiseDuration);
@@ -715,11 +720,14 @@ namespace Wake.UI
                 yield return MoveRect(
                     contentRect, slotFrom, slotTo, EaseInQuint, RiseDuration);
                 Coroutine waterSurface = StartCoroutine(
-                    MoveWater(waterFrom, waterTo, WaterTrapezoid, DiveDuration, false));
+                    MoveWater(
+                        waterFrom, waterTo, WaterTrapezoid, DiveDuration, false,
+                        depth => AudioManager.Instance?.SetUnderwaterMuffle(depth)));
                 yield return new WaitForSecondsRealtime(LobbyLeadIn);
                 Coroutine lobbyEnter = StartCoroutine(MoveRect(
                     lobbyContent, lobbyFrom, lobbyTo, WaterTrapezoid, LobbyExitDuration));
                 yield return waterSurface;
+                AudioManager.Instance?.PlayWaterSplashOut();
                 yield return lobbyEnter;
             }
 
