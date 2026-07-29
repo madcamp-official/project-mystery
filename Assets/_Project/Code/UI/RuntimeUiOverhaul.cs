@@ -604,6 +604,7 @@ namespace Wake.UI
         private const float RevealDuration = 5.2f;
         private const float DiveDuration = 3f;
         private const float RiseDuration = RevealDuration - DiveDuration;
+        private const float FadeInDelay = 1f;
         private const float PanelTravelExtra = 2.8f;
         private const float LobbyTravelExtra = 3.5f;
         // The title exit and the water dive must read as one motion, so they
@@ -1117,7 +1118,8 @@ namespace Wake.UI
         // lobby - same slot-exit -> water-surface -> tail-entrance shape.
         private IEnumerator EnterGameRoutine(int slot, bool continuing)
         {
-            ScreenFadeTransition.Ensure()?.FadeIn(RevealDuration, Color.white);
+            StartCoroutine(DelayedFadeIn(
+                FadeInDelay, RevealDuration - FadeInDelay, Color.white));
 
             ingamePanel = ingamePanel != null
                 ? ingamePanel
@@ -1187,6 +1189,11 @@ namespace Wake.UI
             overlay.SetActive(false);
 
             revealRoutine = null;
+            // ContinueGameInSlot/StartNewGameInSlot deactivate this
+            // controller's own GameObject (via SetActivePanel), which kills
+            // this coroutine immediately after - so FadeOut is fired here
+            // rather than yielded on, and runs to completion on
+            // ScreenFadeTransition's own (still-active) Canvas object.
             if (continuing)
             {
                 UIManager.Instance?.ContinueGameInSlot(slot);
@@ -1196,11 +1203,14 @@ namespace Wake.UI
                 UIManager.Instance?.StartNewGameInSlot(slot);
             }
 
-            ScreenFadeTransition fadeOverlay = ScreenFadeTransition.Ensure();
-            if (fadeOverlay != null)
-            {
-                yield return fadeOverlay.FadeOut(0.4f);
-            }
+            ScreenFadeTransition.Ensure()?.FadeOut(0.4f);
+        }
+
+        private static IEnumerator DelayedFadeIn(
+            float delay, float duration, Color color)
+        {
+            yield return new WaitForSecondsRealtime(delay);
+            ScreenFadeTransition.Ensure()?.FadeIn(duration, color);
         }
 
         internal static GameObject Panel(Transform parent, string name, Color color)

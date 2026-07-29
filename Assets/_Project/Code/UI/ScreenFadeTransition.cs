@@ -13,6 +13,7 @@ namespace Wake.UI
         private CanvasGroup group;
         private Image blocker;
         private Coroutine transition;
+        private Coroutine fadeRoutine;
 
         public bool IsRunning => transition != null;
 
@@ -57,17 +58,30 @@ namespace Wake.UI
             blocker.gameObject.SetActive(true);
             blocker.transform.SetAsLastSibling();
             group.blocksRaycasts = true;
-            return StartCoroutine(Fade(group.alpha, 1f, duration));
+            if (fadeRoutine != null)
+                StopCoroutine(fadeRoutine);
+            fadeRoutine = StartCoroutine(Fade(group.alpha, 1f, duration));
+            return fadeRoutine;
         }
 
         public Coroutine FadeOut(float duration)
         {
             EnsureOverlay();
-            return StartCoroutine(FadeOutSequence(duration));
+            if (fadeRoutine != null)
+                StopCoroutine(fadeRoutine);
+            fadeRoutine = StartCoroutine(FadeOutSequence(duration));
+            return fadeRoutine;
         }
 
         private IEnumerator FadeOutSequence(float duration)
         {
+            // Callers often call this right after synchronous scene/asset
+            // loading, which stalls a frame - Time.unscaledDeltaTime on the
+            // next frame reports that whole stall, so starting the fade
+            // immediately would consume the entire duration in one step.
+            // Waiting a frame first lets that oversized delta land on a
+            // frame we don't animate on.
+            yield return null;
             yield return Fade(group.alpha, 0f, duration);
             group.blocksRaycasts = false;
             blocker.gameObject.SetActive(false);
@@ -128,7 +142,11 @@ namespace Wake.UI
             group.alpha = from;
             while (elapsed < safeDuration)
             {
-                elapsed += Time.unscaledDeltaTime;
+                // Clamp so a single frame hitch (e.g. synchronous scene
+                // loading right before this starts) can't consume the
+                // whole fade in one step - the fade may lag briefly after
+                // a hitch, but it never skips frames of animation.
+                elapsed += Mathf.Min(Time.unscaledDeltaTime, 0.1f);
                 group.alpha = Mathf.Lerp(
                     from,
                     to,
