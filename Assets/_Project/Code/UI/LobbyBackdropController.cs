@@ -18,7 +18,17 @@ namespace Wake.UI
         private static readonly Color DeepTop = new(0.02f, 0.06f, 0.11f, 1f);
         private static readonly Color DeepBottom = new(0.003f, 0.01f, 0.02f, 1f);
 
+        // How strongly the water dive's speed (depth changing quickly)
+        // speeds up the bubbles, and how fast that boost decays back to 1x
+        // once the dive stops updating depth (SetDepth simply isn't called
+        // between dives, so without decay the last dive's boost would be
+        // stuck forever).
+        private const float DepthVelocityToBubbleSpeedScale = 8f;
+        private const float MaxBubbleSpeedMultiplier = 5f;
+        private const float BubbleSpeedDecayPerSecond = 4f;
+
         private static Sprite softDotSprite;
+        private static Sprite bubbleRingSprite;
 
         private Texture2D gradientTexture;
         private RectTransform bubbleLayer;
@@ -27,6 +37,9 @@ namespace Wake.UI
         private readonly float[] bubblePhase = new float[BubbleCount];
         private readonly float[] bubbleBaseX = new float[BubbleCount];
         private float depth;
+        private float depthVelocity;
+        private float lastDepthSampleTime;
+        private bool hasDepthSample;
 
         private void Awake()
         {
@@ -35,7 +48,19 @@ namespace Wake.UI
 
         public void SetDepth(float t)
         {
-            depth = Mathf.Clamp01(t);
+            float next = Mathf.Clamp01(t);
+            float now = Time.unscaledTime;
+            if (hasDepthSample)
+            {
+                float dt = now - lastDepthSampleTime;
+                if (dt > 0f)
+                {
+                    depthVelocity = Mathf.Abs(next - depth) / dt;
+                }
+            }
+            hasDepthSample = true;
+            lastDepthSampleTime = now;
+            depth = next;
             ApplyGradient();
         }
 
@@ -115,7 +140,7 @@ namespace Wake.UI
             bubbleLayer.SetParent(root, false);
             SaveSlotSelectionController.Stretch(bubbleLayer);
 
-            Sprite sprite = GetSoftDotSprite();
+            Sprite sprite = GetBubbleRingSprite();
             for (int i = 0; i < BubbleCount; i++)
             {
                 GameObject bubbleObject = new(
@@ -150,6 +175,12 @@ namespace Wake.UI
                 return;
             }
             float width = layerRect.width;
+            depthVelocity = Mathf.MoveTowards(
+                depthVelocity, 0f, BubbleSpeedDecayPerSecond * Time.unscaledDeltaTime);
+            float speedMultiplier = Mathf.Clamp(
+                1f + depthVelocity * DepthVelocityToBubbleSpeedScale,
+                1f,
+                MaxBubbleSpeedMultiplier);
             for (int i = 0; i < bubbles.Length; i++)
             {
                 RectTransform rect = bubbles[i];
@@ -158,7 +189,8 @@ namespace Wake.UI
                     continue;
                 }
                 bubblePhase[i] +=
-                    bubbleSpeed[i] * Time.unscaledDeltaTime / Mathf.Max(height, 1f);
+                    bubbleSpeed[i] * speedMultiplier * Time.unscaledDeltaTime /
+                    Mathf.Max(height, 1f);
                 if (bubblePhase[i] > 1f)
                 {
                     bubblePhase[i] -= 1f;
@@ -169,6 +201,48 @@ namespace Wake.UI
                 float x = bubbleBaseX[i] * width * 0.45f + drift;
                 rect.anchoredPosition = new Vector2(x, y);
             }
+        }
+
+        // A soft-edged ring with a transparent hole in the middle, so
+        // bubbles read as glassy rims rather than solid dots.
+        private static Sprite GetBubbleRingSprite()
+        {
+            if (bubbleRingSprite != null)
+            {
+                return bubbleRingSprite;
+            }
+            const int size = 64;
+            const float innerStart = 0.40f;
+            const float innerEnd = 0.58f;
+            const float outerStart = 0.82f;
+            const float outerEnd = 1f;
+            Texture2D texture = new(size, size, TextureFormat.RGBA32, false)
+            {
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Bilinear,
+                name = "LobbyBubbleRing"
+            };
+            Vector2 center = new(size / 2f, size / 2f);
+            float radius = size / 2f;
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float normalized = Vector2.Distance(new Vector2(x, y), center) / radius;
+                    float innerEdge = Mathf.SmoothStep(0f, 1f,
+                        Mathf.InverseLerp(innerStart, innerEnd, normalized));
+                    float outerEdge = 1f - Mathf.SmoothStep(0f, 1f,
+                        Mathf.InverseLerp(outerStart, outerEnd, normalized));
+                    float alpha = innerEdge * outerEdge;
+                    texture.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
+                }
+            }
+            texture.Apply();
+            bubbleRingSprite = Sprite.Create(
+                texture,
+                new Rect(0f, 0f, size, size),
+                new Vector2(0.5f, 0.5f));
+            return bubbleRingSprite;
         }
 
         private static Sprite GetSoftDotSprite()
