@@ -56,6 +56,7 @@ namespace Wake.Exploration
     public sealed class BackgroundCoverPresenter : MonoBehaviour
     {
         private RectTransform viewport;
+        private RectTransform motionRect;
         private RectTransform imageRect;
         private UnityEngine.UI.Image image;
         private Vector2 focus = new(0.5f, 0.5f);
@@ -66,6 +67,7 @@ namespace Wake.Exploration
         public Vector2 Focus => focus;
         public float Zoom => zoom;
         public RectTransform ViewportRect => viewport;
+        public RectTransform MotionRect => motionRect;
         public RectTransform ContentRect => imageRect;
 
         public void Initialize(RectTransform parent)
@@ -78,12 +80,22 @@ namespace Wake.Exploration
             viewport.offsetMax = Vector2.zero;
             gameObject.AddComponent<UnityEngine.UI.RectMask2D>();
 
+            GameObject motionObject = new(
+                "Background Motion Root",
+                typeof(RectTransform));
+            motionObject.transform.SetParent(viewport, false);
+            motionRect = motionObject.GetComponent<RectTransform>();
+            motionRect.anchorMin = Vector2.zero;
+            motionRect.anchorMax = Vector2.one;
+            motionRect.offsetMin = Vector2.zero;
+            motionRect.offsetMax = Vector2.zero;
+
             GameObject imageObject = new(
                 "Cover Image",
                 typeof(RectTransform),
                 typeof(CanvasRenderer),
                 typeof(UnityEngine.UI.Image));
-            imageObject.transform.SetParent(viewport, false);
+            imageObject.transform.SetParent(motionRect, false);
             imageRect = imageObject.GetComponent<RectTransform>();
             imageRect.anchorMin = new Vector2(0.5f, 0.5f);
             imageRect.anchorMax = new Vector2(0.5f, 0.5f);

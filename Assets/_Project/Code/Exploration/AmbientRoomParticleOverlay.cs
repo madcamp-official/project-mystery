@@ -41,6 +41,9 @@ namespace Wake.Exploration
         private RectTransform particleCanvasRect;
         private Color tint = new(1f, 0.95f, 0.85f, 0.5f);
         private Texture2D backgroundSampleCache;
+        private float playbackTime;
+        private bool paused;
+        private bool reducedMotion;
 
         private RenderTexture bloomTexture;
         private GameObject bloomCameraObject;
@@ -68,6 +71,7 @@ namespace Wake.Exploration
             BuildParticleCanvas(particleLayer);
             BuildParticles();
             BuildCompositeImage();
+            RefreshExternalObjectsActive();
         }
 
         public void Show(Color locationTint, Sprite backgroundSprite)
@@ -83,9 +87,24 @@ namespace Wake.Exploration
             }
         }
 
+        public void SetPaused(bool value)
+        {
+            paused = value;
+            RefreshExternalObjectsActive();
+        }
+
+        public void SetReducedMotion(bool value)
+        {
+            reducedMotion = value;
+            RefreshExternalObjectsActive();
+        }
+
         private void Update()
         {
-            if (particleCanvasRect == null || particleRects[0] == null)
+            if (paused ||
+                reducedMotion ||
+                particleCanvasRect == null ||
+                particleRects[0] == null)
             {
                 return;
             }
@@ -96,12 +115,12 @@ namespace Wake.Exploration
                 return;
             }
 
-            float time = Time.time;
+            playbackTime += Time.unscaledDeltaTime;
             for (int index = 0; index < ParticleCount; index++)
             {
                 AmbientParticleState state = AmbientRoomParticleDrift.Evaluate(
                     particleSeeds[index],
-                    time,
+                    playbackTime,
                     bounds);
                 particleRects[index].anchoredPosition = state.Position;
 
@@ -342,6 +361,47 @@ namespace Wake.Exploration
             {
                 Destroy(particleCanvasObject);
             }
+        }
+
+        private void OnEnable()
+        {
+            RefreshExternalObjectsActive();
+        }
+
+        private void OnDisable()
+        {
+            SetExternalObjectsActive(false);
+        }
+
+        private void RefreshExternalObjectsActive()
+        {
+            bool visible = isActiveAndEnabled && !reducedMotion;
+            bool renderBloom = visible && !paused;
+            if (bloomCameraObject != null)
+                bloomCameraObject.SetActive(renderBloom);
+            if (bloomVolumeObject != null)
+                bloomVolumeObject.SetActive(renderBloom);
+            if (particleCanvasObject != null)
+                particleCanvasObject.SetActive(renderBloom);
+
+            // Keep the last RenderTexture visible while paused so opening a
+            // system screen freezes the atmosphere instead of popping it out.
+            if (compositeObject != null)
+                compositeObject.SetActive(visible);
+        }
+
+        private void SetExternalObjectsActive(bool active)
+        {
+            // UnityEngine.Object uses an overloaded null check after native
+            // destruction, so null-conditional access is unsafe in teardown.
+            if (bloomCameraObject != null)
+                bloomCameraObject.SetActive(active);
+            if (bloomVolumeObject != null)
+                bloomVolumeObject.SetActive(active);
+            if (particleCanvasObject != null)
+                particleCanvasObject.SetActive(active);
+            if (compositeObject != null)
+                compositeObject.SetActive(active);
         }
 
         private static void EnsureAdditiveMaterial()
