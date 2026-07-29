@@ -43,6 +43,20 @@ namespace Wake.Core
         public float MusicVolume { get; private set; } = DefaultMusicVolume;
         public float SfxVolume { get; private set; } = DefaultSfxVolume;
 
+        private void OnDestroy()
+        {
+            // With "Enter Play Mode Options > Reload Domain" disabled,
+            // static fields survive across Play sessions - without this,
+            // Instance keeps pointing at this destroyed object into the
+            // next session, and the first call through it (before the new
+            // AudioManager's Awake reassigns Instance) throws
+            // MissingReferenceException.
+            if (Instance == this)
+            {
+                Instance = null;
+            }
+        }
+
         private void Awake()
         {
             Instance = this;
