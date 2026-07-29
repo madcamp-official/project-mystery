@@ -269,6 +269,16 @@ namespace Wake.UI
                     "일시정지",
                     owner != null ? owner.OpenPause : null,
                     Resources.Load<Sprite>("UI/Icons/Badges/ui_badge_settings"));
+            // Unlike map/evidence, the pause button must stay clickable
+            // while paused so it can toggle pause back off - a nested
+            // CanvasGroup ignoring the shared nav bar group (which
+            // SetInteractionEnabled(false) disables while any system
+            // screen is open) keeps it interactable regardless.
+            CanvasGroup pauseGroup =
+                pauseButton.gameObject.AddComponent<CanvasGroup>();
+            pauseGroup.ignoreParentGroups = true;
+            pauseGroup.interactable = true;
+            pauseGroup.blocksRaycasts = true;
         }
 
         private void BindNavigationActions()

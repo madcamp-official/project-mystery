@@ -479,13 +479,16 @@ namespace Wake.UI
             if (IsTransitioning)
                 return;
 
-            if (ActivePanel != UiPrimaryPanel.Map)
+            if (ActivePanel == UiPrimaryPanel.Map)
             {
-                mapReturnPanel =
-                    ActivePanel == UiPrimaryPanel.Evidence
-                        ? UiPrimaryPanel.Evidence
-                        : UiPrimaryPanel.Ingame;
+                CloseMap();
+                return;
             }
+
+            mapReturnPanel =
+                ActivePanel == UiPrimaryPanel.Evidence
+                    ? UiPrimaryPanel.Evidence
+                    : UiPrimaryPanel.Ingame;
             SetActivePanel(
                 mapPanel,
                 UiPrimaryPanel.Map,
@@ -506,6 +509,12 @@ namespace Wake.UI
 
         public void ShowEvidence()
         {
+            if (ActivePanel == UiPrimaryPanel.Evidence)
+            {
+                ShowIngame();
+                return;
+            }
+
             SetActivePanel(
                 evidencePanel,
                 UiPrimaryPanel.Evidence,
@@ -539,13 +548,10 @@ namespace Wake.UI
                 return;
             }
 
+            // Settings is opened only from the pause menu, which should
+            // stay visible underneath it - closing it first would flash
+            // the gameplay screen behind pause before settings slides in.
             CloseRuntimeModals();
-            if (systemScreens != null && systemScreens.IsOverlayOpen)
-            {
-                systemScreens.CloseAnimated(BeginOpenSettings);
-                return;
-            }
-
             BeginOpenSettings();
         }
 
@@ -642,6 +648,14 @@ namespace Wake.UI
         {
             if (!IsInitialized || ActivePanel == UiPrimaryPanel.Start)
                 return;
+
+            if (systemScreens != null &&
+                systemScreens.IsOverlayOpen &&
+                systemScreens.ActiveState == SystemScreenState.Pause)
+            {
+                systemScreens.Close();
+                return;
+            }
 
             CloseRuntimeModals();
             systemScreens?.OpenPause();
