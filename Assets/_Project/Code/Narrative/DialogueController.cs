@@ -696,10 +696,9 @@ namespace Wake.Narrative
                     }
 
                     int selectedIndex = i;
-                    choiceLabels[i].text = productionFlow.Choices[i].TextKo;
-                    DialogueTypography.ApplyChoice(
-                        choiceLabels[i],
+                    choiceLabels[i].text = DialogueTypography.PreventOrphanWrap(
                         productionFlow.Choices[i].TextKo);
+                    DialogueTypography.ApplyChoice(choiceLabels[i]);
                     choiceButtons[i].onClick.RemoveAllListeners();
                     choiceButtons[i].onClick.AddListener(() =>
                     {
@@ -874,10 +873,9 @@ namespace Wake.Narrative
                     label = optionLine.Text;
                 }
 
-                choiceLabels[i].text = label;
-                DialogueTypography.ApplyChoice(
-                    choiceLabels[i],
-                    label);
+                choiceLabels[i].text =
+                    DialogueTypography.PreventOrphanWrap(label);
+                DialogueTypography.ApplyChoice(choiceLabels[i]);
                 choiceButtons[i].onClick.RemoveAllListeners();
                 choiceButtons[i].onClick.AddListener(() => ResolveOption(option));
             }

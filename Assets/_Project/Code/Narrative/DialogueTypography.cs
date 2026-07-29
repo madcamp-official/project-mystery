@@ -11,6 +11,15 @@ namespace Wake.Narrative
     /// </summary>
     public static class DialogueTypography
     {
+        // Choice buttons use the same font as the dialogue line itself,
+        // so the choice window doesn't read as a mix of fonts.
+        private const TypographyRole ChoiceTextRole = TypographyRole.Body;
+
+        // Unicode non-breaking space (U+00A0) - TMP will not wrap on this,
+        // so gluing the last two words together with it prevents a single
+        // trailing word/particle from being stranded alone on its own line.
+        private const char NonBreakingSpace = (char)0x00A0;
+
         public static int ApplySurface(
             TMP_Text line,
             TMP_Text speaker,
@@ -54,7 +63,7 @@ namespace Wake.Narrative
             {
                 if (TypographyService.Apply(
                         choiceLabels[i],
-                        TypographyRole.Choice))
+                        ChoiceTextRole))
                 {
                     applied++;
                 }
@@ -63,19 +72,26 @@ namespace Wake.Narrative
             return applied;
         }
 
-        public static bool ApplyChoice(TMP_Text label, string content)
+        public static bool ApplyChoice(TMP_Text label)
         {
-            return TypographyService.Apply(
-                label,
-                ResolveChoiceRole(content));
+            return TypographyService.Apply(label, ChoiceTextRole);
         }
 
-        public static TypographyRole ResolveChoiceRole(string content)
+        public static string PreventOrphanWrap(string content)
         {
-            return !string.IsNullOrEmpty(content) &&
-                content.Contains("농담", System.StringComparison.Ordinal)
-                    ? TypographyRole.SpecialComic
-                    : TypographyRole.Choice;
+            if (string.IsNullOrEmpty(content))
+            {
+                return content;
+            }
+
+            int lastSpace = content.LastIndexOf(' ');
+            if (lastSpace < 0 || lastSpace == content.Length - 1)
+            {
+                return content;
+            }
+
+            return content.Substring(0, lastSpace) + NonBreakingSpace +
+                content.Substring(lastSpace + 1);
         }
     }
 }

@@ -100,76 +100,63 @@ namespace Wake.Tests
             Assert.That(label.font, Is.SameAs(bodyRegular));
         }
 
-        [TestCase("농담으로 넘기기")]
-        [TestCase("그건 농담이었어요")]
-        public void ComicChoice_UsesSpecialComicRole(string content)
-        {
-            Assert.That(
-                DialogueTypography.ResolveChoiceRole(content),
-                Is.EqualTo(TypographyRole.SpecialComic));
-        }
-
-        [TestCase(null)]
-        [TestCase("")]
-        [TestCase("경고를 진지하게 듣기")]
-        public void NormalChoice_UsesChoiceRole(string content)
-        {
-            Assert.That(
-                DialogueTypography.ResolveChoiceRole(content),
-                Is.EqualTo(TypographyRole.Choice));
-        }
-
+        // Choices always match the dialogue line's own font now - no
+        // content-based special-casing (e.g. a "joke" option used to
+        // switch to a distinct comic font, which read as visually
+        // inconsistent within the same choice window).
         [Test]
-        public void ComicChoice_AppliesJuaFont()
+        public void AnyChoice_AppliesBodyFont()
         {
             TMP_Text label = CreateLabel("Comic");
 
-            DialogueTypography.ApplyChoice(
-                label,
-                "농담으로 넘기기");
+            DialogueTypography.ApplyChoice(label);
 
-            Assert.That(label.font, Is.SameAs(specialComic));
+            Assert.That(label.font, Is.SameAs(body));
         }
 
         [Test]
-        public void ReusedChoice_ReturnsToNormalFont()
+        public void ReusedChoice_StaysOnBodyFont()
         {
             TMP_Text label = CreateLabel("Reused");
-            DialogueTypography.ApplyChoice(
-                label,
-                "농담으로 넘기기");
+            DialogueTypography.ApplyChoice(label);
 
-            DialogueTypography.ApplyChoice(
-                label,
-                "경고를 진지하게 듣기");
+            DialogueTypography.ApplyChoice(label);
 
-            Assert.That(label.font, Is.SameAs(choice));
+            Assert.That(label.font, Is.SameAs(body));
         }
 
         [Test]
-        public void ComicChoice_AppliesSpecialComicFont()
-        {
-            TMP_Text label = CreateLabel("ComicChoice");
-
-            bool applied = DialogueTypography.ApplyChoice(
-                label,
-                "농담으로 받아치기");
-
-            Assert.That(applied, Is.True);
-            Assert.That(label.font, Is.SameAs(specialComic));
-        }
-
-        [Test]
-        public void EmptyChoice_AppliesDefaultChoiceFont()
+        public void EmptyChoice_AppliesBodyFont()
         {
             TMP_Text label = CreateLabel("EmptyChoice");
 
-            bool applied = DialogueTypography.ApplyChoice(
-                label,
-                string.Empty);
+            bool applied = DialogueTypography.ApplyChoice(label);
 
             Assert.That(applied, Is.True);
-            Assert.That(label.font, Is.SameAs(choice));
+            Assert.That(label.font, Is.SameAs(body));
+        }
+
+        [Test]
+        public void PreventOrphanWrap_ReplacesLastSpaceWithNonBreakingSpace()
+        {
+            char nonBreakingSpace = (char)0x00A0;
+            string result = DialogueTypography.PreventOrphanWrap(
+                "alpha beta gamma");
+
+            Assert.That(
+                result,
+                Is.EqualTo("alpha beta" + nonBreakingSpace + "gamma"));
+        }
+
+        [TestCase("")]
+        [TestCase(null)]
+        [TestCase("singleword")]
+        public void PreventOrphanWrap_LeavesTextWithoutASpaceUnchanged(
+            string content)
+        {
+            Assert.That(
+                DialogueTypography.PreventOrphanWrap(content),
+                Is.EqualTo(content));
         }
 
         [Test]
