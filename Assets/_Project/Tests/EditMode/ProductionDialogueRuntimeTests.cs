@@ -391,6 +391,46 @@ namespace Wake.Tests
                 "D1-01_OWEN");
         }
 
+        // Regression test for a bug where restoring straight into an
+        // awaiting-choice checkpoint left the dialogue line UI showing its
+        // scene-authored placeholder text ("Character line...."): the line
+        // text is normally only ever set by rendering the non-choice record
+        // that precedes a PLAYER_CHOICE block, but a restore jumps directly
+        // to the choice block without ever rendering that preceding record
+        // this session.
+        [Test]
+        public void RestoredAwaitingChoiceCheckpoint_ExposesPrecedingPromptRecord()
+        {
+            host = new GameObject("D101ChoicePromptRestore");
+            GameStateManager state = host.AddComponent<GameStateManager>();
+            var completed = new HashSet<string> { "P-03" };
+            var flow = new ProductionDialogueFlow(records, completed, state);
+
+            Assert.That(flow.StartScene("D1-01"), Is.True);
+            AdvanceUntilChoice(flow);
+            DialogueRecord expectedPrompt = flow.ChoicePromptRecord;
+            Assert.That(expectedPrompt, Is.Not.Null);
+
+            var checkpoint = new ProductionDialogueCheckpoint
+            {
+                activeSceneId = flow.ActiveSceneId,
+                lineIndex = flow.CurrentIndex,
+                awaitingChoice = true
+            };
+
+            var restored = new ProductionDialogueFlow(records, completed, state);
+            Assert.That(restored.RestoreScene(checkpoint), Is.True);
+            Assert.That(restored.IsAwaitingChoice, Is.True);
+            Assert.That(restored.Current, Is.Null);
+            Assert.That(restored.ChoicePromptRecord, Is.Not.Null);
+            Assert.That(
+                restored.ChoicePromptRecord.Order,
+                Is.EqualTo(expectedPrompt.Order));
+            Assert.That(
+                restored.ChoicePromptRecord.Speaker,
+                Is.Not.EqualTo("PLAYER_CHOICE"));
+        }
+
         [Test]
         public void CompletingWithExplicitSet_UpdatesSetAndSave()
         {

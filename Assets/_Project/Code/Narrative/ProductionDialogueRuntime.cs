@@ -259,6 +259,15 @@ namespace Wake.Narrative
         public DialogueRecord Current { get; private set; }
         public IReadOnlyList<DialogueRecord> Choices { get; private set; } =
             Array.Empty<DialogueRecord>();
+        // The non-choice record immediately preceding the current
+        // PLAYER_CHOICE block, i.e. the line that should stay on screen
+        // while choices are shown. Live play always renders this record
+        // (as Current) on the pass right before entering the choice block,
+        // so callers normally don't need this - but a restore can jump
+        // straight into an awaiting-choice checkpoint without ever
+        // rendering that preceding line this session, so this gives
+        // restore code a way to render it explicitly.
+        public DialogueRecord ChoicePromptRecord { get; private set; }
         public IReadOnlyList<string> Warnings => warnings;
         public IReadOnlyCollection<string> CompletedSceneIds => completedScenes;
         public bool IsAwaitingChoice => Choices.Count > 0;
@@ -301,6 +310,7 @@ namespace Wake.Narrative
             Phase = ProductionScenePhase.NotStarted;
             PendingInteractionId = string.Empty;
             Current = null;
+            ChoicePromptRecord = null;
             resolvedChoiceIds.Clear();
             presentedChoiceBlockEnd = -1;
             ClearRepeatableChoiceContext();
@@ -517,9 +527,22 @@ namespace Wake.Narrative
                 }
                 Choices = available.Take(ChoiceCapacity).ToList();
                 Current = null;
+                ChoicePromptRecord = FindPrecedingPromptRecord(index);
                 return;
             }
             Current = activeScene[index];
+        }
+
+        private DialogueRecord FindPrecedingPromptRecord(int choiceStartIndex)
+        {
+            for (int i = choiceStartIndex - 1; i >= 0; i--)
+            {
+                if (activeScene[i].Speaker != "PLAYER_CHOICE")
+                {
+                    return activeScene[i];
+                }
+            }
+            return null;
         }
 
         private void ConfigureRepeatableChoiceContext(
