@@ -139,7 +139,7 @@ namespace Wake.Tests.PlayMode
         [UnityTest]
         public IEnumerator ProductionPuzzles_PersistSelectionsAndCompletion()
         {
-            CollectEvidence("C-07", "C-08", "C-09", "C-10");
+            CollectEvidence("C-08", "C-09", "C-10");
             ProductionPuzzleDefinition blood =
                 ProductionPuzzleCatalog.All.Single(
                     item => item.Id == ProductionPuzzleCatalog.BloodPattern);

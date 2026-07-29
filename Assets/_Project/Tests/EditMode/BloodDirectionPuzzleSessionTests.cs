@@ -1,3 +1,4 @@
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -47,6 +48,30 @@ namespace Wake.Tests.EditMode
             Assert.That(session.Stage, Is.EqualTo(BloodDirectionStage.CompareBody));
         }
 
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        public void Reconstruction_AcceptsEveryGlobalQuarterTurnAndNormalizes(
+            int quarterTurns)
+        {
+            var session = new BloodDirectionPuzzleSession();
+
+            ArrangeAsGlobalRotation(session, quarterTurns);
+
+            Assert.That(
+                session.Stage,
+                Is.EqualTo(BloodDirectionStage.CompareBody));
+            Assert.That(
+                session.Pieces,
+                Is.EqualTo(Enumerable.Range(
+                    0,
+                    BloodDirectionPuzzleSession.PieceCount)));
+            Assert.That(
+                session.Rotations,
+                Is.All.EqualTo(0));
+        }
+
         [Test]
         public void Markers_UnlockConclusionOnlyWhenSeparated()
         {
@@ -87,6 +112,50 @@ namespace Wake.Tests.EditMode
             Assert.That(session.Stage, Is.EqualTo(BloodDirectionStage.ChooseConclusion));
             Assert.That(session.ChooseConclusion(2), Is.True);
             Assert.That(session.Stage, Is.EqualTo(BloodDirectionStage.Complete));
+        }
+
+        private static void ArrangeAsGlobalRotation(
+            BloodDirectionPuzzleSession session,
+            int quarterTurns)
+        {
+            const int gridSize = 3;
+            var targetPieces =
+                new int[BloodDirectionPuzzleSession.PieceCount];
+            for (int source = 0;
+                 source < BloodDirectionPuzzleSession.PieceCount;
+                 source++)
+            {
+                int row = source / gridSize;
+                int column = source % gridSize;
+                int destination = quarterTurns switch
+                {
+                    0 => source,
+                    1 => column * gridSize + (gridSize - 1 - row),
+                    2 => (gridSize - 1 - row) * gridSize +
+                         (gridSize - 1 - column),
+                    _ => (gridSize - 1 - column) * gridSize + row
+                };
+                targetPieces[destination] = source;
+            }
+
+            for (int slot = 0; slot < targetPieces.Length; slot++)
+            {
+                int desiredSource = targetPieces[slot];
+                int currentSlot = session.Pieces
+                    .Select((source, index) => (source, index))
+                    .Single(item => item.source == desiredSource)
+                    .index;
+                session.Swap(slot, currentSlot);
+            }
+
+            for (int slot = 0; slot < targetPieces.Length; slot++)
+            {
+                int turns = (quarterTurns - session.Rotations[slot] + 4) % 4;
+                for (int turn = 0; turn < turns; turn++)
+                {
+                    session.Rotate(slot);
+                }
+            }
         }
     }
 }
