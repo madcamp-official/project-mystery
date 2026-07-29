@@ -30,6 +30,24 @@ namespace Wake.Tests
             Assert.That(definitions.Count(item => item.Deck == 6), Is.EqualTo(6));
             Assert.That(definitions.Count(item => item.Deck == 5), Is.Zero);
             Assert.That(definitions.Count(item => item.Deck == 0), Is.EqualTo(2));
+            Assert.That(
+                CanonicalLocationCatalog.Playable.Count,
+                Is.EqualTo(24));
+            Assert.That(
+                CanonicalLocationCatalog.Unused.Select(item => item.Code),
+                Is.EquivalentTo(new[]
+                {
+                    "LAUNDRY",
+                    "SERVICE_HUB",
+                    "STABILIZERS",
+                    "BALLAST_TANKS",
+                    "GENERATOR",
+                    "WORKSHOP"
+                }));
+            Assert.That(
+                CanonicalLocationCatalog.Unused.All(item =>
+                    item.Usage == CanonicalLocationUsage.Unused),
+                Is.True);
         }
 
         [Test]
