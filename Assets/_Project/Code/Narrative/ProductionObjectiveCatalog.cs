@@ -136,15 +136,15 @@ namespace Wake.Narrative
         };
         public string StateIcon => ActionType switch
         {
-            ObjectiveActionType.Move => "➜",
+            ObjectiveActionType.Move => "이동",
             ObjectiveActionType.Talk => "●",
-            ObjectiveActionType.Find => "⌕",
-            ObjectiveActionType.Inspect => "⌕",
+            ObjectiveActionType.Find => "찾기",
+            ObjectiveActionType.Inspect => "조사",
             ObjectiveActionType.Compare => "≍",
             ObjectiveActionType.Present => "▣",
             ObjectiveActionType.Solve => "◇",
             ObjectiveActionType.Decide => "◆",
-            ObjectiveActionType.Chase => "➜",
+            ObjectiveActionType.Chase => "추적",
             _ => "✓"
         };
         public string AccessibilityLabel =>
@@ -168,7 +168,7 @@ namespace Wake.Narrative
             ProductionObjectiveStatus.Completed => "✓",
             ProductionObjectiveStatus.Current => "●",
             ProductionObjectiveStatus.InteractionPending => "!",
-            ProductionObjectiveStatus.Next => "→",
+            ProductionObjectiveStatus.Next => "다음",
             _ => "◆"
         };
         public string StateLabel => Status switch

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -38,10 +39,20 @@ namespace Wake.UI
             TMP_FontAsset body = catalog?.Body;
             if (font != null &&
                 body != null &&
-                font != body &&
-                !font.fallbackFontAssetTable.Contains(body))
+                font != body)
             {
-                font.fallbackFontAssetTable.Add(body);
+                List<TMP_FontAsset> fallbacks =
+                    font.fallbackFontAssetTable;
+                if (fallbacks == null)
+                {
+                    fallbacks = new List<TMP_FontAsset>();
+                    font.fallbackFontAssetTable = fallbacks;
+                }
+
+                if (!fallbacks.Contains(body))
+                {
+                    fallbacks.Add(body);
+                }
             }
             TypographyWhitespacePolicy.Ensure(font);
             return font;

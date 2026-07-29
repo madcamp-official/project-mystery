@@ -166,7 +166,12 @@ namespace Wake.UI
 
             sectionLabel.text = section ?? string.Empty;
             titleText.text = title ?? string.Empty;
-            pages = DialogueTextPaginator.Split(body, 120);
+            Canvas.ForceUpdateCanvases();
+            pages = DialogueTextPaginator.SplitToFit(
+                body,
+                bodyText,
+                DialogueTypographyMetrics.LineMinimum,
+                120);
             pageIndex = 0;
             finalActionLabel = action ?? string.Empty;
             completion = callback;

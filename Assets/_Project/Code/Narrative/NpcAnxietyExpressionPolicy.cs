@@ -51,15 +51,9 @@ namespace Wake.Narrative
         {
             string value = characterId?.Trim().ToUpperInvariant() ??
                            string.Empty;
-            unchecked
-            {
-                int hash = 17;
-                foreach (char character in value)
-                {
-                    hash = hash * 31 + character;
-                }
-                return (hash & 1) == 0;
-            }
+            // Keep a stable mix of concerned and angry reactions without
+            // depending on runtime-specific string hash randomization.
+            return value.Length % 2 == 0;
         }
     }
 }

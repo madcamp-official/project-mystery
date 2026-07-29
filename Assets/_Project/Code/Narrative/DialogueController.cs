@@ -207,7 +207,11 @@ namespace Wake.Narrative
         private void SetLineText(string text, bool isNarrationOrSystem)
         {
             StopTypewriter();
-            linePages = DialogueTextPaginator.Split(text);
+            Canvas.ForceUpdateCanvases();
+            linePages = DialogueTextPaginator.SplitToFit(
+                text,
+                lineText,
+                DialogueTypographyMetrics.LineMinimum);
             linePageIndex = 0;
             lineNarrationOrSystem = isNarrationOrSystem;
             choicesPendingAfterPages = false;

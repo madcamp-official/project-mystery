@@ -161,7 +161,10 @@ namespace Wake.Narrative
         public static bool IsMarker(DialogueRecord record)
         {
             string text = record?.TextKo?.Trim() ?? string.Empty;
-            return text.StartsWith("[조사:", StringComparison.Ordinal) &&
+            return (text.StartsWith("[조사:", StringComparison.Ordinal) ||
+                    text.StartsWith(
+                        "[분석 콘솔:",
+                        StringComparison.Ordinal)) &&
                    text.EndsWith("]", StringComparison.Ordinal);
         }
 
@@ -188,7 +191,11 @@ namespace Wake.Narrative
             if (!IsMarker(record))
                 return "조사 대상";
 
-            return text.Substring(4, text.Length - 5).Trim();
+            int separator = text.IndexOf(':');
+            return text.Substring(
+                    separator + 1,
+                    text.Length - separator - 2)
+                .Trim();
         }
 
         public static string ResultTitle(DialogueRecord record)

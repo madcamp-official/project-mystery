@@ -55,7 +55,7 @@ namespace Wake.Evidence
                 description,
                 hasItem
                     ? record.Detail
-                    : "배경의 인물과 사물을 조사하면 기록이 추가됩니다.");
+                    : "확보한 증거가 없습니다. 배경의 인물과 사물을 조사하면 기록이 추가됩니다.");
 
             if (recordImage != null)
             {
