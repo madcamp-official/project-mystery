@@ -261,7 +261,8 @@ namespace Wake.UI
                     "조사 기록",
                     owner != null ? owner.ShowEvidence : null,
                     Resources.Load<Sprite>(
-                        "UI/Icons/Navigation/ui_icon_nav_evidence"));
+                        "UI/Icons/Navigation/ui_icon_nav_evidence"),
+                    iconPadding: 14f);
             pauseButton =
                 CreateButton(
                     parent,
@@ -486,7 +487,8 @@ namespace Wake.UI
             Transform parent,
             string label,
             UnityEngine.Events.UnityAction action,
-            Sprite icon = null)
+            Sprite icon = null,
+            float iconPadding = 8f)
         {
             GameObject target = new(
                 $"{label} 버튼",
@@ -515,7 +517,7 @@ namespace Wake.UI
                     typeof(RectTransform),
                     typeof(Image));
                 iconObject.transform.SetParent(target.transform, false);
-                Stretch(iconObject.GetComponent<RectTransform>(), 8f);
+                Stretch(iconObject.GetComponent<RectTransform>(), iconPadding);
                 Image iconImage = iconObject.GetComponent<Image>();
                 iconImage.sprite = icon;
                 iconImage.preserveAspect = true;
