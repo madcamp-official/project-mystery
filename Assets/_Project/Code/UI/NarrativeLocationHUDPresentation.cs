@@ -56,7 +56,7 @@ namespace Wake.UI
 
     public static class NarrativeLocationHUDPresentation
     {
-        public const float MaximumWidth = 560f;
+        public const float MaximumWidth = 620f;
         public const float MinimumWidth = 280f;
         public const float PreferredHeight = 94f;
         public const float TopOffset = 184f;
