@@ -11,7 +11,8 @@ namespace Wake.UI
         private CanvasGroup group;
         public void SetInputBlocked(bool blocked)
         {
-            EnsureCover();
+            if (!EnsureCover())
+                return;
             image.gameObject.SetActive(blocked);
             image.transform.SetAsLastSibling();
             group.blocksRaycasts = blocked;
@@ -25,7 +26,8 @@ namespace Wake.UI
             float duration,
             Color color)
         {
-            EnsureCover();
+            if (!EnsureCover())
+                yield break;
             image.color = color;
             image.gameObject.SetActive(true);
             image.transform.SetAsLastSibling();
@@ -45,17 +47,24 @@ namespace Wake.UI
 
         public void ResetCover()
         {
-            EnsureCover();
+            if (!EnsureCover())
+                return;
             group.alpha = 0f;
             group.blocksRaycasts = false;
             group.interactable = false;
             image.gameObject.SetActive(false);
         }
 
-        private void EnsureCover()
+        private bool EnsureCover()
         {
+            if (this == null ||
+                gameObject == null ||
+                !gameObject.scene.isLoaded)
+            {
+                return false;
+            }
             if (group != null)
-                return;
+                return true;
 
             GameObject cover = new(
                 "UI Transition Cover",
@@ -76,6 +85,7 @@ namespace Wake.UI
             group.interactable = false;
             group.blocksRaycasts = false;
             cover.SetActive(false);
+            return true;
         }
     }
 }

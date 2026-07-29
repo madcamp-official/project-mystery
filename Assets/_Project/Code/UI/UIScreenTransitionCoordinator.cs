@@ -74,7 +74,8 @@ namespace Wake.UI
             Action completed,
             UiTransitionProfile profile)
         {
-            cover?.SetInputBlocked(true);
+            if (cover != null)
+                cover.SetInputBlocked(true);
 
             if (outgoing != null &&
                 outgoing.activeInHierarchy &&
@@ -139,7 +140,8 @@ namespace Wake.UI
                     yield return null;
             }
 
-            cover?.ResetCover();
+            if (cover != null)
+                cover.ResetCover();
             transition = null;
             completed?.Invoke();
         }
@@ -170,7 +172,8 @@ namespace Wake.UI
                 StopCoroutine(transition);
                 transition = null;
             }
-            cover?.ResetCover();
+            if (cover != null)
+                cover.ResetCover();
         }
     }
 }

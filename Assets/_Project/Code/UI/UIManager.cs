@@ -43,6 +43,7 @@ namespace Wake.UI
         private SaveSlotSelectionController saveSlotSelection;
         private SystemScreenFlowController systemScreens;
         private UIScreenTransitionCoordinator screenTransitions;
+        private UiTransitionProfile settingsTransitionProfile;
         private ExplorationNavigationController explorationNavigation;
         private bool hasShownBoot;
         private UiPrimaryPanel mapReturnPanel = UiPrimaryPanel.Ingame;
@@ -509,13 +510,29 @@ namespace Wake.UI
 
         public void OpenSettings()
         {
-            if (!IsInitialized || settingsPopup == null || IsSettingsOpen)
+            if (!IsInitialized ||
+                settingsPopup == null ||
+                IsSettingsOpen ||
+                IsTransitioning)
             {
                 return;
             }
 
             CloseRuntimeModals();
-            systemScreens?.Close();
+            if (systemScreens != null && systemScreens.IsOverlayOpen)
+            {
+                systemScreens.CloseAnimated(BeginOpenSettings);
+                return;
+            }
+
+            BeginOpenSettings();
+        }
+
+        private void BeginOpenSettings()
+        {
+            if (settingsPopup == null || IsSettingsOpen || IsTransitioning)
+                return;
+
             systemScreens?.OnSettingsOpened();
             SetPrimaryInteraction(false);
             if (statusHud != null)
@@ -523,38 +540,81 @@ namespace Wake.UI
                 statusHud.SetActive(false);
             }
             settingsPopup.transform.SetAsLastSibling();
-            settingsPopup.SetActive(true);
-            FindFirstObjectByType<SettingsController>()
-                ?.RefreshFromAudioManager();
-            Transform credit =
-                settingsPopup.transform.Find("Settings/Credit");
-            if (credit != null)
-                credit.gameObject.SetActive(false);
-            Transform exit =
-                settingsPopup.transform.Find("Exit Btn");
-            if (exit != null)
-                exit.gameObject.SetActive(false);
-            Canvas.ForceUpdateCanvases();
-            SettingsController.FitPopupInsideCanvas(
-                settingsPopup.transform as RectTransform,
-                settingsPopup.transform.parent as RectTransform);
+
+            void ActivateSettings()
+            {
+                settingsPopup.SetActive(true);
+                FindFirstObjectByType<SettingsController>()
+                    ?.RefreshFromAudioManager();
+                Transform credit =
+                    settingsPopup.transform.Find("Settings/Credit");
+                if (credit != null)
+                    credit.gameObject.SetActive(false);
+                Transform exit =
+                    settingsPopup.transform.Find("Exit Btn");
+                if (exit != null)
+                    exit.gameObject.SetActive(false);
+                Canvas.ForceUpdateCanvases();
+                SettingsController.FitPopupInsideCanvas(
+                    settingsPopup.transform as RectTransform,
+                    settingsPopup.transform.parent as RectTransform);
+            }
+
+            settingsTransitionProfile ??= UiTransitionProfile.CreateRuntime(
+                "Runtime Settings Transition",
+                UiTransitionDirection.Right,
+                .22f,
+                .34f,
+                .025f);
+            if (screenTransitions == null ||
+                !screenTransitions.Run(
+                    null,
+                    settingsPopup,
+                    ActivateSettings,
+                    null,
+                    settingsTransitionProfile))
+            {
+                ActivateSettings();
+            }
         }
 
         public void CloseSettings()
         {
+            CloseSettings(null);
+        }
+
+        private void CloseSettings(Action afterClosed)
+        {
             bool wasOpen =
                 settingsPopup != null && settingsPopup.activeSelf;
-            if (settingsPopup != null)
+            if (!wasOpen)
+            {
+                afterClosed?.Invoke();
+                return;
+            }
+            if (IsTransitioning)
+                return;
+
+            void DeactivateSettings()
             {
                 settingsPopup.SetActive(false);
-            }
-            if (wasOpen)
-            {
                 systemScreens?.OnSettingsClosed();
+                statusHud?.SetActive(false);
+                explorationNavigation?.SetInteractionEnabled(true);
+                SetPrimaryInteraction(true);
             }
-            statusHud?.SetActive(false);
-            explorationNavigation?.SetInteractionEnabled(true);
-            SetPrimaryInteraction(true);
+
+            if (screenTransitions == null ||
+                !screenTransitions.Run(
+                    settingsPopup,
+                    null,
+                    DeactivateSettings,
+                    afterClosed,
+                    settingsTransitionProfile))
+            {
+                DeactivateSettings();
+                afterClosed?.Invoke();
+            }
         }
 
         public void OpenPause()
@@ -571,7 +631,11 @@ namespace Wake.UI
             if (!IsInitialized)
                 return;
 
-            CloseSettings();
+            if (IsSettingsOpen)
+            {
+                CloseSettings(() => systemScreens?.ShowCredits());
+                return;
+            }
             systemScreens?.ShowCredits();
         }
 

@@ -163,6 +163,11 @@ namespace Wake.UI
             Close(null);
         }
 
+        internal void CloseAnimated(Action afterClosed)
+        {
+            Close(afterClosed);
+        }
+
         private void Close(Action afterClosed)
         {
             if (!IsOverlayOpen)
@@ -194,13 +199,17 @@ namespace Wake.UI
                 returnState = SystemScreenState.None;
                 confirmAction = null;
                 cancelAction = null;
-                afterClosed?.Invoke();
             }
 
             if (transitions == null ||
-                !transitions.Run(outgoing, null, CompleteClose))
+                !transitions.Run(
+                    outgoing,
+                    null,
+                    CompleteClose,
+                    afterClosed))
             {
                 CompleteClose();
+                afterClosed?.Invoke();
             }
         }
 
