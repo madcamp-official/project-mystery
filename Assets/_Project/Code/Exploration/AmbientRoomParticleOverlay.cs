@@ -278,7 +278,7 @@ namespace Wake.Exploration
         {
             if (backgroundSampleCache != null)
             {
-                Destroy(backgroundSampleCache);
+                DestroyOwnedObject(backgroundSampleCache);
                 backgroundSampleCache = null;
             }
 
@@ -336,31 +336,39 @@ namespace Wake.Exploration
         {
             if (backgroundSampleCache != null)
             {
-                Destroy(backgroundSampleCache);
+                DestroyOwnedObject(backgroundSampleCache);
                 backgroundSampleCache = null;
             }
             if (bloomTexture != null)
             {
-                Destroy(bloomTexture);
+                DestroyOwnedObject(bloomTexture);
                 bloomTexture = null;
             }
             if (bloomProfile != null)
             {
-                Destroy(bloomProfile);
+                DestroyOwnedObject(bloomProfile);
                 bloomProfile = null;
             }
             if (bloomCameraObject != null)
             {
-                Destroy(bloomCameraObject);
+                DestroyOwnedObject(bloomCameraObject);
             }
             if (bloomVolumeObject != null)
             {
-                Destroy(bloomVolumeObject);
+                DestroyOwnedObject(bloomVolumeObject);
             }
             if (particleCanvasObject != null)
             {
-                Destroy(particleCanvasObject);
+                DestroyOwnedObject(particleCanvasObject);
             }
+        }
+
+        private static void DestroyOwnedObject(UnityEngine.Object target)
+        {
+            if (Application.isPlaying)
+                Destroy(target);
+            else
+                DestroyImmediate(target);
         }
 
         private void OnEnable()

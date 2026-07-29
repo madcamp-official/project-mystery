@@ -944,13 +944,21 @@ namespace Wake.Exploration
             foreach (WorldCharacterView view in spawned)
             {
                 if (view?.Target != null)
-                    Destroy(view.Target);
+                    DestroyOwnedObject(view.Target);
                 if (view?.GroundShadowObject != null)
-                    Destroy(view.GroundShadowObject);
+                    DestroyOwnedObject(view.GroundShadowObject);
                 if (view?.BlendMaterial != null)
-                    Destroy(view.BlendMaterial);
+                    DestroyOwnedObject(view.BlendMaterial);
             }
             spawned.Clear();
+        }
+
+        private static void DestroyOwnedObject(UnityEngine.Object target)
+        {
+            if (Application.isPlaying)
+                Destroy(target);
+            else
+                DestroyImmediate(target);
         }
 
         private void OnDestroy()

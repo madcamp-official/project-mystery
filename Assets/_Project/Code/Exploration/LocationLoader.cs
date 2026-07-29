@@ -11,7 +11,8 @@ namespace Wake.Exploration
         {
             None,
             MissingLocation,
-            MissingVisualContent
+            MissingVisualContent,
+            UnusedLocation
         }
 
         public static LocationLoader Instance { get; private set; }
@@ -25,6 +26,8 @@ namespace Wake.Exploration
         public bool IsWorldInteractionSuppressed =>
             ambientCharacters?.IsModalPresentationSuppressed == true;
         public RectTransform BackgroundRect => backgroundPresenter?.ViewportRect;
+        public Sprite ActiveBackgroundSprite =>
+            backgroundPresenter?.Sprite;
         public string ActiveBackgroundAnimationProfileId =>
             backgroundAnimations?.ActiveProfileId ?? string.Empty;
         public bool IsAmbientMotionPaused =>
@@ -94,6 +97,12 @@ namespace Wake.Exploration
                 return false;
             }
 
+            if (CanonicalLocationCatalog.IsUnused(location.LocationCode))
+            {
+                failure = LoadFailure.UnusedLocation;
+                return false;
+            }
+
             if (location == CurrentLocation)
             {
                 RefreshInteractionOverlays();
@@ -116,14 +125,24 @@ namespace Wake.Exploration
 
             if (currentInstance != null)
             {
-                Destroy(currentInstance);
+                if (Application.isPlaying)
+                    Destroy(currentInstance);
+                else
+                    DestroyImmediate(currentInstance);
             }
 
             currentInstance = location.ContentPrefab != null
                 ? Instantiate(location.ContentPrefab, container)
                 : null;
+            Sprite backgroundSprite =
+                LocationBackgroundVariantCatalog.Resolve(
+                    location.LocationCode,
+                    NarrativeSceneContext,
+                    location.BackgroundSprite,
+                    GameStateManager.Instance?
+                        .CompletedProductionSceneIds);
             backgroundPresenter.Show(
-                location.BackgroundSprite,
+                backgroundSprite,
                 location.BackgroundFocus,
                 location.BackgroundZoom);
             backgroundAnimations?.Show(location.LocationCode);
@@ -137,7 +156,7 @@ namespace Wake.Exploration
                 backgroundAnimations?.ResolveAmbientParticleTint(
                     location.AmbientParticleTint) ??
                 location.AmbientParticleTint,
-                location.BackgroundSprite);
+                backgroundSprite);
             CurrentLocation = location;
             LocationChanged?.Invoke(location);
             AudioManager.Instance?.PlayLocationTheme(location.LocationCode);
@@ -158,6 +177,20 @@ namespace Wake.Exploration
             if (CurrentLocation == null)
                 return;
 
+            Sprite backgroundSprite =
+                LocationBackgroundVariantCatalog.Resolve(
+                    CurrentLocation.LocationCode,
+                    NarrativeSceneContext,
+                    CurrentLocation.BackgroundSprite,
+                    GameStateManager.Instance?
+                        .CompletedProductionSceneIds);
+            if (backgroundPresenter?.Sprite != backgroundSprite)
+            {
+                backgroundPresenter?.Show(
+                    backgroundSprite,
+                    CurrentLocation.BackgroundFocus,
+                    CurrentLocation.BackgroundZoom);
+            }
             evidenceHotspots?.Show(CurrentLocation.LocationCode);
             ambientCharacters?.Show(
                 CurrentLocation.LocationCode,
@@ -167,7 +200,7 @@ namespace Wake.Exploration
                 backgroundAnimations?.ResolveAmbientParticleTint(
                     CurrentLocation.AmbientParticleTint) ??
                 CurrentLocation.AmbientParticleTint,
-                CurrentLocation.BackgroundSprite);
+                backgroundSprite);
         }
 
         private void CreateBackgroundPresenter()
