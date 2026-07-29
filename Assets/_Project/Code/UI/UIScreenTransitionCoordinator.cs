@@ -113,13 +113,17 @@ namespace Wake.UI
                 Debug.LogException(exception);
             }
 
-            yield return null;
-
+            // Only wait a frame here when a cover is actually hiding the
+            // swapped content - otherwise this gap is a fully visible frame
+            // of the incoming panel at its rest position (centered, full
+            // alpha) before PlayIn below ever gets a chance to offset/hide
+            // it, which reads as a flicker.
             if (!reducedMotion &&
                 cover != null &&
                 profile != null &&
                 profile.Cover == UiTransitionCover.Fade)
             {
+                yield return null;
                 yield return cover.FadeTo(
                     0f,
                     profile.CoverDuration,

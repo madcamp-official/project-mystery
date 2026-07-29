@@ -32,6 +32,7 @@ namespace Wake.Exploration
             public Rect AtlasUvRect;
             public Material BlendMaterial;
             public Color BaseTint;
+            public UiCharacterIdleMotion IdleMotion;
         }
 
         private static readonly Dictionary<string, Texture2D> TextureCache =
@@ -48,9 +49,11 @@ namespace Wake.Exploration
         private bool dialoguePresentationVisible;
         private bool modalPresentationSuppressed;
         private bool interactionPending;
+        private bool motionSuppressed;
 
         public bool IsModalPresentationSuppressed =>
             modalPresentationSuppressed;
+        public bool IsMotionSuppressed => motionSuppressed;
 
         public void Initialize(RectTransform backgroundContentRect)
         {
@@ -187,6 +190,15 @@ namespace Wake.Exploration
                 .Configure(image, texture);
             target.AddComponent<ExplorationHotspotFeedback>()
                 .Configure(DialoguePortraitCatalog.GetDisplayName(speaker));
+            UiCharacterIdleMotion idleMotion =
+                target.AddComponent<UiCharacterIdleMotion>();
+            idleMotion.Configure(
+                CreateStableMotionSeed(
+                    currentLocationCode,
+                    speaker,
+                    instanceId),
+                image,
+                unscaledTime: true);
 
             target.name += $"_{spawned.Count}_{instanceId}";
             var view = new WorldCharacterView
@@ -207,7 +219,8 @@ namespace Wake.Exploration
                 Asset = asset,
                 AtlasUvRect = asset.UvRect,
                 BlendMaterial = blendMaterial,
-                BaseTint = Color.white
+                BaseTint = Color.white,
+                IdleMotion = idleMotion
             };
             view.ObjectiveMarker = CreateDialogueBubble(
                 target.transform,
@@ -552,6 +565,31 @@ namespace Wake.Exploration
             ApplyDialogueVisibility();
         }
 
+        public void SetMotionSuppressed(bool suppressed)
+        {
+            if (motionSuppressed == suppressed)
+                return;
+
+            motionSuppressed = suppressed;
+            foreach (WorldCharacterView view in spawned)
+            {
+                UiCharacterIdleMotion motion =
+                    view?.IdleMotion;
+                if (motion == null)
+                    continue;
+
+                if (motionSuppressed)
+                {
+                    motion.StopAndRestore();
+                }
+                else
+                {
+                    motion.enabled = true;
+                    motion.Rebase();
+                }
+            }
+        }
+
         private void ApplyDialogueVisibility()
         {
             bool visible =
@@ -685,6 +723,9 @@ namespace Wake.Exploration
                 geometry.GroundShadowSize;
             view.GroundShadowImage.color =
                 new Color(0f, 0f, 0f, stage.ShadowOpacity * 0.72f);
+            view.IdleMotion?.Rebase();
+            if (motionSuppressed)
+                view.IdleMotion?.StopAndRestore();
         }
 
         private void RefreshCompletionPresentation()
@@ -713,7 +754,10 @@ namespace Wake.Exploration
                             view.BaseTint.a),
                         0.32f)
                     : view.BaseTint;
-                view.Image.color = tint;
+                if (view.IdleMotion != null)
+                    view.IdleMotion.SetAuthoredGraphicColor(tint);
+                else
+                    view.Image.color = tint;
                 view.Button.colors =
                     AmbientInteractionPresentation.CharacterSpriteColors(tint);
                 view.ObjectiveMarker?.SetActive(
@@ -737,6 +781,37 @@ namespace Wake.Exploration
                 sceneId ?? string.Empty,
                 locationCode ?? string.Empty,
                 sourceId ?? string.Empty);
+        }
+
+        private static int CreateStableMotionSeed(
+            string locationCode,
+            string speaker,
+            string instanceId)
+        {
+            unchecked
+            {
+                uint hash = 2166136261u;
+                AddStableHash(ref hash, locationCode);
+                AddStableHash(ref hash, "|");
+                AddStableHash(ref hash, speaker);
+                AddStableHash(ref hash, "|");
+                AddStableHash(ref hash, instanceId);
+                return (int)(hash & 0x7FFFFFFF);
+            }
+        }
+
+        private static void AddStableHash(
+            ref uint hash,
+            string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return;
+
+            for (int index = 0; index < value.Length; index++)
+            {
+                hash ^= value[index];
+                hash *= 16777619u;
+            }
         }
 
         private static Material CreateBlendMaterial(Rect uvRect)

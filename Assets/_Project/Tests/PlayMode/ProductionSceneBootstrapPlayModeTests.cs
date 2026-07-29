@@ -127,6 +127,17 @@ namespace Wake.Tests.PlayMode
                 background.Sprite,
                 Is.SameAs(
                     LocationLoader.Instance.CurrentLocation.BackgroundSprite));
+            LocationBackgroundAnimationOverlay backgroundAnimation =
+                Object.FindFirstObjectByType<
+                    LocationBackgroundAnimationOverlay>(
+                    FindObjectsInactive.Include);
+            Assert.That(backgroundAnimation, Is.Not.Null);
+            Assert.That(
+                backgroundAnimation.ActiveProfileId,
+                Is.EqualTo("PORT"));
+            Assert.That(
+                backgroundAnimation.ActiveElementCount,
+                Is.GreaterThan(0));
 
             ProductionDialogueCheckpoint checkpoint =
                 State.DialogueCheckpoint;
@@ -263,6 +274,19 @@ namespace Wake.Tests.PlayMode
                 Button button = ambientButtons[characterIndex];
                 RectTransform rect = button.GetComponent<RectTransform>();
                 RawImage character = button.GetComponent<RawImage>();
+                UiCharacterIdleMotion idleMotion =
+                    button.GetComponent<UiCharacterIdleMotion>();
+                Assert.That(
+                    idleMotion,
+                    Is.Not.Null,
+                    $"{button.name} needs deterministic idle motion.");
+                Assert.That(
+                    idleMotion.TargetGraphic,
+                    Is.SameAs(character));
+                Assert.That(idleMotion.UseUnscaledTime, Is.True);
+                // Geometry and tint checks below assert the authored stage,
+                // so sample the neutral frame instead of a random idle phase.
+                idleMotion.ApplyAtTime(0f);
                 Assert.That(
                     rect.parent.name,
                     Is.EqualTo("Cover Image"),

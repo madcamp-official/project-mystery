@@ -205,23 +205,23 @@ namespace Wake.UI
 
         private void TryBindState()
         {
-            if (state == GameStateManager.Instance && state != null)
+            GameStateManager current = GameStateManager.Instance;
+            if (current == null)
             {
-                Refresh();
+                if (state == null)
+                {
+                    RenderDefaults();
+                }
                 return;
             }
 
-            UnbindState();
-            state = GameStateManager.Instance;
-            if (state == null)
+            if (state != current)
             {
-                RenderDefaults();
-                return;
+                UnbindState();
+                state = current;
+                state.StateChanged += Refresh;
             }
 
-            state.StateChanged += Refresh;
-            state.FeedbackRequested += ShowFeedback;
-            state.BadEndTriggered += ShowBadEnd;
             Refresh();
         }
 
@@ -233,8 +233,6 @@ namespace Wake.UI
             }
 
             state.StateChanged -= Refresh;
-            state.FeedbackRequested -= ShowFeedback;
-            state.BadEndTriggered -= ShowBadEnd;
             state = null;
         }
 
@@ -638,16 +636,6 @@ namespace Wake.UI
         {
             T component = target.GetComponent<T>();
             return component != null ? component : target.AddComponent<T>();
-        }
-
-        private void ShowFeedback(string message)
-        {
-            ToastController.Instance?.Show(message);
-        }
-
-        private void ShowBadEnd(string message)
-        {
-            ToastController.Instance?.ShowAlert($"게임 종료 · {message}");
         }
     }
 }

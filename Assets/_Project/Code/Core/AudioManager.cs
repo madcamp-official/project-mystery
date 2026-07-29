@@ -34,13 +34,17 @@ namespace Wake.Core
         private AudioSource ambienceSourceA;
         private AudioSource ambienceSourceB;
         private AudioSource travelFootstepSource;
+        private AudioSource waterSplashSource;
         private AudioSource chapterMusicSource;
         private AudioSource chapterSfxSource;
+        private AudioLowPassFilter musicLowPassA;
+        private AudioLowPassFilter musicLowPassB;
         private Coroutine musicFade;
         private Coroutine ambienceFadeA;
         private Coroutine ambienceFadeB;
         private Coroutine travelFade;
         private Coroutine travelFootstepStop;
+        private Coroutine waterSplashStop;
         private Coroutine chapterAudioSequence;
         private Coroutine chapterAudioFade;
         private string chapterMusicKey = string.Empty;
@@ -202,6 +206,70 @@ namespace Wake.Core
         public void PlayIronDoorToggle()
         {
             PlaySfx(LoadClip(AudioCueCatalog.IronDoorToggleKey));
+        }
+
+        public void PlayWaterSloshing()
+        {
+            PlaySfx(LoadClip(AudioCueCatalog.WaterSloshingKey));
+        }
+
+        public void SetUnderwaterMuffle(float depth01)
+        {
+            EnsureRuntimeSources();
+            float cutoff = Mathf.Lerp(
+                AudioCueCatalog.UnderwaterClearCutoffHz,
+                AudioCueCatalog.UnderwaterMuffledCutoffHz,
+                Mathf.Clamp01(depth01));
+            if (musicLowPassA != null)
+            {
+                musicLowPassA.cutoffFrequency = cutoff;
+            }
+            if (musicLowPassB != null)
+            {
+                musicLowPassB.cutoffFrequency = cutoff;
+            }
+        }
+
+        public void StopMusicForGameEntry()
+        {
+            EnsureRuntimeSources();
+            StopTransitionFades();
+            if (musicSource != null)
+            {
+                musicSource.Stop();
+                musicSource.clip = null;
+            }
+            if (musicSourceB != null)
+            {
+                musicSourceB.Stop();
+                musicSourceB.clip = null;
+            }
+        }
+
+        public void PlayWaterSplashOut()
+        {
+            EnsureRuntimeSources();
+            AudioClip clip = LoadClip(AudioCueCatalog.WaterSplashOutKey);
+            if (clip == null || waterSplashSource == null)
+            {
+                return;
+            }
+
+            waterSplashSource.Stop();
+            waterSplashSource.clip = clip;
+            waterSplashSource.volume = 1f;
+            waterSplashSource.time = Mathf.Clamp(
+                AudioCueCatalog.WaterSplashOutStartOffset,
+                0f,
+                Mathf.Max(0f, clip.length - 0.05f));
+            waterSplashSource.Play();
+            if (waterSplashStop != null)
+            {
+                StopCoroutine(waterSplashStop);
+            }
+            waterSplashStop = StartCoroutine(StopWaterSplashAfter(
+                AudioCueCatalog.WaterSplashOutSeconds,
+                AudioCueCatalog.WaterSplashOutFadeOutSeconds));
         }
 
         public void BeginMapTravelAudio(
@@ -453,6 +521,12 @@ namespace Wake.Core
                     CreateSource("Travel Footsteps", true, sfxSource);
             }
 
+            if (waterSplashSource == null)
+            {
+                waterSplashSource =
+                    CreateSource("Water Splash", false, sfxSource);
+            }
+
             if (chapterMusicSource == null)
             {
                 chapterMusicSource =
@@ -464,6 +538,9 @@ namespace Wake.Core
                 chapterSfxSource =
                     CreateSource("Chapter SFX", false, sfxSource);
             }
+
+            musicLowPassA ??= EnsureLowPass(musicSource);
+            musicLowPassB ??= EnsureLowPass(musicSourceB);
 
             activeMusicSource ??= musicSource;
         }
@@ -561,6 +638,19 @@ namespace Wake.Core
             }
         }
 
+        private static AudioLowPassFilter EnsureLowPass(AudioSource source)
+        {
+            AudioLowPassFilter filter =
+                source.GetComponent<AudioLowPassFilter>();
+            if (filter == null)
+            {
+                filter = source.gameObject.AddComponent<AudioLowPassFilter>();
+                filter.cutoffFrequency =
+                    AudioCueCatalog.UnderwaterClearCutoffHz;
+            }
+            return filter;
+        }
+
         private AudioSource CreateSource(
             string sourceName,
             bool loop,
@@ -632,6 +722,37 @@ namespace Wake.Core
                 travelFootstepSource.clip = null;
             }
             travelFootstepStop = null;
+        }
+
+        private IEnumerator StopWaterSplashAfter(
+            float duration, float fadeOutSeconds)
+        {
+            float safeFade = Mathf.Clamp(fadeOutSeconds, 0f, duration);
+            float holdDuration = Mathf.Max(0f, duration - safeFade);
+            float elapsed = 0f;
+            while (elapsed < holdDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                yield return null;
+            }
+            float fadeElapsed = 0f;
+            while (fadeElapsed < safeFade)
+            {
+                fadeElapsed += Time.unscaledDeltaTime;
+                if (waterSplashSource != null)
+                {
+                    waterSplashSource.volume = Mathf.Lerp(
+                        1f, 0f, Mathf.Clamp01(fadeElapsed / safeFade));
+                }
+                yield return null;
+            }
+            if (waterSplashSource != null)
+            {
+                waterSplashSource.Stop();
+                waterSplashSource.clip = null;
+                waterSplashSource.volume = 1f;
+            }
+            waterSplashStop = null;
         }
 
         private void StopTransitionFades()

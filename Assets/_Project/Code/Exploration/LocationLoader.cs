@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Wake.Core;
+using Wake.UI;
 
 namespace Wake.Exploration
 {
@@ -24,18 +25,28 @@ namespace Wake.Exploration
         public bool IsWorldInteractionSuppressed =>
             ambientCharacters?.IsModalPresentationSuppressed == true;
         public RectTransform BackgroundRect => backgroundPresenter?.ViewportRect;
+        public string ActiveBackgroundAnimationProfileId =>
+            backgroundAnimations?.ActiveProfileId ?? string.Empty;
+        public bool IsAmbientMotionPaused =>
+            systemMotionPaused || reducedMotion;
 
         private GameObject currentInstance;
         private Transform container;
         private BackgroundCoverPresenter backgroundPresenter;
+        private LocationBackgroundAnimationOverlay backgroundAnimations;
         private EvidenceLocationHotspotOverlay evidenceHotspots;
         private AmbientCharacterHotspotOverlay ambientCharacters;
         private AmbientInspectableOverlay ambientInspectables;
         private AmbientRoomParticleOverlay ambientParticles;
+        private bool systemMotionPaused;
+        private bool reducedMotion;
 
         private void Awake()
         {
             Instance = this;
+            reducedMotion = ReducedMotionSettings.Enabled;
+            ReducedMotionSettings.Changed +=
+                HandleReducedMotionChanged;
             container = new GameObject("LocationContainer").transform;
             container.SetParent(transform, false);
             CreateBackgroundPresenter();
@@ -43,6 +54,8 @@ namespace Wake.Exploration
 
         private void OnDestroy()
         {
+            ReducedMotionSettings.Changed -=
+                HandleReducedMotionChanged;
             if (Instance == this)
             {
                 Instance = null;
@@ -65,6 +78,12 @@ namespace Wake.Exploration
         public void SetWorldInteractionSuppressed(bool suppressed)
         {
             ambientCharacters?.SetModalPresentationSuppressed(suppressed);
+        }
+
+        public void SetAmbientMotionPaused(bool paused)
+        {
+            systemMotionPaused = paused;
+            ApplyAmbientMotionPolicy();
         }
 
         public bool TryLoadLocation(LocationDefinition location, out LoadFailure failure)
@@ -107,13 +126,18 @@ namespace Wake.Exploration
                 location.BackgroundSprite,
                 location.BackgroundFocus,
                 location.BackgroundZoom);
+            backgroundAnimations?.Show(location.LocationCode);
+            ApplyAmbientMotionPolicy();
             evidenceHotspots?.Show(location.LocationCode);
             ambientCharacters?.Show(
                 location.LocationCode,
                 NarrativeSceneContext);
             ambientInspectables?.Show(location.LocationCode);
             ambientParticles?.Show(
-                location.AmbientParticleTint, location.BackgroundSprite);
+                backgroundAnimations?.ResolveAmbientParticleTint(
+                    location.AmbientParticleTint) ??
+                location.AmbientParticleTint,
+                location.BackgroundSprite);
             CurrentLocation = location;
             LocationChanged?.Invoke(location);
             AudioManager.Instance?.PlayLocationTheme(location.LocationCode);
@@ -140,6 +164,8 @@ namespace Wake.Exploration
                 NarrativeSceneContext);
             ambientInspectables?.Show(CurrentLocation.LocationCode);
             ambientParticles?.Show(
+                backgroundAnimations?.ResolveAmbientParticleTint(
+                    CurrentLocation.AmbientParticleTint) ??
                 CurrentLocation.AmbientParticleTint,
                 CurrentLocation.BackgroundSprite);
         }
@@ -163,6 +189,12 @@ namespace Wake.Exploration
                 presenterObject.GetComponent<BackgroundCoverPresenter>();
             backgroundPresenter.Initialize(
                 canvasObject.GetComponent<RectTransform>());
+            backgroundAnimations =
+                presenterObject.AddComponent<
+                    LocationBackgroundAnimationOverlay>();
+            backgroundAnimations.Initialize(
+                backgroundPresenter.ContentRect,
+                backgroundPresenter.MotionRect);
             evidenceHotspots =
                 presenterObject.AddComponent<EvidenceLocationHotspotOverlay>();
             evidenceHotspots.Initialize(backgroundPresenter.ContentRect);
@@ -178,6 +210,23 @@ namespace Wake.Exploration
             ambientParticles =
                 presenterObject.AddComponent<AmbientRoomParticleOverlay>();
             ambientParticles.Initialize(backgroundPresenter.ContentRect);
+            ApplyAmbientMotionPolicy();
+        }
+
+        private void HandleReducedMotionChanged(bool value)
+        {
+            reducedMotion = value;
+            ApplyAmbientMotionPolicy();
+        }
+
+        private void ApplyAmbientMotionPolicy()
+        {
+            backgroundAnimations?.SetPaused(systemMotionPaused);
+            backgroundAnimations?.SetReducedMotion(reducedMotion);
+            ambientCharacters?.SetMotionSuppressed(
+                systemMotionPaused || reducedMotion);
+            ambientParticles?.SetPaused(systemMotionPaused);
+            ambientParticles?.SetReducedMotion(reducedMotion);
         }
     }
 }

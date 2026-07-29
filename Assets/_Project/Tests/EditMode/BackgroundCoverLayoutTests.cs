@@ -122,6 +122,10 @@ namespace Wake.Tests
                 UnityEngine.UI.Image image = presenterObject
                     .GetComponentInChildren<UnityEngine.UI.Image>(true);
                 Assert.That(image, Is.Not.Null);
+                Assert.That(presenter.MotionRect, Is.Not.Null);
+                Assert.That(
+                    image.transform.parent,
+                    Is.EqualTo(presenter.MotionRect));
                 Assert.That(image.raycastTarget, Is.False);
                 Assert.That(image.preserveAspect, Is.False);
                 Assert.That(presenterObject.activeSelf, Is.False);

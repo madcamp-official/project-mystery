@@ -48,6 +48,8 @@ namespace Wake.UI
         private UiTransitionProfile runtimeModalTransitionProfile;
         private ExplorationNavigationController explorationNavigation;
         private bool suppressRuntimeModalAnimations;
+        private bool systemScreenPausesAmbientMotion;
+        private bool settingsPauseAmbientMotion;
         private bool hasShownBoot;
         private UiPrimaryPanel mapReturnPanel = UiPrimaryPanel.Ingame;
         private readonly List<IRuntimeModalController> runtimeModals = new();
@@ -156,6 +158,7 @@ namespace Wake.UI
                 return false;
             }
 
+            EnsureSettingsPopupSetup();
             EnsureRuntimeControllers();
             bool buttonsBound =
                 BindButton(
@@ -309,6 +312,33 @@ namespace Wake.UI
 
             T existing = host.GetComponent<T>();
             return existing != null ? existing : host.AddComponent<T>();
+        }
+
+        // Settings Popup is a plain sibling under the root Canvas with no
+        // sorting override of its own, so "System Screen Flow" (which
+        // overrides its sorting order to sit above other overlays, see
+        // that root's own Canvas setup) draws over it regardless of sibling
+        // order. Adding its own Canvas here (actual override/sortingOrder
+        // values are set in ActivateSettings instead - Unity discards
+        // overrideSorting set on an inactive canvas once it initializes on
+        // activation) plus a GraphicRaycaster (a nested override canvas
+        // needs its own, or its graphics stop being clickable) keeps it
+        // visible and interactive above Pause. Also disables the transition
+        // animator's automatic OnEnable playback, since
+        // UiScreenTransitionCoordinator already triggers PlayIn explicitly
+        // once the popup is activated - leaving both enabled races the two
+        // and flashes the popup at rest position first.
+        private void EnsureSettingsPopupSetup()
+        {
+            if (settingsPopup == null)
+            {
+                return;
+            }
+
+            EnsureComponent<Canvas>(settingsPopup);
+            EnsureComponent<GraphicRaycaster>(settingsPopup);
+            EnsureComponent<UiPanelTransitionAnimator>(settingsPopup)
+                .DisableAutoPlayIn();
         }
 
         private static GameObject FindRequired(
@@ -553,9 +583,8 @@ namespace Wake.UI
                 return;
             }
 
-            // Settings is opened only from the pause menu, which should
-            // stay visible underneath it - closing it first would flash
-            // the gameplay screen behind pause before settings slides in.
+            // A pause screen stays visible underneath settings when present.
+            // Settings can also be opened directly from the in-game chrome.
             CloseRuntimeModals();
             BeginOpenSettings();
         }
@@ -566,6 +595,9 @@ namespace Wake.UI
                 return;
 
             systemScreens?.OnSettingsOpened();
+            settingsPauseAmbientMotion =
+                ActivePanel != UiPrimaryPanel.Start;
+            ApplyAmbientMotionPausePolicy();
             SetPrimaryInteraction(false);
             if (statusHud != null)
             {
@@ -576,6 +608,16 @@ namespace Wake.UI
             void ActivateSettings()
             {
                 settingsPopup.SetActive(true);
+                // Canvas.overrideSorting/sortingOrder set while a canvas is
+                // inactive get discarded once Unity actually initializes it
+                // on activation (see EnsureSettingsPopupSetup), so they have
+                // to be (re)applied here, after SetActive, every time.
+                Canvas popupCanvas = settingsPopup.GetComponent<Canvas>();
+                if (popupCanvas != null)
+                {
+                    popupCanvas.overrideSorting = true;
+                    popupCanvas.sortingOrder = 200;
+                }
                 FindFirstObjectByType<SettingsController>()
                     ?.RefreshFromAudioManager();
                 Transform credit =
@@ -631,6 +673,8 @@ namespace Wake.UI
             {
                 settingsPopup.SetActive(false);
                 systemScreens?.OnSettingsClosed();
+                settingsPauseAmbientMotion = false;
+                ApplyAmbientMotionPausePolicy();
                 statusHud?.SetActive(false);
                 explorationNavigation?.SetInteractionEnabled(true);
                 SetPrimaryInteraction(true);
@@ -850,6 +894,15 @@ namespace Wake.UI
             SetPrimaryInteraction(!active);
             statusHud?.SetActive(false);
             explorationNavigation?.SetInteractionEnabled(!active);
+            systemScreenPausesAmbientMotion = active;
+            ApplyAmbientMotionPausePolicy();
+        }
+
+        private void ApplyAmbientMotionPausePolicy()
+        {
+            LocationLoader.Instance?.SetAmbientMotionPaused(
+                systemScreenPausesAmbientMotion ||
+                settingsPauseAmbientMotion);
         }
 
         internal void SetExplorationNavigationSuppressed(bool suppressed)
