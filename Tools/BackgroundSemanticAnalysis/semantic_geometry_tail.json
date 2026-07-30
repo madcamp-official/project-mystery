@@ -455,7 +455,7 @@
           "points": null
         },
         {
-          "kind": "medical_bed",
+          "kind": "medical_bed_structure",
           "rect": { "x": 0.40, "y": 0.21, "width": 0.29, "height": 0.35 },
           "points": null
         },

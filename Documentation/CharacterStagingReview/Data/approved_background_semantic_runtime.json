@@ -3,10 +3,10 @@
     "runtimeConnected":  true,
     "approvalStatus":  "Approved",
     "reviewer":  "project-owner",
-    "revision":  5,
-    "approvedAtUtc":  "2026-07-30T11:03:00Z",
+    "revision":  6,
+    "approvedAtUtc":  "2026-07-30T16:09:04Z",
     "approvedWarnings":  true,
-    "approvedWarningCount":  44,
+    "approvedWarningCount":  42,
     "sourceInventoryGeneratedAtUtc":  "2026-07-30T11:02:43Z",
     "excludedUnusedLocationCodes":  [
                                         "BALLAST_TANKS",
@@ -5346,7 +5346,7 @@
                                                     "points":  null
                                                 },
                                                 {
-                                                    "kind":  "medical_bed",
+                                                    "kind":  "medical_bed_structure",
                                                     "rect":  {
                                                                  "x":  0.40,
                                                                  "y":  0.21,
@@ -5609,7 +5609,7 @@
                                                               }
                                                 }
                                             ],
-                         "semanticContentHash":  "9ebedfad45caff29d1139c91230e9e340a2a047945bd9af4c5348944dad89f71"
+                         "semanticContentHash":  "5a6cec4159c9b06909a2981d5400de4cfde6a98bcc7773cb211523af1ff6dec4"
                      },
                      {
                          "profileId":  "bg_medbay_dna",
@@ -14948,18 +14948,18 @@
                                                      "role":  "Main",
                                                      "focus":  true,
                                                      "state":  "Normal",
-                                                     "slotId":  "near_left",
+                                                     "slotId":  "near_right",
                                                      "offCamera":  false,
-                                                     "hardProtectionOverlap":  false
+                                                     "hardProtectionOverlap":  true
                                                  },
                                                  {
                                                      "characterId":  "MARCUS",
                                                      "role":  "Main",
                                                      "focus":  true,
                                                      "state":  "Normal",
-                                                     "slotId":  "near_mid_left",
+                                                     "slotId":  "near_left",
                                                      "offCamera":  false,
-                                                     "hardProtectionOverlap":  true
+                                                     "hardProtectionOverlap":  false
                                                  },
                                                  {
                                                      "characterId":  "THOMAS",
@@ -14975,23 +14975,25 @@
                                                      "role":  "Main",
                                                      "focus":  false,
                                                      "state":  "Normal",
-                                                     "slotId":  "near_mid_right",
-                                                     "offCamera":  false,
-                                                     "hardProtectionOverlap":  true
+                                                     "slotId":  "",
+                                                     "offCamera":  true,
+                                                     "hardProtectionOverlap":  false
                                                  },
                                                  {
                                                      "characterId":  "SHIP_MEDIC",
                                                      "role":  "ContextNpc",
                                                      "focus":  false,
                                                      "state":  "",
-                                                     "slotId":  "near_right",
-                                                     "offCamera":  false,
-                                                     "hardProtectionOverlap":  true
+                                                     "slotId":  "",
+                                                     "offCamera":  true,
+                                                     "hardProtectionOverlap":  false
                                                  }
                                              ],
                              "offCameraCharacters":  [
-
-                                                     ]
+                                                         "RICHARD",
+                                                         "SHIP_MEDIC"
+                                                     ],
+                             "enforceMeasuredAlphaBounds":  true
                          },
                          {
                              "sceneId":  "D2-01",

@@ -15,10 +15,10 @@ MonoBehaviour:
   schemaVersion: 1
   approved: 1
   reviewer: project-owner
-  revision: 5
-  approvedAtUtc: 2026-07-30T11:03:00Z
+  revision: 6
+  approvedAtUtc: 2026-07-30T16:09:04Z
   approvedWarnings: 1
-  approvedWarningCount: 44
+  approvedWarningCount: 42
   sourceInventoryGeneratedAtUtc: 2026-07-30T11:02:43Z
   bindings:
   - locationCode: ARCHIVE
@@ -29,7 +29,7 @@ MonoBehaviour:
     semanticContentHash: e57181ce4d289e51038148dde13fe9368d4c6f41e0cec458fc07d3d15b7fc951
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d6_2_archive
       locationCode: ARCHIVE
@@ -39,9 +39,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: e57181ce4d289e51038148dde13fe9368d4c6f41e0cec458fc07d3d15b7fc951;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d6_2_archive.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.75333333
         source: approved-semantic-review
@@ -307,7 +307,7 @@ MonoBehaviour:
     semanticContentHash: 3a8deae6add3b940f903cfa97588cd7f844610795e4d605385f9b50e01ab2937
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_atrium_default_champagne
       locationCode: ATRIUM
@@ -317,9 +317,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 3a8deae6add3b940f903cfa97588cd7f844610795e4d605385f9b50e01ab2937;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_atrium_default_champagne.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.846
         source: approved-semantic-review
@@ -626,7 +626,7 @@ MonoBehaviour:
     semanticContentHash: 278dc6f004bc6421b9ab004bc5c058c014d81e0ef2568ae1a6a9b57eb9fe58fb
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d8_1_atrium
       locationCode: ATRIUM
@@ -636,9 +636,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 278dc6f004bc6421b9ab004bc5c058c014d81e0ef2568ae1a6a9b57eb9fe58fb;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_1_atrium.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.84
         source: approved-semantic-review
@@ -912,7 +912,7 @@ MonoBehaviour:
     semanticContentHash: 56191e8edd8248b7d66406bd17f30138dc0292299413ad0210f81224f4f9a022
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_ballast_annex_d6_subtle
       locationCode: BALLAST_CONTROL_ANNEX
@@ -922,9 +922,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 56191e8edd8248b7d66406bd17f30138dc0292299413ad0210f81224f4f9a022;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_ballast_annex_d6_subtle.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.746
         source: approved-semantic-review
@@ -1249,7 +1249,7 @@ MonoBehaviour:
     semanticContentHash: 3b61b581dd751bbfaff21549796c72666c5dbe6b3195487f342628fc5d0b8934
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d7_2_ballast_control_annex_evidence
       locationCode: BALLAST_CONTROL_ANNEX
@@ -1259,9 +1259,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 3b61b581dd751bbfaff21549796c72666c5dbe6b3195487f342628fc5d0b8934;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_2_ballast_control_annex_evidence.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.5
         source: approved-semantic-review
@@ -1541,7 +1541,7 @@ MonoBehaviour:
     semanticContentHash: 4ab20f2ea9db590661b4e845b3e31ee399306fd7189b40fbe76b968279cfcab5
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_ballroom_default_mask
       locationCode: BALLROOM
@@ -1551,9 +1551,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 4ab20f2ea9db590661b4e845b3e31ee399306fd7189b40fbe76b968279cfcab5;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_ballroom_default_mask.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.828
         source: approved-semantic-review
@@ -1853,7 +1853,7 @@ MonoBehaviour:
     semanticContentHash: e067b2a18ce606ccd7fc737be70e595c0203b75d1323240701fab14f0afd5e73
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d9_1_ballroom
       locationCode: BALLROOM
@@ -1863,9 +1863,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: e067b2a18ce606ccd7fc737be70e595c0203b75d1323240701fab14f0afd5e73;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d9_1_ballroom.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.85
         source: approved-semantic-review
@@ -2162,7 +2162,7 @@ MonoBehaviour:
     semanticContentHash: 9a6a05f1f7d50cc2ee53732b4f8e032770fd02c302dcc4c5352047fbe1c2e584
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_bridge_d3_day
       locationCode: BRIDGE
@@ -2172,9 +2172,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 9a6a05f1f7d50cc2ee53732b4f8e032770fd02c302dcc4c5352047fbe1c2e584;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_bridge_d3_day.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.83166665
         source: approved-semantic-review
@@ -2524,7 +2524,7 @@ MonoBehaviour:
     semanticContentHash: 1165a20efec6d444842d936fef29833ff17b3cb8edcfb7f120a95db5e82d670a
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d7_3_engine_control_evidence
       locationCode: BRIDGE
@@ -2534,9 +2534,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 1165a20efec6d444842d936fef29833ff17b3cb8edcfb7f120a95db5e82d670a;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_3_engine_control_evidence.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.77666664
         source: approved-semantic-review
@@ -2802,7 +2802,7 @@ MonoBehaviour:
     semanticContentHash: 750c45d3740272c09dce4602c52c43c2eeffa74b73b47f5282fc6ca4b0bc65eb
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_cabin_claire_d5_dismantled
       locationCode: CABIN_CLAIRE
@@ -2812,9 +2812,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 750c45d3740272c09dce4602c52c43c2eeffa74b73b47f5282fc6ca4b0bc65eb;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_cabin_claire_d5_dismantled.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.818
         source: approved-semantic-review
@@ -3110,7 +3110,7 @@ MonoBehaviour:
     semanticContentHash: 8f4cf48c098c14298a60cce3f5e66711cab9e46ab38194db5d93c2570d0a6747
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_cabin_claire_d5_smoke
       locationCode: CABIN_CLAIRE
@@ -3120,9 +3120,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 8f4cf48c098c14298a60cce3f5e66711cab9e46ab38194db5d93c2570d0a6747;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_cabin_claire_d5_smoke.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.775
         source: approved-semantic-review
@@ -3392,7 +3392,7 @@ MonoBehaviour:
     semanticContentHash: f5e97e3088e1f1eada7d4b5667c71386c40d2f3b86aa77b6be4b1332b2186a1a
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_cabin_claire_default_morning
       locationCode: CABIN_CLAIRE
@@ -3402,9 +3402,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: f5e97e3088e1f1eada7d4b5667c71386c40d2f3b86aa77b6be4b1332b2186a1a;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_cabin_claire_default_morning.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.822
         source: approved-semantic-review
@@ -3700,7 +3700,7 @@ MonoBehaviour:
     semanticContentHash: 916c8f3b52a57b9160014e36c09a992b39328098622d3906469eadeb989d6d9d
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d10_2_vip_lounge
       locationCode: CABIN_CLAIRE
@@ -3710,9 +3710,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 916c8f3b52a57b9160014e36c09a992b39328098622d3906469eadeb989d6d9d;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d10_2_vip_lounge.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.8125
         source: approved-semantic-review
@@ -3981,7 +3981,7 @@ MonoBehaviour:
     semanticContentHash: 5e5cb911ef107d6ff6b396545b15969fdc6581ca845be295d97f1c6e579d2de2
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_cabin_daniel_d2_late_afternoon
       locationCode: CABIN_DANIEL
@@ -3991,9 +3991,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 5e5cb911ef107d6ff6b396545b15969fdc6581ca845be295d97f1c6e579d2de2;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_cabin_daniel_d2_late_afternoon.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.7625
         source: approved-semantic-review
@@ -4244,7 +4244,7 @@ MonoBehaviour:
     semanticContentHash: 11649b3ecde33556fe177d71fc2eff8ed4e4f9428af20e9a1e4bf9d927feb55d
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d8_2_news_lounge_evidence
       locationCode: CABIN_DANIEL
@@ -4254,9 +4254,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 11649b3ecde33556fe177d71fc2eff8ed4e4f9428af20e9a1e4bf9d927feb55d;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_2_news_lounge_evidence.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.7733333
         source: approved-semantic-review
@@ -4527,7 +4527,7 @@ MonoBehaviour:
     semanticContentHash: e2eb8b2304592c12f3347e826d043c5114f27aeb235b372e2a1a0277d14ce25a
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_crew_stairs_d4_reconstruction
       locationCode: CREW_STAIRS
@@ -4537,9 +4537,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: e2eb8b2304592c12f3347e826d043c5114f27aeb235b372e2a1a0277d14ce25a;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_crew_stairs_d4_reconstruction.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.784
         source: approved-semantic-review
@@ -4827,7 +4827,7 @@ MonoBehaviour:
     semanticContentHash: 4d78bd8fe646a2a2b1f892252228b78805190f320357c6c04cc8cebbdd039137
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_crew_stairs_d4_wet
       locationCode: CREW_STAIRS
@@ -4837,9 +4837,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 4d78bd8fe646a2a2b1f892252228b78805190f320357c6c04cc8cebbdd039137;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_crew_stairs_d4_wet.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.645
         source: approved-semantic-review
@@ -5152,7 +5152,7 @@ MonoBehaviour:
     semanticContentHash: 7d967b40636b1536bcf35811ad4cca33df7e67beedf09df47619651091871b98
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_crew_stairs_default
       locationCode: CREW_STAIRS
@@ -5162,9 +5162,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 7d967b40636b1536bcf35811ad4cca33df7e67beedf09df47619651091871b98;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_crew_stairs_default.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.804
         source: approved-semantic-review
@@ -5424,7 +5424,7 @@ MonoBehaviour:
     semanticContentHash: 1a9e16b3bf5137a26b0e76dfc67549be306abfb16285e191599b478738a7311d
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d7_4_crew_stairs
       locationCode: CREW_STAIRS
@@ -5434,9 +5434,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 1a9e16b3bf5137a26b0e76dfc67549be306abfb16285e191599b478738a7311d;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_4_crew_stairs.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.48333332
         source: approved-semantic-review
@@ -5715,7 +5715,7 @@ MonoBehaviour:
     semanticContentHash: 16fe8bfa20fbc824c39fe6e8bed0156da45ec926b5e39f20cce0b6721a936cf0
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d9_2_dining
       locationCode: DINING
@@ -5725,9 +5725,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 16fe8bfa20fbc824c39fe6e8bed0156da45ec926b5e39f20cce0b6721a936cf0;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d9_2_dining.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.81666666
         source: approved-semantic-review
@@ -5979,7 +5979,7 @@ MonoBehaviour:
     semanticContentHash: 1165a20efec6d444842d936fef29833ff17b3cb8edcfb7f120a95db5e82d670a
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d7_3_engine_control_evidence
       locationCode: ENGINE_CONTROL
@@ -5989,9 +5989,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 1165a20efec6d444842d936fef29833ff17b3cb8edcfb7f120a95db5e82d670a;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_3_engine_control_evidence.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.77666664
         source: approved-semantic-review
@@ -6257,7 +6257,7 @@ MonoBehaviour:
     semanticContentHash: 12d4d9f68486e7bb6c4f4354ba4b4c1b21af7a774381af5a88aa0bd6134be757
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_gangway_default_luggage
       locationCode: GANGWAY
@@ -6267,9 +6267,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 12d4d9f68486e7bb6c4f4354ba4b4c1b21af7a774381af5a88aa0bd6134be757;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_gangway_default_luggage.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.81666666
         source: approved-semantic-review
@@ -6552,7 +6552,7 @@ MonoBehaviour:
     semanticContentHash: 1a278873e5ecd12f12c1c728bbff62c2f85f254074b387463d9c9d2811f5afc2
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_gangway
       locationCode: GANGWAY
@@ -6562,9 +6562,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 1a278873e5ecd12f12c1c728bbff62c2f85f254074b387463d9c9d2811f5afc2;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_gangway.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.8275
         source: approved-semantic-review
@@ -6845,7 +6845,7 @@ MonoBehaviour:
     semanticContentHash: 559a0ca308dde50b3ff7845055b6fced19ebe5569f4e2531aac1ddf3ffd5dac5
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_horizon_cleared_day
       locationCode: HORIZON
@@ -6855,9 +6855,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 559a0ca308dde50b3ff7845055b6fced19ebe5569f4e2531aac1ddf3ffd5dac5;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_horizon_cleared_day.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.7783333
         source: approved-semantic-review
@@ -7166,7 +7166,7 @@ MonoBehaviour:
     semanticContentHash: dba5380b253029b913de8913172e1d7c8e8c1d13bbd3ac327ba66718bd20295b
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_horizon_d1_discovery
       locationCode: HORIZON
@@ -7176,9 +7176,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: dba5380b253029b913de8913172e1d7c8e8c1d13bbd3ac327ba66718bd20295b;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_horizon_d1_discovery.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.624
         source: approved-semantic-review
@@ -7540,7 +7540,7 @@ MonoBehaviour:
     semanticContentHash: 497dd18e8b36df3689a52a923d14eb67b1835b494fe4471823752af1770ecb03
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_horizon_d8_finale
       locationCode: HORIZON
@@ -7550,9 +7550,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 497dd18e8b36df3689a52a923d14eb67b1835b494fe4471823752af1770ecb03;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_horizon_d8_finale.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.686
         source: approved-semantic-review
@@ -7876,7 +7876,7 @@ MonoBehaviour:
     semanticContentHash: 79fdf3c02e455bc5b7cceb2451f4692de10ff92560189497df1938a23a0ee2a6
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d9_4_horizon_room_evidence
       locationCode: HORIZON
@@ -7886,9 +7886,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 79fdf3c02e455bc5b7cceb2451f4692de10ff92560189497df1938a23a0ee2a6;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d9_4_horizon_room_evidence.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.41333333
         source: approved-semantic-review
@@ -8182,7 +8182,7 @@ MonoBehaviour:
     semanticContentHash: 52b9fab56fe95c8cd9593ced464c72acc82b3bc8abc123ea2adf1fffffdf105e
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_interview_d5_day
       locationCode: INTERVIEW
@@ -8192,9 +8192,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 52b9fab56fe95c8cd9593ced464c72acc82b3bc8abc123ea2adf1fffffdf105e;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_interview_d5_day.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.69666666
         source: approved-semantic-review
@@ -8519,7 +8519,7 @@ MonoBehaviour:
     semanticContentHash: a9bbeb83379b20ed9b168c0167ce070b1560c2774f6506d426c4d67edbe2c47a
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d8_3_security_evidence
       locationCode: INTERVIEW
@@ -8529,9 +8529,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: a9bbeb83379b20ed9b168c0167ce070b1560c2774f6506d426c4d67edbe2c47a;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_3_security_evidence.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.78
         source: approved-semantic-review
@@ -8839,10 +8839,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 4e0e15c09ae4f1848997ba081c5b8b3d, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_medbay_baseline.png
     sourceImageHash: cd7907b6d751a347467bb285811fa1cfed3cbe3328f005149fa643878331d8cb
-    semanticContentHash: 9ebedfad45caff29d1139c91230e9e340a2a047945bd9af4c5348944dad89f71
+    semanticContentHash: 5a6cec4159c9b06909a2981d5400de4cfde6a98bcc7773cb211523af1ff6dec4
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_medbay_baseline
       locationCode: MEDBAY
@@ -8850,11 +8850,11 @@ MonoBehaviour:
       sourceImageHash: cd7907b6d751a347467bb285811fa1cfed3cbe3328f005149fa643878331d8cb
       status:
         state: 2
-        note: 'Semantic content SHA-256: 9ebedfad45caff29d1139c91230e9e340a2a047945bd9af4c5348944dad89f71;
+        note: 'Semantic content SHA-256: 5a6cec4159c9b06909a2981d5400de4cfde6a98bcc7773cb211523af1ff6dec4;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_medbay_baseline.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.744
         source: approved-semantic-review
@@ -8898,7 +8898,7 @@ MonoBehaviour:
           score: 1
           source: approved-semantic-review
           manuallyVerified: 1
-      - id: medical_bed
+      - id: medical_bed_structure
         kind: 0
         normalizedRect:
           serializedVersion: 2
@@ -9166,7 +9166,7 @@ MonoBehaviour:
     semanticContentHash: 8170993db253ddb7e8859169112f0a7106f23f9365628d47a9b70b5c7c3ac0e4
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_medbay_dna
       locationCode: MEDBAY
@@ -9176,9 +9176,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 8170993db253ddb7e8859169112f0a7106f23f9365628d47a9b70b5c7c3ac0e4;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_medbay_dna.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.788
         source: approved-semantic-review
@@ -9480,7 +9480,7 @@ MonoBehaviour:
     semanticContentHash: 64d1c12964f4f2938890942bc6495b92b296e91514a857bee222d163897d77e7
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_medbay_forensic
       locationCode: MEDBAY
@@ -9490,9 +9490,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 64d1c12964f4f2938890942bc6495b92b296e91514a857bee222d163897d77e7;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_medbay_forensic.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.772
         source: approved-semantic-review
@@ -9780,7 +9780,7 @@ MonoBehaviour:
     semanticContentHash: 232edcf71adcdc7931efb02598aaea236c88aae7a705699a7a589d5f8151d8a5
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d7_1_medbay_evidence
       locationCode: MEDBAY
@@ -9790,9 +9790,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 232edcf71adcdc7931efb02598aaea236c88aae7a705699a7a589d5f8151d8a5;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_1_medbay_evidence.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.74333334
         source: approved-semantic-review
@@ -10058,7 +10058,7 @@ MonoBehaviour:
     semanticContentHash: 812d07205493375f431f80bdb7cabe50bf7917cee9c4da9fb7d61e010758bd44
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_news_lounge_d3
       locationCode: NEWS_LOUNGE
@@ -10068,9 +10068,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 812d07205493375f431f80bdb7cabe50bf7917cee9c4da9fb7d61e010758bd44;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_news_lounge_d3.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.69666666
         source: approved-semantic-review
@@ -10404,7 +10404,7 @@ MonoBehaviour:
     semanticContentHash: 91a0790e1fe65224f11d43654b44823a22ee38b2004c4a5aa00a279bbd390fb7
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_news_lounge_d6_evidence_board
       locationCode: NEWS_LOUNGE
@@ -10414,9 +10414,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 91a0790e1fe65224f11d43654b44823a22ee38b2004c4a5aa00a279bbd390fb7;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_news_lounge_d6_evidence_board.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.6533333
         source: approved-semantic-review
@@ -10750,7 +10750,7 @@ MonoBehaviour:
     semanticContentHash: 11649b3ecde33556fe177d71fc2eff8ed4e4f9428af20e9a1e4bf9d927feb55d
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d8_2_news_lounge_evidence
       locationCode: NEWS_LOUNGE
@@ -10760,9 +10760,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 11649b3ecde33556fe177d71fc2eff8ed4e4f9428af20e9a1e4bf9d927feb55d;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_2_news_lounge_evidence.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.7733333
         source: approved-semantic-review
@@ -11033,7 +11033,7 @@ MonoBehaviour:
     semanticContentHash: 8c4b8310b266d188b5acb0cdb316342210ae1ab0b2427e653b42a4bddf57d9e5
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_open_deck_d8_morning
       locationCode: OPEN_DECK
@@ -11043,9 +11043,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 8c4b8310b266d188b5acb0cdb316342210ae1ab0b2427e653b42a4bddf57d9e5;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_open_deck_d8_morning.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.74833333
         source: approved-semantic-review
@@ -11391,7 +11391,7 @@ MonoBehaviour:
     semanticContentHash: 31be39012af68adba277cf5ffc131ba7296469af23fac67296774226c20a69c6
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d10_3_open_deck
       locationCode: OPEN_DECK
@@ -11401,9 +11401,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 31be39012af68adba277cf5ffc131ba7296469af23fac67296774226c20a69c6;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d10_3_open_deck.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.7966667
         source: approved-semantic-review
@@ -11655,7 +11655,7 @@ MonoBehaviour:
     semanticContentHash: 5aedc15db5044edcf6f276b0a054f6a7c0b6e566db1f425a224a55f3640ad178
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_port_d8_epilogue
       locationCode: PORT
@@ -11665,9 +11665,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 5aedc15db5044edcf6f276b0a054f6a7c0b6e566db1f425a224a55f3640ad178;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_port_d8_epilogue.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.722
         source: approved-semantic-review
@@ -12002,7 +12002,7 @@ MonoBehaviour:
     semanticContentHash: dec194c005a7ed01bff8f58014abc73d56ad7ccf4d186d05fe236fa778d82245
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_port_evidence
       locationCode: PORT
@@ -12012,9 +12012,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: dec194c005a7ed01bff8f58014abc73d56ad7ccf4d186d05fe236fa778d82245;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_port_evidence.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.81
         source: approved-semantic-review
@@ -12325,7 +12325,7 @@ MonoBehaviour:
     semanticContentHash: de86636a2329dfa1f885a97ea460e4313d397569c18ee3e28e2e3f8bd4fb0d3e
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_promenade_d3_night
       locationCode: PROMENADE
@@ -12335,9 +12335,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: de86636a2329dfa1f885a97ea460e4313d397569c18ee3e28e2e3f8bd4fb0d3e;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_promenade_d3_night.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.75333333
         source: approved-semantic-review
@@ -12675,7 +12675,7 @@ MonoBehaviour:
     semanticContentHash: dff6cf8b101405fb7c2084c7046cccf6f3359ac2cc4d89c7244c36cb134a2c51
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d9_3_promenade_evidence
       locationCode: PROMENADE
@@ -12685,9 +12685,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: dff6cf8b101405fb7c2084c7046cccf6f3359ac2cc4d89c7244c36cb134a2c51;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d9_3_promenade_evidence.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.83000004
         source: approved-semantic-review
@@ -12968,7 +12968,7 @@ MonoBehaviour:
     semanticContentHash: 76d973da60ed1967b0806f2e47280ac6a8c63f174a2d5c5f32bdb7cca05cf223
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d10_1_richard_suite
       locationCode: RICHARD_SUITE
@@ -12978,9 +12978,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 76d973da60ed1967b0806f2e47280ac6a8c63f174a2d5c5f32bdb7cca05cf223;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d10_1_richard_suite.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.8125
         source: approved-semantic-review
@@ -13249,7 +13249,7 @@ MonoBehaviour:
     semanticContentHash: a9bbeb83379b20ed9b168c0167ce070b1560c2774f6506d426c4d67edbe2c47a
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d8_3_security_evidence
       locationCode: SECURITY
@@ -13259,9 +13259,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: a9bbeb83379b20ed9b168c0167ce070b1560c2774f6506d426c4d67edbe2c47a;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_3_security_evidence.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.78
         source: approved-semantic-review
@@ -13572,7 +13572,7 @@ MonoBehaviour:
     semanticContentHash: 6af41340361a3344f534c2b14f4eb895fd9877b5be086a0745ceda4c946ee4d6
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_service_rail_d6_subtle
       locationCode: SERVICE_RAIL
@@ -13582,9 +13582,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 6af41340361a3344f534c2b14f4eb895fd9877b5be086a0745ceda4c946ee4d6;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_service_rail_d6_subtle.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.675
         source: approved-semantic-review
@@ -13940,7 +13940,7 @@ MonoBehaviour:
     semanticContentHash: 677405d321f01b278b2cbd97189ff727dd9c58202d488088cdc7955939bfd5d2
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d8_4_service_rail
       locationCode: SERVICE_RAIL
@@ -13950,9 +13950,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 677405d321f01b278b2cbd97189ff727dd9c58202d488088cdc7955939bfd5d2;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_4_service_rail.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.56
         source: approved-semantic-review
@@ -14230,7 +14230,7 @@ MonoBehaviour:
     semanticContentHash: 7d967b40636b1536bcf35811ad4cca33df7e67beedf09df47619651091871b98
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_crew_stairs_default
       locationCode: SERVICE7
@@ -14240,9 +14240,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 7d967b40636b1536bcf35811ad4cca33df7e67beedf09df47619651091871b98;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_crew_stairs_default.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.804
         source: approved-semantic-review
@@ -14502,7 +14502,7 @@ MonoBehaviour:
     semanticContentHash: 1a9e16b3bf5137a26b0e76dfc67549be306abfb16285e191599b478738a7311d
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d7_4_crew_stairs
       locationCode: SERVICE7
@@ -14512,9 +14512,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 1a9e16b3bf5137a26b0e76dfc67549be306abfb16285e191599b478738a7311d;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_4_crew_stairs.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.48333332
         source: approved-semantic-review
@@ -14793,7 +14793,7 @@ MonoBehaviour:
     semanticContentHash: a9bb9c2e99390e90f39e2b77e2278b966ea7eee5143aa90a2253aaee28be73cc
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_vault_d7_damaged
       locationCode: VAULT
@@ -14803,9 +14803,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: a9bb9c2e99390e90f39e2b77e2278b966ea7eee5143aa90a2253aaee28be73cc;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_vault_d7_damaged.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.605
         source: approved-semantic-review
@@ -15203,7 +15203,7 @@ MonoBehaviour:
     semanticContentHash: ec7b385cfe983abe0a9cd689cfda0ef9cf2978868c56a29b19c03a0888d18560
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d6_1_vault
       locationCode: VAULT
@@ -15213,9 +15213,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: ec7b385cfe983abe0a9cd689cfda0ef9cf2978868c56a29b19c03a0888d18560;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d6_1_vault.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.7166667
         source: approved-semantic-review
@@ -15481,7 +15481,7 @@ MonoBehaviour:
     semanticContentHash: 916c8f3b52a57b9160014e36c09a992b39328098622d3906469eadeb989d6d9d
     approved: 1
     reviewer: project-owner
-    approvalRevision: 5
+    approvalRevision: 6
     profile:
       profileId: bg_location_d10_2_vip_lounge
       locationCode: VIP_LOUNGE
@@ -15491,9 +15491,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 916c8f3b52a57b9160014e36c09a992b39328098622d3906469eadeb989d6d9d;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d10_2_vip_lounge.png;
-          approved at 2026-07-30T11:03:00Z.'
+          approved at 2026-07-30T16:09:04Z.'
         reviewer: project-owner
-        revision: 5
+        revision: 6
       confidence:
         score: 0.8125
         source: approved-semantic-review
@@ -15762,6 +15762,7 @@ MonoBehaviour:
     backgroundProfileId: bg_atrium_default_champagne
     castFingerprint: c7a6b90893add7328161ad8b6f6916dbeb524cda6684fcc6df4b0b60b2db0167
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: CLAIRE
       slotId: near_center
@@ -15791,6 +15792,7 @@ MonoBehaviour:
     backgroundProfileId: bg_location_d9_2_dining
     castFingerprint: 23cd0b632cff18b11cd0a607a0b08560ec7cc6af72c83f7d3e0bd76c46d776d9
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: DANIEL
       slotId: near_center
@@ -15813,6 +15815,7 @@ MonoBehaviour:
     backgroundProfileId: bg_ballroom_default_mask
     castFingerprint: 5a9807414d9d474b2edc56a179ba873e282ed11b46d5498f6ba41d37a872774b
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: DANIEL
       slotId: near_center
@@ -15842,6 +15845,7 @@ MonoBehaviour:
     backgroundProfileId: bg_crew_stairs_default
     castFingerprint: 15efcba9b94e28eb351dcfaa59f89f181f1597a89a5c1f9b3d66fa22de752a6e
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: CREW_ATTENDANT
       slotId: landing_center
@@ -15855,6 +15859,7 @@ MonoBehaviour:
     backgroundProfileId: bg_crew_stairs_default
     castFingerprint: 15efcba9b94e28eb351dcfaa59f89f181f1597a89a5c1f9b3d66fa22de752a6e
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: CREW_ATTENDANT
       slotId: landing_center
@@ -15868,6 +15873,7 @@ MonoBehaviour:
     backgroundProfileId: bg_ballroom_default_mask
     castFingerprint: 5bea8f55a468a23796135d36e8bd08b55e267c6090f8fd372d4a3ae540c287df
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: EVELYN
       slotId: near_center
@@ -15893,6 +15899,7 @@ MonoBehaviour:
     backgroundProfileId: bg_horizon_d1_discovery
     castFingerprint: 8f35e779d539985e2f40146161876b5a4e15eb54c630e3d908f32af3a100aa59
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: HELENA
       slotId: rear_center
@@ -15914,28 +15921,23 @@ MonoBehaviour:
     backgroundProfileId: bg_medbay_baseline
     castFingerprint: 31004f21c96107a3f32fe235af74289c626e3011097530fcb8f919400208ed67
     approved: 1
+    enforceMeasuredAlphaBounds: 1
     assignments:
     - characterId: HELENA
+      slotId: near_right
+      role: 2
+      hardProtectionOverlap: 1
+    - characterId: MARCUS
       slotId: near_left
       role: 2
       hardProtectionOverlap: 0
-    - characterId: MARCUS
-      slotId: near_mid_left
-      role: 2
-      hardProtectionOverlap: 1
     - characterId: THOMAS
       slotId: near_center
       role: 2
       hardProtectionOverlap: 1
-    - characterId: RICHARD
-      slotId: near_mid_right
-      role: 1
-      hardProtectionOverlap: 1
-    - characterId: SHIP_MEDIC
-      slotId: near_right
-      role: 0
-      hardProtectionOverlap: 1
-    offCameraCharacterIds: []
+    offCameraCharacterIds:
+    - RICHARD
+    - SHIP_MEDIC
   - sceneId: D2-01
     locationCode: HORIZON
     variantKey: LocationBackgroundVariants/bg_horizon_cleared_day
@@ -15943,6 +15945,7 @@ MonoBehaviour:
     backgroundProfileId: bg_horizon_cleared_day
     castFingerprint: f0d479ac017583eae297c788199a86c153c830d0463147c617185d183e91ae3f
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: MARCUS
       slotId: near_right
@@ -15960,6 +15963,7 @@ MonoBehaviour:
     backgroundProfileId: bg_horizon_cleared_day
     castFingerprint: ece2c6ecf28d51b78d89a37d8e056cc71f5338fc3d8e2f44118a71a6cfcf0250
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: HELENA
       slotId: near_right
@@ -15977,6 +15981,7 @@ MonoBehaviour:
     backgroundProfileId: bg_medbay_baseline
     castFingerprint: d3a01b60249a7d51565f2fb6e5e226137b1e6ac7c23186baf42159fea1784818
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: HELENA
       slotId: near_left
@@ -15994,6 +15999,7 @@ MonoBehaviour:
     backgroundProfileId: bg_location_d8_3_security_evidence
     castFingerprint: 92df407f885572d8ee6288d6afb9c2127177fec5b3e4d0a0fb37f8ea60c4c385
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: MARCUS
       slotId: near_center
@@ -16011,6 +16017,7 @@ MonoBehaviour:
     backgroundProfileId: bg_location_d8_3_security_evidence
     castFingerprint: 92df407f885572d8ee6288d6afb9c2127177fec5b3e4d0a0fb37f8ea60c4c385
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: MARCUS
       slotId: near_center
@@ -16028,6 +16035,7 @@ MonoBehaviour:
     backgroundProfileId: bg_horizon_cleared_day
     castFingerprint: a72b995e2246f8e4fe075b219e7d6310d37e356d24e80cd73bb66bd3ef13f36d
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: OWEN
       slotId: near_right
@@ -16045,6 +16053,7 @@ MonoBehaviour:
     backgroundProfileId: bg_cabin_daniel_d2_late_afternoon
     castFingerprint: 68ef55ccb7db2f6d1edba82cc9823d6825d814c0f1ab3268aca3be06fa5f3395
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: PASSENGER_D
       slotId: near_center
@@ -16058,6 +16067,7 @@ MonoBehaviour:
     backgroundProfileId: bg_news_lounge_d3
     castFingerprint: 0cf46ec1795903490a082969fc1bd52574c169e839975158c13afc7668670c1c
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: RICHARD
       slotId: near_far_left
@@ -16079,6 +16089,7 @@ MonoBehaviour:
     backgroundProfileId: bg_location_d10_1_richard_suite
     castFingerprint: 9b409d98c295de8ff8d25f16ae9e00f5bf9e3f26379d273d1e4f929926b51d87
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: RICHARD
       slotId: near_center
@@ -16096,6 +16107,7 @@ MonoBehaviour:
     backgroundProfileId: bg_bridge_d3_day
     castFingerprint: 386e50ea445a795e82962290284e5b7c0d1f08c932f6ce33686c984bf4605936
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: OWEN
       slotId: near_left
@@ -16117,6 +16129,7 @@ MonoBehaviour:
     backgroundProfileId: bg_location_d6_1_vault
     castFingerprint: 8227fe3d514ca248a5a9b24ead67a17f89105aa4d50816de67de2a08d9b72a40
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: EVELYN
       slotId: mid_center
@@ -16132,6 +16145,7 @@ MonoBehaviour:
     backgroundProfileId: bg_promenade_d3_night
     castFingerprint: 4c0eff34f1266e93ff4a0cdf1ace9f48ac3411d07468e4f0dce57a8ef8f12435
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: CLAIRE
       slotId: mid_center
@@ -16149,6 +16163,7 @@ MonoBehaviour:
     backgroundProfileId: bg_location_d8_3_security_evidence
     castFingerprint: 92df407f885572d8ee6288d6afb9c2127177fec5b3e4d0a0fb37f8ea60c4c385
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: MARCUS
       slotId: near_center
@@ -16166,6 +16181,7 @@ MonoBehaviour:
     backgroundProfileId: bg_location_d8_3_security_evidence
     castFingerprint: 92df407f885572d8ee6288d6afb9c2127177fec5b3e4d0a0fb37f8ea60c4c385
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: MARCUS
       slotId: near_center
@@ -16183,6 +16199,7 @@ MonoBehaviour:
     backgroundProfileId: bg_crew_stairs_d4_wet
     castFingerprint: 52921abcf05e2e8428fe2db529f43b927918e33086f3d85bcd030486bfbae473
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: EVELYN
       slotId: landing_center
@@ -16208,6 +16225,7 @@ MonoBehaviour:
     backgroundProfileId: bg_crew_stairs_d4_reconstruction
     castFingerprint: a72b995e2246f8e4fe075b219e7d6310d37e356d24e80cd73bb66bd3ef13f36d
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: OWEN
       slotId: landing_right
@@ -16225,6 +16243,7 @@ MonoBehaviour:
     backgroundProfileId: bg_medbay_forensic
     castFingerprint: c30222080de8dfca721478fdf039070b9efc857c5f646b540755bdca4934efcd
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: HELENA
       slotId: near_left
@@ -16246,6 +16265,7 @@ MonoBehaviour:
     backgroundProfileId: bg_cabin_claire_d5_smoke
     castFingerprint: 1f3be6ef4f624b26f9f214cc1194aeb80226e35d5e1cdb00022a3b4f5ecae695
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: CLAIRE
       slotId: near_far_left
@@ -16263,6 +16283,7 @@ MonoBehaviour:
     backgroundProfileId: bg_cabin_claire_d5_dismantled
     castFingerprint: 9a4f587eef32051f13762c8eb1f3eba8e8357834a9e1ee787d73e548a1707398
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: CLAIRE
       slotId: near_center
@@ -16280,6 +16301,7 @@ MonoBehaviour:
     backgroundProfileId: bg_interview_d5_day
     castFingerprint: 94e4564c2acc0ccfc813dadadd2125cc7f1be48cdace53245895edf7336faed5
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: CLAIRE
       slotId: near_far_left
@@ -16297,6 +16319,7 @@ MonoBehaviour:
     backgroundProfileId: bg_horizon_cleared_day
     castFingerprint: 15efcba9b94e28eb351dcfaa59f89f181f1597a89a5c1f9b3d66fa22de752a6e
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: CREW_ATTENDANT
       slotId: near_right
@@ -16310,6 +16333,7 @@ MonoBehaviour:
     backgroundProfileId: bg_location_d7_3_engine_control_evidence
     castFingerprint: 386e50ea445a795e82962290284e5b7c0d1f08c932f6ce33686c984bf4605936
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: OWEN
       slotId: near_center
@@ -16331,6 +16355,7 @@ MonoBehaviour:
     backgroundProfileId: bg_location_d7_3_engine_control_evidence
     castFingerprint: 386e50ea445a795e82962290284e5b7c0d1f08c932f6ce33686c984bf4605936
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: OWEN
       slotId: near_center
@@ -16352,6 +16377,7 @@ MonoBehaviour:
     backgroundProfileId: bg_service_rail_d6_subtle
     castFingerprint: 52bb1d59a2781ffb7943b6f259d361d2767bc0de7cf16ef7190ba516bb023159
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: OWEN
       slotId: grate_near_center
@@ -16369,6 +16395,7 @@ MonoBehaviour:
     backgroundProfileId: bg_ballast_annex_d6_subtle
     castFingerprint: 91c3a7042dc69b969e820b2607b5d867b5952b69c0dc9f223ee51464fa7e4140
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: HELENA
       slotId: mid_left
@@ -16386,6 +16413,7 @@ MonoBehaviour:
     backgroundProfileId: bg_medbay_forensic
     castFingerprint: d3a01b60249a7d51565f2fb6e5e226137b1e6ac7c23186baf42159fea1784818
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: HELENA
       slotId: near_left
@@ -16403,6 +16431,7 @@ MonoBehaviour:
     backgroundProfileId: bg_news_lounge_d6_evidence_board
     castFingerprint: 68ef55ccb7db2f6d1edba82cc9823d6825d814c0f1ab3268aca3be06fa5f3395
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: PASSENGER_D
       slotId: near_far_left
@@ -16416,6 +16445,7 @@ MonoBehaviour:
     backgroundProfileId: bg_vault_d7_damaged
     castFingerprint: 2af25160a063c11bf30d0fb9ea08dadaf15285603ae8550543a7324ecdbc02c9
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: EVELYN
       slotId: near_left
@@ -16437,6 +16467,7 @@ MonoBehaviour:
     backgroundProfileId: bg_medbay_dna
     castFingerprint: d3a01b60249a7d51565f2fb6e5e226137b1e6ac7c23186baf42159fea1784818
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: HELENA
       slotId: near_left
@@ -16454,6 +16485,7 @@ MonoBehaviour:
     backgroundProfileId: bg_location_d6_2_archive
     castFingerprint: 04c44f6bee79135b2d3716be16d33faef1a68cc025a2ef780a8e6d189e9dd430
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: OWEN
       slotId: near_center
@@ -16476,6 +16508,7 @@ MonoBehaviour:
     backgroundProfileId: bg_location_d9_3_promenade_evidence
     castFingerprint: 3f2c34bda929a19e4e6fa2e7fbcd7d3dc856ec83013bdc780964c5ad87921c54
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: EVELYN
       slotId: near_center
@@ -16493,6 +16526,7 @@ MonoBehaviour:
     backgroundProfileId: bg_horizon_d8_finale
     castFingerprint: 7a503294d0e60dbcd7bc9bae8d8191b0b83c912f8233f381698f9b2298db6599
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: CLAIRE
       slotId: mid_left
@@ -16522,6 +16556,7 @@ MonoBehaviour:
     backgroundProfileId: bg_open_deck_d8_morning
     castFingerprint: d3fc07da8a0a42e971e96edddd12f3f362fae974c9c71ceed8b096fc9b7fafe8
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: EVELYN
       slotId: near_left
@@ -16543,6 +16578,7 @@ MonoBehaviour:
     backgroundProfileId: bg_port_d8_epilogue
     castFingerprint: 83ed347a258c279872a03ea18470b2fc64fa28528ec0c0dacce3eb53e48eddac
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: CLAIRE
       slotId: near_center
@@ -16572,6 +16608,7 @@ MonoBehaviour:
     backgroundProfileId: bg_location_port_evidence
     castFingerprint: bff72aae30e5b7d509265f3e657672dbe09faf862b38a23d9ab9e4f5216debee
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: DANIEL
       slotId: near_center
@@ -16589,6 +16626,7 @@ MonoBehaviour:
     backgroundProfileId: bg_gangway_default_luggage
     castFingerprint: 240bd5d02d6e9becfbda1af5997661c9cb943ad44090661185ac7b2030bb1fdf
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: DANIEL
       slotId: near_center
@@ -16614,6 +16652,7 @@ MonoBehaviour:
     backgroundProfileId: bg_location_d10_1_richard_suite
     castFingerprint: 9b409d98c295de8ff8d25f16ae9e00f5bf9e3f26379d273d1e4f929926b51d87
     approved: 1
+    enforceMeasuredAlphaBounds: 0
     assignments:
     - characterId: RICHARD
       slotId: near_center

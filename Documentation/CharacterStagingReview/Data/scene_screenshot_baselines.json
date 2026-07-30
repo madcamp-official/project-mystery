@@ -3,8 +3,8 @@
     "runtimeConnected":  true,
     "approvalStatus":  "Approved",
     "reviewer":  "project-owner",
-    "revision":  5,
-    "approvedAtUtc":  "2026-07-30T11:03:00Z",
+    "revision":  6,
+    "approvedAtUtc":  "2026-07-30T16:09:04Z",
     "canvasWidth":  960,
     "canvasHeight":  540,
     "scenes":  [
@@ -56,7 +56,7 @@
                    {
                        "sceneId":  "D1-07",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D1_07_MEDBAY.png",
-                       "sha256":  "1d2b3b65090c845c2f8beba6403d94fe0bcd4353c53a7c08d12d3b868d47db6e"
+                       "sha256":  "2e05ba4081ef204ab2801d95bb7d7db91b74035f2d11dde563cb35eceacd9c4b"
                    },
                    {
                        "sceneId":  "D2-01",
