@@ -20,11 +20,11 @@ MonoBehaviour:
     normalizedPosition: {x: 0.19, y: 0.53999996}
     entryPointId: 
   - locationCode: DINING
-    normalizedPosition: {x: 0.49, y: 0.61}
+    normalizedPosition: {x: 0.49, y: 0.64}
     entryPointId: 
   - locationCode: HORIZON
-    normalizedPosition: {x: 0.85, y: 0.57}
+    normalizedPosition: {x: 0.85, y: 0.56}
     entryPointId: 
   - locationCode: PROMENADE
-    normalizedPosition: {x: 0.5, y: 0.26}
+    normalizedPosition: {x: 0.5, y: 0.21499997}
     entryPointId: 

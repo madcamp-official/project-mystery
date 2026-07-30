@@ -17,23 +17,23 @@ MonoBehaviour:
   authoredSourceHash: 7d25fefbe5fc19c5d475c9ab491a23fa
   nodes:
   - locationCode: ARCHIVE
-    normalizedPosition: {x: 0.42, y: 0.65999997}
+    normalizedPosition: {x: 0.43, y: 0.72}
     entryPointId: 
   - locationCode: BRIDGE
-    normalizedPosition: {x: 0.85, y: 0.53999996}
+    normalizedPosition: {x: 0.85, y: 0.55}
     entryPointId: 
   - locationCode: INTERVIEW
     normalizedPosition: {x: 0.63, y: 0.72}
     entryPointId: 
   - locationCode: OPEN_DECK
-    normalizedPosition: {x: 0.22, y: 0.82}
+    normalizedPosition: {x: 0.22, y: 0.815}
     entryPointId: 
   - locationCode: RICHARD_SUITE
-    normalizedPosition: {x: 0.27, y: 0.57}
+    normalizedPosition: {x: 0.28, y: 0.57}
     entryPointId: 
   - locationCode: VAULT
-    normalizedPosition: {x: 0.18, y: 0.3}
+    normalizedPosition: {x: 0.18, y: 0.29000002}
     entryPointId: 
   - locationCode: VIP_LOUNGE
-    normalizedPosition: {x: 0.13, y: 0.66999996}
+    normalizedPosition: {x: 0.13, y: 0.65999997}
     entryPointId: 
