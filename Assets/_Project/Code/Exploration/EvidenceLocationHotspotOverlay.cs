@@ -75,7 +75,8 @@ namespace Wake.Exploration
 
         public static bool IsAvailable(
             EvidenceLocationHotspotSpec entry,
-            GameStateManager state)
+            GameStateManager state,
+            string activeSceneId = "")
         {
             if (entry == null)
             {
@@ -97,6 +98,10 @@ namespace Wake.Exploration
             }
 
             return string.IsNullOrEmpty(entry.AvailableFromScene) ||
+                   string.Equals(
+                       entry.AvailableFromScene,
+                       activeSceneId?.Trim(),
+                       StringComparison.OrdinalIgnoreCase) ||
                    state.IsProductionSceneUnlocked(entry.AvailableFromScene) ||
                    state.HasCompletedScene(entry.AvailableFromScene) ||
                    state.CollectedEvidenceIds.Contains(entry.EvidenceId);
@@ -127,7 +132,8 @@ namespace Wake.Exploration
 
         public void Show(
             string locationCode,
-            LocationBackgroundSelection backgroundSelection)
+            LocationBackgroundSelection backgroundSelection,
+            string activeSceneId = "")
         {
             Clear();
             if (contentRect == null)
@@ -139,7 +145,9 @@ namespace Wake.Exploration
                      EvidenceLocationHotspotCatalog.GetForLocation(locationCode))
             {
                 if (!EvidenceLocationHotspotCatalog.IsAvailable(
-                        spec, GameStateManager.Instance))
+                        spec,
+                        GameStateManager.Instance,
+                        activeSceneId))
                 {
                     continue;
                 }

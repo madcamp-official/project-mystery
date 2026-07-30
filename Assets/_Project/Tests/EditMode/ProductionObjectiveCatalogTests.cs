@@ -181,6 +181,27 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void OpeningObjective_ChangesFromInvitationToDaniel()
+        {
+            state.RecordLocation("PORT");
+
+            ProductionObjectivePresentation before =
+                ProductionObjectiveViewModel.Resolve(state)
+                    .Presentation.Value;
+            Assert.That(before.DisplayText, Is.EqualTo("구겨진 초대장 찾기"));
+            Assert.That(before.MarkerMode, Is.EqualTo(ObjectiveMarkerMode.Hover));
+
+            state.RecordEvidenceCollected("C-01");
+            ProductionObjectivePresentation after =
+                ProductionObjectiveViewModel.Resolve(state)
+                    .Presentation.Value;
+            Assert.That(
+                after.DisplayText,
+                Is.EqualTo("다니엘 머서와 이야기하기"));
+            Assert.That(after.MarkerMode, Is.EqualTo(ObjectiveMarkerMode.Npc));
+        }
+
+        [Test]
         public void BranchFrontier_UsesCheckpointAsCurrentAndOtherBranchAsNext()
         {
             CompleteThrough("D1-03");

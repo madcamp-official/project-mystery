@@ -51,6 +51,8 @@ namespace Wake.Exploration
         private BackgroundCoverPresenter backgroundPresenter;
         private LocationBackgroundAnimationOverlay backgroundAnimations;
         private EvidenceLocationHotspotOverlay evidenceHotspots;
+        private NarrativeInvestigationHotspotOverlay
+            narrativeInvestigationHotspots;
         private AmbientCharacterHotspotOverlay ambientCharacters;
         private AmbientInspectableOverlay ambientInspectables;
         private AmbientRoomParticleOverlay ambientParticles;
@@ -174,6 +176,10 @@ namespace Wake.Exploration
                 location.LocationCode,
                 NarrativeSceneContext,
                 backgroundSelection);
+            narrativeInvestigationHotspots?.Show(
+                location.LocationCode,
+                NarrativeSceneContext,
+                backgroundSelection);
             ambientParticles?.Show(
                 backgroundAnimations?.ResolveAmbientParticleTint(
                     location.AmbientParticleTint) ??
@@ -227,12 +233,17 @@ namespace Wake.Exploration
             }
             evidenceHotspots?.Show(
                 CurrentLocation.LocationCode,
-                backgroundSelection);
+                backgroundSelection,
+                NarrativeSceneContext);
             ambientCharacters?.Show(
                 CurrentLocation.LocationCode,
                 NarrativeSceneContext,
                 backgroundSelection);
             ambientInspectables?.Show(
+                CurrentLocation.LocationCode,
+                NarrativeSceneContext,
+                backgroundSelection);
+            narrativeInvestigationHotspots?.Show(
                 CurrentLocation.LocationCode,
                 NarrativeSceneContext,
                 backgroundSelection);
@@ -282,6 +293,11 @@ namespace Wake.Exploration
             ambientInspectables =
                 presenterObject.AddComponent<AmbientInspectableOverlay>();
             ambientInspectables.Initialize(backgroundPresenter.ContentRect);
+            narrativeInvestigationHotspots =
+                presenterObject.AddComponent<
+                    NarrativeInvestigationHotspotOverlay>();
+            narrativeInvestigationHotspots.Initialize(
+                backgroundPresenter.ContentRect);
             ambientParticles =
                 presenterObject.AddComponent<AmbientRoomParticleOverlay>();
             ambientParticles.Initialize(backgroundPresenter.ContentRect);

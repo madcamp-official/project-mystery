@@ -24,15 +24,25 @@ namespace Wake.UI
         private TMP_Text titleLabel;
         private TMP_Text objectiveLabel;
         private TMP_Text observationLabel;
+        private GameObject imageObservationCallout;
+        private TMP_Text imageObservationText;
+        private TMP_Text narrativeImageText;
         private TMP_Text actionLabel;
         private Button actionButton;
+        private Button notebookButton;
         private InvestigationTargetDefinition target;
+        private NarrativeInvestigationDefinition narrativeTarget;
         private EvidenceDefinition evidence;
         private Action exitAction;
 
         public static InvestigationScreenController Instance { get; private set; }
         public bool IsOpen => root != null && root.activeSelf;
-        public string ActiveTargetId => target?.TargetId ?? string.Empty;
+        public string ActiveTargetId =>
+            target?.TargetId ?? narrativeTarget?.TargetId ?? string.Empty;
+
+        private IReadOnlyList<InspectionPointDefinition> ActivePoints =>
+            target?.Points ?? narrativeTarget?.Points ??
+            Array.Empty<InspectionPointDefinition>();
 
         private void Awake()
         {
@@ -112,6 +122,46 @@ namespace Wake.UI
             closeupImage.preserveAspect = true;
             closeupImage.raycastTarget = false;
 
+            imageObservationCallout = Create(
+                "Image Observation Callout",
+                imageTransform,
+                typeof(Image),
+                typeof(Outline));
+            SetRect(
+                imageObservationCallout.GetComponent<RectTransform>(),
+                new Rect(.08f, .04f, .84f, .20f));
+            imageObservationCallout.GetComponent<Image>().color =
+                new Color32(7, 18, 31, 232);
+            Outline calloutOutline =
+                imageObservationCallout.GetComponent<Outline>();
+            calloutOutline.effectColor =
+                new Color32(207, 169, 96, 235);
+            calloutOutline.effectDistance = new Vector2(2f, -2f);
+            imageObservationText = Text(
+                imageObservationCallout.transform,
+                "Observation",
+                new Rect(.04f, .10f, .92f, .80f),
+                21f,
+                TextAlignmentOptions.TopLeft,
+                new Color32(248, 235, 207, 255));
+            imageObservationText.textWrappingMode =
+                TextWrappingModes.Normal;
+            imageObservationCallout.SetActive(false);
+
+            narrativeImageText = Text(
+                imageTransform,
+                "Message Content",
+                new Rect(.36f, .34f, .34f, .35f),
+                21f,
+                TextAlignmentOptions.Center,
+                new Color32(17, 29, 43, 255));
+            narrativeImageText.textWrappingMode =
+                TextWrappingModes.Normal;
+            narrativeImageText.enableAutoSizing = true;
+            narrativeImageText.fontSizeMin = 15f;
+            narrativeImageText.fontSizeMax = 21f;
+            narrativeImageText.gameObject.SetActive(false);
+
             observationLabel = Text(
                 root.transform,
                 "Adrian Observation",
@@ -134,7 +184,7 @@ namespace Wake.UI
             markerGuide.text =
                 "빛나는 흔적 표식을 선택해 세부 관찰을 기록하세요.";
 
-            Button(
+            notebookButton = Button(
                 root.transform,
                 "Evidence Notebook",
                 "조사 기록",
@@ -173,6 +223,7 @@ namespace Wake.UI
             if (evidence == null)
                 return false;
 
+            narrativeTarget = null;
             exitAction = onExit;
             locationLabel.text = LocationName(target.LocationCode);
             titleLabel.text = evidence.DisplayName;
@@ -186,6 +237,9 @@ namespace Wake.UI
                     ? "이미 조사 기록에 정리한 대상이다. 필요한 흔적을 다시 확인할 수 있다."
                     : "화면의 세부 지점에 포인터를 가까이 대거나 포커스를 이동해 조사하세요.";
             ResetView();
+            imageObservationCallout.SetActive(false);
+            narrativeImageText.gameObject.SetActive(false);
+            notebookButton.gameObject.SetActive(true);
             root.transform.SetAsLastSibling();
             root.SetActive(true);
             BuildPoints();
@@ -193,6 +247,56 @@ namespace Wake.UI
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(
                 root.GetComponent<RectTransform>());
+            EventSystem.current?.SetSelectedGameObject(
+                pointButtons.Count > 0
+                    ? pointButtons[0].gameObject
+                    : actionButton.gameObject);
+            return true;
+        }
+
+        public bool BeginNarrative(
+            string targetId,
+            Action onExit = null)
+        {
+            if (root == null ||
+                !NarrativeInvestigationCatalog.TryGet(
+                    targetId,
+                    out narrativeTarget))
+            {
+                return false;
+            }
+
+            target = null;
+            evidence = null;
+            exitAction = onExit;
+            locationLabel.text =
+                LocationName(narrativeTarget.LocationCode);
+            titleLabel.text = narrativeTarget.DisplayName;
+            objectiveLabel.text =
+                $"{narrativeTarget.DisplayName}에서 표시된 세부 항목을 " +
+                "직접 확인하세요.";
+            closeupImage.sprite =
+                Resources.Load<Sprite>(narrativeTarget.ResourcePath);
+            if (closeupImage.sprite == null)
+            {
+                narrativeTarget = null;
+                return false;
+            }
+
+            observationLabel.text =
+                IsRewardGranted()
+                    ? "이 현장 조사의 핵심 내용을 이미 확인했습니다."
+                    : "이미지 위의 빛나는 표식을 선택해 내용을 직접 확인하세요.";
+            ResetView();
+            imageObservationCallout.SetActive(false);
+            narrativeImageText.text = narrativeTarget.ImageText;
+            narrativeImageText.gameObject.SetActive(true);
+            notebookButton.gameObject.SetActive(false);
+            root.transform.SetAsLastSibling();
+            root.SetActive(true);
+            BuildPoints();
+            RefreshCompletion();
+            Canvas.ForceUpdateCanvases();
             EventSystem.current?.SetSelectedGameObject(
                 pointButtons.Count > 0
                     ? pointButtons[0].gameObject
@@ -210,7 +314,7 @@ namespace Wake.UI
             pointButtons.Clear();
             pointMarkers.Clear();
 
-            foreach (InspectionPointDefinition point in target.Points)
+            foreach (InspectionPointDefinition point in ActivePoints)
             {
                 GameObject pointObject = Create(
                     $"Inspection Point {point.PointId}",
@@ -285,9 +389,13 @@ namespace Wake.UI
             if (!repeated)
             {
                 GameStateManager.Instance?.AddFlagSilently(
-                    InvestigationTargetCatalog.PointFlag(
-                        target,
-                        point.PointId));
+                    target != null
+                        ? InvestigationTargetCatalog.PointFlag(
+                            target,
+                            point.PointId)
+                        : NarrativeInvestigationCatalog.PointFlag(
+                            narrativeTarget,
+                            point.PointId));
             }
             pointImage.color =
                 new Color(83f / 255f, 139f / 255f, 145f / 255f, .10f);
@@ -302,6 +410,12 @@ namespace Wake.UI
             observationLabel.text = repeated
                 ? $"다시 확인했다. {point.Observation}"
                 : point.Observation;
+            imageObservationText.text =
+                $"<b>{point.DisplayName}</b>\n" +
+                (repeated ? "재확인 · " : string.Empty) +
+                point.Observation;
+            imageObservationCallout.SetActive(true);
+            imageObservationCallout.transform.SetAsLastSibling();
             RefreshCompletion();
         }
 
@@ -313,7 +427,9 @@ namespace Wake.UI
             actionLabel.text = rewarded
                 ? "현장으로 돌아가기"
                 : complete
-                    ? "조사 기록에 남기기"
+                    ? narrativeTarget != null
+                        ? "알림 내용 확인 완료"
+                        : "조사 기록에 남기기"
                     : "관찰을 더 확인하세요";
         }
 
@@ -327,29 +443,54 @@ namespace Wake.UI
             if (!IsInvestigationComplete())
                 return;
 
-            bool added = EvidenceInventory.Instance?.Add(evidence) == true;
-            GameStateManager.Instance?.AddFlagSilently(
-                InvestigationTargetCatalog.CompletionFlag(target));
-            observationLabel.text = added
-                ? "관찰한 사실과 해석을 분리해 조사 기록에 정리했다."
-                : "이 기록은 이미 정리되어 있다.";
-            CheckSealedExitConclusion();
+            if (narrativeTarget != null)
+            {
+                GameStateManager.Instance?.AddFlagSilently(
+                    narrativeTarget.CompletionFlag);
+                observationLabel.text =
+                    $"{narrativeTarget.DisplayName}의 핵심 내용을 확인했다.";
+                ToastController.Instance?.Show(
+                    $"확인 완료 · {narrativeTarget.DisplayName}의 내용을 " +
+                    "기록했습니다");
+            }
+            else
+            {
+                bool added =
+                    EvidenceInventory.Instance?.Add(evidence) == true;
+                GameStateManager.Instance?.AddFlagSilently(
+                    InvestigationTargetCatalog.CompletionFlag(target));
+                observationLabel.text = added
+                    ? "관찰한 사실과 해석을 분리해 조사 기록에 정리했다."
+                    : "이 기록은 이미 정리되어 있다.";
+                CheckSealedExitConclusion();
+            }
             RefreshCompletion();
         }
 
         private bool IsInvestigationComplete() =>
-            target != null &&
-            target.IsComplete(IsInspected);
+            target != null
+                ? target.IsComplete(IsInspected)
+                : narrativeTarget != null &&
+                  narrativeTarget.IsComplete(IsInspected);
 
         private bool IsInspected(string pointId) =>
             GameStateManager.Instance?.HasFlag(
-                InvestigationTargetCatalog.PointFlag(target, pointId)) == true;
+                target != null
+                    ? InvestigationTargetCatalog.PointFlag(target, pointId)
+                    : NarrativeInvestigationCatalog.PointFlag(
+                        narrativeTarget,
+                        pointId)) == true;
 
         private bool IsRewardGranted() =>
-            target != null &&
-            (EvidenceInventory.Instance?.Contains(target.EvidenceId) == true ||
-             GameStateManager.Instance?.HasFlag(
-                 InvestigationTargetCatalog.CompletionFlag(target)) == true);
+            target != null
+                ? EvidenceInventory.Instance?.Contains(target.EvidenceId) ==
+                  true ||
+                  GameStateManager.Instance?.HasFlag(
+                      InvestigationTargetCatalog.CompletionFlag(target)) ==
+                  true
+                : narrativeTarget != null &&
+                  GameStateManager.Instance?.HasFlag(
+                      narrativeTarget.CompletionFlag) == true;
 
         private void CheckSealedExitConclusion()
         {
@@ -388,7 +529,10 @@ namespace Wake.UI
         {
             root.SetActive(false);
             target = null;
+            narrativeTarget = null;
             evidence = null;
+            imageObservationCallout?.SetActive(false);
+            narrativeImageText?.gameObject.SetActive(false);
             Action callback = exitAction;
             exitAction = null;
             callback?.Invoke();

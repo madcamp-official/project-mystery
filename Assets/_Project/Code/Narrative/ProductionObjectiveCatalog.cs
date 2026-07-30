@@ -394,6 +394,37 @@ namespace Wake.Narrative
                     true);
             }
 
+            if (string.Equals(
+                    definition.SceneId,
+                    ProductionSceneDirector.OpeningSceneId,
+                    StringComparison.Ordinal))
+            {
+                bool invitationFound =
+                    state.CollectedEvidenceIds.Contains(
+                        "C-01",
+                        StringComparer.OrdinalIgnoreCase);
+                if (!invitationFound)
+                {
+                    return new ProductionObjectivePresentation(
+                        definition,
+                        ObjectiveActionType.Find,
+                        "구겨진 초대장 찾기",
+                        "항구 바닥에 떨어진 초대장을 직접 선택해 조사하자.",
+                        ObjectiveMarkerMode.Hover,
+                        target?.Code ?? definition.TargetLocation,
+                        false);
+                }
+
+                return new ProductionObjectivePresentation(
+                    definition,
+                    ObjectiveActionType.Talk,
+                    "다니엘 머서와 이야기하기",
+                    "초대장의 발송 흔적을 확인했다. 다니엘에게 말을 걸어 경위를 묻자.",
+                    ObjectiveMarkerMode.Npc,
+                    target?.Code ?? definition.TargetLocation,
+                    false);
+            }
+
             return new ProductionObjectivePresentation(
                 definition,
                 definition.ActionType,
@@ -471,7 +502,7 @@ namespace Wake.Narrative
     {
         private static readonly ProductionObjectiveDefinition[] Entries =
         {
-            O("P-01", ObjectiveActionType.Find, "항구의 기자를 찾기", "항구를 둘러보고 다니엘을 찾아보자.", ObjectiveMarkerMode.Npc, "다니엘 머서 찾기", "구겨진 초대장 살펴보기", "메신저 알림 확인하기", "다니엘과 이야기하기", "그의 경고에 답하기"),
+            O("P-01", ObjectiveActionType.Find, "구겨진 초대장 찾기", "항구 바닥에 떨어진 초대장을 직접 조사하자.", ObjectiveMarkerMode.Hover, "구겨진 초대장 찾기", "초대장 흔적 확인하기", "다니엘과 이야기하기", "메신저 알림 조사하기", "그의 경고에 답하기"),
             O("P-02", ObjectiveActionType.Inspect, "승선 명단의 오류 확인하기", "승선 명단과 관계자들의 반응을 살펴보자.", ObjectiveMarkerMode.Hover, "이블린과 이야기하기", "승선 명단 살펴보기", "리처드의 반응 확인하기", "명단 수정자를 묻기"),
             O("P-03", ObjectiveActionType.Talk, "리처드의 부탁 듣기", "리처드를 클릭해 그의 부탁을 들어보자.", ObjectiveMarkerMode.Npc, "리처드와 이야기하기", "협박장 조사하기", "아들 사진 살펴보기", "질문을 결정하기"),
             O("D1-01", ObjectiveActionType.Talk, "주요 승객들과 이야기하기", "아트리움에 있는 주요 승객들을 차례로 만나보자.", ObjectiveMarkerMode.Npc, "클레어와 이야기하기", "마커스와 이야기하기", "헬레나와 이야기하기", "오웬과 이야기하기"),
