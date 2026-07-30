@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using Wake.Narrative;
 using Wake.UI;
 
 namespace Wake.Tests
@@ -290,6 +291,185 @@ namespace Wake.Tests
                 if (openedByTest)
                     EditorSceneManager.CloseScene(scene, true);
             }
+        }
+
+        [Test]
+        public void UiScene_DialogueSpeakerNameUsesContainedAuthoredLayout()
+        {
+            Scene scene = SceneManager.GetSceneByPath(ScenePath);
+            bool openedByTest = !scene.isLoaded;
+            if (openedByTest)
+            {
+                scene = EditorSceneManager.OpenScene(
+                    ScenePath,
+                    OpenSceneMode.Additive);
+            }
+
+            GameObject measurementCanvas = null;
+            try
+            {
+                Transform canvas = scene.GetRootGameObjects()
+                    .SelectMany(root =>
+                        root.GetComponentsInChildren<Transform>(true))
+                    .FirstOrDefault(candidate =>
+                        candidate.name == "Canvas");
+                Assert.That(canvas, Is.Not.Null);
+
+                RectTransform speakerPlate = canvas.Find(
+                    "Ingame/Line Panel/Image") as RectTransform;
+                Assert.That(
+                    speakerPlate,
+                    Is.Not.Null,
+                    "대사창 화자 이름표 배경을 찾을 수 없습니다.");
+
+                TMP_Text speakerText = speakerPlate
+                    .Find("Text (TMP)")
+                    ?.GetComponent<TMP_Text>();
+                Assert.That(
+                    speakerText,
+                    Is.Not.Null,
+                    "화자 이름표의 TextMeshProUGUI를 찾을 수 없습니다.");
+
+                RectTransform textRect = speakerText.rectTransform;
+                Assert.That(textRect.anchorMin, Is.EqualTo(Vector2.zero));
+                Assert.That(textRect.anchorMax, Is.EqualTo(Vector2.one));
+                Assert.That(
+                    textRect.offsetMin.x,
+                    Is.EqualTo(32f).Within(0.01f),
+                    "이름표 왼쪽에 Inspector-authored padding이 필요합니다.");
+                Assert.That(
+                    textRect.offsetMin.y,
+                    Is.EqualTo(12f).Within(0.01f),
+                    "이름표 아래쪽에 Inspector-authored padding이 필요합니다.");
+                Assert.That(
+                    textRect.offsetMax.x,
+                    Is.EqualTo(-32f).Within(0.01f),
+                    "이름표 오른쪽에 Inspector-authored padding이 필요합니다.");
+                Assert.That(
+                    textRect.offsetMax.y,
+                    Is.EqualTo(-12f).Within(0.01f),
+                    "이름표 위쪽에 Inspector-authored padding이 필요합니다.");
+                Assert.That(textRect.rect.width, Is.GreaterThan(0f));
+                Assert.That(textRect.rect.height, Is.GreaterThan(0f));
+
+                Assert.That(speakerText.enableAutoSizing, Is.True);
+                Assert.That(
+                    speakerText.fontSizeMin,
+                    Is.EqualTo(36f).Within(0.01f));
+                Assert.That(
+                    speakerText.fontSizeMax,
+                    Is.EqualTo(46f).Within(0.01f));
+                Assert.That(
+                    speakerText.textWrappingMode,
+                    Is.EqualTo(TextWrappingModes.NoWrap));
+                Assert.That(
+                    speakerText.overflowMode,
+                    Is.EqualTo(TextOverflowModes.Ellipsis));
+                Assert.That(
+                    speakerText.horizontalAlignment,
+                    Is.EqualTo(HorizontalAlignmentOptions.Center));
+                Assert.That(
+                    speakerText.verticalAlignment,
+                    Is.EqualTo(VerticalAlignmentOptions.Middle));
+                Assert.That(
+                    speakerText.raycastTarget,
+                    Is.False,
+                    "장식용 이름 텍스트가 대화 입력을 가로채면 안 됩니다.");
+
+                measurementCanvas = BuildSpeakerNameMeasurementCanvas(
+                    speakerPlate,
+                    out TMP_Text measurementText);
+                string[] labels = DialoguePortraitCatalog.All
+                    .Select(definition => definition.DisplayName)
+                    .Concat(new[]
+                    {
+                        GetProductionSpeakerLabel("ADRIAN_독백"),
+                        GetProductionSpeakerLabel("EVELYN_RECORD"),
+                        GetProductionSpeakerLabel("DANIEL_CHAT"),
+                        GetProductionSpeakerLabel("JULIAN_RECORD")
+                    })
+                    .Where(label =>
+                        !string.IsNullOrWhiteSpace(label))
+                    .Distinct()
+                    .ToArray();
+
+                Assert.That(labels, Is.Not.Empty);
+                foreach (string label in labels)
+                {
+                    measurementText.text = label;
+                    Canvas.ForceUpdateCanvases();
+                    measurementText.ForceMeshUpdate(
+                        ignoreActiveState: true,
+                        forceTextReparsing: true);
+
+                    Assert.That(
+                        measurementText.textInfo.lineCount,
+                        Is.LessThanOrEqualTo(1),
+                        $"화자명 '{label}'은 한 줄 이름표 안에 표시되어야 합니다.");
+                    Assert.That(
+                        measurementText.isTextOverflowing,
+                        Is.False,
+                        $"화자명 '{label}'이 Inspector-authored 이름표를 벗어납니다.");
+                    Assert.That(
+                        measurementText.fontSize,
+                        Is.GreaterThanOrEqualTo(
+                            measurementText.fontSizeMin - 0.01f),
+                        $"화자명 '{label}' 표시를 위해 최소 글자 크기보다 " +
+                        "작아져서는 안 됩니다.");
+                }
+            }
+            finally
+            {
+                if (measurementCanvas != null)
+                    Object.DestroyImmediate(measurementCanvas);
+
+                if (openedByTest)
+                    EditorSceneManager.CloseScene(scene, true);
+            }
+        }
+
+        private static GameObject BuildSpeakerNameMeasurementCanvas(
+            RectTransform authoredPlate,
+            out TMP_Text measurementText)
+        {
+            GameObject canvasObject = new(
+                "Speaker Name Layout Measurement",
+                typeof(RectTransform),
+                typeof(Canvas));
+            RectTransform canvasRect =
+                canvasObject.GetComponent<RectTransform>();
+            canvasRect.sizeDelta = new Vector2(1920f, 1080f);
+
+            GameObject plateObject = Object.Instantiate(
+                authoredPlate.gameObject,
+                canvasRect,
+                false);
+            plateObject.name = "Speaker Name Plate";
+            plateObject.SetActive(true);
+
+            RectTransform plateRect =
+                plateObject.GetComponent<RectTransform>();
+            plateRect.anchorMin = new Vector2(0.5f, 0.5f);
+            plateRect.anchorMax = new Vector2(0.5f, 0.5f);
+            plateRect.pivot = new Vector2(0.5f, 0.5f);
+            plateRect.anchoredPosition = Vector2.zero;
+            plateRect.sizeDelta = authoredPlate.rect.size;
+
+            measurementText = plateRect
+                .Find("Text (TMP)")
+                .GetComponent<TMP_Text>();
+            measurementText.gameObject.SetActive(true);
+            Canvas.ForceUpdateCanvases();
+            return canvasObject;
+        }
+
+        private static string GetProductionSpeakerLabel(string sourceSpeaker)
+        {
+            DialogueSpeakerIdentity identity =
+                DialoguePresentationMap.GetSpeaker(sourceSpeaker);
+            return DialoguePresentationMap.GetSpeakerLabel(
+                sourceSpeaker,
+                identity);
         }
     }
 }

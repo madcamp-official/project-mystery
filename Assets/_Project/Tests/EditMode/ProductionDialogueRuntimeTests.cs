@@ -89,6 +89,20 @@ namespace Wake.Tests
                 Is.EqualTo(expected));
         }
 
+        [TestCase("DANIEL", "다니엘 머서")]
+        [TestCase("BALLROOM_MUSICIAN", "무도회장 바이올리니스트")]
+        public void PresentationMap_ProvidesPlayerFacingCharacterLabels(
+            string source,
+            string expected)
+        {
+            DialogueSpeakerIdentity identity =
+                DialoguePresentationMap.GetSpeaker(source);
+
+            Assert.That(
+                DialoguePresentationMap.GetSpeakerLabel(source, identity),
+                Is.EqualTo(expected));
+        }
+
         [Test]
         public void PresentationMap_UsesLineTypeForAdrianMonologue()
         {

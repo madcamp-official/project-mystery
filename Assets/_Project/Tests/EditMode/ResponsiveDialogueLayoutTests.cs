@@ -252,6 +252,23 @@ namespace Wake.Tests
             Assert.That(
                 rig.SpeakerText.overflowMode,
                 Is.EqualTo(rig.AuthoredSpeakerTextOverflow));
+            Assert.That(rig.SpeakerText.enableAutoSizing, Is.True);
+            Assert.That(
+                rig.SpeakerText.fontSizeMin,
+                Is.EqualTo(DialogueTypographyMetrics.SpeakerMinimum));
+            Assert.That(
+                rig.SpeakerText.fontSizeMax,
+                Is.EqualTo(DialogueTypographyMetrics.SpeakerMaximum));
+            Assert.That(
+                rig.SpeakerText.textWrappingMode,
+                Is.EqualTo(TextWrappingModes.NoWrap));
+            Assert.That(
+                rig.SpeakerText.rectTransform.anchorMin,
+                Is.EqualTo(Vector2.zero));
+            Assert.That(
+                rig.SpeakerText.rectTransform.anchorMax,
+                Is.EqualTo(Vector2.one));
+            Assert.That(rig.SpeakerText.raycastTarget, Is.False);
         }
 
         [TestCase(1920f, 1080f)]
@@ -405,8 +422,27 @@ namespace Wake.Tests
                 LineText.rectTransform.sizeDelta = AuthoredLineTextSize;
 
                 SpeakerText = CreateText("Text (TMP)", SpeakerPlate);
-                AuthoredSpeakerTextOverflow = TextOverflowModes.Truncate;
+                RectTransform speakerTextRect =
+                    SpeakerText.rectTransform;
+                speakerTextRect.anchorMin = Vector2.zero;
+                speakerTextRect.anchorMax = Vector2.one;
+                speakerTextRect.anchoredPosition = Vector2.zero;
+                speakerTextRect.sizeDelta = new Vector2(-64f, -24f);
+                AuthoredSpeakerTextOverflow = TextOverflowModes.Ellipsis;
                 SpeakerText.overflowMode = AuthoredSpeakerTextOverflow;
+                SpeakerText.fontSize =
+                    DialogueTypographyMetrics.SpeakerMaximum;
+                SpeakerText.enableAutoSizing = true;
+                SpeakerText.fontSizeMin =
+                    DialogueTypographyMetrics.SpeakerMinimum;
+                SpeakerText.fontSizeMax =
+                    DialogueTypographyMetrics.SpeakerMaximum;
+                SpeakerText.textWrappingMode =
+                    TextWrappingModes.NoWrap;
+                SpeakerText.alignment =
+                    TextAlignmentOptions.Center;
+                SpeakerText.maxVisibleLines = 1;
+                SpeakerText.raycastTarget = false;
                 Portrait = CreateRect(
                     "Speaker Portrait",
                     LinePanel,

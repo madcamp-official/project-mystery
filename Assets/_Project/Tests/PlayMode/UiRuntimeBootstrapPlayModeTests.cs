@@ -886,6 +886,67 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator LongSpeakerName_StaysInsideItsNameplate()
+        {
+            yield return StartNewGameFromVisibleButton();
+
+            Dialogue.CancelActiveDialogue();
+            yield return null;
+            Assert.That(
+                Dialogue.StartAmbientLine(
+                    "BALLROOM_MUSICIAN",
+                    "연주가 시작되기 전에 무도회장을 확인해 주세요."),
+                Is.True);
+            yield return null;
+
+            TMP_Text speaker = RequireComponent<TMP_Text>(
+                "Ingame/Line Panel/Image/Text (TMP)");
+            RectTransform plate = speaker.transform.parent
+                as RectTransform;
+            Assert.That(plate, Is.Not.Null);
+
+            UnityEngine.Canvas.ForceUpdateCanvases();
+            speaker.ForceMeshUpdate();
+
+            Assert.That(
+                speaker.text,
+                Is.EqualTo("무도회장 바이올리니스트"));
+            Assert.That(speaker.enableAutoSizing, Is.True);
+            Assert.That(
+                speaker.textWrappingMode,
+                Is.EqualTo(TextWrappingModes.NoWrap));
+            Assert.That(
+                speaker.overflowMode,
+                Is.EqualTo(TextOverflowModes.Ellipsis));
+            Assert.That(speaker.textInfo.lineCount, Is.EqualTo(1));
+            Assert.That(speaker.isTextOverflowing, Is.False);
+            Assert.That(
+                speaker.fontSize,
+                Is.GreaterThanOrEqualTo(
+                    DialogueTypographyMetrics.SpeakerMinimum - 0.01f));
+
+            Bounds textRectBounds =
+                RectTransformUtility.CalculateRelativeRectTransformBounds(
+                    plate,
+                    speaker.rectTransform);
+            Assert.That(
+                textRectBounds.min.x,
+                Is.GreaterThanOrEqualTo(plate.rect.xMin - 0.01f));
+            Assert.That(
+                textRectBounds.max.x,
+                Is.LessThanOrEqualTo(plate.rect.xMax + 0.01f));
+            Assert.That(
+                textRectBounds.min.y,
+                Is.GreaterThanOrEqualTo(plate.rect.yMin - 0.01f));
+            Assert.That(
+                textRectBounds.max.y,
+                Is.LessThanOrEqualTo(plate.rect.yMax + 0.01f));
+
+            Dialogue.CancelActiveDialogue();
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator TitleLogo_UsesEntireSourceImage()
         {
             yield return null;

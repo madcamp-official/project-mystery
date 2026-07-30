@@ -1000,9 +1000,12 @@ namespace Wake.Narrative
             DialogueDatabase db = DialogueDatabase.Instance;
             if (db != null && db.TryGetLine(currentNode.LineId, out DialogueLine line))
             {
-                speakerText.text = line.Speaker;
                 DialogueSpeakerIdentity legacySpeaker =
                     DialoguePresentationMap.GetSpeaker(line.Speaker);
+                speakerText.text =
+                    DialoguePresentationMap.GetSpeakerLabel(
+                        line.Speaker,
+                        legacySpeaker);
                 ApplyPresentation(
                     DialoguePresentationPolicy.ForProduction(
                         legacySpeaker));
