@@ -17,7 +17,9 @@ namespace Wake.Exploration
             string title,
             string description,
             Rect hotspot,
-            Rect imageUv)
+            Rect imageUv,
+            IEnumerable<string> sceneIds = null,
+            IEnumerable<string> backgroundVariantKeys = null)
         {
             Id = id;
             Location = location;
@@ -25,6 +27,8 @@ namespace Wake.Exploration
             Description = description;
             Hotspot = hotspot;
             ImageUv = imageUv;
+            SceneIds = Normalize(sceneIds);
+            BackgroundVariantKeys = Normalize(backgroundVariantKeys);
         }
 
         public string Id { get; }
@@ -33,6 +37,37 @@ namespace Wake.Exploration
         public string Description { get; }
         public Rect Hotspot { get; }
         public Rect ImageUv { get; }
+        public IReadOnlyList<string> SceneIds { get; }
+        public IReadOnlyList<string> BackgroundVariantKeys { get; }
+
+        public bool IsAvailable(
+            string sceneId,
+            string backgroundVariantKey)
+        {
+            string normalizedScene =
+                sceneId?.Trim().ToUpperInvariant() ?? string.Empty;
+            string normalizedVariant =
+                BackgroundInteractionShape.NormalizeVariantKey(
+                    backgroundVariantKey);
+            return (SceneIds.Count == 0 ||
+                    SceneIds.Contains(
+                        normalizedScene,
+                        StringComparer.OrdinalIgnoreCase)) &&
+                   (BackgroundVariantKeys.Count == 0 ||
+                    BackgroundVariantKeys.Any(value =>
+                        string.Equals(
+                            BackgroundInteractionShape.NormalizeVariantKey(
+                                value),
+                            normalizedVariant,
+                            StringComparison.Ordinal)));
+        }
+
+        private static string[] Normalize(IEnumerable<string> values) =>
+            (values ?? Array.Empty<string>())
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Select(value => value.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
     }
 
     public static class AmbientInspectableCatalog
@@ -68,7 +103,13 @@ namespace Wake.Exploration
                 title,
                 description,
                 ApprovedBackgroundHotspot(id, hotspot),
-                imageUv);
+                imageUv,
+                id == "PROP_BROCHURE"
+                    ? new[] { "P-01" }
+                    : Array.Empty<string>(),
+                id == "PROP_BROCHURE"
+                    ? new[] { "serialized:bg_location_port_evidence" }
+                    : Array.Empty<string>());
 
         private static Rect ApprovedBackgroundHotspot(
             string id,
@@ -103,44 +144,74 @@ namespace Wake.Exploration
             contentRect = backgroundContentRect;
         }
 
-        public void Show(string locationCode)
+        public void Show(
+            string locationCode,
+            string narrativeSceneId,
+            LocationBackgroundSelection backgroundSelection)
         {
             Clear();
+            if (contentRect == null)
+            {
+                return;
+            }
+
+            string variantKey = backgroundSelection.VariantKey;
             foreach (AmbientInspectableSpec spec in
                      AmbientInspectableCatalog.GetForLocation(locationCode))
             {
+                if (!spec.IsAvailable(narrativeSceneId, variantKey))
+                {
+                    continue;
+                }
+
+                bool hasApprovedShape =
+                    BackgroundInteractionShapeCatalog.TryGet(
+                        spec.Id,
+                        locationCode,
+                        backgroundSelection,
+                        out BackgroundInteractionShape shape);
+                if (!hasApprovedShape)
+                {
+                    continue;
+                }
+                if (!shape.IsPresent)
+                {
+                    continue;
+                }
+
                 GameObject target = new(
                     $"AmbientInspectable_{spec.Id}",
                     typeof(RectTransform),
                     typeof(CanvasRenderer),
                     typeof(Image),
-                    typeof(Button),
-                    typeof(Outline));
+                    typeof(Button));
                 target.transform.SetParent(contentRect, false);
                 RectTransform rect = target.GetComponent<RectTransform>();
-                Rect hotspot =
-                    AmbientInteractionPresentation.ClampHotspot(spec.Hotspot);
-                if (RuntimeUiLayoutRegistry.TryGetNormalizedRect(
-                        $"location.{locationCode}.inspectable.{spec.Id}",
-                        out Rect placeholder))
-                {
-                    hotspot = placeholder;
-                }
+                Rect hotspot = AmbientInteractionPresentation.ClampHotspot(
+                    shape.NormalizedBounds);
                 rect.anchorMin = hotspot.min;
                 rect.anchorMax = hotspot.max;
                 rect.offsetMin = Vector2.zero;
                 rect.offsetMax = Vector2.zero;
                 Image image = target.GetComponent<Image>();
-                image.color = Color.white;
-                Outline outline = target.GetComponent<Outline>();
-                outline.effectColor = new Color32(87, 202, 212, 120);
-                outline.effectDistance = new Vector2(2f, -2f);
+                image.color = Color.clear;
+                image.raycastTarget = true;
                 Button button = target.GetComponent<Button>();
+                button.targetGraphic = image;
+                button.transition = Selectable.Transition.None;
                 button.colors = AmbientInteractionPresentation.HotspotColors();
                 button.onClick.AddListener(() =>
                     AmbientInspectablePopup.Show(spec));
+                if (hasApprovedShape)
+                {
+                    target.AddComponent<PolygonHotspotRaycastFilter>()
+                        .Configure(shape.LocalPolygon);
+                }
                 target.AddComponent<ExplorationHotspotFeedback>()
-                    .Configure();
+                    .ConfigureExactShape(
+                        hasApprovedShape
+                            ? shape.LocalLabelAnchor
+                            : new Vector2(0.5f, 0.5f));
                 spawned.Add(target);
             }
         }
