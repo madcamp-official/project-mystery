@@ -3,6 +3,7 @@ using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
+using Wake.Core;
 using Wake.Narrative;
 
 namespace Wake.Tests
@@ -144,6 +145,10 @@ namespace Wake.Tests
             foreach (ChapterTransitionRequest transition in
                      ProductionChapterTransitionCatalog.All)
             {
+                Assert.That(
+                    transition.MusicKey,
+                    Is.EqualTo(AudioCueCatalog.ChapterTransitionMusicKey),
+                    $"{transition.CompletedSceneId} chapter music key");
                 Assert.That(
                     UnityEngine.Resources.Load<UnityEngine.AudioClip>(
                         transition.MusicKey),

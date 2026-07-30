@@ -43,6 +43,7 @@ namespace Wake.Core
     public static class AudioCueCatalog
     {
         public const float MapTravelFootstepSeconds = 1.5f;
+        public const string ChapterTransitionMusicKey = "BGM/Mystery";
 
         public const string WaterSloshingKey =
             "SoundEffect/sound_of_water_sloshing";

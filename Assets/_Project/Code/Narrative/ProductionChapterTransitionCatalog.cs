@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Wake.Core;
 
 namespace Wake.Narrative
 {
@@ -65,43 +66,43 @@ namespace Wake.Narrative
                 "출항과 첫 조사 파티",
                 "MV Elysium은 항구를 떠난다",
                 "departure",
-                "BGM/Passage_to_Port",
+                AudioCueCatalog.ChapterTransitionMusicKey,
                 "SoundEffect/horn"),
             T(
                 "D1-07", "D2-01", TransitionKind.DayChange,
                 "DAY 2", "2일 차",
                 "밤사이 남겨진 흔적과 기록을 다시 추적합니다.",
-                "open_deck", "BGM/Midnight_Latitude(Theme_Adrian_Vale)", ""),
+                "open_deck", AudioCueCatalog.ChapterTransitionMusicKey, ""),
             T(
                 "D2-06", "D3-01", TransitionKind.DayChange,
                 "DAY 3", "3일 차",
                 "승객들의 증언과 사라진 기록을 대조합니다.",
-                "promenade", "BGM/Midnight_Latitude(Theme_Adrian_Vale)", ""),
+                "promenade", AudioCueCatalog.ChapterTransitionMusicKey, ""),
             T(
                 "D3-05", "D4-01", TransitionKind.DayChange,
                 "DAY 4", "4일 차",
                 "감시망의 빈틈과 이동 경로를 좁혀 갑니다.",
-                "security", "BGM/Midnight_Latitude(Theme_Adrian_Vale)", ""),
+                "security", AudioCueCatalog.ChapterTransitionMusicKey, ""),
             T(
                 "D4-04", "D5-01", TransitionKind.DayChange,
                 "DAY 5", "5일 차",
                 "얽힌 관계와 조작된 증언을 확인합니다.",
-                "horizon", "BGM/The_Horizon_Room", ""),
+                "horizon", AudioCueCatalog.ChapterTransitionMusicKey, ""),
             T(
                 "D5-04", "D6-01", TransitionKind.DayChange,
                 "DAY 6", "6일 차",
                 "기관 구역에서 사건의 실제 흔적을 찾습니다.",
-                "engine", "BGM/The_Horizon_Room", ""),
+                "engine", AudioCueCatalog.ChapterTransitionMusicKey, ""),
             T(
                 "D6-05", "D7-01", TransitionKind.DayChange,
                 "DAY 7", "7일 차",
                 "남은 기록을 복원해 마지막 모순을 정리합니다.",
-                "archive", "BGM/The_Horizon_Room", ""),
+                "archive", AudioCueCatalog.ChapterTransitionMusicKey, ""),
             T(
                 "D7-04", "D8-01", TransitionKind.Finale,
                 "DAY 8", "8일 차",
                 "확보한 정보와 증거로 진실을 밝힐 시간입니다.",
-                "bridge", "BGM/The_Horizon_Room", "")
+                "bridge", AudioCueCatalog.ChapterTransitionMusicKey, "")
         };
 
         private static readonly IReadOnlyDictionary<string, ChapterTransitionRequest>
