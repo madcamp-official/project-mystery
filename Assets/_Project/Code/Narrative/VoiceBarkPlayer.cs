@@ -45,12 +45,10 @@ namespace Wake.Narrative
     {
         private const float CooldownSeconds = 1.4f;
         private const int RepeatGuardCount = 3;
-        private const float CoverageRatio = 0.4f;
         private const string GreetCue = "GREET";
 
         private readonly IVoiceBarkClipProvider clipProvider;
         private readonly AudioSource audioSource;
-        private readonly Func<float> randomUnit;
         private readonly Func<int, int> randomIndexBelow;
         private readonly Dictionary<string, Queue<string>> recentClipsByCharacter = new();
         private readonly Dictionary<string, float> lastPlayTimeByCharacter = new();
@@ -59,12 +57,10 @@ namespace Wake.Narrative
         public VoiceBarkPlayer(
             IVoiceBarkClipProvider clipProvider,
             AudioSource audioSource,
-            Func<float> randomUnit = null,
             Func<int, int> randomIndexBelow = null)
         {
             this.clipProvider = clipProvider;
             this.audioSource = audioSource;
-            this.randomUnit = randomUnit ?? (() => UnityEngine.Random.value);
             this.randomIndexBelow =
                 randomIndexBelow ?? (max => UnityEngine.Random.Range(0, max));
         }
@@ -75,11 +71,6 @@ namespace Wake.Narrative
             bool isNewSpeakerTurn,
             float currentTime)
         {
-            if (randomUnit() > CoverageRatio)
-            {
-                return false;
-            }
-
             if (lastPlayTimeByCharacter.TryGetValue(characterId, out float lastPlayed) &&
                 currentTime - lastPlayed < CooldownSeconds)
             {

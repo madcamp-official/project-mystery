@@ -447,6 +447,7 @@ namespace Wake.Narrative
             currentSet = dialogueSet;
             productionFlow = null;
             IsBusy = true;
+            AudioManager.Instance?.SetDialogueDucking(true);
             linePanel.SetActive(true);
             GoToNode(dialogueSet.StartNodeId);
         }
@@ -466,6 +467,7 @@ namespace Wake.Narrative
             productionFlow = null;
             ambientLineActive = true;
             IsBusy = true;
+            AudioManager.Instance?.SetDialogueDucking(true);
             linePanel.SetActive(true);
             choicePresentation.Hide();
             presentationView?.SetChoicesVisible(false);
@@ -679,6 +681,7 @@ namespace Wake.Narrative
         {
             StopTypewriter();
             IsBusy = false;
+            AudioManager.Instance?.SetDialogueDucking(false);
             currentSet = null;
             currentNode = null;
             productionFlow = null;
@@ -737,6 +740,7 @@ namespace Wake.Narrative
             currentSet = null;
             currentNode = null;
             IsBusy = true;
+            AudioManager.Instance?.SetDialogueDucking(true);
             linePanel.SetActive(true);
             FindFirstObjectByType<NarrativeLocationHUDController>()
                 ?.ShowScene(productionFlow.ActiveSceneId);
@@ -799,7 +803,6 @@ namespace Wake.Narrative
                 }
 
                 AudioManager.Instance?.PlaySfx(clip);
-                AudioManager.Instance?.DuckMusic(0.5f, clip.length);
                 return;
             }
 
@@ -1263,6 +1266,7 @@ namespace Wake.Narrative
                 SaveProductionCheckpoint();
             }
             IsBusy = false;
+            AudioManager.Instance?.SetDialogueDucking(false);
             currentSet = null;
             currentNode = null;
             productionFlow = null;

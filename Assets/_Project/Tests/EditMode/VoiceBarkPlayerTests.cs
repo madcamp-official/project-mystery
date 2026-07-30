@@ -46,7 +46,7 @@ namespace Wake.Tests
             var provider = new FakeClipProvider();
             provider.Clips[("DANIEL", "GREET")] = new[] { FakeClip("DANIEL_GREET_01") };
             var player = new VoiceBarkPlayer(
-                provider, source, randomUnit: () => 0f, randomIndexBelow: _ => 0);
+                provider, source, randomIndexBelow: _ => 0);
 
             bool played = player.TryPlayBark(
                 "DANIEL", PortraitEmotion.Angry, isNewSpeakerTurn: true, currentTime: 0f);
@@ -63,7 +63,7 @@ namespace Wake.Tests
         {
             var provider = new FakeClipProvider();
             var player = new VoiceBarkPlayer(
-                provider, source, randomUnit: () => 0f, randomIndexBelow: _ => 0);
+                provider, source, randomIndexBelow: _ => 0);
 
             bool played = player.TryPlayBark(
                 "EVELYN", PortraitEmotion.Neutral, isNewSpeakerTurn: true, currentTime: 0f);
@@ -72,18 +72,24 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void CoverageGate_SkipsWhenRandomUnitMissesRatio()
+        public void EveryEligibleLine_PlaysWithNoCoverageSkip()
         {
             var provider = new FakeClipProvider();
-            provider.Clips[("DANIEL", "GREET")] = new[] { FakeClip("DANIEL_GREET_01") };
+            provider.Clips[("DANIEL", "ACK_POS")] = new[] { FakeClip("DANIEL_ACK_POS_01") };
             var player = new VoiceBarkPlayer(
-                provider, source, randomUnit: () => 0.99f, randomIndexBelow: _ => 0);
+                provider, source, randomIndexBelow: _ => 0);
 
-            bool played = player.TryPlayBark(
-                "DANIEL", PortraitEmotion.Neutral, isNewSpeakerTurn: true, currentTime: 0f);
-
-            Assert.That(played, Is.False);
+            float t = 0f;
+            for (int i = 0; i < 10; i++)
+            {
+                bool played = player.TryPlayBark(
+                    "DANIEL", PortraitEmotion.Neutral, isNewSpeakerTurn: false, currentTime: t);
+                Assert.That(played, Is.True, $"call {i}");
+                t += CooldownSecondsForTest;
+            }
         }
+
+        private const float CooldownSecondsForTest = 1.5f;
 
         [Test]
         public void Cooldown_BlocksSecondPlayWithin1Point4Seconds()
@@ -94,7 +100,7 @@ namespace Wake.Tests
                 FakeClip("DANIEL_GREET_01"), FakeClip("DANIEL_GREET_02")
             };
             var player = new VoiceBarkPlayer(
-                provider, source, randomUnit: () => 0f, randomIndexBelow: _ => 0);
+                provider, source, randomIndexBelow: _ => 0);
 
             Assert.That(
                 player.TryPlayBark(
@@ -122,7 +128,6 @@ namespace Wake.Tests
             var player = new VoiceBarkPlayer(
                 provider,
                 source,
-                randomUnit: () => 0f,
                 randomIndexBelow: max =>
                 {
                     seenIndexes.Add(max);
