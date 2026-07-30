@@ -111,6 +111,13 @@ namespace Wake.Core
         public static int ActiveSaveSlot => GameStateSaveStore.ActiveSlot;
         public static bool HasSaveDataInSlot(int slot) =>
             GameStateSaveStore.HasRecoverableData(slot);
+        public static SaveSlotSummary GetSaveSlotSummary(int slot)
+        {
+            GameStateSavePreview preview = GameStateSaveStore.Preview(slot);
+            return SaveSlotSummaryResolver.Resolve(
+                preview.Data,
+                preview.IsLegacy);
+        }
         public static void SetActiveSaveSlot(int slot) =>
             GameStateSaveStore.SelectSlot(slot);
         public static void DeleteSaveSlot(int slot)

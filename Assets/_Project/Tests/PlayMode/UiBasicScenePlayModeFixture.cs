@@ -98,12 +98,7 @@ namespace Wake.Tests.PlayMode
                 "새 게임 버튼은 시작 화면에서 보여야 합니다.");
 
             yield return InvokeAndSettle(startButton);
-            Button slot = RequireObject("StartScene/Save Slot Selection")
-                .GetComponentsInChildren<Button>(true)
-                .First(button =>
-                    button.name.StartsWith("Save Slot") &&
-                    button.GetComponentInChildren<TMP_Text>(true).text.Contains(
-                        "비어 있는 기록"));
+            Button slot = RequireSaveSlotButton(1);
             yield return InvokeAndSettle(slot);
             Button confirm = RequireObject(
                     "StartScene/Save Slot Selection/Start Confirmation/Confirm")
@@ -137,11 +132,7 @@ namespace Wake.Tests.PlayMode
                 .GetComponentsInChildren<Button>(true)
                 .First(button => button.name == "시작하기");
             yield return InvokeAndSettle(startButton);
-            Button slot = RequireObject("StartScene/Save Slot Selection")
-                .GetComponentsInChildren<Button>(true)
-                .First(button =>
-                    button.name.StartsWith("Save Slot") &&
-                    button.GetComponentInChildren<TMP_Text>(true).text.Contains("저장된 수사"));
+            Button slot = RequireSaveSlotButton(1);
             yield return InvokeAndSettle(slot);
             Button confirm = RequireObject(
                     "StartScene/Save Slot Selection/Start Confirmation/Confirm")
@@ -337,6 +328,23 @@ namespace Wake.Tests.PlayMode
                 $"opening completion missing; busy={Dialogue.IsBusy}, " +
                 $"active={Dialogue.ActiveProductionSceneId}, " +
                 $"checkpoint={State.DialogueCheckpoint?.activeSceneId ?? "<none>"}");
+        }
+
+        protected Button RequireSaveSlotButton(int slot)
+        {
+            Assert.That(slot, Is.InRange(1, 3));
+            return RequireComponent<Button>(
+                "StartScene/Save Slot Selection/Slot Frame/" +
+                $"Slot Card {slot}/Save Slot {slot}");
+        }
+
+        protected TMP_Text RequireSaveSlotText(int slot, string elementName)
+        {
+            Assert.That(slot, Is.InRange(1, 3));
+            Assert.That(elementName, Is.Not.Null.And.Not.Empty);
+            return RequireText(
+                "StartScene/Save Slot Selection/Slot Frame/" +
+                $"Slot Card {slot}/Save Slot {slot}/{elementName}");
         }
 
         protected GameObject RequireObject(string path)
