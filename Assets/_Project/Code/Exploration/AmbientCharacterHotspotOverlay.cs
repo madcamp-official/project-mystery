@@ -139,11 +139,11 @@ namespace Wake.Exploration
             bool hasScenePresence = ScenePresenceCatalog.TryGet(
                 currentSceneId,
                 out ScenePresenceRecord scene);
-            string presentationLocationCode =
-                hasScenePresence &&
-                !string.IsNullOrWhiteSpace(scene.FocusLocation)
-                    ? scene.FocusLocation
-                    : currentLocationCode;
+            // The scene selects the current story-time placement snapshot.
+            // The room that is actually loaded selects which members of that
+            // snapshot may be rendered. Using FocusLocation here would borrow
+            // the objective cast into every room the player visits.
+            string presentationLocationCode = currentLocationCode;
             IReadOnlyList<AmbientBarkRecord> barks =
                 AmbientBarkCatalog.GetAvailable(
                     presentationLocationCode,
@@ -789,6 +789,9 @@ namespace Wake.Exploration
                 !ScenePresenceCatalog.TryGet(
                     currentSceneId,
                     out ScenePresenceRecord scene) ||
+                !SamePhysicalLocation(
+                    currentLocationCode,
+                    scene.FocusLocation) ||
                 !string.Equals(
                     scene.ContextBarkId,
                     bark.Id,
@@ -1127,6 +1130,25 @@ namespace Wake.Exploration
                 sceneId ?? string.Empty,
                 locationCode ?? string.Empty,
                 sourceId ?? string.Empty);
+        }
+
+        private static bool SamePhysicalLocation(
+            string left,
+            string right)
+        {
+            string normalizedLeft =
+                CanonicalLocationCatalog.FindSpec(left)?.Code ??
+                left?.Trim().ToUpperInvariant() ??
+                string.Empty;
+            string normalizedRight =
+                CanonicalLocationCatalog.FindSpec(right)?.Code ??
+                right?.Trim().ToUpperInvariant() ??
+                string.Empty;
+            return normalizedLeft.Length > 0 &&
+                   string.Equals(
+                       normalizedLeft,
+                       normalizedRight,
+                       System.StringComparison.Ordinal);
         }
 
         private static int CreateStableMotionSeed(

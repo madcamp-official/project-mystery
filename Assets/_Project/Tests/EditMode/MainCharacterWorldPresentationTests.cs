@@ -183,5 +183,40 @@ namespace Wake.Tests
             Assert.That(visible, Does.Not.Contain("RICHARD"));
             Assert.That(visible, Does.Not.Contain("EVELYN"));
         }
+
+        [Test]
+        public void D202_HelenaIsFocusOnlyAtHorizon()
+        {
+            ScenePresenceCatalog.TryGet(
+                "D2-02",
+                out ScenePresenceRecord bloodPattern);
+
+            SceneWorldCharacter[] vipLounge =
+                ScenePresencePresentationPolicy
+                    .SelectVisible(
+                        bloodPattern,
+                        "VIP_LOUNGE",
+                        visibleLimit: 5)
+                    .ToArray();
+            SceneWorldCharacter[] horizon =
+                ScenePresencePresentationPolicy
+                    .SelectVisible(
+                        bloodPattern,
+                        "HORIZON",
+                        visibleLimit: 5)
+                    .ToArray();
+
+            Assert.That(
+                vipLounge.Select(entry => entry.CharacterId),
+                Is.EquivalentTo(new[] { "EVELYN", "CLAIRE" }));
+            Assert.That(
+                vipLounge.Any(entry => entry.IsFocusParticipant),
+                Is.False);
+            Assert.That(
+                horizon,
+                Has.Some.Matches<SceneWorldCharacter>(entry =>
+                    entry.CharacterId == "HELENA" &&
+                    entry.IsFocusParticipant));
+        }
     }
 }

@@ -543,6 +543,14 @@ namespace Wake.Narrative
             string normalizedCharacterId = characterId.Trim();
             Wake.Core.GameStateManager state =
                 Wake.Core.GameStateManager.Instance;
+            if (!CanTalkToWorldCharacterAtCurrentLocation(
+                    normalizedSceneId,
+                    normalizedCharacterId,
+                    state))
+            {
+                return false;
+            }
+
             if (state?.HasFlag(
                     ProductionConditionEvaluator.ChoiceFlag(
                         $"{normalizedSceneId}_{normalizedCharacterId}")) == true)
@@ -598,6 +606,65 @@ namespace Wake.Narrative
             }
 
             return true;
+        }
+
+        private static bool CanTalkToWorldCharacterAtCurrentLocation(
+            string sceneId,
+            string characterId,
+            Wake.Core.GameStateManager state)
+        {
+            if (state == null ||
+                !ProductionSceneUnlockPolicy.Evaluate(sceneId, state).IsAllowed ||
+                !ScenePresenceCatalog.TryGet(
+                    sceneId,
+                    out ScenePresenceRecord presence))
+            {
+                return false;
+            }
+
+            string currentLocation =
+                LocationLoader.Instance?.CurrentLocation?.LocationCode ??
+                state.CurrentLocationCode;
+            string normalizedCurrent =
+                CanonicalLocationCatalog.FindSpec(currentLocation)?.Code ??
+                currentLocation?.Trim().ToUpperInvariant() ??
+                string.Empty;
+            string focusLocation =
+                CanonicalLocationCatalog.FindSpec(presence.FocusLocation)?.Code ??
+                presence.FocusLocation?.Trim().ToUpperInvariant() ??
+                string.Empty;
+            string characterLocation =
+                CanonicalLocationCatalog
+                    .FindSpec(presence.GetLocation(characterId))
+                    ?.Code ??
+                presence.GetLocation(characterId)
+                    ?.Trim()
+                    .ToUpperInvariant() ??
+                string.Empty;
+            if (normalizedCurrent.Length == 0 ||
+                !string.Equals(
+                    normalizedCurrent,
+                    focusLocation,
+                    StringComparison.Ordinal) ||
+                !string.Equals(
+                    normalizedCurrent,
+                    characterLocation,
+                    StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            return ScenePresencePresentationPolicy
+                .Select(
+                    presence,
+                    normalizedCurrent,
+                    ScenePresenceCatalog.MainCharacterIds.Count)
+                .Any(character =>
+                    character.IsFocusParticipant &&
+                    string.Equals(
+                        character.CharacterId,
+                        characterId,
+                        StringComparison.OrdinalIgnoreCase));
         }
 
         public void CancelActiveDialogue()

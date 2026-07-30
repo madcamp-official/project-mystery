@@ -289,6 +289,46 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void InteractionOpenGate_RequiresLocationAndPendingCheckpoint()
+        {
+            state.RecordCompletedScene("D2-01");
+            state.UnlockProductionScene("D2-02");
+            state.SaveDialogueCheckpoint(
+                "D2-02",
+                0,
+                false,
+                ProductionPuzzleCatalog.BloodPattern);
+
+            Assert.That(
+                ProductionSceneCompletionGate.CanOpenInteractionAtLocation(
+                    state,
+                    "D2-02",
+                    ProductionPuzzleCatalog.BloodPattern,
+                    "VIP_LOUNGE"),
+                Is.False);
+            Assert.That(
+                ProductionSceneCompletionGate.CanOpenInteractionAtLocation(
+                    state,
+                    "D2-02",
+                    ProductionPuzzleCatalog.BloodPattern,
+                    "HORIZON"),
+                Is.True);
+
+            state.SaveDialogueCheckpoint(
+                "D2-02",
+                0,
+                false,
+                "wrong_interaction");
+            Assert.That(
+                ProductionSceneCompletionGate.CanOpenInteractionAtLocation(
+                    state,
+                    "D2-02",
+                    ProductionPuzzleCatalog.BloodPattern,
+                    "HORIZON"),
+                Is.False);
+        }
+
+        [Test]
         public void SavedInteractionCompletion_IsVisibleToNewFlow()
         {
             ProductionSceneCompletionGate.TryComplete(

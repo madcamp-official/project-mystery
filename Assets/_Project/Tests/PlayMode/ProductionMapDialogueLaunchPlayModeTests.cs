@@ -8,6 +8,7 @@ using UnityEngine.TestTools;
 using UnityEngine.UI;
 using Wake.Exploration;
 using Wake.Narrative;
+using Wake.Puzzles;
 using Wake.UI;
 
 namespace Wake.Tests.PlayMode
@@ -110,6 +111,108 @@ namespace Wake.Tests.PlayMode
             Assert.That(Dialogue.ActiveProductionSceneId, Is.Empty);
             Assert.That(Ui.ActivePanel, Is.EqualTo(UiPrimaryPanel.Map));
             AssertNoRuntimeErrors("잠긴 맵 장면 거부");
+        }
+
+        [UnityTest]
+        public IEnumerator D202FocusCharacterAndBloodPuzzle_RequireHorizon()
+        {
+            yield return StartNewGameFromVisibleButton(
+                startOpeningDialogue: false);
+            foreach (ProductionSceneDefinition scene in
+                     ProductionSceneCatalog.All.TakeWhile(
+                         scene => scene.SceneId != "D2-02"))
+            {
+                State.RecordCompletedScene(scene.SceneId);
+            }
+            State.UnlockProductionScene("D2-02");
+
+            MapController map = RequireMap();
+            map.RefreshMap();
+            ProductionMapEntry vipLounge =
+                map.CurrentViewModel.Entries.Single(
+                    entry => entry.Spec.Code == "VIP_LOUNGE");
+            LocationLoader.Instance.PrepareNarrativeScene(string.Empty);
+            Assert.That(
+                LocationLoader.Instance.TryLoadLocation(
+                    vipLounge.Location,
+                    out _),
+                Is.True);
+            Ui.ShowIngame();
+            yield return WaitForUiTransition();
+            yield return null;
+
+            Button[] vipCharacters = Object.FindObjectsByType<Button>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None)
+                .Where(button =>
+                    button.name.StartsWith("AmbientCharacter_"))
+                .ToArray();
+            string vipCharacterNames = string.Join(
+                ", ",
+                vipCharacters.Select(button => button.name));
+            Assert.That(
+                vipCharacters.Any(button =>
+                    button.name.StartsWith("AmbientCharacter_HELENA")),
+                Is.False,
+                vipCharacterNames);
+            Assert.That(
+                vipCharacters.Any(button =>
+                    button.name.StartsWith("AmbientCharacter_EVELYN")),
+                Is.True,
+                vipCharacterNames);
+            Assert.That(
+                vipCharacters.Any(button =>
+                    button.name.StartsWith("AmbientCharacter_CLAIRE")),
+                Is.True,
+                vipCharacterNames);
+            Assert.That(
+                Dialogue.TalkToWorldCharacter("D2-02", "HELENA"),
+                Is.False);
+
+            BloodDirectionPuzzleUIController bloodPuzzle =
+                RequireObject("Ingame")
+                    .GetComponent<BloodDirectionPuzzleUIController>();
+            Assert.That(bloodPuzzle, Is.Not.Null);
+            Assert.That(bloodPuzzle.Open(), Is.False);
+            Assert.That(bloodPuzzle.IsOpen, Is.False);
+
+            ProductionMapEntry horizon =
+                map.CurrentViewModel.Entries.Single(
+                    entry => entry.Spec.Code == "HORIZON");
+            LocationLoader.Instance.PrepareNarrativeScene("D2-02");
+            Assert.That(
+                LocationLoader.Instance.TryLoadLocation(
+                    horizon.Location,
+                    out _),
+                Is.True);
+            yield return null;
+            yield return null;
+            Assert.That(
+                bloodPuzzle.Open(),
+                Is.False,
+                "The puzzle must wait for the D2-02 dialogue checkpoint.");
+
+            Button helena = Object.FindObjectsByType<Button>(
+                    FindObjectsInactive.Exclude,
+                    FindObjectsSortMode.None)
+                .Single(button =>
+                    button.name.StartsWith("AmbientCharacter_HELENA"));
+            yield return InvokeAndSettle(helena);
+            Assert.That(
+                Dialogue.ActiveProductionSceneId,
+                Is.EqualTo("D2-02"));
+            yield return CompleteActiveProductionDialogue();
+
+            Assert.That(bloodPuzzle.IsOpen, Is.True);
+            Assert.That(State.DialogueCheckpoint, Is.Not.Null);
+            Assert.That(
+                State.DialogueCheckpoint.activeSceneId,
+                Is.EqualTo("D2-02"));
+            Assert.That(
+                State.DialogueCheckpoint.pendingInteractionId,
+                Is.EqualTo(ProductionPuzzleCatalog.BloodPattern));
+            AssertNoRuntimeErrors(
+                "D2-02 focus character and blood puzzle location gate");
         }
 
         [UnityTest]
