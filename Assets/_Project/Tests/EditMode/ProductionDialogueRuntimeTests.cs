@@ -553,6 +553,84 @@ namespace Wake.Tests
                 Is.EqualTo(expected));
         }
 
+        [Test]
+        public void D101_ClickingEachSuspectByNameCompletesTheAtriumScene()
+        {
+            host = new GameObject("AtriumWorldSelection");
+            GameStateManager state = host.AddComponent<GameStateManager>();
+            state.RecordCompletedScene("P-03");
+            var flow = new ProductionDialogueFlow(records, null, state);
+
+            Assert.That(
+                flow.StartScene("D1-01"),
+                Is.True,
+                string.Join("\n", flow.Warnings));
+            while (!flow.IsAwaitingWorldSelection && !flow.IsComplete)
+            {
+                flow.Advance();
+            }
+
+            Assert.That(flow.IsAwaitingWorldSelection, Is.True);
+            Assert.That(
+                flow.Choices.Select(choice => choice.ChoiceId),
+                Is.EquivalentTo(new[]
+                {
+                    "D1-01_CLAIRE",
+                    "D1-01_MARCUS",
+                    "D1-01_HELENA",
+                    "D1-01_OWEN"
+                }));
+
+            foreach (string character in
+                     new[] { "OWEN", "HELENA", "MARCUS", "CLAIRE" })
+            {
+                Assert.That(
+                    flow.SelectFreeChoiceForCharacter(character),
+                    Is.True,
+                    character);
+                Assert.That(flow.Current.Speaker, Is.EqualTo(character));
+
+                while (!flow.IsAwaitingChoice && !flow.IsComplete)
+                {
+                    flow.Advance();
+                }
+            }
+
+            Assert.That(flow.IsComplete, Is.True);
+            Assert.That(flow.IsSceneCompleted("D1-01"), Is.True);
+            Assert.That(state.HasFlag("met_claire"), Is.True);
+            Assert.That(state.HasFlag("met_marcus"), Is.True);
+            Assert.That(state.HasFlag("met_helena"), Is.True);
+            Assert.That(state.HasFlag("met_owen"), Is.True);
+            Assert.That(flow.Warnings, Is.Empty);
+        }
+
+        [Test]
+        public void D101_ReselectingAnAlreadyInterviewedSuspectFails()
+        {
+            host = new GameObject("AtriumWorldSelectionRepeat");
+            GameStateManager state = host.AddComponent<GameStateManager>();
+            state.RecordCompletedScene("P-03");
+            var flow = new ProductionDialogueFlow(records, null, state);
+
+            flow.StartScene("D1-01");
+            while (!flow.IsAwaitingWorldSelection)
+            {
+                flow.Advance();
+            }
+
+            Assert.That(flow.SelectFreeChoiceForCharacter("CLAIRE"), Is.True);
+            while (!flow.IsAwaitingChoice && !flow.IsComplete)
+            {
+                flow.Advance();
+            }
+
+            Assert.That(
+                flow.SelectFreeChoiceForCharacter("CLAIRE"),
+                Is.False,
+                "Claire was already interviewed and should not be re-selectable.");
+        }
+
         private static void CompleteScene(ProductionDialogueFlow flow, string sceneId)
         {
             Assert.That(flow.StartScene(sceneId), Is.True, string.Join("\n", flow.Warnings));

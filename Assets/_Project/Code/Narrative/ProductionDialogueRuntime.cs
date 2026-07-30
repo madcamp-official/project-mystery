@@ -271,6 +271,8 @@ namespace Wake.Narrative
         public IReadOnlyList<string> Warnings => warnings;
         public IReadOnlyCollection<string> CompletedSceneIds => completedScenes;
         public bool IsAwaitingChoice => Choices.Count > 0;
+        public bool IsAwaitingWorldSelection =>
+            IsAwaitingChoice && repeatableChoiceStart >= 0;
         public bool IsComplete { get; private set; }
         public ProductionScenePhase Phase { get; private set; } =
             ProductionScenePhase.NotStarted;
@@ -453,6 +455,28 @@ namespace Wake.Narrative
             Choices = Array.Empty<DialogueRecord>();
             PresentCurrent();
             return true;
+        }
+
+        public bool SelectFreeChoiceForCharacter(string characterId)
+        {
+            if (!IsAwaitingWorldSelection || string.IsNullOrWhiteSpace(characterId))
+            {
+                return false;
+            }
+
+            string suffix = "_" + characterId.Trim();
+            for (int i = 0; i < Choices.Count; i++)
+            {
+                if (Choices[i].ChoiceId != null &&
+                    Choices[i].ChoiceId.EndsWith(
+                        suffix,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return SelectChoice(i);
+                }
+            }
+
+            return false;
         }
 
         private void PresentCurrent()
