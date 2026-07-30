@@ -335,7 +335,7 @@ namespace Wake.UI
             EvidenceInventory inventory = EvidenceInventory.Instance;
             GameStateManager state = GameStateManager.Instance;
             if (inventory == null || state == null ||
-                state.HasFlag("sealed_exits_conclusion") ||
+                state.HasFlag("sealed_exits_observations_complete") ||
                 !inventory.Contains("C-03") ||
                 !inventory.Contains("C-04") ||
                 !inventory.Contains("C-05"))
@@ -343,9 +343,9 @@ namespace Wake.UI
                 return;
             }
 
-            state.AddFlagSilently("sealed_exits_conclusion");
-            ToastController.Instance?.ShowAlert(
-                "중간 결론 · 세 출구 모두 사용되지 않았다");
+            state.AddFlagSilently("sealed_exits_observations_complete");
+            ToastController.Instance?.Show(
+                "관찰 완료 · 세 출구의 흔적을 비교할 수 있습니다");
         }
 
         private void OpenNotebook()
