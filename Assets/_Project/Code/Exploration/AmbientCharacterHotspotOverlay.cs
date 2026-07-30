@@ -679,7 +679,8 @@ namespace Wake.Exploration
                         character.CharacterId,
                         MainCharacterWorldLineCatalog.GetCompleted(
                             character.CharacterId,
-                            character.State),
+                            character.State,
+                            state?.Day ?? 1),
                         MainCharacterWorldLineCatalog.GetEmotion(
                             character.State));
                     return;
@@ -720,7 +721,8 @@ namespace Wake.Exploration
                     character.CharacterId,
                     MainCharacterWorldLineCatalog.GetCompleted(
                         character.CharacterId,
-                        character.State),
+                        character.State,
+                        state?.Day ?? 1),
                     MainCharacterWorldLineCatalog.GetEmotion(character.State));
                 return;
             }
@@ -729,7 +731,8 @@ namespace Wake.Exploration
                     character.CharacterId,
                     MainCharacterWorldLineCatalog.Get(
                         character.CharacterId,
-                        character.State),
+                        character.State,
+                        state?.Day ?? 1),
                     MainCharacterWorldLineCatalog.GetEmotion(character.State)))
             {
                 state?.RecordCompletedNpcInteraction(interactionId);
