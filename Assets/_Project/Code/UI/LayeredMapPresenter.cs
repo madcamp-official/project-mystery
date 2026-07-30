@@ -251,6 +251,7 @@ namespace Wake.UI
                     state?.CompletedProductionSceneIds,
                     state?.UnlockedProductionSceneIds))
             {
+                accessDescription.gameObject.SetActive(true);
                 accessDescription.text = mode == MapLayerMode.Technical
                     ? "설비 자료를 확보한 뒤 확인할 수 있습니다."
                     : "서비스 구역을 조사한 뒤 확인할 수 있습니다.";
@@ -342,13 +343,17 @@ namespace Wake.UI
                     placement.LocationCode,
                     currentCode,
                     StringComparison.OrdinalIgnoreCase);
-                roomHitAreaRenderer.Add(
+                bool polygonBacked = roomHitAreaRenderer.Add(
                     placement.LocationCode,
                     entry.Status == ProductionMapEntryStatus.Locked,
                     objective,
                     current,
                     () => SelectEntry(entry, placement, current));
-                CreateNode(placement, entry, objective);
+                CreateNode(
+                    placement,
+                    entry,
+                    objective,
+                    polygonBacked);
             }
         }
 
@@ -428,16 +433,12 @@ namespace Wake.UI
             }
 
             selectedEntry = null;
-            placeName.text = area.DisplayName;
-            placeMeta.text =
-                $"{MapDeckCatalog.DeckLabel(area.Deck)} · 확인된 제한 구역";
-            placeDescription.text =
-                "수사로 확인된 승무원 전용 구역입니다.";
-            knownPeople.text = "알려진 인물 · 없음";
-            accessDescription.text =
-                state?.HasFlag("restricted_areas_closed") == true
-                    ? "승객 불안으로 일시 폐쇄되었습니다."
-                    : "출입구에서 별도의 접근 권한이 필요합니다.";
+            placeName.text = "잠긴 장소";
+            placeMeta.text = MapDeckCatalog.DeckLabel(area.Deck);
+            SetDetailFieldsVisible(false);
+            placeDescription.text = string.Empty;
+            knownPeople.text = string.Empty;
+            accessDescription.text = string.Empty;
             travelButton.interactable = false;
             travelLabel.text = "이동 불가";
         }
@@ -445,7 +446,8 @@ namespace Wake.UI
         private void CreateNode(
             MapLocationPlacement placement,
             ProductionMapEntry entry,
-            bool objective)
+            bool objective,
+            bool polygonBacked)
         {
             GameObject rootObject = new(
                 $"Layered Map Node {placement.LocationCode}",
@@ -467,7 +469,6 @@ namespace Wake.UI
             rect.anchorMin = nodePosition;
             rect.anchorMax = nodePosition;
             rect.pivot = new Vector2(.5f, .5f);
-            rect.sizeDelta = new Vector2(150f, 54f);
 
             string currentLocation =
                 CanonicalLocationCatalog.FindSpec(
@@ -479,15 +480,20 @@ namespace Wake.UI
                 StringComparison.OrdinalIgnoreCase);
             bool locked =
                 entry.Status == ProductionMapEntryStatus.Locked;
+            rect.sizeDelta = locked
+                ? new Vector2(52f, 62f)
+                : new Vector2(150f, 54f);
             Image image = rootObject.GetComponent<Image>();
-            image.color = current
-                ? UiVisualThemeService.Resolve(UiColorToken.Cream)
-                : objective && !locked
-                    ? new Color32(255, 205, 84, 245)
-                    : locked
-                        ? UiVisualThemeService.Resolve(UiColorToken.Disabled)
+            image.color = locked
+                ? Color.clear
+                : current
+                    ? UiVisualThemeService.Resolve(UiColorToken.Cream)
+                    : objective
+                        ? new Color32(255, 205, 84, 245)
                         : UiVisualThemeService.Resolve(UiColorToken.Brass);
+            image.raycastTarget = !polygonBacked;
             Outline outline = rootObject.GetComponent<Outline>();
+            outline.enabled = !locked;
             outline.effectColor = objective
                 ? UiVisualThemeService.Resolve(UiColorToken.Focus)
                 : UiVisualThemeService.Resolve(UiColorToken.SurfaceOverlay);
@@ -497,6 +503,20 @@ namespace Wake.UI
             Button button = rootObject.GetComponent<Button>();
             button.onClick.AddListener(() =>
                 SelectEntry(entry, placement, current));
+            if (locked)
+            {
+                GameObject lockObject = new(
+                    "Lock Icon",
+                    typeof(RectTransform),
+                    typeof(CanvasRenderer),
+                    typeof(MapPadlockGraphic));
+                lockObject.transform.SetParent(rect, false);
+                RectTransform lockRect =
+                    lockObject.GetComponent<RectTransform>();
+                Stretch(lockRect, 4f);
+                return;
+            }
+
             TMP_Text label = Text(
                 rect,
                 "Label",
@@ -504,12 +524,11 @@ namespace Wake.UI
                     ? $"◎ {entry.Spec.DisplayName}"
                     : objective
                         ? $"◆ {entry.Spec.DisplayName}"
-                        : locked
-                            ? $"[잠김] {entry.Spec.DisplayName}"
-                            : entry.Spec.DisplayName,
+                        : entry.Spec.DisplayName,
                 UiTextStyle.Technical,
                 TextAlignmentOptions.Center);
             Stretch(label.rectTransform, 6f);
+            label.raycastTarget = false;
             label.color = current
                 ? UiVisualThemeService.Resolve(UiColorToken.Canvas)
                 : UiVisualThemeService.Resolve(UiColorToken.TextPrimary);
@@ -520,7 +539,22 @@ namespace Wake.UI
             MapLocationPlacement placement,
             bool current)
         {
+            if (entry.Status == ProductionMapEntryStatus.Locked)
+            {
+                selectedEntry = null;
+                placeName.text = "잠긴 장소";
+                placeMeta.text = MapDeckCatalog.DeckLabel(placement.Deck);
+                SetDetailFieldsVisible(false);
+                placeDescription.text = string.Empty;
+                knownPeople.text = string.Empty;
+                accessDescription.text = string.Empty;
+                travelButton.interactable = false;
+                travelLabel.text = "이동 불가";
+                return;
+            }
+
             selectedEntry = entry;
+            SetDetailFieldsVisible(true);
             placeName.text = entry.Spec.DisplayName;
             placeMeta.text =
                 $"{MapDeckCatalog.DeckLabel(placement.Deck)} · " +
@@ -535,11 +569,8 @@ namespace Wake.UI
                 : placement.TravelTier == MapTravelTier.RouteOnly &&
                   entry.Status == ProductionMapEntryStatus.Available
                     ? "현재 목표의 지정 경로로 진입할 수 있습니다."
-                : entry.Status == ProductionMapEntryStatus.Locked
-                    ? $"[잠김] {entry.StatusLabel}"
                     : $"접근 상태 · {entry.StatusLabel}";
-            travelButton.interactable =
-                current || entry.Status != ProductionMapEntryStatus.Locked;
+            travelButton.interactable = true;
             travelLabel.text = current
                 ? "지도로 돌아가기"
                 : placement.TravelTier == MapTravelTier.RouteOnly
@@ -550,6 +581,7 @@ namespace Wake.UI
         private void ClearSelection()
         {
             selectedEntry = null;
+            SetDetailFieldsVisible(true);
             placeName.text = "장소를 선택하세요";
             placeMeta.text = MapDeckCatalog.DeckLabel(selectedDeck);
             placeDescription.text =
@@ -558,6 +590,13 @@ namespace Wake.UI
             accessDescription.text = string.Empty;
             travelButton.interactable = false;
             travelLabel.text = "이동하기";
+        }
+
+        private void SetDetailFieldsVisible(bool visible)
+        {
+            placeDescription.gameObject.SetActive(visible);
+            knownPeople.gameObject.SetActive(visible);
+            accessDescription.gameObject.SetActive(visible);
         }
 
         private void ConfirmTravel()

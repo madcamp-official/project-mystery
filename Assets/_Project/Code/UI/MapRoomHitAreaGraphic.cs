@@ -17,6 +17,7 @@ namespace Wake.UI
         private bool current;
 
         public IReadOnlyList<Vector2> Points => points;
+        public bool IsLocked => locked;
 
         public void Configure(
             IReadOnlyList<Vector2> normalizedPoints,
@@ -83,19 +84,26 @@ namespace Wake.UI
                     : locked
                         ? new Color32(126, 136, 146, 220)
                         : new Color32(216, 177, 97, 225);
-            Color32 fill = new(
-                accent.r,
-                accent.g,
-                accent.b,
-                hovered ? (byte)45 : (byte)7);
+            Color32 fill = locked
+                ? new Color32(
+                    3,
+                    10,
+                    17,
+                    hovered ? (byte)225 : (byte)215)
+                : new Color32(
+                    accent.r,
+                    accent.g,
+                    accent.b,
+                    hovered ? (byte)42 : (byte)0);
             Color32 line = new(
                 accent.r,
                 accent.g,
                 accent.b,
-                hovered ? (byte)255 : (byte)105);
+                hovered ? (byte)220 : (byte)0);
             Rect rect = rectTransform.rect;
             AddFill(vh, rect, fill);
-            AddOutline(vh, rect, line, hovered ? 4f : 2f);
+            if (hovered)
+                AddOutline(vh, rect, line, 2.5f);
         }
 
         private void AddFill(VertexHelper vh, Rect rect, Color32 color)

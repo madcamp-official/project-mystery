@@ -44,15 +44,15 @@ namespace Wake.UI
 
             Rect rect = rectTransform.rect;
             Color32 fill = state == MapAreaVisualState.TemporarilyClosed
-                ? new Color32(150, 60, 54, hovered ? (byte)92 : (byte)70)
-                : new Color32(92, 111, 128, hovered ? (byte)78 : (byte)54);
+                ? new Color32(48, 12, 16, hovered ? (byte)220 : (byte)205)
+                : new Color32(3, 10, 17, hovered ? (byte)220 : (byte)205);
             Color32 line = state == MapAreaVisualState.TemporarilyClosed
                 ? new Color32(238, 105, 87, 235)
-                : new Color32(216, 177, 97, hovered ? (byte)255 : (byte)220);
+                : new Color32(216, 177, 97, 255);
 
             AddFill(vh, rect, fill);
-            AddOutline(vh, rect, line, hovered ? 3.5f : 2.5f);
-            AddHatching(vh, rect, new Color32(line.r, line.g, line.b, 82));
+            if (hovered)
+                AddOutline(vh, rect, line, 3.5f);
         }
 
         public bool IsRaycastLocationValid(
