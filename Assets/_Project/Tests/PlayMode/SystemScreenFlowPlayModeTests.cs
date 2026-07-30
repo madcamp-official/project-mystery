@@ -86,6 +86,115 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator SaveSlots_ShowChapterOnlyForOccupiedRecords()
+        {
+            yield return StartNewGameFromVisibleButton(false);
+            Assert.That(
+                State.SaveDialogueCheckpoint(
+                    "D4-01",
+                    0,
+                    false,
+                    string.Empty),
+                Is.True);
+
+            Ui.ShowStartScene();
+            yield return null;
+            Button start = RequireComponent<Button>(
+                "StartScene/Title Presentation/Title Menu/시작하기");
+            yield return InvokeAndSettle(start);
+
+            GameObject selection =
+                RequireObject("StartScene/Save Slot Selection");
+            Assert.That(
+                selection.transform.Find("Guide"),
+                Is.Null,
+                "저장 슬롯의 동작을 설명하는 하단 안내 문구는 표시하지 않습니다.");
+            Assert.That(
+                selection.GetComponentsInChildren<TMP_Text>(true),
+                Has.None.Matches<TMP_Text>(text =>
+                    text.text.Contains(
+                        "저장된 기록은 이어서, 빈 기록은 처음부터 시작합니다")),
+                "제거한 안내 문구가 다른 텍스트에 남아서는 안 됩니다.");
+
+            Assert.That(
+                RequireSaveSlotText(1, "SlotTitle").text,
+                Is.EqualTo("항해 기록 1"));
+            TMP_Text occupiedChapter = RequireSaveSlotText(1, "Chapter");
+            Assert.That(occupiedChapter.gameObject.activeSelf, Is.True);
+            Assert.That(occupiedChapter.text, Is.EqualTo("DAY 4"));
+            Assert.That(
+                RequireSaveSlotText(1, "Status").gameObject.activeSelf,
+                Is.False);
+            Assert.That(
+                RequireSaveSlotText(1, "Action").text,
+                Is.EqualTo("이어하기"));
+
+            Assert.That(
+                RequireSaveSlotText(2, "SlotTitle").text,
+                Is.EqualTo("항해 기록 2"));
+            TMP_Text emptyChapter = RequireSaveSlotText(2, "Chapter");
+            Assert.That(emptyChapter.gameObject.activeSelf, Is.False);
+            Assert.That(emptyChapter.text, Is.Empty);
+            TMP_Text emptyStatus = RequireSaveSlotText(2, "Status");
+            Assert.That(emptyStatus.gameObject.activeSelf, Is.True);
+            Assert.That(emptyStatus.text, Is.EqualTo("비어 있는 기록"));
+            Assert.That(
+                RequireSaveSlotText(2, "Action").text,
+                Is.EqualTo("새로하기"));
+            AssertNoRuntimeErrors("저장 슬롯 챕터 진행도");
+        }
+
+        [UnityTest]
+        public IEnumerator SaveSlotBackButton_ClearsTheCardFrameAndReturnsToTitle()
+        {
+            Button start = RequireComponent<Button>(
+                "StartScene/Title Presentation/Title Menu/시작하기");
+            yield return InvokeAndSettle(start);
+
+            RectTransform selection = RequireComponent<RectTransform>(
+                "StartScene/Save Slot Selection");
+            float revealDeadline = Time.realtimeSinceStartup + 8f;
+            while (selection.anchoredPosition.sqrMagnitude > 0.01f &&
+                   Time.realtimeSinceStartup < revealDeadline)
+            {
+                yield return null;
+            }
+            Assert.That(
+                selection.anchoredPosition.sqrMagnitude,
+                Is.LessThanOrEqualTo(0.01f),
+                "저장 슬롯 화면이 완전히 나타난 뒤 레이아웃을 검증해야 합니다.");
+
+            RectTransform frame = RequireComponent<RectTransform>(
+                "StartScene/Save Slot Selection/Slot Frame");
+            Button back = RequireComponent<Button>(
+                "StartScene/Save Slot Selection/닫기");
+            UnityEngine.Canvas.ForceUpdateCanvases();
+
+            Rect frameBounds = ScreenRect(frame);
+            RectTransform backRect = back.transform as RectTransform;
+            Rect backBounds = ScreenRect(backRect);
+            Assert.That(
+                frameBounds.Overlaps(backBounds),
+                Is.False,
+                "저장 슬롯 프레임과 돌아가기 버튼의 클릭 영역이 겹치면 안 됩니다.");
+            Assert.That(
+                frameBounds.yMin - backBounds.yMax,
+                Is.GreaterThanOrEqualTo(24f),
+                "저장 슬롯 프레임과 돌아가기 버튼 사이에는 최소 24px 간격이 필요합니다.");
+            AssertInsideSafeArea(backRect, "저장 슬롯 돌아가기 버튼");
+
+            yield return InvokeAndSettle(back);
+            Assert.That(
+                Ui.ActiveSystemScreen,
+                Is.EqualTo(SystemScreenState.Title));
+            Assert.That(
+                RequireObject("StartScene/Title Presentation")
+                    .activeInHierarchy,
+                Is.True);
+            AssertNoRuntimeErrors("저장 슬롯 돌아가기");
+        }
+
+        [UnityTest]
         public IEnumerator OccupiedSlot_RequiresConfirmationBeforeDeletion()
         {
             yield return StartNewGameFromVisibleButton();
@@ -117,11 +226,15 @@ namespace Wake.Tests.PlayMode
             Assert.That(GameStateManager.HasSaveDataInSlot(1), Is.False);
             Assert.That(confirmation.activeSelf, Is.False);
             Assert.That(delete.gameObject.activeSelf, Is.False);
+            TMP_Text status = RequireSaveSlotText(1, "Status");
+            Assert.That(status.gameObject.activeSelf, Is.True);
+            Assert.That(status.text, Is.EqualTo("비어 있는 기록"));
             Assert.That(
-                RequireText(
-                    "StartScene/Save Slot Selection/Slot Frame/" +
-                    "Slot Card 1/Save Slot 1/Label").text,
-                Does.Contain("비어 있는 기록"));
+                RequireSaveSlotText(1, "Chapter").gameObject.activeSelf,
+                Is.False);
+            Assert.That(
+                RequireSaveSlotText(1, "Action").text,
+                Is.EqualTo("새로하기"));
             AssertNoRuntimeErrors("저장 슬롯 삭제 확인");
         }
 
@@ -460,6 +573,17 @@ namespace Wake.Tests.PlayMode
                 visible.yMin - tolerance));
             Assert.That(bounds.max.y, Is.LessThanOrEqualTo(
                 visible.yMax + tolerance));
+        }
+
+        private static Rect ScreenRect(RectTransform rect)
+        {
+            var corners = new Vector3[4];
+            rect.GetWorldCorners(corners);
+            return Rect.MinMaxRect(
+                corners[0].x,
+                corners[0].y,
+                corners[2].x,
+                corners[2].y);
         }
     }
 }
