@@ -163,12 +163,17 @@ namespace Wake.Exploration
                 location.BackgroundZoom);
             backgroundAnimations?.Show(location.LocationCode);
             ApplyAmbientMotionPolicy();
-            evidenceHotspots?.Show(location.LocationCode);
+            evidenceHotspots?.Show(
+                location.LocationCode,
+                backgroundSelection);
             ambientCharacters?.Show(
                 location.LocationCode,
                 NarrativeSceneContext,
                 backgroundSelection);
-            ambientInspectables?.Show(location.LocationCode);
+            ambientInspectables?.Show(
+                location.LocationCode,
+                NarrativeSceneContext,
+                backgroundSelection);
             ambientParticles?.Show(
                 backgroundAnimations?.ResolveAmbientParticleTint(
                     location.AmbientParticleTint) ??
@@ -210,12 +215,17 @@ namespace Wake.Exploration
                     CurrentLocation.BackgroundFocus,
                     CurrentLocation.BackgroundZoom);
             }
-            evidenceHotspots?.Show(CurrentLocation.LocationCode);
+            evidenceHotspots?.Show(
+                CurrentLocation.LocationCode,
+                backgroundSelection);
             ambientCharacters?.Show(
                 CurrentLocation.LocationCode,
                 NarrativeSceneContext,
                 backgroundSelection);
-            ambientInspectables?.Show(CurrentLocation.LocationCode);
+            ambientInspectables?.Show(
+                CurrentLocation.LocationCode,
+                NarrativeSceneContext,
+                backgroundSelection);
             ambientParticles?.Show(
                 backgroundAnimations?.ResolveAmbientParticleTint(
                     CurrentLocation.AmbientParticleTint) ??
