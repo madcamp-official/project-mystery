@@ -529,33 +529,48 @@ namespace Wake.Narrative
             }
 
             string normalizedSceneId = sceneId.Trim();
+            string normalizedCharacterId = characterId.Trim();
+            Wake.Core.GameStateManager state =
+                Wake.Core.GameStateManager.Instance;
+            if (state?.HasFlag(
+                    ProductionConditionEvaluator.ChoiceFlag(
+                        $"{normalizedSceneId}_{normalizedCharacterId}")) == true)
+            {
+                // Already resolved earlier this scene - let the caller fall
+                // back to an "already told you" ambient line instead of
+                // replaying or restarting their branch.
+                return false;
+            }
+
+            if (IsBusy)
+            {
+                return false;
+            }
+
             Wake.Core.ProductionDialogueCheckpoint checkpoint =
-                Wake.Core.GameStateManager.Instance?.DialogueCheckpoint;
+                state?.DialogueCheckpoint;
             if (checkpoint != null &&
                 string.Equals(
                     checkpoint.activeSceneId,
                     normalizedSceneId,
                     StringComparison.OrdinalIgnoreCase))
             {
-                if (IsBusy || !RestoreProductionScene(checkpoint))
+                pendingWorldCharacterId = normalizedCharacterId;
+                if (!RestoreProductionScene(checkpoint))
                 {
+                    pendingWorldCharacterId = string.Empty;
                     return false;
                 }
 
-                if (!productionFlow.IsAwaitingWorldSelection)
+                // A restore that didn't land on this scene's repeatable
+                // choice point never touches pendingWorldCharacterId - clear
+                // it here so it can't be picked up by an unrelated later
+                // choice screen in the same session.
+                if (productionFlow != null)
                 {
-                    // Not a world-click checkpoint - resume playback exactly
-                    // as a direct RestoreProductionScene call would.
-                    return true;
+                    pendingWorldCharacterId = string.Empty;
                 }
 
-                if (!productionFlow.SelectFreeChoiceForCharacter(characterId))
-                {
-                    EndDialogue();
-                    return false;
-                }
-
-                RenderProduction();
                 return true;
             }
 
@@ -564,7 +579,7 @@ namespace Wake.Narrative
                 return false;
             }
 
-            pendingWorldCharacterId = characterId;
+            pendingWorldCharacterId = normalizedCharacterId;
             if (!StartProductionScene(normalizedSceneId))
             {
                 pendingWorldCharacterId = string.Empty;
