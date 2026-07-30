@@ -118,11 +118,22 @@ namespace Wake.Tests.PlayMode
 
             if (!startOpeningDialogue)
             {
+                Dialogue.CancelActiveDialogue();
+                yield return null;
                 yield break;
             }
 
-            yield return StartPreparedProductionSceneFromFocusCharacter(
-                ProductionSceneDirector.OpeningSceneId);
+            deadline = Time.realtimeSinceStartup + 2f;
+            while (Dialogue.ActiveProductionSceneId !=
+                       ProductionSceneDirector.OpeningSceneId &&
+                   Time.realtimeSinceStartup < deadline)
+            {
+                yield return null;
+            }
+            Assert.That(
+                Dialogue.ActiveProductionSceneId,
+                Is.EqualTo(ProductionSceneDirector.OpeningSceneId),
+                "새 게임을 시작하면 항구 도입 나레이션이 즉시 재생되어야 합니다.");
         }
 
         protected IEnumerator ContinueFromVisibleButton()
@@ -366,6 +377,56 @@ namespace Wake.Tests.PlayMode
         protected IEnumerator CompleteOpeningScene()
         {
             yield return StartNewGameFromVisibleButton();
+            yield return CompleteActiveProductionDialogue();
+
+            Button invitation = null;
+            float deadline = Time.realtimeSinceStartup + 2f;
+            while (invitation == null &&
+                   Time.realtimeSinceStartup < deadline)
+            {
+                invitation = Object.FindObjectsByType<Button>(
+                        FindObjectsInactive.Exclude,
+                        FindObjectsSortMode.None)
+                    .FirstOrDefault(button =>
+                        button.name == "EvidenceHotspot_C-01");
+                if (invitation == null)
+                    yield return null;
+            }
+            Assert.That(
+                invitation,
+                Is.Not.Null,
+                "도입 나레이션 뒤 항구 배경에서 구겨진 초대장을 선택할 수 있어야 합니다.");
+            yield return InvokeAndSettle(invitation);
+
+            InvestigationScreenController detailedController =
+                Object.FindFirstObjectByType<InvestigationScreenController>(
+                    FindObjectsInactive.Include);
+            Assert.That(detailedController?.IsOpen, Is.True);
+            GameObject detailedInvestigation =
+                Object.FindObjectsByType<Transform>(
+                        FindObjectsInactive.Include,
+                        FindObjectsSortMode.None)
+                    .First(item =>
+                        item.name == "Investigation Screen" &&
+                        item.gameObject.activeInHierarchy)
+                    .gameObject;
+            foreach (Button point in detailedInvestigation
+                         .GetComponentsInChildren<Button>(false)
+                         .Where(button =>
+                             button.name.StartsWith("Inspection Point ")))
+            {
+                point.onClick.Invoke();
+                yield return null;
+            }
+            Button action = detailedInvestigation.transform
+                .Find("Primary Action")
+                .GetComponent<Button>();
+            Assert.That(action.interactable, Is.True);
+            yield return InvokeAndSettle(action);
+            yield return InvokeAndSettle(action);
+
+            yield return StartPreparedProductionSceneFromFocusCharacter(
+                ProductionSceneDirector.OpeningSceneId);
             yield return CompleteActiveProductionDialogue();
             Assert.That(
                 State.HasCompletedScene("P-01"),

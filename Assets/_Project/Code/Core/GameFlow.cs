@@ -35,6 +35,7 @@ namespace Wake.Core
                 GameStateManager.Instance?.ClearDialogueCheckpoint();
                 LocationLoader.Instance.PrepareNarrativeScene(
                     ProductionSceneDirector.OpeningSceneId);
+                CreateSceneDirector()?.StartNewGame();
             }
         }
 

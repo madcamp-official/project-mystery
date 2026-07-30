@@ -618,6 +618,21 @@ namespace Wake.Narrative
             return true;
         }
 
+        public bool CanTalkToWorldCharacter(
+            string sceneId,
+            string characterId)
+        {
+            Wake.Core.GameStateManager state =
+                Wake.Core.GameStateManager.Instance;
+            return CanTalkToWorldCharacterAtCurrentLocation(
+                       sceneId,
+                       characterId,
+                       state) &&
+                   state?.HasFlag(
+                       ProductionConditionEvaluator.ChoiceFlag(
+                           $"{sceneId}_{characterId}")) != true;
+        }
+
         private static bool CanTalkToWorldCharacterAtCurrentLocation(
             string sceneId,
             string characterId,
@@ -628,6 +643,21 @@ namespace Wake.Narrative
                 !ScenePresenceCatalog.TryGet(
                     sceneId,
                     out ScenePresenceRecord presence))
+            {
+                return false;
+            }
+
+            if (string.Equals(
+                    sceneId,
+                    ProductionSceneDirector.OpeningSceneId,
+                    StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(
+                    characterId,
+                    "DANIEL",
+                    StringComparison.OrdinalIgnoreCase) &&
+                !state.CollectedEvidenceIds.Contains(
+                    "C-01",
+                    StringComparer.OrdinalIgnoreCase))
             {
                 return false;
             }
@@ -974,6 +1004,60 @@ namespace Wake.Narrative
             linePanel.SetActive(false);
             pendingInvestigationTitle =
                 InvestigationPresentationPolicy.MarkerTitle(marker);
+            if (string.Equals(
+                    marker.CanonicalLineId,
+                    "P-01_003",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                if (EvidenceInventory.Instance?.Contains("C-01") != true)
+                {
+                    EndDialogue();
+                    return;
+                }
+
+                FinishDetailedInvestigation("C-01");
+                return;
+            }
+
+            if (string.Equals(
+                    marker.CanonicalLineId,
+                    "P-01_006",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                if (GameStateManager.Instance?.HasFlag(
+                        "anonymous_tip_preview") == true)
+                {
+                    FinishNarrativeInvestigation();
+                    return;
+                }
+
+                if (InvestigationScreenController.Instance?.BeginNarrative(
+                        NarrativeInvestigationCatalog.PortMessengerTargetId,
+                        () => FinishNarrativeInvestigation()) == true)
+                {
+                    return;
+                }
+            }
+
+            if (TryGetDirectWorldInvestigation(
+                    marker.CanonicalLineId,
+                    out NarrativeInvestigationDefinition worldTarget))
+            {
+                if (GameStateManager.Instance?.HasFlag(
+                        worldTarget.CompletionFlag) == true)
+                {
+                    FinishNarrativeInvestigation(
+                        worldTarget.CompletionFlag);
+                    return;
+                }
+
+                // The document or terminal is part of the photographed room.
+                // Return control to exploration so the player selects it
+                // directly instead of confirming an abstract dialogue card.
+                EndDialogue();
+                return;
+            }
+
             string evidenceId =
                 productionFlow?.FindUpcomingGrantedEvidenceId();
             if (!string.IsNullOrEmpty(evidenceId) &&
@@ -986,6 +1070,43 @@ namespace Wake.Narrative
             }
 
             PresentLegacyInvestigationTarget();
+        }
+
+        private static bool TryGetDirectWorldInvestigation(
+            string lineId,
+            out NarrativeInvestigationDefinition target)
+        {
+            string targetId = lineId?.Trim().ToUpperInvariant() switch
+            {
+                "P-02_009" =>
+                    NarrativeInvestigationCatalog.GangwayManifestTargetId,
+                "P-02_012" =>
+                    NarrativeInvestigationCatalog.GangwaySignatureTargetId,
+                _ => string.Empty
+            };
+            return NarrativeInvestigationCatalog.TryGet(
+                targetId,
+                out target);
+        }
+
+        private void FinishNarrativeInvestigation(
+            string completionFlag = "anonymous_tip_preview")
+        {
+            if (GameStateManager.Instance?.HasFlag(
+                    completionFlag) != true)
+            {
+                PresentLegacyInvestigationTarget();
+                return;
+            }
+
+            productionFlow?.Advance();
+            if (InvestigationPresentationPolicy.IsInvestigationResult(
+                    productionFlow?.Current))
+            {
+                productionFlow.Advance();
+            }
+            pendingInvestigationTitle = string.Empty;
+            RenderProduction();
         }
 
         private void PresentLegacyInvestigationTarget()

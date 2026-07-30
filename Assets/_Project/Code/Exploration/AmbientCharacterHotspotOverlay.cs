@@ -694,6 +694,25 @@ namespace Wake.Exploration
                     return;
                 }
 
+                if (!dialogue.CanTalkToWorldCharacter(
+                        currentSceneId,
+                        character.CharacterId))
+                {
+                    if (string.Equals(
+                            currentSceneId,
+                            ProductionSceneDirector.OpeningSceneId,
+                            System.StringComparison.OrdinalIgnoreCase) &&
+                        string.Equals(
+                            character.CharacterId,
+                            "DANIEL",
+                            System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        ToastController.Instance?.Show(
+                            "먼저 항구 바닥의 구겨진 초대장을 조사하세요.");
+                    }
+                    return;
+                }
+
                 if (dialogue.TalkToWorldCharacter(
                         currentSceneId,
                         character.CharacterId))
@@ -1117,9 +1136,15 @@ namespace Wake.Exploration
                     view.Image.color = tint;
                 view.Button.colors =
                     AmbientInteractionPresentation.CharacterSpriteColors(tint);
+                bool storyInteractionAvailable =
+                    !view.IsFocusParticipant ||
+                    DialogueController.Instance?.CanTalkToWorldCharacter(
+                        currentSceneId,
+                        view.Speaker) == true;
                 view.ObjectiveMarker?.SetActive(
                     view.IsMainCharacter &&
                     view.SemanticVisible &&
+                    storyInteractionAvailable &&
                     !completed &&
                     !dialoguePresentationVisible &&
                     !modalPresentationSuppressed);
