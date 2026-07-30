@@ -15,6 +15,7 @@ namespace Wake.UI
         private readonly Dictionary<int, Button> deckButtons = new();
         private readonly Dictionary<MapLayerMode, Button> layerButtons = new();
         private readonly List<GameObject> nodeObjects = new();
+        private readonly List<GameObject> structuralAnnotationObjects = new();
         private readonly MapPassengerRedactionRenderer redactionRenderer =
             new();
         private readonly MapRestrictedAreaRenderer restrictedAreaRenderer =
@@ -23,11 +24,12 @@ namespace Wake.UI
 
         private RectTransform root;
         private RectTransform mapFrame;
+        private RectTransform structuralAnnotationLayer;
         private RectTransform nodeLayer;
         private Image baseMap;
         private Image restrictedOverlay;
         private Image technicalOverlay;
-        private TMP_Text deckHeading;
+        private TMP_Text screenTitle;
         private TMP_Text placeName;
         private TMP_Text placeMeta;
         private TMP_Text placeDescription;
@@ -52,12 +54,14 @@ namespace Wake.UI
 
         public void Build(
             Transform parent,
+            TMP_Text title,
             Action<ProductionMapEntry> onTravel)
         {
             if (root != null || parent == null)
                 return;
 
             travelAction = onTravel;
+            screenTitle = title;
             root = Panel(parent, "Layered Map Surface");
             Stretch(root);
 
@@ -80,6 +84,8 @@ namespace Wake.UI
                     MapDeckCatalog.DeckLabel(deck),
                     () => SelectDeck(captured));
                 button.gameObject.name = $"Deck {deck} Tab";
+                MapTypography.ApplyCode(
+                    button.GetComponentInChildren<TMP_Text>(true));
                 deckButtons[deck] = button;
             }
 
@@ -113,30 +119,23 @@ namespace Wake.UI
             mapAspect.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
             mapAspect.aspectRatio = 1448f / 1086f;
             baseMap = LayerImage(mapFrame, "Base Map");
-            redactionRenderer.Build(mapFrame);
-            restrictedAreaRenderer.Build(mapFrame);
             restrictedOverlay =
                 LayerImage(mapFrame, "Investigation Overlay Fallback");
             technicalOverlay =
                 LayerImage(mapFrame, "Technical Overlay");
+            redactionRenderer.Build(mapFrame);
+            structuralAnnotationLayer = new GameObject(
+                "Structural Map Annotations",
+                typeof(RectTransform)).GetComponent<RectTransform>();
+            structuralAnnotationLayer.SetParent(mapFrame, false);
+            Stretch(structuralAnnotationLayer);
+            restrictedAreaRenderer.Build(mapFrame);
             roomHitAreaRenderer.Build(mapFrame);
             nodeLayer = new GameObject(
                 "Map Location Nodes",
                 typeof(RectTransform)).GetComponent<RectTransform>();
             nodeLayer.SetParent(mapFrame, false);
             Stretch(nodeLayer);
-
-            deckHeading = Text(
-                mapFrame,
-                "Deck Heading",
-                UiTextStyle.Heading,
-                TextAlignmentOptions.TopLeft);
-            SetAnchors(
-                deckHeading.rectTransform,
-                .025f,
-                .89f,
-                .50f,
-                .98f);
 
             RectTransform info = Panel(root, "Location Detail");
             SetAnchors(info, .76f, .12f, .99f, .88f);
@@ -195,14 +194,7 @@ namespace Wake.UI
 
             RectTransform legend = Panel(root, "Map Legend");
             SetAnchors(legend, .01f, .01f, .99f, .095f);
-            TMP_Text legendText = Text(
-                legend,
-                "Legend Text",
-                "현재 위치  ◎   주요 목표  ◆   알려진 인물  ●   " +
-                "접근 불가  [잠김]   ESC 닫기",
-                UiTextStyle.Caption,
-                TextAlignmentOptions.Center);
-            Stretch(legendText.rectTransform, 12f);
+            BuildLegend(legend);
         }
 
         public void Refresh(
@@ -292,12 +284,14 @@ namespace Wake.UI
             foreach (var pair in deckButtons)
                 pair.Value.interactable = pair.Key != selectedDeck;
 
-            deckHeading.text =
-                selectedDeck == 0
-                    ? "항구 · 승선 구역"
-                    : $"{MapDeckCatalog.DeckLabel(selectedDeck)} · 층별 설계도";
+            if (screenTitle != null)
+            {
+                screenTitle.text =
+                    MapDeckCatalog.DeckDisplayTitle(selectedDeck);
+            }
             ApplyLayerSprites();
             RefreshPassengerRedactions();
+            RefreshStructuralAnnotations();
             RefreshRestrictedAreas();
 
             foreach (GameObject node in nodeObjects)
@@ -402,6 +396,50 @@ namespace Wake.UI
                 selectedDeck,
                 selectedLayer,
                 state?.CompletedProductionSceneIds);
+        }
+
+        private void RefreshStructuralAnnotations()
+        {
+            foreach (GameObject annotation in structuralAnnotationObjects)
+            {
+                if (annotation != null)
+                    UnityEngine.Object.Destroy(annotation);
+            }
+            structuralAnnotationObjects.Clear();
+
+            Vector2? atriumPosition = selectedDeck switch
+            {
+                10 => new Vector2(.51f, .565f),
+                9 => new Vector2(.485f, .405f),
+                _ => null
+            };
+            if (!atriumPosition.HasValue ||
+                structuralAnnotationLayer == null)
+            {
+                return;
+            }
+
+            TMP_Text label = Text(
+                structuralAnnotationLayer,
+                "Atrium Connection Label",
+                "아트리움",
+                UiTextStyle.Technical,
+                TextAlignmentOptions.Center);
+            structuralAnnotationObjects.Add(label.gameObject);
+            RectTransform rect = label.rectTransform;
+            rect.anchorMin = atriumPosition.Value;
+            rect.anchorMax = atriumPosition.Value;
+            rect.pivot = new Vector2(.5f, .5f);
+            rect.sizeDelta = new Vector2(132f, 42f);
+            label.enableAutoSizing = true;
+            label.fontSizeMin = 16f;
+            label.fontSizeMax = 24f;
+            label.fontStyle = FontStyles.Bold;
+            label.color =
+                UiVisualThemeService.Resolve(UiColorToken.Cream);
+            label.outlineColor = new Color32(3, 10, 18, 255);
+            label.outlineWidth = .18f;
+            MapTypography.ApplyLocation(label);
         }
 
         private void SelectArea(MapAreaShape area)
@@ -520,11 +558,7 @@ namespace Wake.UI
             TMP_Text label = Text(
                 rect,
                 "Label",
-                current
-                    ? $"◎ {entry.Spec.DisplayName}"
-                    : objective
-                        ? $"◆ {entry.Spec.DisplayName}"
-                        : entry.Spec.DisplayName,
+                entry.Spec.DisplayName,
                 UiTextStyle.Technical,
                 TextAlignmentOptions.Center);
             Stretch(label.rectTransform, 6f);
@@ -665,6 +699,107 @@ namespace Wake.UI
                 .ToArray();
         }
 
+        private static void BuildLegend(RectTransform legend)
+        {
+            Image background = legend.GetComponent<Image>();
+            if (background != null)
+            {
+                background.raycastTarget = false;
+            }
+
+            HorizontalLayoutGroup layout =
+                legend.gameObject.AddComponent<HorizontalLayoutGroup>();
+            layout.padding = new RectOffset(24, 24, 10, 10);
+            layout.spacing = 28f;
+            layout.childAlignment = TextAnchor.MiddleCenter;
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+
+            AddLegendItem(
+                legend,
+                "Current",
+                "현재 위치",
+                UiColorToken.Cream,
+                170f);
+            AddLegendItem(
+                legend,
+                "Objective",
+                "주요 목표",
+                UiColorToken.Focus,
+                170f);
+            AddLegendItem(
+                legend,
+                "Known Person",
+                "알려진 인물",
+                UiColorToken.Success,
+                190f);
+            AddLegendItem(
+                legend,
+                "Locked",
+                "접근 불가",
+                UiColorToken.Disabled,
+                170f);
+            AddLegendItem(
+                legend,
+                "Close",
+                "ESC 닫기",
+                UiColorToken.Brass,
+                150f);
+        }
+
+        private static void AddLegendItem(
+            Transform parent,
+            string name,
+            string value,
+            UiColorToken markerColor,
+            float width)
+        {
+            GameObject item = new(
+                $"Legend {name}",
+                typeof(RectTransform),
+                typeof(HorizontalLayoutGroup),
+                typeof(LayoutElement));
+            item.transform.SetParent(parent, false);
+            LayoutElement itemLayout = item.GetComponent<LayoutElement>();
+            itemLayout.preferredWidth = width;
+            itemLayout.minWidth = width;
+
+            HorizontalLayoutGroup row =
+                item.GetComponent<HorizontalLayoutGroup>();
+            row.spacing = 10f;
+            row.childAlignment = TextAnchor.MiddleLeft;
+            row.childControlWidth = false;
+            row.childControlHeight = false;
+            row.childForceExpandWidth = false;
+            row.childForceExpandHeight = false;
+
+            GameObject marker = new(
+                "Marker",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image));
+            marker.transform.SetParent(item.transform, false);
+            RectTransform markerRect =
+                marker.GetComponent<RectTransform>();
+            markerRect.sizeDelta = new Vector2(14f, 14f);
+            Image markerImage = marker.GetComponent<Image>();
+            markerImage.color =
+                UiVisualThemeService.Resolve(markerColor);
+            markerImage.raycastTarget = false;
+
+            TMP_Text label = Text(
+                item.transform,
+                "Label",
+                value,
+                UiTextStyle.Caption,
+                TextAlignmentOptions.MidlineLeft);
+            RectTransform labelRect = label.rectTransform;
+            labelRect.sizeDelta = new Vector2(width - 24f, 32f);
+            MapTypography.ApplyLegend(label);
+        }
+
         private static Image LayerImage(Transform parent, string name)
         {
             GameObject target = new(
@@ -724,6 +859,7 @@ namespace Wake.UI
                 label,
                 UiTextStyle.Choice,
                 TextAlignmentOptions.Center);
+            MapTypography.ApplyControl(text);
             Stretch(text.rectTransform, 6f);
             return button;
         }

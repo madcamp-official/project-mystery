@@ -5,6 +5,13 @@ namespace Wake.UI
 {
     public static class MapTypography
     {
+        public static bool ApplyScreenTitle(TMP_Text label)
+        {
+            return TypographyService.Apply(
+                label,
+                TypographyRole.HeadingStrong);
+        }
+
         public static bool ApplyLocation(TMP_Text label)
         {
             return TypographyService.Apply(label, TypographyRole.Heading);
@@ -18,6 +25,18 @@ namespace Wake.UI
         }
 
         public static bool ApplyNotice(TMP_Text label)
+        {
+            return TypographyService.Apply(
+                label,
+                TypographyRole.BodyRegular);
+        }
+
+        public static bool ApplyControl(TMP_Text label)
+        {
+            return TypographyService.Apply(label, TypographyRole.Choice);
+        }
+
+        public static bool ApplyLegend(TMP_Text label)
         {
             return TypographyService.Apply(
                 label,

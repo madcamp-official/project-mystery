@@ -167,6 +167,17 @@ namespace Wake.UI
         public static string DeckLabel(int deck) =>
             deck == 0 ? "항구" : $"DECK {deck}";
 
+        public static string DeckDisplayTitle(int deck) =>
+            deck switch
+            {
+                10 => "DECK 10 · 귀빈 및 지휘 갑판",
+                9 => "DECK 9 · 대형 공용 갑판",
+                8 => "DECK 8 · 아트리움 및 산책 갑판",
+                7 => "DECK 7 · 서비스 및 기관 구역",
+                0 => "항구 · 승선 구역",
+                _ => $"{DeckLabel(deck)} · 층별 설계도"
+            };
+
         public static string ResourceKey(
             int deck,
             MapLayerMode mode)
