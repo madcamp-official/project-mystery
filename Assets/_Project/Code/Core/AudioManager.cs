@@ -10,6 +10,9 @@ namespace Wake.Core
         private const float DefaultMusicVolume = 0.5f;
         private const float DefaultSfxVolume = 0.5f;
         private const float DefaultCrossfadeSeconds = 1.8f;
+        private const float DialogueDuckMultiplierTarget = 0.35f;
+        private const float DialogueDuckFadeInSeconds = 0.3f;
+        private const float DialogueDuckFadeOutSeconds = 0.5f;
 
         public static AudioManager Instance { get; private set; }
 
@@ -56,6 +59,8 @@ namespace Wake.Core
         private float currentTravelFootstepMix;
         private string pendingTravelLocationCode = string.Empty;
         private float pendingTravelFadeInSeconds;
+        private float dialogueDuckMultiplier = 1f;
+        private Coroutine dialogueDuckFade;
 
         public float MusicVolume { get; private set; } = DefaultMusicVolume;
         public float SfxVolume { get; private set; } = DefaultSfxVolume;
@@ -455,48 +460,44 @@ namespace Wake.Core
             sfxSource.PlayOneShot(clip);
         }
 
-        public void DuckMusic(float duckMultiplier, float holdSeconds)
+        public void SetDialogueDucking(bool active)
         {
-            if (activeMusicSource == null)
+            EnsureRuntimeSources();
+            float target = active ? DialogueDuckMultiplierTarget : 1f;
+            if (dialogueDuckFade != null)
             {
-                return;
+                StopCoroutine(dialogueDuckFade);
             }
-
-            StartCoroutine(DuckMusicRoutine(
-                Mathf.Clamp01(duckMultiplier), Mathf.Max(0.05f, holdSeconds)));
+            dialogueDuckFade = StartCoroutine(FadeDialogueDucking(
+                target,
+                active ? DialogueDuckFadeInSeconds : DialogueDuckFadeOutSeconds));
         }
 
-        private IEnumerator DuckMusicRoutine(float duckMultiplier, float holdSeconds)
+        private IEnumerator FadeDialogueDucking(float target, float duration)
         {
-            float baseVolume = MusicVolume * currentMusicMix;
-            float duckedVolume = baseVolume * duckMultiplier;
-            yield return FadeSourceVolume(activeMusicSource, duckedVolume, 0.15f);
-            yield return new WaitForSeconds(holdSeconds);
-            yield return FadeSourceVolume(activeMusicSource, baseVolume, 0.25f);
-        }
-
-        private static IEnumerator FadeSourceVolume(
-            AudioSource source, float targetVolume, float duration)
-        {
+            float start = dialogueDuckMultiplier;
             float safeDuration = Mathf.Max(0f, duration);
-            float startVolume = source.volume;
             float elapsed = 0f;
             while (elapsed < safeDuration)
             {
                 elapsed += Time.unscaledDeltaTime;
-                source.volume = Mathf.Lerp(
-                    startVolume, targetVolume, Mathf.Clamp01(elapsed / safeDuration));
+                dialogueDuckMultiplier = Mathf.Lerp(
+                    start, target, Mathf.Clamp01(elapsed / safeDuration));
+                ApplyVolumes();
                 yield return null;
             }
 
-            source.volume = targetVolume;
+            dialogueDuckMultiplier = target;
+            ApplyVolumes();
+            dialogueDuckFade = null;
         }
 
         public void SetMusicVolume(float value)
         {
             MusicVolume = Mathf.Clamp01(value);
             if (activeMusicSource != null)
-                activeMusicSource.volume = MusicVolume * currentMusicMix;
+                activeMusicSource.volume =
+                    MusicVolume * currentMusicMix * dialogueDuckMultiplier;
             if (chapterMusicSource != null && chapterMusicSource.isPlaying)
                 chapterMusicSource.volume = MusicVolume * .55f;
             PlayerPrefs.SetFloat(MusicVolumePreference, MusicVolume);
@@ -509,10 +510,10 @@ namespace Wake.Core
                 sfxSource.volume = SfxVolume;
             if (ambienceSourceA != null)
                 ambienceSourceA.volume =
-                    SfxVolume * currentAmbienceMixA;
+                    SfxVolume * currentAmbienceMixA * dialogueDuckMultiplier;
             if (ambienceSourceB != null)
                 ambienceSourceB.volume =
-                    SfxVolume * currentAmbienceMixB;
+                    SfxVolume * currentAmbienceMixB * dialogueDuckMultiplier;
             if (travelFootstepSource != null)
                 travelFootstepSource.volume =
                     SfxVolume * currentTravelFootstepMix;
@@ -525,9 +526,16 @@ namespace Wake.Core
         private void ApplyVolumes()
         {
             if (activeMusicSource != null)
-                activeMusicSource.volume = MusicVolume * currentMusicMix;
+                activeMusicSource.volume =
+                    MusicVolume * currentMusicMix * dialogueDuckMultiplier;
             if (sfxSource != null)
                 sfxSource.volume = SfxVolume;
+            if (ambienceSourceA != null)
+                ambienceSourceA.volume =
+                    SfxVolume * currentAmbienceMixA * dialogueDuckMultiplier;
+            if (ambienceSourceB != null)
+                ambienceSourceB.volume =
+                    SfxVolume * currentAmbienceMixB * dialogueDuckMultiplier;
         }
 
         private void EnsureRuntimeSources()
@@ -910,7 +918,7 @@ namespace Wake.Core
                 float progress = Mathf.Clamp01(elapsed / safeDuration);
                 incoming.volume = Mathf.Lerp(
                     incomingStart,
-                    MusicVolume * currentMusicMix,
+                    MusicVolume * currentMusicMix * dialogueDuckMultiplier,
                     progress);
                 if (outgoing != null && outgoing != incoming)
                 {
@@ -920,7 +928,7 @@ namespace Wake.Core
                 yield return null;
             }
 
-            incoming.volume = MusicVolume * currentMusicMix;
+            incoming.volume = MusicVolume * currentMusicMix * dialogueDuckMultiplier;
             if (outgoing != null && outgoing != incoming)
             {
                 outgoing.Stop();
@@ -980,11 +988,11 @@ namespace Wake.Core
                     elapsed += Time.unscaledDeltaTime;
                     source.volume = Mathf.Lerp(
                         start,
-                        SfxVolume * mixVolume,
+                        SfxVolume * mixVolume * dialogueDuckMultiplier,
                         Mathf.Clamp01(elapsed / safeDuration));
                     yield return null;
                 }
-                source.volume = SfxVolume * mixVolume;
+                source.volume = SfxVolume * mixVolume * dialogueDuckMultiplier;
                 yield break;
             }
 
@@ -1021,11 +1029,11 @@ namespace Wake.Core
                 elapsedIn += Time.unscaledDeltaTime;
                 source.volume = Mathf.Lerp(
                     0f,
-                    SfxVolume * mixVolume,
+                    SfxVolume * mixVolume * dialogueDuckMultiplier,
                     Mathf.Clamp01(elapsedIn / incomingDuration));
                 yield return null;
             }
-            source.volume = SfxVolume * mixVolume;
+            source.volume = SfxVolume * mixVolume * dialogueDuckMultiplier;
         }
 
         private void StopAmbience(float duration)
