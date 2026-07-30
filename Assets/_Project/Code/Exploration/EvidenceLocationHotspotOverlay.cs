@@ -125,7 +125,9 @@ namespace Wake.Exploration
             contentRect = backgroundContentRect;
         }
 
-        public void Show(string locationCode)
+        public void Show(
+            string locationCode,
+            LocationBackgroundSelection backgroundSelection)
         {
             Clear();
             if (contentRect == null)
@@ -142,11 +144,29 @@ namespace Wake.Exploration
                     continue;
                 }
 
-                CreateButton(spec);
+                bool hasApprovedShape =
+                    BackgroundInteractionShapeCatalog.TryGet(
+                        spec.EvidenceId,
+                        locationCode,
+                        backgroundSelection,
+                        out BackgroundInteractionShape shape);
+                if (!hasApprovedShape)
+                {
+                    continue;
+                }
+                if (!shape.IsPresent)
+                {
+                    continue;
+                }
+
+                CreateButton(spec, hasApprovedShape, shape);
             }
         }
 
-        private void CreateButton(EvidenceLocationHotspotSpec spec)
+        private void CreateButton(
+            EvidenceLocationHotspotSpec spec,
+            bool hasApprovedShape,
+            BackgroundInteractionShape shape)
         {
             GameObject target = new(
                 $"EvidenceHotspot_{spec.EvidenceId}",
@@ -157,34 +177,31 @@ namespace Wake.Exploration
             target.transform.SetParent(contentRect, false);
 
             RectTransform rect = target.GetComponent<RectTransform>();
-            Rect hotspot = spec.NormalizedRect;
-            if (RuntimeUiLayoutRegistry.TryGetNormalizedRect(
-                    $"location.{spec.LocationCode}.evidence.{spec.EvidenceId}",
-                    out Rect placeholder))
-            {
-                hotspot = placeholder;
-            }
+            Rect hotspot = shape.NormalizedBounds;
             rect.anchorMin = hotspot.min;
             rect.anchorMax = hotspot.max;
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
 
             Image image = target.GetComponent<Image>();
-            image.color = new Color(1f, .78f, .28f, .001f);
+            image.color = Color.clear;
             image.raycastTarget = true;
 
             Button button = target.GetComponent<Button>();
-            button.transition = Selectable.Transition.ColorTint;
-            ColorBlock colors = button.colors;
-            colors.normalColor = Color.white;
-            colors.highlightedColor = new Color(1f, .82f, .45f, .12f);
-            colors.pressedColor = new Color(1f, .72f, .25f, .20f);
-            colors.selectedColor = colors.highlightedColor;
-            colors.fadeDuration = .08f;
-            button.colors = colors;
+            button.targetGraphic = image;
+            button.transition = Selectable.Transition.None;
+            button.colors = AmbientInteractionPresentation.HotspotColors();
             button.onClick.AddListener(() => Interact(spec));
+            if (hasApprovedShape)
+            {
+                target.AddComponent<PolygonHotspotRaycastFilter>()
+                    .Configure(shape.LocalPolygon);
+            }
             target.AddComponent<ExplorationHotspotFeedback>()
-                .Configure();
+                .ConfigureExactShape(
+                    hasApprovedShape
+                        ? shape.LocalLabelAnchor
+                        : new Vector2(0.5f, 0.5f));
             spawned.Add(target);
         }
 

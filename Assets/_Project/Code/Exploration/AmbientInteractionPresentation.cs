@@ -38,12 +38,6 @@ namespace Wake.Exploration
             new Color32(42, 70, 83, 248);
         private static readonly Color PanelButtonPressed =
             new Color32(31, 93, 103, 255);
-        private static readonly Color HotspotNormal =
-            new Color(0.23f, 0.60f, 0.68f, 0.08f);
-        private static readonly Color HotspotHover =
-            new Color(0.30f, 0.78f, 0.84f, 0.28f);
-        private static readonly Color HotspotPressed =
-            new Color(0.88f, 0.65f, 0.30f, 0.36f);
 
         public static AmbientCharacterPlacement CharacterPlacement(
             int index,
@@ -173,13 +167,13 @@ namespace Wake.Exploration
         public static ColorBlock HotspotColors()
         {
             ColorBlock colors = ColorBlock.defaultColorBlock;
-            colors.normalColor = HotspotNormal;
-            colors.highlightedColor = HotspotHover;
-            colors.selectedColor = HotspotHover;
-            colors.pressedColor = HotspotPressed;
+            colors.normalColor = Color.clear;
+            colors.highlightedColor = Color.clear;
+            colors.selectedColor = Color.clear;
+            colors.pressedColor = Color.clear;
             colors.disabledColor = Color.clear;
             colors.colorMultiplier = 1f;
-            colors.fadeDuration = 0.08f;
+            colors.fadeDuration = 0f;
             return colors;
         }
 
