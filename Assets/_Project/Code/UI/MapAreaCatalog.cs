@@ -180,9 +180,24 @@ namespace Wake.UI
 
                 MapAreaCatalogAsset authored =
                     Resources.Load<MapAreaCatalogAsset>(ResourceKey);
-                cached = authored != null && authored.Areas.Count > 0
-                    ? authored.Areas.ToArray()
-                    : Defaults;
+                if (authored == null || authored.Areas.Count == 0)
+                {
+                    cached = Defaults;
+                    return cached;
+                }
+
+                var merged = Defaults.ToDictionary(
+                    area => area.AreaId,
+                    StringComparer.OrdinalIgnoreCase);
+                foreach (MapAreaShape area in authored.Areas)
+                {
+                    if (area != null && !string.IsNullOrWhiteSpace(area.AreaId))
+                        merged[area.AreaId] = area;
+                }
+                cached = merged.Values
+                    .OrderBy(area => area.Deck)
+                    .ThenBy(area => area.AreaId, StringComparer.Ordinal)
+                    .ToArray();
                 return cached;
             }
         }
@@ -265,14 +280,15 @@ namespace Wake.UI
                 error = "폴리곤에는 꼭짓점이 3개 이상 필요합니다.";
                 return false;
             }
-            if (shape.Polygon.Any(point => !InUnitRange(point)) ||
-                !InUnitRange(shape.LabelAnchor) ||
-                !InUnitRange(shape.EntranceAnchor))
+            if (shape.Polygon.Any(point =>
+                    !MapPolygonUtility.IsNormalized(point)) ||
+                !MapPolygonUtility.IsNormalized(shape.LabelAnchor) ||
+                !MapPolygonUtility.IsNormalized(shape.EntranceAnchor))
             {
                 error = "모든 좌표는 0~1 범위여야 합니다.";
                 return false;
             }
-            if (SelfIntersects(shape.Polygon))
+            if (MapPolygonUtility.SelfIntersects(shape.Polygon))
             {
                 error = "폴리곤이 자기 교차합니다.";
                 return false;
@@ -283,54 +299,7 @@ namespace Wake.UI
         }
 
         public static bool SelfIntersects(IReadOnlyList<Vector2> polygon)
-        {
-            if (polygon == null || polygon.Count < 4)
-                return false;
-
-            for (int first = 0; first < polygon.Count; first++)
-            {
-                int firstNext = (first + 1) % polygon.Count;
-                for (int second = first + 1; second < polygon.Count; second++)
-                {
-                    int secondNext = (second + 1) % polygon.Count;
-                    if (first == second ||
-                        firstNext == second ||
-                        secondNext == first)
-                    {
-                        continue;
-                    }
-                    if (SegmentsIntersect(
-                            polygon[first],
-                            polygon[firstNext],
-                            polygon[second],
-                            polygon[secondNext]))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        private static bool SegmentsIntersect(
-            Vector2 a,
-            Vector2 b,
-            Vector2 c,
-            Vector2 d)
-        {
-            float abC = Cross(b - a, c - a);
-            float abD = Cross(b - a, d - a);
-            float cdA = Cross(d - c, a - c);
-            float cdB = Cross(d - c, b - c);
-            return abC * abD < 0f && cdA * cdB < 0f;
-        }
-
-        private static float Cross(Vector2 a, Vector2 b) =>
-            a.x * b.y - a.y * b.x;
-
-        private static bool InUnitRange(Vector2 point) =>
-            point.x >= 0f && point.x <= 1f &&
-            point.y >= 0f && point.y <= 1f;
+            => MapPolygonUtility.SelfIntersects(polygon);
 
         private static MapAreaShape Area(
             string id,

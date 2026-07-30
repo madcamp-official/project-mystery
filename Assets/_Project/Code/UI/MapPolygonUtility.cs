@@ -135,6 +135,74 @@ namespace Wake.UI
             return false;
         }
 
+        public static IReadOnlyList<int> Triangulate(
+            IReadOnlyList<Vector2> polygon)
+        {
+            var triangles = new List<int>();
+            if (polygon == null || polygon.Count < 3)
+                return triangles;
+
+            var remaining = new List<int>();
+            for (int index = 0; index < polygon.Count; index++)
+                remaining.Add(index);
+
+            bool counterClockwise = SignedArea(polygon) > 0f;
+            int safety = polygon.Count * polygon.Count;
+            while (remaining.Count > 3 && safety-- > 0)
+            {
+                bool clipped = false;
+                for (int index = 0; index < remaining.Count; index++)
+                {
+                    int previous = remaining[
+                        (index - 1 + remaining.Count) % remaining.Count];
+                    int current = remaining[index];
+                    int next = remaining[(index + 1) % remaining.Count];
+                    float corner = Cross(
+                        polygon[current] - polygon[previous],
+                        polygon[next] - polygon[current]);
+                    if (counterClockwise ? corner <= 0f : corner >= 0f)
+                        continue;
+
+                    bool containsVertex = false;
+                    for (int test = 0; test < remaining.Count; test++)
+                    {
+                        int candidate = remaining[test];
+                        if (candidate == previous ||
+                            candidate == current ||
+                            candidate == next)
+                        {
+                            continue;
+                        }
+                        if (PointInTriangle(
+                                polygon[candidate],
+                                polygon[previous],
+                                polygon[current],
+                                polygon[next]))
+                        {
+                            containsVertex = true;
+                            break;
+                        }
+                    }
+                    if (containsVertex)
+                        continue;
+
+                    triangles.Add(previous);
+                    triangles.Add(current);
+                    triangles.Add(next);
+                    remaining.RemoveAt(index);
+                    clipped = true;
+                    break;
+                }
+
+                if (!clipped)
+                    break;
+            }
+
+            if (remaining.Count == 3)
+                triangles.AddRange(remaining);
+            return triangles;
+        }
+
         private static bool SegmentsIntersect(
             Vector2 a,
             Vector2 b,
@@ -159,6 +227,20 @@ namespace Wake.UI
                    point.x <= Mathf.Max(a.x, b.x) + Epsilon &&
                    point.y >= Mathf.Min(a.y, b.y) - Epsilon &&
                    point.y <= Mathf.Max(a.y, b.y) + Epsilon;
+        }
+
+        private static bool PointInTriangle(
+            Vector2 point,
+            Vector2 a,
+            Vector2 b,
+            Vector2 c)
+        {
+            float first = Cross(b - a, point - a);
+            float second = Cross(c - b, point - b);
+            float third = Cross(a - c, point - c);
+            bool hasNegative = first < 0f || second < 0f || third < 0f;
+            bool hasPositive = first > 0f || second > 0f || third > 0f;
+            return !(hasNegative && hasPositive);
         }
 
         private static float Cross(Vector2 a, Vector2 b) =>
