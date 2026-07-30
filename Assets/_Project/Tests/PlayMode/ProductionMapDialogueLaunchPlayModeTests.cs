@@ -114,6 +114,109 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator DayOneVipLounge_HasOnlyClickableStoryCast()
+        {
+            yield return StartNewGameFromVisibleButton(
+                startOpeningDialogue: false);
+            MapController map = RequireMap();
+            map.RefreshMap();
+            ProductionMapEntry vipLounge =
+                map.CurrentViewModel.Entries.Single(
+                    entry => entry.Spec.Code == "VIP_LOUNGE");
+
+            LocationLoader.Instance.PrepareNarrativeScene("D1-06");
+            Assert.That(
+                LocationLoader.Instance.TryLoadLocation(
+                    vipLounge.Location,
+                    out _),
+                Is.True);
+            Ui.ShowIngame();
+            yield return WaitForUiTransition();
+            yield return null;
+
+            Button[] characters = FindActiveAmbientCharacters();
+            string names = string.Join(
+                ", ",
+                characters.Select(button => button.name));
+            Assert.That(
+                characters,
+                Has.Length.EqualTo(2),
+                "The Day 1 VIP lounge must render only its two story " +
+                $"characters. Active characters: {names}");
+            Assert.That(
+                characters.Any(button =>
+                    button.name.StartsWith("AmbientCharacter_EVELYN_")),
+                Is.True,
+                names);
+            Assert.That(
+                characters.Any(button =>
+                    button.name.StartsWith("AmbientCharacter_CLAIRE_")),
+                Is.True,
+                names);
+            Assert.That(
+                characters.Any(button =>
+                    button.name.StartsWith("AmbientCharacter_VIP_HOST_") ||
+                    button.name.StartsWith(
+                        "AmbientCharacter_PASSENGER_B_")),
+                Is.False,
+                "A flavor actor must not be added to the two-character " +
+                $"VIP composition. Active characters: {names}");
+            foreach (Button character in characters)
+                AssertCharacterHasAlphaClickTarget(character);
+            AssertRenderedCharactersDoNotOverlap(characters);
+            AssertNoRuntimeErrors("Day 1 VIP lounge character composition");
+        }
+
+        [UnityTest]
+        public IEnumerator D202Horizon_HasCleanClickableAttendantCrop()
+        {
+            yield return StartNewGameFromVisibleButton(
+                startOpeningDialogue: false);
+            foreach (ProductionSceneDefinition scene in
+                     ProductionSceneCatalog.All.TakeWhile(
+                         scene => scene.SceneId != "D2-02"))
+            {
+                State.RecordCompletedScene(scene.SceneId);
+            }
+            State.UnlockProductionScene("D2-02");
+
+            MapController map = RequireMap();
+            map.RefreshMap();
+            ProductionMapEntry horizon =
+                map.CurrentViewModel.Entries.Single(
+                    entry => entry.Spec.Code == "HORIZON");
+            LocationLoader.Instance.PrepareNarrativeScene("D2-02");
+            Assert.That(
+                LocationLoader.Instance.TryLoadLocation(
+                    horizon.Location,
+                    out _),
+                Is.True);
+            Ui.ShowIngame();
+            yield return WaitForUiTransition();
+            yield return null;
+
+            Button[] characters = FindActiveAmbientCharacters();
+            string names = string.Join(
+                ", ",
+                characters.Select(button => button.name));
+            Assert.That(
+                characters,
+                Has.Length.EqualTo(2),
+                "D2-02 HORIZON must render Helena and one cabin " +
+                $"attendant only. Active characters: {names}");
+            Button helena = characters.Single(button =>
+                button.name.StartsWith("AmbientCharacter_HELENA_"));
+            Button attendant = characters.Single(button =>
+                button.name.StartsWith(
+                    "AmbientCharacter_CREW_ATTENDANT_"));
+            AssertCharacterHasAlphaClickTarget(helena);
+            AssertCharacterHasAlphaClickTarget(attendant);
+            AssertRenderedCharactersDoNotOverlap(characters);
+            AssertCrewAttendantUsesCleanAtlasCrop(attendant);
+            AssertNoRuntimeErrors("D2-02 HORIZON character composition");
+        }
+
+        [UnityTest]
         public IEnumerator D202FocusCharacterAndBloodPuzzle_RequireHorizon()
         {
             yield return StartNewGameFromVisibleButton(
@@ -508,6 +611,235 @@ namespace Wake.Tests.PlayMode
                 .Any(button =>
                     button.name == "Layered Map Node GANGWAY" &&
                     button.gameObject.activeInHierarchy);
+
+        private static Button[] FindActiveAmbientCharacters() =>
+            Object.FindObjectsByType<Button>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None)
+                .Where(button =>
+                    button.name.StartsWith("AmbientCharacter_") &&
+                    button.gameObject.activeInHierarchy)
+                .ToArray();
+
+        private static void AssertCharacterHasAlphaClickTarget(
+            Button button)
+        {
+            Assert.That(button, Is.Not.Null);
+            Assert.That(button.gameObject.activeInHierarchy, Is.True);
+            Assert.That(
+                button.interactable,
+                Is.True,
+                $"{button.name} must accept interaction.");
+            RawImage image = button.GetComponent<RawImage>();
+            Assert.That(image, Is.Not.Null);
+            Assert.That(
+                image.raycastTarget,
+                Is.True,
+                $"{button.name} must participate in UI raycasts.");
+            AlphaContourRaycastFilter filter =
+                button.GetComponent<AlphaContourRaycastFilter>();
+            Assert.That(
+                filter,
+                Is.Not.Null,
+                $"{button.name} must use its alpha contour as the hit area.");
+            Assert.That(
+                filter.HasAlphaMask,
+                Is.True,
+                $"{button.name} must build a readable alpha hit mask.");
+            Rect alphaBounds = CalculateRenderedAlphaBounds(
+                button,
+                out int opaqueSamples,
+                out int transparentSamples);
+            Assert.That(
+                opaqueSamples,
+                Is.GreaterThan(0),
+                $"{button.name} must expose at least one opaque clickable " +
+                "point inside its rendered silhouette.");
+            Assert.That(
+                transparentSamples,
+                Is.GreaterThan(0),
+                $"{button.name} must reject transparent points instead " +
+                "of exposing a rectangular hit box.");
+            Assert.That(alphaBounds.width, Is.GreaterThan(0f));
+            Assert.That(alphaBounds.height, Is.GreaterThan(0f));
+        }
+
+        private static void AssertCrewAttendantUsesCleanAtlasCrop(
+            Button attendant)
+        {
+            Assert.That(
+                AmbientWorldCharacterCatalog.TryGetAsset(
+                    "CREW_ATTENDANT",
+                    out AmbientWorldCharacterAsset asset),
+                Is.True);
+            Assert.That(
+                asset.ResourcePath,
+                Is.EqualTo(
+                    "AmbientCharacters/world_atlas_crew_passengers_ab"));
+            Rect expectedUv = new(
+                96f / 1774f,
+                108f / 887f,
+                213f / 1774f,
+                728f / 887f);
+            Assert.That(
+                asset.UvRect.xMin,
+                Is.EqualTo(expectedUv.xMin).Within(.00001f));
+            Assert.That(
+                asset.UvRect.yMin,
+                Is.EqualTo(expectedUv.yMin).Within(.00001f));
+            Assert.That(
+                asset.UvRect.xMax,
+                Is.EqualTo(expectedUv.xMax).Within(.00001f));
+            Assert.That(
+                asset.UvRect.yMax,
+                Is.EqualTo(expectedUv.yMax).Within(.00001f));
+            RawImage image = attendant.GetComponent<RawImage>();
+            Assert.That(image.texture, Is.Not.Null);
+            Assert.That(
+                image.texture.name,
+                Is.EqualTo("world_atlas_crew_passengers_ab"));
+            Assert.That(image.texture.width, Is.EqualTo(1774));
+            Assert.That(image.texture.height, Is.EqualTo(887));
+
+            Rect renderedUv = image.uvRect;
+            Rect renderedBounds = Rect.MinMaxRect(
+                Mathf.Min(
+                    renderedUv.x,
+                    renderedUv.x + renderedUv.width),
+                Mathf.Min(
+                    renderedUv.y,
+                    renderedUv.y + renderedUv.height),
+                Mathf.Max(
+                    renderedUv.x,
+                    renderedUv.x + renderedUv.width),
+                Mathf.Max(
+                    renderedUv.y,
+                    renderedUv.y + renderedUv.height));
+            Assert.That(
+                renderedBounds.xMin,
+                Is.EqualTo(asset.UvRect.xMin).Within(.00001f));
+            Assert.That(
+                renderedBounds.yMin,
+                Is.EqualTo(asset.UvRect.yMin).Within(.00001f));
+            Assert.That(
+                renderedBounds.xMax,
+                Is.EqualTo(asset.UvRect.xMax).Within(.00001f));
+            Assert.That(
+                renderedBounds.yMax,
+                Is.EqualTo(asset.UvRect.yMax).Within(.00001f));
+        }
+
+        private static void AssertRenderedCharactersDoNotOverlap(
+            Button[] characters)
+        {
+            for (int current = 0;
+                 current < characters.Length;
+                 current++)
+            {
+                Rect currentBounds =
+                    CalculateRenderedAlphaBounds(
+                        characters[current],
+                        out _,
+                        out _);
+                Assert.That(
+                    currentBounds.width,
+                    Is.GreaterThan(0f),
+                    characters[current].name);
+                Assert.That(
+                    currentBounds.height,
+                    Is.GreaterThan(0f),
+                    characters[current].name);
+                for (int previous = 0;
+                     previous < current;
+                     previous++)
+                {
+                    Rect previousBounds =
+                        CalculateRenderedAlphaBounds(
+                            characters[previous],
+                            out _,
+                            out _);
+                    Assert.That(
+                        currentBounds.Overlaps(
+                            previousBounds,
+                            true),
+                        Is.False,
+                        $"{characters[current].name} overlaps " +
+                        $"{characters[previous].name} after transparent " +
+                        "atlas margins are excluded.");
+                }
+            }
+        }
+
+        private static Rect CalculateRenderedAlphaBounds(
+            Button button,
+            out int opaqueSamples,
+            out int transparentSamples)
+        {
+            RectTransform rect = button.GetComponent<RectTransform>();
+            AlphaContourRaycastFilter filter =
+                button.GetComponent<AlphaContourRaycastFilter>();
+            Canvas canvas = button.GetComponentInParent<Canvas>();
+            Camera eventCamera =
+                canvas != null &&
+                canvas.renderMode != RenderMode.ScreenSpaceOverlay
+                    ? canvas.worldCamera
+                    : null;
+
+            opaqueSamples = 0;
+            transparentSamples = 0;
+            float minX = float.PositiveInfinity;
+            float minY = float.PositiveInfinity;
+            float maxX = float.NegativeInfinity;
+            float maxY = float.NegativeInfinity;
+            Rect local = rect.rect;
+            const int SampleCount = 33;
+            for (int y = 0; y < SampleCount; y++)
+            {
+                float normalizedY = (y + .5f) / SampleCount;
+                for (int x = 0; x < SampleCount; x++)
+                {
+                    float normalizedX = (x + .5f) / SampleCount;
+                    Vector3 localPoint = new(
+                        Mathf.Lerp(
+                            local.xMin,
+                            local.xMax,
+                            normalizedX),
+                        Mathf.Lerp(
+                            local.yMin,
+                            local.yMax,
+                            normalizedY),
+                        0f);
+                    Vector3 worldPoint = rect.TransformPoint(localPoint);
+                    Vector2 screenPoint =
+                        RectTransformUtility.WorldToScreenPoint(
+                            eventCamera,
+                            worldPoint);
+                    if (!filter.IsRaycastLocationValid(
+                            screenPoint,
+                            eventCamera))
+                    {
+                        transparentSamples++;
+                        continue;
+                    }
+
+                    opaqueSamples++;
+                    minX = Mathf.Min(minX, worldPoint.x);
+                    minY = Mathf.Min(minY, worldPoint.y);
+                    maxX = Mathf.Max(maxX, worldPoint.x);
+                    maxY = Mathf.Max(maxY, worldPoint.y);
+                }
+            }
+
+            Assert.That(
+                opaqueSamples,
+                Is.GreaterThan(0),
+                $"{button.name} has no rendered opaque samples.");
+            return Rect.MinMaxRect(
+                minX,
+                minY,
+                maxX,
+                maxY);
+        }
 
         private IEnumerator ShowOrRefreshMap()
         {
