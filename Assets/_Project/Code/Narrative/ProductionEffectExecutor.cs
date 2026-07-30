@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Wake.Core;
+using Wake.Evidence;
 using Wake.Exploration;
 using Wake.UI;
 
@@ -100,7 +101,19 @@ namespace Wake.Narrative
                 case ProductionEffectKind.Evidence:
                     foreach (string evidenceId in instruction.Values)
                     {
-                        if (tryGrantEvidence == null || !tryGrantEvidence(evidenceId))
+                        if (tryGrantEvidence != null && tryGrantEvidence(evidenceId))
+                        {
+                            continue;
+                        }
+                        // tryGrantEvidence fails when the evidence still
+                        // requires an inspection the player hasn't done -
+                        // this dialogue-authored grant bypasses that, but
+                        // it must still go through EvidenceInventory (not
+                        // just GameStateManager) or the item is marked
+                        // collected in save data while never appearing in
+                        // the evidence notebook.
+                        if (EvidenceInventory.Instance == null ||
+                            !EvidenceInventory.Instance.TryAddById(evidenceId))
                         {
                             state.RecordEvidenceCollected(evidenceId);
                         }
