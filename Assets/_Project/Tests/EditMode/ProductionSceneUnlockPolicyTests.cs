@@ -66,7 +66,7 @@ namespace Wake.Tests
             Assert.That(result.IsAllowed, Is.False);
             Assert.That(result.Denial,
                 Is.EqualTo(ProductionSceneUnlockDenial.PrerequisiteIncomplete));
-            Assert.That(result.Detail, Does.Contain("D2-01"));
+            Assert.That(result.Detail, Does.Contain("D2-03"));
         }
 
         [Test]

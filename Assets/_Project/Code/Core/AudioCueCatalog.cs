@@ -127,6 +127,18 @@ namespace Wake.Core
                     ["WORKSHOP"] = Cue(AdrianTheme, .43f, 1.8f)
                 };
 
+        // Longer, gentler crossfades for specific location-to-location
+        // transitions that would otherwise hard-swap between two
+        // unrelated music cues at a narratively loaded moment (e.g.
+        // straight from discovering Daniel's body into the medbay
+        // aftermath) - keyed by (from, to) location code pair.
+        private static readonly IReadOnlyDictionary<
+            (string From, string To), float> TransitionCrossfadeOverrides =
+            new Dictionary<(string, string), float>
+            {
+                [("HORIZON", "MEDBAY")] = 4.5f
+            };
+
         private static readonly HashSet<string> WoodFootstepLocations =
             new(StringComparer.OrdinalIgnoreCase)
             {
@@ -157,6 +169,20 @@ namespace Wake.Core
         {
             string normalized = locationCode?.Trim() ?? string.Empty;
             return LocationCues.TryGetValue(normalized, out cue);
+        }
+
+        public static bool TryGetTransitionCrossfadeSeconds(
+            string fromLocationCode,
+            string toLocationCode,
+            out float crossfadeSeconds)
+        {
+            string from = fromLocationCode?.Trim().ToUpperInvariant() ??
+                          string.Empty;
+            string to = toLocationCode?.Trim().ToUpperInvariant() ??
+                        string.Empty;
+            return TransitionCrossfadeOverrides.TryGetValue(
+                (from, to),
+                out crossfadeSeconds);
         }
 
         public static FootstepSurface FootstepSurfaceFor(

@@ -96,5 +96,37 @@ namespace Wake.Tests.EditMode
                 AudioCueCatalog.MapTravelFootstepSeconds,
                 Is.EqualTo(1.5f));
         }
+
+        [Test]
+        public void HorizonToMedbay_UsesALongerCrossfadeThanEitherLocationsDefault()
+        {
+            Assert.That(
+                AudioCueCatalog.TryGetTransitionCrossfadeSeconds(
+                    "horizon",
+                    " Medbay ",
+                    out float seconds),
+                Is.True);
+            AudioCueCatalog.TryGetLocationCue("HORIZON", out LocationAudioCue horizon);
+            AudioCueCatalog.TryGetLocationCue("MEDBAY", out LocationAudioCue medbay);
+            Assert.That(seconds, Is.GreaterThan(horizon.CrossfadeSeconds));
+            Assert.That(seconds, Is.GreaterThan(medbay.CrossfadeSeconds));
+        }
+
+        [Test]
+        public void UnregisteredTransition_HasNoCrossfadeOverride()
+        {
+            Assert.That(
+                AudioCueCatalog.TryGetTransitionCrossfadeSeconds(
+                    "MEDBAY",
+                    "HORIZON",
+                    out _),
+                Is.False);
+            Assert.That(
+                AudioCueCatalog.TryGetTransitionCrossfadeSeconds(
+                    "PORT",
+                    "GANGWAY",
+                    out _),
+                Is.False);
+        }
     }
 }

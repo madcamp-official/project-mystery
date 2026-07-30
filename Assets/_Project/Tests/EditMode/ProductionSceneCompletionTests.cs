@@ -101,6 +101,12 @@ namespace Wake.Tests
             Assert.That(flow.CanStartScene("D2-04"), Is.False);
             state.RecordCompletedScene("D2-01");
             Assert.That(flow.CanStartScene("D2-02"), Is.True);
+            // D2-04 (security/CCTV) requires D2-03 (medbay), not just D2-01 -
+            // the two are parallel-looking branches off D2-01/D2-02 but the
+            // security investigation is meant to come after the medbay one.
+            Assert.That(flow.CanStartScene("D2-04"), Is.False);
+            state.RecordCompletedScene("D2-02");
+            state.RecordCompletedScene("D2-03");
             Assert.That(flow.CanStartScene("D2-04"), Is.True);
         }
 
