@@ -243,6 +243,14 @@ namespace Wake.Tests.PlayMode
                          FindObjectsSortMode.None))
             {
                 feedback.ResetTransientState();
+                Assert.That(
+                    feedback.transform.Find("Interaction Label"),
+                    Is.Null,
+                    $"{feedback.name} must not create a hover name label.");
+                Assert.That(
+                    feedback.transform.Find("State Label"),
+                    Is.Null,
+                    $"{feedback.name} must not keep a legacy hover name label.");
             }
             UnityEngine.Canvas.ForceUpdateCanvases();
 
@@ -378,8 +386,11 @@ namespace Wake.Tests.PlayMode
                 Assert.That(
                     feedback.IsIndicatorVisible,
                     Is.False,
-                    $"{button.name} label must stay hidden until hover, " +
-                    "focus, or accessibility mode.");
+                    $"{button.name} highlight must start hidden.");
+                Assert.That(
+                    button.transform.Find("Interaction Label"),
+                    Is.Null,
+                    $"{button.name} must not create a hover name label.");
                 AmbientBarkRecord bark = AmbientBarkCatalog
                     .GetAvailable("PORT", State)
                     .FirstOrDefault(item =>

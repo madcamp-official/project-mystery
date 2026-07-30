@@ -128,13 +128,6 @@ namespace Wake.Exploration
                 : $"{safeName}\n대화 완료";
         }
 
-        public static string HotspotLabel(string title)
-        {
-            return string.IsNullOrWhiteSpace(title)
-                ? "조사"
-                : $"조사 · {title.Trim()}";
-        }
-
         public static ColorBlock CharacterSpriteColors()
         {
             return CharacterSpriteColors(CharacterSpriteNormal);

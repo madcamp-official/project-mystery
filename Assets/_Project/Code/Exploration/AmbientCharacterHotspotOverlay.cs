@@ -255,7 +255,7 @@ namespace Wake.Exploration
             target.AddComponent<AlphaContourRaycastFilter>()
                 .Configure(image, texture);
             target.AddComponent<ExplorationHotspotFeedback>()
-                .Configure(DialoguePortraitCatalog.GetDisplayName(speaker));
+                .Configure();
             UiCharacterIdleMotion idleMotion =
                 target.AddComponent<UiCharacterIdleMotion>();
             idleMotion.Configure(

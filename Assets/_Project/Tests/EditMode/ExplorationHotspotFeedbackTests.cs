@@ -1,7 +1,6 @@
 using NUnit.Framework;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Wake.Exploration;
 
@@ -16,24 +15,27 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void Feedback_HidesPromptUntilPointerOrFocusRequestsIt()
+        public void Feedback_HoverAndSelectionUseOutlineWithoutTextPrompt()
         {
-            GameObject root = CreateFeedbackTarget(out ExplorationHotspotFeedback feedback, out TMP_Text label);
+            GameObject root = CreateFeedbackTarget(
+                out ExplorationHotspotFeedback feedback);
             try
             {
-                feedback.Configure("Inspect ledger", label);
+                feedback.Configure();
 
                 Assert.That(feedback.IsIndicatorVisible, Is.False);
-                Assert.That(label.gameObject.activeSelf, Is.False);
+                AssertNoTextPrompt(root);
 
                 feedback.OnPointerEnter(null);
                 Assert.That(feedback.IsIndicatorVisible, Is.True);
+                AssertNoTextPrompt(root);
 
                 feedback.OnPointerExit(null);
                 Assert.That(feedback.IsIndicatorVisible, Is.False);
 
                 feedback.OnSelect(null);
                 Assert.That(feedback.IsIndicatorVisible, Is.True);
+                AssertNoTextPrompt(root);
 
                 feedback.OnDeselect(null);
                 Assert.That(feedback.IsIndicatorVisible, Is.False);
@@ -45,20 +47,27 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void Feedback_AccessibilityModeRevealsAndHidesAllPrompts()
+        public void Feedback_AccessibilityModeUsesOutlineWithoutTextPrompt()
         {
-            GameObject first = CreateFeedbackTarget(out ExplorationHotspotFeedback firstFeedback, out TMP_Text firstLabel);
-            GameObject second = CreateFeedbackTarget(out ExplorationHotspotFeedback secondFeedback, out TMP_Text secondLabel);
+            GameObject first = CreateFeedbackTarget(
+                out ExplorationHotspotFeedback firstFeedback);
+            GameObject second = CreateFeedbackTarget(
+                out ExplorationHotspotFeedback secondFeedback);
             try
             {
-                firstFeedback.Configure("Talk", firstLabel);
-                secondFeedback.Configure("Examine", secondLabel);
+                firstFeedback.Configure();
+                secondFeedback.Configure();
 
                 ExplorationHotspotFeedback.SetAccessibilityIndicators(true);
 
-                Assert.That(ExplorationHotspotFeedback.AccessibilityIndicatorsEnabled, Is.True);
+                Assert.That(
+                    ExplorationHotspotFeedback
+                        .AccessibilityIndicatorsEnabled,
+                    Is.True);
                 Assert.That(firstFeedback.IsIndicatorVisible, Is.True);
                 Assert.That(secondFeedback.IsIndicatorVisible, Is.True);
+                AssertNoTextPrompt(first);
+                AssertNoTextPrompt(second);
 
                 ExplorationHotspotFeedback.SetAccessibilityIndicators(false);
 
@@ -73,32 +82,13 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void Feedback_UsesExistingLabelInsteadOfCreatingDuplicatePrompt()
-        {
-            GameObject root = CreateFeedbackTarget(out ExplorationHotspotFeedback feedback, out TMP_Text label);
-            try
-            {
-                feedback.Configure("Board the ship", label);
-
-                Assert.That(root.GetComponentsInChildren<TMP_Text>(true), Has.Length.EqualTo(1));
-                Assert.That(label.text, Is.EqualTo("Board the ship"));
-                Assert.That(label.raycastTarget, Is.False);
-            }
-            finally
-            {
-                Object.DestroyImmediate(root);
-            }
-        }
-
-        [Test]
-        public void Feedback_ResetTransientStateClearsClickFocusResidue()
+        public void Feedback_ResetTransientStateClearsHighlightResidue()
         {
             GameObject root = CreateFeedbackTarget(
-                out ExplorationHotspotFeedback feedback,
-                out TMP_Text label);
+                out ExplorationHotspotFeedback feedback);
             try
             {
-                feedback.Configure("Talk", label);
+                feedback.Configure();
                 feedback.OnPointerEnter(null);
                 feedback.OnSelect(null);
                 Assert.That(feedback.IsIndicatorVisible, Is.True);
@@ -106,6 +96,7 @@ namespace Wake.Tests
                 feedback.ResetTransientState();
 
                 Assert.That(feedback.IsIndicatorVisible, Is.False);
+                AssertNoTextPrompt(root);
             }
             finally
             {
@@ -114,8 +105,7 @@ namespace Wake.Tests
         }
 
         private static GameObject CreateFeedbackTarget(
-            out ExplorationHotspotFeedback feedback,
-            out TMP_Text label)
+            out ExplorationHotspotFeedback feedback)
         {
             GameObject root = new(
                 "Feedback Target",
@@ -123,14 +113,17 @@ namespace Wake.Tests
                 typeof(CanvasRenderer),
                 typeof(Image));
             feedback = root.AddComponent<ExplorationHotspotFeedback>();
-
-            GameObject labelObject = new(
-                "Prompt",
-                typeof(RectTransform),
-                typeof(TextMeshProUGUI));
-            labelObject.transform.SetParent(root.transform, false);
-            label = labelObject.GetComponent<TMP_Text>();
             return root;
+        }
+
+        private static void AssertNoTextPrompt(GameObject root)
+        {
+            Assert.That(
+                root.transform.Find("Interaction Label"),
+                Is.Null);
+            Assert.That(
+                root.GetComponentsInChildren<TMP_Text>(true),
+                Is.Empty);
         }
     }
 }

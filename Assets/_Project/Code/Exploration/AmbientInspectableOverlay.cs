@@ -139,38 +139,10 @@ namespace Wake.Exploration
                 button.colors = AmbientInteractionPresentation.HotspotColors();
                 button.onClick.AddListener(() =>
                     AmbientInspectablePopup.Show(spec));
-                TMP_Text label =
-                    CreateHotspotLabel(target.transform, spec.Title);
                 target.AddComponent<ExplorationHotspotFeedback>()
-                    .Configure(spec.Title, label);
+                    .Configure();
                 spawned.Add(target);
             }
-        }
-
-        private static TMP_Text CreateHotspotLabel(
-            Transform parent,
-            string title)
-        {
-            GameObject labelObject = new(
-                "State Label",
-                typeof(RectTransform),
-                typeof(TextMeshProUGUI));
-            labelObject.transform.SetParent(parent, false);
-            RectTransform rect = labelObject.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.5f, 0f);
-            rect.anchorMax = new Vector2(0.5f, 0f);
-            rect.pivot = new Vector2(0.5f, 1f);
-            rect.anchoredPosition = new Vector2(0f, -4f);
-            rect.sizeDelta = new Vector2(190f, 30f);
-
-            TMP_Text label = labelObject.GetComponent<TMP_Text>();
-            TypographyService.Apply(label, TypographyRole.TechnicalStrong);
-            label.text = AmbientInteractionPresentation.HotspotLabel(title);
-            label.fontSize = 14f;
-            label.alignment = TextAlignmentOptions.Center;
-            label.color = new Color32(226, 238, 224, 235);
-            label.raycastTarget = false;
-            return label;
         }
 
         private void Clear()
