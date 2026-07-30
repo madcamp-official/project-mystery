@@ -156,11 +156,71 @@ namespace Wake.Tests
                 flagged,
                 Is.EqualTo(new[]
                 {
+                    "BALLAST_CONTROL_ANNEX",
+                    "CREW_STAIRS",
+                    "ENGINE_CONTROL",
                     "OPEN_DECK",
                     "PROMENADE",
                     "SECURITY",
+                    "SERVICE_RAIL",
                     "VIP_LOUNGE"
                 }));
+        }
+
+        [Test]
+        public void OpenDeckMask_FollowsThinExteriorDeckWithoutSeaOrCabin()
+        {
+            Assert.That(
+                MapInteractionGeometryCatalog.TryGetMask(
+                    "OPEN_DECK",
+                    out MapRoomMask mask),
+                Is.True);
+
+            Assert.That(
+                MapPolygonUtility.Contains(
+                    mask.Polygon,
+                    new Vector2(.22f, .82f)),
+                Is.True,
+                "The thin upper exterior deck must remain selectable.");
+            Assert.That(
+                MapPolygonUtility.Contains(
+                    mask.Polygon,
+                    new Vector2(.22f, .90f)),
+                Is.False,
+                "Open sea above the hull must not be selectable.");
+            Assert.That(
+                MapPolygonUtility.Contains(
+                    mask.Polygon,
+                    new Vector2(.105f, .835f)),
+                Is.False,
+                "The former rectangular hit area's stern-side sea sample " +
+                "must remain outside the room polygon.");
+            Assert.That(
+                MapPolygonUtility.Contains(
+                    mask.Polygon,
+                    new Vector2(.22f, .60f)),
+                Is.False,
+                "The Richard Suite cabin below must not be selectable.");
+        }
+
+        [TestCase("BALLROOM")]
+        [TestCase("NEWS_LOUNGE")]
+        [TestCase("RICHARD_SUITE")]
+        [TestCase("OPEN_DECK")]
+        public void BlueprintRooms_UseWallTracingPolygons(
+            string locationCode)
+        {
+            Assert.That(
+                MapInteractionGeometryCatalog.TryGetMask(
+                    locationCode,
+                    out MapRoomMask mask),
+                Is.True,
+                locationCode);
+            Assert.That(
+                mask.Polygon.Count,
+                Is.GreaterThan(4),
+                $"{locationCode} must follow blueprint walls instead of " +
+                "using a bounding rectangle.");
         }
 
         [Test]
@@ -195,6 +255,48 @@ namespace Wake.Tests
                 Assert.That(
                     graphic.ContainsNormalized(new Vector2(.8f, .8f)),
                     Is.False);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(roomObject);
+            }
+        }
+
+        [Test]
+        public void LockedRoomHitArea_PreservesLockAndExactPolygonHitShape()
+        {
+            var roomObject = new GameObject(
+                "Locked Room Hit Test",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(MapRoomHitAreaGraphic));
+            try
+            {
+                MapRoomHitAreaGraphic graphic =
+                    roomObject.GetComponent<MapRoomHitAreaGraphic>();
+                graphic.Configure(
+                    new[]
+                    {
+                        new Vector2(.1f, .1f),
+                        new Vector2(.9f, .1f),
+                        new Vector2(.9f, .4f),
+                        new Vector2(.4f, .4f),
+                        new Vector2(.4f, .9f),
+                        new Vector2(.1f, .9f)
+                    },
+                    true,
+                    false,
+                    false);
+
+                Assert.That(graphic.IsLocked, Is.True);
+                Assert.That(
+                    graphic.ContainsNormalized(new Vector2(.2f, .8f)),
+                    Is.True);
+                Assert.That(
+                    graphic.ContainsNormalized(new Vector2(.8f, .8f)),
+                    Is.False,
+                    "A locked room must not make its bounding-box notch " +
+                    "clickable.");
             }
             finally
             {
@@ -246,6 +348,22 @@ namespace Wake.Tests
                     MapLayerMode.Technical,
                     new[] { MapDeckCatalog.TechnicalUnlockSceneId }),
                 Is.True);
+        }
+
+        [Test]
+        public void PassengerRedactions_OnlyCoverTextSizedRegions()
+        {
+            foreach (MapPassengerRedaction redaction in
+                     MapPassengerRedactionCatalog.All)
+            {
+                float area = Mathf.Abs(
+                    MapPolygonUtility.SignedArea(redaction.Polygon));
+                Assert.That(
+                    area,
+                    Is.GreaterThan(0f).And.LessThan(.025f),
+                    $"{redaction.Id} must not hide a rectangular room or " +
+                    "large section of the blueprint.");
+            }
         }
 
         [Test]
