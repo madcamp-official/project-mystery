@@ -89,6 +89,63 @@ namespace Wake.Tests
             }
         }
 
+        [Test]
+        public void NoArchetypeOccupiesMultipleLocationsWithinTheSameDayTier()
+        {
+            var byTierAndSpeaker = new System.Collections.Generic
+                .Dictionary<(string Tier, string Speaker),
+                    System.Collections.Generic.HashSet<string>>();
+
+            foreach (AmbientBarkRecord entry in AmbientBarkCatalog.All)
+            {
+                string tier = ClassifyDayTier(entry.Condition);
+                if (tier == null)
+                {
+                    continue;
+                }
+
+                var key = (tier, entry.Speaker);
+                if (!byTierAndSpeaker.TryGetValue(
+                        key,
+                        out System.Collections.Generic.HashSet<string> locations))
+                {
+                    locations = new System.Collections.Generic.HashSet<string>();
+                    byTierAndSpeaker[key] = locations;
+                }
+
+                locations.Add(entry.Location);
+            }
+
+            string[] violations = byTierAndSpeaker
+                .Where(pair => pair.Value.Count > 1)
+                .Select(pair =>
+                    $"{pair.Key.Speaker} in tier {pair.Key.Tier}: " +
+                    string.Join(", ", pair.Value))
+                .ToArray();
+
+            Assert.That(violations, Is.Empty);
+        }
+
+        private static string ClassifyDayTier(string condition)
+        {
+            if (condition == "always")
+            {
+                return "D1";
+            }
+
+            if (condition == "chapter>=5")
+            {
+                return "LATE";
+            }
+
+            if (condition == "chapter>=2 and chapter<=4")
+            {
+                return "MID";
+            }
+
+            return null;
+        }
+
         private static void SetAnxiety(GameStateManager target, int value)
         {
             int delta = value - target.PublicAnxiety;

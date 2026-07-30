@@ -90,13 +90,13 @@ namespace Wake.Tests
             Assert.That(
                 AmbientWorldStageCatalog.TryGet(
                     "PROMENADE",
-                    "PASSENGER_A",
+                    "PASSENGER_PROMENADE_2",
                     out AmbientWorldStageProfile promenade),
                 Is.True);
             Assert.That(
                 AmbientWorldStageCatalog.TryGet(
                     "BALLAST_TANKS",
-                    "BALLAST_CONTROLLER",
+                    "BALLAST_CONTROLLER_TANKS",
                     out AmbientWorldStageProfile ballast),
                 Is.True);
 

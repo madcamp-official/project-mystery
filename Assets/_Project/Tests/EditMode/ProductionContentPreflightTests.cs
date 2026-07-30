@@ -95,7 +95,7 @@ namespace Wake.Tests
                     .ToArray();
 
             Assert.That(expressions, Has.Length.EqualTo(9));
-            Assert.That(fallbacks, Has.Length.EqualTo(24));
+            Assert.That(fallbacks, Has.Length.EqualTo(35));
             Assert.That(
                 fallbacks.All(item =>
                     item.FallbackTexture.StartsWith(
