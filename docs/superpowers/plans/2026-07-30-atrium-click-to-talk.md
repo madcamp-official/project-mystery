@@ -737,7 +737,7 @@ with:
                 DialogueController.Instance?.StartAmbientLine(
                     "ADRIAN",
                     AtriumInvestigationMonologueLines[
-                        Random.Range(
+                        UnityEngine.Random.Range(
                             0,
                             AtriumInvestigationMonologueLines.Length)],
                     "internal");

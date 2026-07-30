@@ -13,6 +13,12 @@ namespace Wake.UI
     {
         private const float MapTravelFadeSeconds = .45f;
 
+        private static readonly string[] AtriumInvestigationMonologueLines =
+        {
+            "다른 사람의 이야기도 들어보자.",
+            "아직은 더 탐문을 할 때야."
+        };
+
         [SerializeField] private LocationGraph locationGraph;
         [SerializeField] private Sprite cruiseMapSprite;
         [SerializeField] private Sprite mapNodeSprite;
@@ -460,6 +466,25 @@ namespace Wake.UI
         private void SelectLocation(LocationDefinition location)
         {
             GameStateManager state = GameStateManager.Instance;
+            string currentLocationCode =
+                LocationLoader.Instance?.CurrentLocation?.LocationCode ??
+                state?.CurrentLocationCode ??
+                string.Empty;
+            if (SceneTravelPolicy.IsTravelBlockedByIncompleteInvestigation(
+                    currentLocationCode,
+                    location?.LocationCode,
+                    state))
+            {
+                DialogueController.Instance?.StartAmbientLine(
+                    "ADRIAN",
+                    AtriumInvestigationMonologueLines[
+                        UnityEngine.Random.Range(
+                            0,
+                            AtriumInvestigationMonologueLines.Length)],
+                    "internal");
+                return;
+            }
+
             LastTravelResult = SceneTravelPolicy.EvaluateMapTravel(
                 location,
                 state?.CompletedProductionSceneIds,
