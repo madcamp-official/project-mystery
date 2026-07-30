@@ -85,6 +85,34 @@ namespace Wake.Exploration
         public static IReadOnlyCollection<string> RestrictedLocations =>
             RestrictedLocationCodes;
 
+        private static readonly IReadOnlyDictionary<string, string>
+            LocationInvestigationGate =
+                new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["ATRIUM"] = "D1-01"
+                };
+
+        public static bool IsTravelBlockedByIncompleteInvestigation(
+            string currentLocationCode,
+            string destinationLocationCode,
+            GameStateManager state)
+        {
+            string current =
+                currentLocationCode?.Trim().ToUpperInvariant() ?? string.Empty;
+            string destination =
+                destinationLocationCode?.Trim().ToUpperInvariant() ??
+                string.Empty;
+            if (string.Equals(current, destination, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            return LocationInvestigationGate.TryGetValue(
+                       current,
+                       out string requiredSceneId) &&
+                   state?.HasCompletedScene(requiredSceneId) != true;
+        }
+
         public static SceneTravelResult EvaluateScene(
             string sceneId,
             LocationGraph graph,

@@ -14061,7 +14061,7 @@
                                                 "y":  0.5
                                             },
                              "coverZoom":  1,
-                             "castFingerprint":  "db75e5de1b25edd557d1c6e3afc6f8d593a91bd4c7f621425d278e7dee8ecbf2",
+                             "castFingerprint":  "c7a6b90893add7328161ad8b6f6916dbeb524cda6684fcc6df4b0b60b2db0167",
                              "availableSlotCount":  5,
                              "croppedSlotCount":  0,
                              "assignments":  [
@@ -14086,7 +14086,7 @@
                                                  {
                                                      "characterId":  "CLAIRE",
                                                      "role":  "Main",
-                                                     "focus":  false,
+                                                     "focus":  true,
                                                      "state":  "Normal",
                                                      "slotId":  "near_right",
                                                      "offCamera":  false,
@@ -14095,7 +14095,7 @@
                                                  {
                                                      "characterId":  "OWEN",
                                                      "role":  "Main",
-                                                     "focus":  false,
+                                                     "focus":  true,
                                                      "state":  "Normal",
                                                      "slotId":  "mid_left",
                                                      "offCamera":  false,

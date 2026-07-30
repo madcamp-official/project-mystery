@@ -41,7 +41,7 @@ namespace Wake.Exploration
                     ["P-01"] = C("DANIEL"),
                     ["P-02"] = C("DANIEL", "RICHARD", "EVELYN"),
                     ["P-03"] = C("RICHARD"),
-                    ["D1-01"] = C("EVELYN", "MARCUS", "HELENA"),
+                    ["D1-01"] = C("CLAIRE", "MARCUS", "HELENA", "OWEN"),
                     ["D1-02"] = C("DANIEL", "EVELYN"),
                     ["D1-03"] = C("DANIEL", "EVELYN", "RICHARD"),
                     ["D1-04"] = C(),

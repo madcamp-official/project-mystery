@@ -685,28 +685,20 @@ namespace Wake.Exploration
                     return;
                 }
 
-                Wake.Core.ProductionDialogueCheckpoint checkpoint =
-                    state?.DialogueCheckpoint;
-                if (checkpoint != null &&
-                    string.Equals(
-                        checkpoint.activeSceneId,
+                if (dialogue.TalkToWorldCharacter(
                         currentSceneId,
-                        System.StringComparison.OrdinalIgnoreCase))
+                        character.CharacterId))
                 {
-                    dialogue.RestoreProductionScene(checkpoint);
                     return;
                 }
 
-                if (dialogue.CanStartProductionScene(currentSceneId))
-                {
-                    dialogue.StartProductionScene(currentSceneId);
-                    return;
-                }
-
-                Debug.LogWarning(
-                    $"Character interaction could not start scene {currentSceneId}; " +
-                    $"busy={dialogue.IsBusy}, active={dialogue.ActiveProductionSceneId}, " +
-                    $"completed={state?.HasCompletedScene(currentSceneId)}.");
+                dialogue.StartAmbientLine(
+                    character.CharacterId,
+                    MainCharacterWorldLineCatalog.GetCompleted(
+                        character.CharacterId,
+                        character.State),
+                    MainCharacterWorldLineCatalog.GetEmotion(character.State));
+                return;
             }
 
             string interactionId = CreateInteractionId(
@@ -1088,7 +1080,11 @@ namespace Wake.Exploration
                 bool completed =
                     (view.IsFocusParticipant &&
                      state.HasCompletedScene(currentSceneId)) ||
-                    state.HasCompletedNpcInteraction(view.InteractionId);
+                    state.HasCompletedNpcInteraction(view.InteractionId) ||
+                    (view.IsFocusParticipant &&
+                     state.HasFlag(
+                         ProductionConditionEvaluator.ChoiceFlag(
+                             $"{currentSceneId}_{view.Speaker}")));
                 Color tint = completed
                     ? Color.Lerp(
                         view.BaseTint,

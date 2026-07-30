@@ -190,7 +190,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.78
           source: approved-semantic-review
@@ -203,7 +203,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.83
           source: approved-semantic-review
@@ -216,7 +216,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.65
           source: approved-semantic-review
@@ -456,7 +456,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.88
           source: approved-semantic-review
@@ -469,7 +469,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.91
           source: approved-semantic-review
@@ -482,7 +482,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.88
           source: approved-semantic-review
@@ -495,7 +495,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.79
           source: approved-semantic-review
@@ -508,7 +508,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.77
           source: approved-semantic-review
@@ -787,7 +787,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.9
           source: approved-semantic-review
@@ -800,7 +800,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.84
           source: approved-semantic-review
@@ -813,7 +813,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.84
           source: approved-semantic-review
@@ -826,7 +826,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.78
           source: approved-semantic-review
@@ -1102,7 +1102,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.84
           source: approved-semantic-review
@@ -1115,7 +1115,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.78
           source: approved-semantic-review
@@ -1128,7 +1128,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.74
           source: approved-semantic-review
@@ -1141,7 +1141,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.68
           source: approved-semantic-review
@@ -1154,7 +1154,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.69
           source: approved-semantic-review
@@ -1438,7 +1438,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.48
           source: approved-semantic-review
@@ -1451,7 +1451,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.5
           source: approved-semantic-review
@@ -1464,7 +1464,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.52
           source: approved-semantic-review
@@ -1688,7 +1688,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.86
           source: approved-semantic-review
@@ -1701,7 +1701,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.91
           source: approved-semantic-review
@@ -1714,7 +1714,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.88
           source: approved-semantic-review
@@ -1727,7 +1727,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.76
           source: approved-semantic-review
@@ -1740,7 +1740,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.73
           source: approved-semantic-review
@@ -2042,7 +2042,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.86
           source: approved-semantic-review
@@ -2055,7 +2055,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.93
           source: approved-semantic-review
@@ -2068,7 +2068,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.93
           source: approved-semantic-review
@@ -2081,7 +2081,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.68
           source: approved-semantic-review
@@ -2351,7 +2351,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.88
           source: approved-semantic-review
@@ -2364,7 +2364,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.91
           source: approved-semantic-review
@@ -2377,7 +2377,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.9
           source: approved-semantic-review
@@ -2390,7 +2390,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.78
           source: approved-semantic-review
@@ -2403,7 +2403,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.77
           source: approved-semantic-review
@@ -2416,7 +2416,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.75
           source: approved-semantic-review
@@ -2713,7 +2713,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.82
           source: approved-semantic-review
@@ -2726,7 +2726,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.88
           source: approved-semantic-review
@@ -2739,7 +2739,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.63
           source: approved-semantic-review
@@ -2977,7 +2977,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.75
           source: approved-semantic-review
@@ -2990,7 +2990,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.88
           source: approved-semantic-review
@@ -3003,7 +3003,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.91
           source: approved-semantic-review
@@ -3016,7 +3016,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.87
           source: approved-semantic-review
@@ -3029,7 +3029,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.68
           source: approved-semantic-review
@@ -3299,7 +3299,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.7
           source: approved-semantic-review
@@ -3312,7 +3312,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.8
           source: approved-semantic-review
@@ -3325,7 +3325,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.82
           source: approved-semantic-review
@@ -3338,7 +3338,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.78
           source: approved-semantic-review
@@ -3567,7 +3567,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.76
           source: approved-semantic-review
@@ -3580,7 +3580,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.88
           source: approved-semantic-review
@@ -3593,7 +3593,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.91
           source: approved-semantic-review
@@ -3606,7 +3606,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.87
           source: approved-semantic-review
@@ -3619,7 +3619,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.69
           source: approved-semantic-review
@@ -3875,7 +3875,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.86
           source: approved-semantic-review
@@ -3888,7 +3888,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.9
           source: approved-semantic-review
@@ -3901,7 +3901,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.82
           source: approved-semantic-review
@@ -3914,7 +3914,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.67
           source: approved-semantic-review
@@ -4156,7 +4156,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.76
           source: approved-semantic-review
@@ -4169,7 +4169,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.87
           source: approved-semantic-review
@@ -4182,7 +4182,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.8
           source: approved-semantic-review
@@ -4195,7 +4195,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.62
           source: approved-semantic-review
@@ -4475,7 +4475,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.82
           source: approved-semantic-review
@@ -4488,7 +4488,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.88
           source: approved-semantic-review
@@ -4501,7 +4501,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.62
           source: approved-semantic-review
@@ -4722,7 +4722,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.82
           source: approved-semantic-review
@@ -4735,7 +4735,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.88
           source: approved-semantic-review
@@ -4748,7 +4748,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.78
           source: approved-semantic-review
@@ -4761,7 +4761,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.77
           source: approved-semantic-review
@@ -4774,7 +4774,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.67
           source: approved-semantic-review
@@ -5078,7 +5078,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.68
           source: approved-semantic-review
@@ -5091,7 +5091,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.72
           source: approved-semantic-review
@@ -5104,7 +5104,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.64
           source: approved-semantic-review
@@ -5117,7 +5117,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.54
           source: approved-semantic-review
@@ -5319,7 +5319,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.84
           source: approved-semantic-review
@@ -5332,7 +5332,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.9
           source: approved-semantic-review
@@ -5345,7 +5345,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.8
           source: approved-semantic-review
@@ -5358,7 +5358,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.79
           source: approved-semantic-review
@@ -5371,7 +5371,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.69
           source: approved-semantic-review
@@ -5654,7 +5654,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.48
           source: approved-semantic-review
@@ -5667,7 +5667,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.55
           source: approved-semantic-review
@@ -5680,7 +5680,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.42
           source: approved-semantic-review
@@ -5918,7 +5918,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.87
           source: approved-semantic-review
@@ -5931,7 +5931,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.9
           source: approved-semantic-review
@@ -5944,7 +5944,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.68
           source: approved-semantic-review
@@ -6196,7 +6196,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.82
           source: approved-semantic-review
@@ -6209,7 +6209,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.88
           source: approved-semantic-review
@@ -6222,7 +6222,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.63
           source: approved-semantic-review
@@ -6416,7 +6416,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.87
           source: approved-semantic-review
@@ -6429,7 +6429,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.91
           source: approved-semantic-review
@@ -6442,7 +6442,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.86
           source: approved-semantic-review
@@ -6455,7 +6455,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.81
           source: approved-semantic-review
@@ -6468,7 +6468,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.78
           source: approved-semantic-review
@@ -6481,7 +6481,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.67
           source: approved-semantic-review
@@ -6767,7 +6767,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.84
           source: approved-semantic-review
@@ -6780,7 +6780,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.91
           source: approved-semantic-review
@@ -6793,7 +6793,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.88
           source: approved-semantic-review
@@ -6806,7 +6806,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.68
           source: approved-semantic-review
@@ -7090,7 +7090,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.78
           source: approved-semantic-review
@@ -7103,7 +7103,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.86
           source: approved-semantic-review
@@ -7116,7 +7116,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.85
           source: approved-semantic-review
@@ -7129,7 +7129,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.76
           source: approved-semantic-review
@@ -7142,7 +7142,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.72
           source: approved-semantic-review
@@ -7155,7 +7155,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.7
           source: approved-semantic-review
@@ -7510,7 +7510,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.74
           source: approved-semantic-review
@@ -7523,7 +7523,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.69
           source: approved-semantic-review
@@ -7536,7 +7536,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.62
           source: approved-semantic-review
@@ -7549,7 +7549,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.65
           source: approved-semantic-review
@@ -7562,7 +7562,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.42
           source: approved-semantic-review
@@ -7883,7 +7883,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.82
           source: approved-semantic-review
@@ -7896,7 +7896,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.76
           source: approved-semantic-review
@@ -7909,7 +7909,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.36
           source: approved-semantic-review
@@ -7922,7 +7922,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.73
           source: approved-semantic-review
@@ -7935,7 +7935,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.76
           source: approved-semantic-review
@@ -8303,7 +8303,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.46
           source: approved-semantic-review
@@ -8316,7 +8316,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.41
           source: approved-semantic-review
@@ -8329,7 +8329,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.37
           source: approved-semantic-review
@@ -8583,7 +8583,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.8
           source: approved-semantic-review
@@ -8596,7 +8596,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.7
           source: approved-semantic-review
@@ -8609,7 +8609,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.62
           source: approved-semantic-review
@@ -8622,7 +8622,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.6
           source: approved-semantic-review
@@ -8635,7 +8635,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.69
           source: approved-semantic-review
@@ -8648,7 +8648,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.77
           source: approved-semantic-review
@@ -8932,7 +8932,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.85
           source: approved-semantic-review
@@ -8945,7 +8945,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.88
           source: approved-semantic-review
@@ -8958,7 +8958,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.8
           source: approved-semantic-review
@@ -8971,7 +8971,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.59
           source: approved-semantic-review
@@ -9271,7 +9271,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.82
           source: approved-semantic-review
@@ -9284,7 +9284,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.76
           source: approved-semantic-review
@@ -9297,7 +9297,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.74
           source: approved-semantic-review
@@ -9310,7 +9310,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.72
           source: approved-semantic-review
@@ -9323,7 +9323,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.68
           source: approved-semantic-review
@@ -9608,7 +9608,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.86
           source: approved-semantic-review
@@ -9621,7 +9621,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.82
           source: approved-semantic-review
@@ -9634,7 +9634,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.8
           source: approved-semantic-review
@@ -9647,7 +9647,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.77
           source: approved-semantic-review
@@ -9660,7 +9660,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.69
           source: approved-semantic-review
@@ -9936,7 +9936,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.84
           source: approved-semantic-review
@@ -9949,7 +9949,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.81
           source: approved-semantic-review
@@ -9962,7 +9962,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.79
           source: approved-semantic-review
@@ -9975,7 +9975,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.74
           source: approved-semantic-review
@@ -9988,7 +9988,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.68
           source: approved-semantic-review
@@ -10249,7 +10249,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.8
           source: approved-semantic-review
@@ -10262,7 +10262,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.85
           source: approved-semantic-review
@@ -10275,7 +10275,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.58
           source: approved-semantic-review
@@ -10529,7 +10529,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.84
           source: approved-semantic-review
@@ -10542,7 +10542,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.78
           source: approved-semantic-review
@@ -10555,7 +10555,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.74
           source: approved-semantic-review
@@ -10568,7 +10568,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.72
           source: approved-semantic-review
@@ -10581,7 +10581,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.62
           source: approved-semantic-review
@@ -10594,7 +10594,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.48
           source: approved-semantic-review
@@ -10875,7 +10875,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.9
           source: approved-semantic-review
@@ -10888,7 +10888,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.82
           source: approved-semantic-review
@@ -10901,7 +10901,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.7
           source: approved-semantic-review
@@ -10914,7 +10914,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.58
           source: approved-semantic-review
@@ -10927,7 +10927,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.52
           source: approved-semantic-review
@@ -10940,7 +10940,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.4
           source: approved-semantic-review
@@ -11247,7 +11247,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.82
           source: approved-semantic-review
@@ -11260,7 +11260,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.88
           source: approved-semantic-review
@@ -11273,7 +11273,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.62
           source: approved-semantic-review
@@ -11503,7 +11503,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.89
           source: approved-semantic-review
@@ -11516,7 +11516,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.86
           source: approved-semantic-review
@@ -11529,7 +11529,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.82
           source: approved-semantic-review
@@ -11542,7 +11542,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.72
           source: approved-semantic-review
@@ -11555,7 +11555,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.66
           source: approved-semantic-review
@@ -11568,7 +11568,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.54
           source: approved-semantic-review
@@ -11874,7 +11874,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.83
           source: approved-semantic-review
@@ -11887,7 +11887,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.87
           source: approved-semantic-review
@@ -11900,7 +11900,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.69
           source: approved-semantic-review
@@ -12196,7 +12196,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.62
           source: approved-semantic-review
@@ -12209,7 +12209,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.68
           source: approved-semantic-review
@@ -12222,7 +12222,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.87
           source: approved-semantic-review
@@ -12235,7 +12235,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.78
           source: approved-semantic-review
@@ -12248,7 +12248,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.66
           source: approved-semantic-review
@@ -12569,7 +12569,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.83
           source: approved-semantic-review
@@ -12582,7 +12582,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.88
           source: approved-semantic-review
@@ -12595,7 +12595,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.85
           source: approved-semantic-review
@@ -12608,7 +12608,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.68
           source: approved-semantic-review
@@ -12866,7 +12866,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.9
           source: approved-semantic-review
@@ -12879,7 +12879,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.86
           source: approved-semantic-review
@@ -12892,7 +12892,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.76
           source: approved-semantic-review
@@ -12905,7 +12905,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.74
           source: approved-semantic-review
@@ -12918,7 +12918,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.68
           source: approved-semantic-review
@@ -12931,7 +12931,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.58
           source: approved-semantic-review
@@ -13226,7 +13226,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.85
           source: approved-semantic-review
@@ -13239,7 +13239,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.91
           source: approved-semantic-review
@@ -13252,7 +13252,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.84
           source: approved-semantic-review
@@ -13265,7 +13265,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.72
           source: approved-semantic-review
@@ -13507,7 +13507,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.87
           source: approved-semantic-review
@@ -13520,7 +13520,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.9
           source: approved-semantic-review
@@ -13533,7 +13533,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.8
           source: approved-semantic-review
@@ -13546,7 +13546,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.68
           source: approved-semantic-review
@@ -13830,7 +13830,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.85
           source: approved-semantic-review
@@ -13843,7 +13843,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.88
           source: approved-semantic-review
@@ -13856,7 +13856,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.8
           source: approved-semantic-review
@@ -13869,7 +13869,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.59
           source: approved-semantic-review
@@ -14145,7 +14145,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.84
           source: approved-semantic-review
@@ -14158,7 +14158,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.91
           source: approved-semantic-review
@@ -14171,7 +14171,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.58
           source: approved-semantic-review
@@ -14184,7 +14184,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.68
           source: approved-semantic-review
@@ -14197,7 +14197,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.62
           source: approved-semantic-review
@@ -14210,7 +14210,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.42
           source: approved-semantic-review
@@ -14519,7 +14519,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.42
           source: approved-semantic-review
@@ -14532,7 +14532,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.68
           source: approved-semantic-review
@@ -14545,7 +14545,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.58
           source: approved-semantic-review
@@ -14747,7 +14747,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.84
           source: approved-semantic-review
@@ -14760,7 +14760,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.9
           source: approved-semantic-review
@@ -14773,7 +14773,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.8
           source: approved-semantic-review
@@ -14786,7 +14786,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.79
           source: approved-semantic-review
@@ -14799,7 +14799,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.69
           source: approved-semantic-review
@@ -15082,7 +15082,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.48
           source: approved-semantic-review
@@ -15095,7 +15095,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.55
           source: approved-semantic-review
@@ -15108,7 +15108,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.42
           source: approved-semantic-review
@@ -15417,7 +15417,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.7
           source: approved-semantic-review
@@ -15430,7 +15430,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.65
           source: approved-semantic-review
@@ -15443,7 +15443,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.68
           source: approved-semantic-review
@@ -15456,7 +15456,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.62
           source: approved-semantic-review
@@ -15469,7 +15469,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.56
           source: approved-semantic-review
@@ -15482,7 +15482,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.42
           source: approved-semantic-review
@@ -15770,7 +15770,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.72
           source: approved-semantic-review
@@ -15783,7 +15783,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.82
           source: approved-semantic-review
@@ -15796,7 +15796,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.61
           source: approved-semantic-review
@@ -16034,7 +16034,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.86
           source: approved-semantic-review
@@ -16047,7 +16047,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.9
           source: approved-semantic-review
@@ -16060,7 +16060,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.82
           source: approved-semantic-review
@@ -16073,7 +16073,7 @@ MonoBehaviour:
         facing: 0
         allowedRoles: 7
         origin: 0
-        reservationKey:
+        reservationKey: 
         confidence:
           score: 0.67
           source: approved-semantic-review
@@ -16180,7 +16180,7 @@ MonoBehaviour:
     variantKey: LocationBackgroundVariants/bg_atrium_default_champagne
     sourceImageHash: 244030aeb2d062120c00beca0d21902ac56b6be38964c5b1ac5904bcd998ee91
     backgroundProfileId: bg_atrium_default_champagne
-    castFingerprint: db75e5de1b25edd557d1c6e3afc6f8d593a91bd4c7f621425d278e7dee8ecbf2
+    castFingerprint: c7a6b90893add7328161ad8b6f6916dbeb524cda6684fcc6df4b0b60b2db0167
     approved: 1
     assignments:
     - characterId: HELENA
@@ -16193,11 +16193,11 @@ MonoBehaviour:
       hardProtectionOverlap: 0
     - characterId: CLAIRE
       slotId: near_right
-      role: 1
+      role: 2
       hardProtectionOverlap: 0
     - characterId: OWEN
       slotId: mid_left
-      role: 1
+      role: 2
       hardProtectionOverlap: 0
     - characterId: ATRIUM_GUIDE
       slotId: mid_right
