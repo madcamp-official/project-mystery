@@ -59,6 +59,7 @@ namespace Wake.Core
         private float currentTravelFootstepMix;
         private string pendingTravelLocationCode = string.Empty;
         private float pendingTravelFadeInSeconds;
+        private string lastLocationCode = string.Empty;
         private float dialogueDuckMultiplier = 1f;
         private Coroutine dialogueDuckFade;
 
@@ -123,11 +124,20 @@ namespace Wake.Core
 
         public void PlayLocationTheme(string locationCode)
         {
+            string previousLocationCode = lastLocationCode;
+            lastLocationCode = locationCode?.Trim() ?? string.Empty;
             if (AudioCueCatalog.TryGetLocationCue(
                     locationCode,
                     out LocationAudioCue cue))
             {
                 float transitionSeconds = cue.CrossfadeSeconds;
+                if (AudioCueCatalog.TryGetTransitionCrossfadeSeconds(
+                        previousLocationCode,
+                        locationCode,
+                        out float transitionOverrideSeconds))
+                {
+                    transitionSeconds = transitionOverrideSeconds;
+                }
                 if (string.Equals(
                         pendingTravelLocationCode,
                         locationCode?.Trim(),
