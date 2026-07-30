@@ -3,20 +3,20 @@
     "runtimeConnected":  true,
     "approvalStatus":  "Approved",
     "reviewer":  "project-owner",
-    "revision":  1,
-    "approvedAtUtc":  "2026-07-29T18:34:18Z",
+    "revision":  5,
+    "approvedAtUtc":  "2026-07-30T11:03:00Z",
     "canvasWidth":  960,
     "canvasHeight":  540,
     "scenes":  [
                    {
                        "sceneId":  "P-01",
                        "path":  "Documentation/CharacterStagingReview/Scenes/P_01_PORT.png",
-                       "sha256":  "7b1d0a5cd1cb27fdaf62e24e327fea2f09caf9a127d702c3b28055b4573427e8"
+                       "sha256":  "422ad1d5ce188e1bc344bc7a1977e8f0ef4b4ff8f422494a40800a473dc245c1"
                    },
                    {
                        "sceneId":  "P-02",
                        "path":  "Documentation/CharacterStagingReview/Scenes/P_02_GANGWAY.png",
-                       "sha256":  "bde71288bdfe66fe51d9ba90f3741776e730a81ed8c82c978b7a52f3419cf26d"
+                       "sha256":  "727554c3b49160a3e8f4f22c685bc6016d31865440157bc6fbb4e4548c79990e"
                    },
                    {
                        "sceneId":  "P-03",
@@ -26,7 +26,7 @@
                    {
                        "sceneId":  "D1-01",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D1_01_ATRIUM.png",
-                       "sha256":  "4604383cc63c0ba0445b9dc99776e17d1a1b317ce87ec66e823196f6000d06cd"
+                       "sha256":  "4006e114f59cecac0ef9d36cb76eaecd53d58c4ec5aa56521f175ddc3716476b"
                    },
                    {
                        "sceneId":  "D1-02",
@@ -36,7 +36,7 @@
                    {
                        "sceneId":  "D1-03",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D1_03_BALLROOM.png",
-                       "sha256":  "15a8c6aa9c81ee84a46812b38701f72ab4b40fef37d78e231c075b9e4066a26d"
+                       "sha256":  "74005ea2a34a42f4738b45f35e559806b7a726aa660004af7c8cb0dc550d360e"
                    },
                    {
                        "sceneId":  "D1-04",
@@ -46,12 +46,12 @@
                    {
                        "sceneId":  "D1-05",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D1_05_BALLROOM.png",
-                       "sha256":  "dfa5cddfe633d0b1a869d58785c3b05dfbec6d405ec4d872b095a31beb289424"
+                       "sha256":  "38eaecb45c159dfdc0aa1cb965b845efb2798f6667cd8038a5dde2d9a5f9206a"
                    },
                    {
                        "sceneId":  "D1-06",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D1_06_HORIZON.png",
-                       "sha256":  "9a70c5275a2ea16d796e7a8de6ea2e51ea60a00b39717e9d7bd2ac3f1e56de36"
+                       "sha256":  "07f8538fb7dce07530e07ff74f75b18c8e454522a166615891364a80ca7e2c3d"
                    },
                    {
                        "sceneId":  "D1-07",
@@ -61,27 +61,27 @@
                    {
                        "sceneId":  "D2-01",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D2_01_HORIZON.png",
-                       "sha256":  "9342f9ab866a70a3dc0221c7343af722c06012372ec17302c15ff6d1b287fb8e"
+                       "sha256":  "da9cb3dd9f2d8975d13a6fff7419ab57ed69f859b4f7cbc62c45082f3c41b2e4"
                    },
                    {
                        "sceneId":  "D2-02",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D2_02_HORIZON.png",
-                       "sha256":  "c1721bc0346fe845a76a2ca10657e8ee6a615090ad0cd2768d5b0509de6bb274"
+                       "sha256":  "d7b6bcc3fbfc6a4a33f3ea297e1e9f4e05384646bf2191572c60c650cc044233"
                    },
                    {
                        "sceneId":  "D2-03",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D2_03_MEDBAY.png",
-                       "sha256":  "87c42243d6c4d3d0a230e6b69d7644045cf572f505bc79f46cfa66e10f37871c"
+                       "sha256":  "c3724cdf03350ba026d2884257a5c61bfa0a155fdfc2e7467969398767755bab"
                    },
                    {
                        "sceneId":  "D2-04",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D2_04_SECURITY.png",
-                       "sha256":  "e67a4c2cb26fc75163a2d41fc9b596c5a418c567552d060756ad58a475427f01"
+                       "sha256":  "b5c0f0a68f4b0d556e3a849608c4ab782f00be1f23ff47106cc2a6f22f246c3a"
                    },
                    {
                        "sceneId":  "D2-05",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D2_05_HORIZON.png",
-                       "sha256":  "2200cb84323a6b51271d9f761113f5c7c70e5fd3816cb802b960a4153f984c39"
+                       "sha256":  "7e3979fe9aef1318177ccde2f2b85a23beb5670b8d3db5946da2263ddf70f313"
                    },
                    {
                        "sceneId":  "D2-06",
@@ -91,7 +91,7 @@
                    {
                        "sceneId":  "D3-01",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D3_01_NEWS_LOUNGE.png",
-                       "sha256":  "87edbfc1115eab039879b1c3e84249274ba6f4331141ceb881ae2168460df635"
+                       "sha256":  "32e880f389bd046de1f2bd49aa02cacc1bd0837ea02ba9e6c91bda4734b23642"
                    },
                    {
                        "sceneId":  "D3-02",
@@ -111,12 +111,12 @@
                    {
                        "sceneId":  "D3-05",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D3_05_PROMENADE.png",
-                       "sha256":  "beb119e24e460c04c6f25de0fffa692c07c094ef9306f3573fac16b3916a9cf1"
+                       "sha256":  "2048fe792e2557a6cac6f8a5ea3b14cca546606b61e9ba735c8d85f69c029ea7"
                    },
                    {
                        "sceneId":  "D4-01",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D4_01_SECURITY.png",
-                       "sha256":  "202216a60d5d9dc40c49ecd885242e2d697354fb0d3e4f894dd85b450d39b49c"
+                       "sha256":  "67e8b1920f071fbd868ffcfb7fdab1593c7e4324772daeee914b16341efd2782"
                    },
                    {
                        "sceneId":  "D4-02",
@@ -131,7 +131,7 @@
                    {
                        "sceneId":  "D4-04",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D4_04_MEDBAY.png",
-                       "sha256":  "fd991556571a00091fd733abe5f6e8f66aa78b0f4a2996c66695900492d43195"
+                       "sha256":  "52ca9e4fa1b34a6a795abd2761460b82d207d60e7108f2150f282946465edfde"
                    },
                    {
                        "sceneId":  "D5-01",
@@ -146,37 +146,37 @@
                    {
                        "sceneId":  "D5-03",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D5_03_INTERVIEW.png",
-                       "sha256":  "422720978e32e8ca1f6ac76e41188e9d0f48fc5a76e5f597b7c6219f68f9b3c7"
+                       "sha256":  "93b42dbe94f637253ef69dedbed62e6e0a0438d402eed849925f419346dc8ef1"
                    },
                    {
                        "sceneId":  "D5-04",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D5_04_HORIZON.png",
-                       "sha256":  "4eb9be3bccb006020713a0f4f5e3d61a5e9482b6ff0ae70f981c73a890d720a6"
+                       "sha256":  "eb6a6d91a85631d036226258d817e9e0f62e34d7eaf1e6b134c2bdaa09f62735"
                    },
                    {
                        "sceneId":  "D6-01",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D6_01_ENGINE_CONTROL.png",
-                       "sha256":  "2eff051fb77ef6bd0c02aceb7f457d7ae8a3fc3b7689f795bb59a6dc3c4ca263"
+                       "sha256":  "9bed2a9f97140254b92587247fbd0d461927f577e4654ea7ce2399a7c44f45e6"
                    },
                    {
                        "sceneId":  "D6-02",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D6_02_SERVICE_RAIL.png",
-                       "sha256":  "f17d434061a3a88e42ab90a545cd9ce22b1a64a3fd4d987a8cabf80ca7200395"
+                       "sha256":  "3a61d5ac6e0798a97ebae597656afc368c9e459bcc7773f08ee33d52eec14e82"
                    },
                    {
                        "sceneId":  "D6-03",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D6_03_BALLAST_CONTROL_ANNEX.png",
-                       "sha256":  "6b0643a899013875b0d8130740284f3cf057278013deba42098b6ee219c37c16"
+                       "sha256":  "2bb4d7f7a8f4105251d9d1f1940708db4444e282704f78dedc5a56cbc196dc54"
                    },
                    {
                        "sceneId":  "D6-04",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D6_04_MEDBAY.png",
-                       "sha256":  "48ef7f3e951657d8c348a9d72b4243faf92ef5473a69d3464b5be1c40de474df"
+                       "sha256":  "ce2b5d9ac5d6120c232f2e521847d9f16cebca37948a4cb93d23d44d836bd521"
                    },
                    {
                        "sceneId":  "D6-05",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D6_05_NEWS_LOUNGE.png",
-                       "sha256":  "ffdcfd7a17c70885b4bebeb78f94d371049bd8d6014a79cef9aa12dbbac4a5bf"
+                       "sha256":  "0bed48e0de771b5b2d3bd301dceb67d675cccbf34437d6cf1cfd3b36cda7404e"
                    },
                    {
                        "sceneId":  "D7-01",
@@ -186,32 +186,32 @@
                    {
                        "sceneId":  "D7-02",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D7_02_MEDBAY.png",
-                       "sha256":  "4e232f977af407f779238eea87cb20bdc28e2419a9b0ae8eda4cd1e1e0f327bf"
+                       "sha256":  "b1c6233b99c7b7c01cf7419d6c008294988cdcf54320e532041e1fb57d2369d2"
                    },
                    {
                        "sceneId":  "D7-03",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D7_03_ARCHIVE.png",
-                       "sha256":  "6ee0b90c40a976ed133856957f25a8c9354590f4c9e9ddde3eb5cfc85f220a96"
+                       "sha256":  "01476d259369197a7a19089cd00277ea33f3d3729ca4dede99d4c87715c203da"
                    },
                    {
                        "sceneId":  "D7-04",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D7_04_PROMENADE.png",
-                       "sha256":  "f3aaaf488110c7019f8b0e777d5936b452e457558e10ac21cc9fc588e1dc5480"
+                       "sha256":  "dc43bce39264a621996ff4786d10390a2c7fb913a6fbfd345dbe0c81ff279436"
                    },
                    {
                        "sceneId":  "D8-01",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D8_01_HORIZON.png",
-                       "sha256":  "52b8f6d0859acaaf539870892e83d6ecbf5e99e917902dd0076855bee683c432"
+                       "sha256":  "5a378350e086d775abc192b7af873a3faec9a944c20bd6294ea0bcc8e89c5438"
                    },
                    {
                        "sceneId":  "D8-02",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D8_02_OPEN_DECK.png",
-                       "sha256":  "016fdaa500d1d1625b47f49fe6e0d37efcaca242a83d2c71b29a0454d3d8c2d2"
+                       "sha256":  "aec6f4646899e80c49bb925ebced3bc17f8600638bfa821efd0967947eca7826"
                    },
                    {
                        "sceneId":  "D8-03",
                        "path":  "Documentation/CharacterStagingReview/Scenes/D8_03_PORT.png",
-                       "sha256":  "a2a9b86de8409998a50ec06bc3147a0ace668139206f75ffe16f52760f8c8287"
+                       "sha256":  "8105fed7bc637650d9c19632aae48621131bcafe36176a2fd1048a6d44fa85aa"
                    }
                ]
 }

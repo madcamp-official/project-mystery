@@ -116,6 +116,75 @@ function Get-StableObjectSha256 {
     return Get-StringSha256 $json
 }
 
+function Get-NormalizedVariantKey {
+    param([string]$VariantKey)
+    if ([string]::IsNullOrWhiteSpace($VariantKey)) {
+        return ""
+    }
+
+    $normalized = $VariantKey.Trim().Replace("\", "/")
+    if ($normalized.StartsWith(
+            "serialized:",
+            [StringComparison]::OrdinalIgnoreCase)) {
+        $normalized = $normalized.Substring("serialized:".Length)
+    }
+    $slash = $normalized.LastIndexOf("/")
+    if ($slash -ge 0 -and $slash -lt $normalized.Length - 1) {
+        $normalized = $normalized.Substring($slash + 1)
+    }
+    if ($normalized.EndsWith(
+            ".png",
+            [StringComparison]::OrdinalIgnoreCase)) {
+        $normalized = $normalized.Substring(
+            0,
+            $normalized.Length - 4)
+    }
+    return $normalized.ToLowerInvariant()
+}
+
+function Get-ProtectionVariantKey {
+    param([object]$Protection)
+    $property = $Protection.PSObject.Properties["variantKey"]
+    if ($null -eq $property) {
+        return ""
+    }
+    return [string]$property.Value
+}
+
+function Test-ProtectionIsPresent {
+    param([object]$Protection)
+    $property = $Protection.PSObject.Properties["isPresent"]
+    if ($null -eq $property) {
+        return $true
+    }
+    return [bool]$property.Value
+}
+
+function Test-ProtectionMatchesBackground {
+    param(
+        [object]$Protection,
+        [object]$Background
+    )
+    $protectionVariant = Get-NormalizedVariantKey (
+        Get-ProtectionVariantKey $Protection)
+    if ([string]::IsNullOrWhiteSpace($protectionVariant)) {
+        return $true
+    }
+
+    foreach ($backgroundVariant in @($Background.variantKeys)) {
+        if ([string]::Equals(
+                $protectionVariant,
+                (Get-NormalizedVariantKey ([string]$backgroundVariant)),
+                [StringComparison]::Ordinal)) {
+            return $true
+        }
+    }
+    return [string]::Equals(
+        $protectionVariant,
+        (Get-NormalizedVariantKey ([string]$Background.profileId)),
+        [StringComparison]::Ordinal)
+}
+
 if ($ApproveForRuntime) {
     foreach ($background in @($inventory.backgrounds)) {
         $sourcePath = [System.IO.Path]::GetFullPath(
@@ -463,7 +532,11 @@ function Draw-Zone {
     }
         $pen = [System.Drawing.Pen]::new($LineColor, 2)
     try {
-        if ($null -ne $Zone.rect) {
+        if ($null -ne $Zone.points -and $Zone.points.Count -ge 3) {
+            $points = Convert-NormalizedPolygon $Zone.points $Transform
+            $Graphics.FillPolygon($brush, $points)
+            $Graphics.DrawPolygon($pen, $points)
+        } elseif ($null -ne $Zone.rect) {
             $rect = Convert-NormalizedRect $Zone.rect $Transform
             $Graphics.FillRectangle($brush, $rect)
             $Graphics.DrawRectangle(
@@ -472,10 +545,6 @@ function Draw-Zone {
                 $rect.Y,
                 $rect.Width,
                 $rect.Height)
-        } elseif ($null -ne $Zone.points -and $Zone.points.Count -ge 3) {
-            $points = Convert-NormalizedPolygon $Zone.points $Transform
-            $Graphics.FillPolygon($brush, $points)
-            $Graphics.DrawPolygon($pen, $points)
         }
     } finally {
         $brush.Dispose()
@@ -495,13 +564,15 @@ function Draw-ZoneLabel {
         return
     }
 
-    $anchor = if ($null -ne $Zone.rect) {
+    $anchor = if (
+        $null -ne $Zone.points -and
+        $Zone.points.Count -gt 0) {
+        Convert-NormalizedPoint $Zone.points[0] $Transform
+    } elseif ($null -ne $Zone.rect) {
         Convert-NormalizedPoint `
             (New-Point $Zone.rect.x (
                 [double]$Zone.rect.y + [double]$Zone.rect.height)) `
             $Transform
-    } elseif ($null -ne $Zone.points -and $Zone.points.Count -gt 0) {
-        Convert-NormalizedPoint $Zone.points[0] $Transform
     } else {
         return
     }
@@ -968,11 +1039,25 @@ foreach ($background in $inventory.backgrounds) {
     }
 
     $protectionById = @{}
+    $hiddenProtectionIds = @{}
     foreach ($protection in @(
             $inventory.protections | Where-Object {
-                $background.locationCodes -contains $_.locationCode
+                $background.locationCodes -contains $_.locationCode -and
+                (Test-ProtectionMatchesBackground $_ $background)
             })) {
-        $protectionById[[string]$protection.objectId] =
+        $protectionId = [string]$protection.objectId
+        if (-not (Test-ProtectionIsPresent $protection)) {
+            $hiddenProtectionIds[$protectionId] = $true
+            $protectionById.Remove($protectionId)
+            continue
+        }
+        $catalogPoints = if (
+            $null -ne $protection.PSObject.Properties["points"]) {
+            @($protection.points)
+        } else {
+            @()
+        }
+        $protectionById[$protectionId] =
             [pscustomobject][ordered]@{
                 locationCode = [string]$protection.locationCode
                 objectId = [string]$protection.objectId
@@ -981,7 +1066,8 @@ foreach ($background in $inventory.backgrounds) {
                 displayName = [string]$protection.displayName
                 description = [string]$protection.description
                 normalizedRect = $protection.normalizedRect
-                points = $null
+                points = $catalogPoints
+                variantKey = Get-ProtectionVariantKey $protection
                 availableFromScene =
                     [string]$protection.availableFromScene
                 requiredEnding = [string]$protection.requiredEnding
@@ -994,11 +1080,17 @@ foreach ($background in $inventory.backgrounds) {
     }
     foreach ($protection in @($geometry.narrativeProtectedZones)) {
         $id = [string]$protection.id
+        if ($hiddenProtectionIds.ContainsKey($id)) {
+            continue
+        }
         $existing = if ($protectionById.ContainsKey($id)) {
             $protectionById[$id]
         } else {
             $null
         }
+        $hasCatalogPolygon =
+            $null -ne $existing -and
+            @($existing.points).Count -ge 3
         $protectionById[$id] = [pscustomobject][ordered]@{
             locationCode = @($background.locationCodes) -join ","
             objectId = $id
@@ -1014,8 +1106,21 @@ foreach ($background in $inventory.backgrounds) {
             } else {
                 [string]$protection.note
             }
-            normalizedRect = $protection.rect
-            points = $protection.points
+            normalizedRect = if ($hasCatalogPolygon) {
+                $existing.normalizedRect
+            } else {
+                $protection.rect
+            }
+            points = if ($hasCatalogPolygon) {
+                @($existing.points)
+            } else {
+                $protection.points
+            }
+            variantKey = if ($null -ne $existing) {
+                [string]$existing.variantKey
+            } else {
+                ""
+            }
             availableFromScene = if ($null -ne $existing) {
                 [string]$existing.availableFromScene
             } else {
@@ -1041,7 +1146,9 @@ foreach ($background in $inventory.backgrounds) {
             } else {
                 @()
             }
-            source = if ($null -ne $existing) {
+            source = if ($hasCatalogPolygon) {
+                "CatalogShape+NarrativeVisual"
+            } elseif ($null -ne $existing) {
                 "Catalog+NarrativeVisual"
             } else {
                 "NarrativeVisual"

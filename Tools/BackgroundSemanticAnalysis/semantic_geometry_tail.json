@@ -1218,9 +1218,10 @@
           "points": null
         },
         {
-          "kind": "brochure_cart",
+          "kind": "newspaper_display_cart",
           "rect": { "x": 0.16, "y": 0.06, "width": 0.15, "height": 0.30 },
-          "points": null
+          "points": null,
+          "note": "The cart displays the open C-18 newspaper above stacked print bundles; it is not the boarding-guide brochure cart from the base port image."
         },
         {
           "kind": "bollards_and_rope",
@@ -1257,28 +1258,18 @@
       ],
       "narrativeProtectedZones": [
         {
-          "id": "C-01",
-          "kind": "EvidenceHotspot",
-          "priority": "Hard",
-          "rect": { "x": 0.005, "y": 0.115, "width": 0.11, "height": 0.11 },
-          "points": null,
-          "note": "Port catalog evidence hotspot."
-        },
-        {
           "id": "C-18",
           "kind": "EvidenceHotspot",
           "priority": "Critical",
-          "rect": { "x": 0.165, "y": 0.135, "width": 0.13, "height": 0.13 },
-          "points": null,
-          "note": "D8-03 evidence required for ending A."
-        },
-        {
-          "id": "PROP_BROCHURE",
-          "kind": "AmbientInspectable",
-          "priority": "Hard",
-          "rect": { "x": 0.245, "y": 0.175, "width": 0.15, "height": 0.15 },
-          "points": null,
-          "note": "Default port ambient inspectable."
+          "rect": { "x": 0.176, "y": 0.190, "width": 0.117, "height": 0.138 },
+          "points": [
+            { "x": 0.182, "y": 0.310 },
+            { "x": 0.273, "y": 0.322 },
+            { "x": 0.287, "y": 0.223 },
+            { "x": 0.232, "y": 0.196 },
+            { "x": 0.183, "y": 0.216 }
+          ],
+          "note": "D8-03 ending-A evidence is the open newspaper displayed on the foreground luggage cart."
         },
         {
           "id": "SHIP_AND_GANGWAY",
@@ -1336,7 +1327,7 @@
           "confidence": 0.66
         }
       ],
-      "analysisNotes": "Scene D8-03 and persistent epilogue state. Protect C-01, ending-A-required C-18, PROP_BROCHURE, and the ship/gangway silhouette. Runtime can request DOCK_PORTER, RICHARD, CLAIRE, MARCUS, and THOMAS, but no more than three actors are recommended."
+      "analysisNotes": "Scene D8-03 and persistent epilogue state. Protect the open C-18 newspaper and the ship/gangway silhouette. C-01 and PROP_BROCHURE are absent from this daylight variant. Runtime can request DOCK_PORTER, RICHARD, CLAIRE, MARCUS, and THOMAS, but no more than three actors are recommended."
     },
     {
       "profileId": "bg_promenade_d3_night",
