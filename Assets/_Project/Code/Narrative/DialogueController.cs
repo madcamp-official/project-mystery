@@ -49,6 +49,7 @@ namespace Wake.Narrative
         private ProductionDialogueFlow productionFlow;
         private bool ambientLineActive;
         private string pendingInvestigationTitle = string.Empty;
+        private string pendingWorldCharacterId = string.Empty;
 
         private AudioSource typewriterAudioSource;
         private AudioClip typewriterClip;
@@ -519,6 +520,60 @@ namespace Wake.Narrative
             return candidate != null && candidate.CanStartScene(normalized);
         }
 
+        public bool TalkToWorldCharacter(string sceneId, string characterId)
+        {
+            if (string.IsNullOrWhiteSpace(sceneId) ||
+                string.IsNullOrWhiteSpace(characterId))
+            {
+                return false;
+            }
+
+            string normalizedSceneId = sceneId.Trim();
+            Wake.Core.ProductionDialogueCheckpoint checkpoint =
+                Wake.Core.GameStateManager.Instance?.DialogueCheckpoint;
+            if (checkpoint != null &&
+                string.Equals(
+                    checkpoint.activeSceneId,
+                    normalizedSceneId,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                if (IsBusy || !RestoreProductionScene(checkpoint))
+                {
+                    return false;
+                }
+
+                if (!productionFlow.IsAwaitingWorldSelection)
+                {
+                    // Not a world-click checkpoint - resume playback exactly
+                    // as a direct RestoreProductionScene call would.
+                    return true;
+                }
+
+                if (!productionFlow.SelectFreeChoiceForCharacter(characterId))
+                {
+                    EndDialogue();
+                    return false;
+                }
+
+                RenderProduction();
+                return true;
+            }
+
+            if (!CanStartProductionScene(normalizedSceneId))
+            {
+                return false;
+            }
+
+            pendingWorldCharacterId = characterId;
+            if (!StartProductionScene(normalizedSceneId))
+            {
+                pendingWorldCharacterId = string.Empty;
+                return false;
+            }
+
+            return true;
+        }
+
         public void CancelActiveDialogue()
         {
             StopTypewriter();
@@ -528,6 +583,7 @@ namespace Wake.Narrative
             productionFlow = null;
             ambientLineActive = false;
             pendingInvestigationTitle = string.Empty;
+            pendingWorldCharacterId = string.Empty;
             ApplyPresentation(DialoguePresentationPolicy.Hidden);
             linePanel?.SetActive(false);
             investigationUi?.Hide();
@@ -667,6 +723,21 @@ namespace Wake.Narrative
 
             if (productionFlow == null || productionFlow.IsComplete)
             {
+                EndDialogue();
+                return;
+            }
+
+            if (productionFlow.IsAwaitingWorldSelection)
+            {
+                string pendingCharacterId = pendingWorldCharacterId;
+                pendingWorldCharacterId = string.Empty;
+                if (!string.IsNullOrEmpty(pendingCharacterId) &&
+                    productionFlow.SelectFreeChoiceForCharacter(pendingCharacterId))
+                {
+                    RenderProduction();
+                    return;
+                }
+
                 EndDialogue();
                 return;
             }
@@ -972,6 +1043,7 @@ namespace Wake.Narrative
             productionFlow = null;
             ambientLineActive = false;
             pendingInvestigationTitle = string.Empty;
+            pendingWorldCharacterId = string.Empty;
             ApplyPresentation(DialoguePresentationPolicy.Hidden);
             presentationView?.SetChoicesVisible(false);
             choicePresentation?.Hide();
