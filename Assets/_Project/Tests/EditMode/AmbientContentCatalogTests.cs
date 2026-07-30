@@ -168,8 +168,12 @@ namespace Wake.Tests
                     speaker);
                 Assert.That(
                     asset.VisibleVerticalSpan,
-                    Is.InRange(0.72f, 0.98f),
-                    speaker);
+                    speaker == "CREW_ATTENDANT" ||
+                    speaker == "CREW_ATTENDANT_BALLROOM"
+                        ? Is.InRange(0.98f, 1f)
+                        : Is.InRange(0.72f, 0.98f),
+                    $"{speaker}: only tightly isolated attendant crops " +
+                    "may use the full UV height.");
             }
         }
 
@@ -435,7 +439,6 @@ namespace Wake.Tests
 
         [TestCase("PASSENGER_A", "passenger_a")]
         [TestCase("PASSENGER_F", "passenger_f")]
-        [TestCase("CREW_ATTENDANT", "crew_attendant")]
         [TestCase("CREW_ENGINEER", "crew_engineer")]
         [TestCase("CREW_SECURITY", "crew_security")]
         public void PassengerAndCrewWorldFigures_UseExpressionSheetFullBody(
@@ -453,6 +456,47 @@ namespace Wake.Tests
                     $"AmbientCharacters/{resourceName}_expressions"));
             Assert.That(asset.UvRect.x, Is.Zero);
             Assert.That(asset.UvRect.width, Is.EqualTo(0.25f));
+        }
+
+        [Test]
+        public void CrewAttendantWorldFigure_UsesIsolatedAtlasRegion()
+        {
+            Assert.That(
+                AmbientWorldCharacterCatalog.TryGetAsset(
+                    "CREW_ATTENDANT",
+                    out AmbientWorldCharacterAsset attendant),
+                Is.True);
+            Assert.That(
+                AmbientWorldCharacterCatalog.TryGetAsset(
+                    "CREW_ATTENDANT_BALLROOM",
+                    out AmbientWorldCharacterAsset ballroomAttendant),
+                Is.True);
+
+            Assert.That(
+                attendant.ResourcePath,
+                Is.EqualTo(
+                    "AmbientCharacters/world_atlas_crew_passengers_ab"));
+            Assert.That(
+                attendant.UvRect.x,
+                Is.EqualTo(96f / 1774f).Within(.000001f));
+            Assert.That(
+                attendant.UvRect.y,
+                Is.EqualTo(108f / 887f).Within(.000001f));
+            Assert.That(
+                attendant.UvRect.width,
+                Is.EqualTo(213f / 1774f).Within(.000001f));
+            Assert.That(
+                attendant.UvRect.height,
+                Is.EqualTo(728f / 887f).Within(.000001f));
+            Assert.That(
+                attendant.CellAspectRatio,
+                Is.EqualTo(213f / 728f).Within(.000001f));
+            Assert.That(
+                ballroomAttendant.ResourcePath,
+                Is.EqualTo(attendant.ResourcePath));
+            Assert.That(
+                ballroomAttendant.UvRect,
+                Is.EqualTo(attendant.UvRect));
         }
 
         [Test]

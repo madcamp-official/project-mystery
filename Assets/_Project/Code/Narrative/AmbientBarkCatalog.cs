@@ -388,6 +388,9 @@ namespace Wake.Narrative
             string sceneId,
             int maximum = 3)
         {
+            if (maximum <= 0)
+                return System.Array.Empty<AmbientBarkRecord>();
+
             string location = locationCode?.Trim().ToUpperInvariant() ?? "";
             string scene = NormalizeSceneId(sceneId);
             AmbientBarkRecord[] available = Entries

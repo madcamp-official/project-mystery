@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Wake.Exploration;
 using Wake.Narrative;
 
 namespace Wake.Tests
@@ -10,6 +11,7 @@ namespace Wake.Tests
         [TestCase("DOCK_PORTER")]
         [TestCase("PASSENGER_A")]
         [TestCase("CREW_ENGINEER")]
+        [TestCase("CREW_ATTENDANT")]
         public void DialogueFigure_UsesCompleteCharacterArtwork(
             string characterId)
         {
@@ -18,14 +20,17 @@ namespace Wake.Tests
 
             Assert.That(asset.Found, Is.True);
             Assert.That(asset.Texture, Is.Not.Null);
-            Assert.That(asset.UvRect.y, Is.Zero);
-            Assert.That(asset.UvRect.height, Is.EqualTo(1f));
-            if (characterId == "DOCK_PORTER" ||
-                characterId == "PASSENGER_A" ||
-                characterId == "CREW_ENGINEER")
+            if ((characterId == "CREW_ATTENDANT" ||
+                 characterId == "CREW_ATTENDANT_BALLROOM") &&
+                AmbientWorldCharacterCatalog.TryGetAsset(
+                    characterId,
+                    out AmbientWorldCharacterAsset worldAsset))
             {
-                Assert.That(asset.UvRect.x, Is.Zero);
-                Assert.That(asset.UvRect.width, Is.EqualTo(0.25f));
+                Assert.That(
+                    asset.UvRect,
+                    Is.EqualTo(worldAsset.UvRect),
+                    "Dialogue and exploration must share the exact same " +
+                    "isolated world-figure crop.");
             }
             Assert.That(asset.AspectRatio, Is.GreaterThan(0f));
             Assert.That(asset.UsesExpression, Is.False);

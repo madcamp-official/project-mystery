@@ -715,11 +715,12 @@ namespace Wake.Tests
 
             Assert.That(
                 silhouette.x,
-                Is.EqualTo(.405f).Within(.0001f));
+                Is.EqualTo(.35f).Within(.0001f));
             Assert.That(
                 silhouette.width,
-                Is.EqualTo(.14f).Within(.0001f),
-                "The approved review silhouette is the second width cap.");
+                Is.EqualTo(.25f).Within(.0001f),
+                "Collision bounds must never be narrower than the " +
+                "measured alpha silhouette.");
             Assert.That(
                 silhouette.center.x,
                 Is.EqualTo(.475f).Within(.0001f),
@@ -744,8 +745,9 @@ namespace Wake.Tests
                         backgroundAspectRatio: 1f);
             Assert.That(
                 reviewBounded.width,
-                Is.EqualTo(.10f).Within(.0001f),
-                "Approved review footprint is the collision-width cap.");
+                Is.EqualTo(.25f).Within(.0001f),
+                "A narrow review footprint must not under-report the " +
+                "measured alpha silhouette.");
             Assert.That(
                 reviewBounded.center.x,
                 Is.EqualTo(silhouette.center.x).Within(.0001f));

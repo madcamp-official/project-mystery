@@ -79,11 +79,10 @@ namespace Wake.Exploration
                 new Dictionary<string, Vector2>(
                     StringComparer.OrdinalIgnoreCase)
                 {
-                    ["crew_attendant"] = Vector2.zero,
                     ["crew_engineer"] = new(.018f, .186f),
                     ["crew_security"] = new(.071f, .123f),
                     ["passenger_a"] = new(.038f, .061f),
-                    ["passenger_b"] = new(.071f, .093f),
+                    ["passenger_b"] = new(.287f, .313f),
                     ["passenger_c"] = new(.026f, .089f),
                     ["passenger_d"] = new(.126f, .042f),
                     ["passenger_e"] = Vector2.zero,
@@ -130,10 +129,16 @@ namespace Wake.Exploration
             Assets = new Dictionary<string, AmbientWorldCharacterAsset>(
                 StringComparer.OrdinalIgnoreCase)
             {
-                ["CREW_ATTENDANT"] = ExpressionFigure(
-                    "crew_attendant", 0.6483f, 0.1309f, 0.0270f),
-                ["CREW_ATTENDANT_BALLROOM"] = ExpressionFigure(
-                    "crew_attendant", 0.6483f, 0.1309f, 0.0270f),
+                ["CREW_ATTENDANT"] = AtlasFigure(
+                    "world_atlas_crew_passengers_ab",
+                    textureWidth: 1774,
+                    textureHeight: 887,
+                    pixelRect: new RectInt(96, 108, 213, 728)),
+                ["CREW_ATTENDANT_BALLROOM"] = AtlasFigure(
+                    "world_atlas_crew_passengers_ab",
+                    textureWidth: 1774,
+                    textureHeight: 887,
+                    pixelRect: new RectInt(96, 108, 213, 728)),
                 ["CREW_ENGINEER"] = ExpressionFigure(
                     "crew_engineer", 0.6255f, 0.0416f, 0.0391f),
                 ["CREW_ENGINEER_GENERATOR"] = ExpressionFigure(
@@ -289,6 +294,27 @@ namespace Wake.Exploration
                 topMargin,
                 horizontalMargins.x,
                 horizontalMargins.y);
+        }
+
+        private static AmbientWorldCharacterAsset AtlasFigure(
+            string resourceName,
+            int textureWidth,
+            int textureHeight,
+            RectInt pixelRect)
+        {
+            float safeWidth = Mathf.Max(1, textureWidth);
+            float safeHeight = Mathf.Max(1, textureHeight);
+            Rect uv = new(
+                pixelRect.x / safeWidth,
+                pixelRect.y / safeHeight,
+                pixelRect.width / safeWidth,
+                pixelRect.height / safeHeight);
+            return new AmbientWorldCharacterAsset(
+                $"AmbientCharacters/{resourceName}",
+                uv,
+                pixelRect.width / Mathf.Max(1f, pixelRect.height),
+                visibleBottomMargin: 0f,
+                visibleTopMargin: 0f);
         }
 
         private static AmbientWorldCharacterAsset Specialist(

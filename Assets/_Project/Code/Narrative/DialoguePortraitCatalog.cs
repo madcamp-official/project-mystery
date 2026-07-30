@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Wake.Exploration;
 
 namespace Wake.Narrative
 {
@@ -256,6 +257,26 @@ namespace Wake.Narrative
         {
             if (!TryGet(characterId, out DialoguePortraitDefinition definition))
                 return default;
+
+            bool useIsolatedAttendantFigure =
+                string.Equals(
+                    characterId,
+                    "CREW_ATTENDANT",
+                    StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(
+                    characterId,
+                    "CREW_ATTENDANT_BALLROOM",
+                    StringComparison.OrdinalIgnoreCase);
+            if (useIsolatedAttendantFigure &&
+                AmbientWorldCharacterCatalog.TryGetAsset(
+                    characterId,
+                    out AmbientWorldCharacterAsset worldAsset))
+            {
+                Texture2D worldFigure = Resources.Load<Texture2D>(
+                    worldAsset.ResourcePath);
+                if (worldFigure != null)
+                    return FullFigure(worldFigure, worldAsset.UvRect);
+            }
 
             Texture2D mainFigure = Resources.Load<Texture2D>(
                 $"WorldMainCharacters/{definition.ExpressionSheet}");
