@@ -32,6 +32,20 @@ namespace Wake.Core
         public bool NeedsRewrite { get; }
         public string Warning { get; }
     }
+
+    internal readonly struct GameStateSavePreview
+    {
+        public GameStateSavePreview(GameStateSaveData data, bool isLegacy)
+        {
+            Data = data;
+            IsLegacy = isLegacy;
+        }
+
+        public GameStateSaveData Data { get; }
+        public bool IsLegacy { get; }
+        public bool HasData => Data != null;
+    }
+
     internal static class GameStateSaveStore
     {
         public const string PrimaryKey = "UNDER_THE_HORIZON_GAME_STATE_V2";
@@ -45,8 +59,7 @@ namespace Wake.Core
         private const int SchemaVersion = 2;
         private static int activeSlot = 1;
         public static int ActiveSlot => activeSlot;
-        private static string ActivePrimaryKey =>
-            activeSlot == 1 ? PrimaryKey : $"{PrimaryKey}_SLOT_{activeSlot}";
+        private static string ActivePrimaryKey => PrimaryKeyForSlot(activeSlot);
         private static string ActiveBackupKey => ActivePrimaryKey + "_BACKUP";
         private static string ActivePendingKey => ActivePrimaryKey + "_PENDING";
         private const string InterruptedWarning = "중단된 저장 작업을 복구했습니다.";
@@ -89,20 +102,33 @@ namespace Wake.Core
 
         public static bool HasRecoverableData(int slot)
         {
-            int previous = activeSlot;
-            SelectSlot(slot);
-            bool result = HasRecoverableData();
-            activeSlot = previous;
-            return result;
+            return SelectCandidate(
+                Mathf.Clamp(slot, 1, 3),
+                out _,
+                out _) != null;
         }
 
         public static bool HasRecoverableData() =>
-            SelectCandidate(out _, out _) != null;
+            SelectCandidate(activeSlot, out _, out _) != null;
+
+        public static GameStateSavePreview Preview(int slot)
+        {
+            Candidate candidate = SelectCandidate(
+                Mathf.Clamp(slot, 1, 3),
+                out _,
+                out _);
+            return candidate == null
+                ? default
+                : new GameStateSavePreview(candidate.Data, candidate.Legacy);
+        }
 
         public static GameStateSaveLoadResult Load()
         {
             Candidate candidate =
-                SelectCandidate(out bool corruption, out bool pendingPresent);
+                SelectCandidate(
+                    activeSlot,
+                    out bool corruption,
+                    out bool pendingPresent);
             if (candidate == null)
             {
                 return new GameStateSaveLoadResult(
@@ -162,17 +188,21 @@ namespace Wake.Core
             PlayerPrefs.Save();
         }
         private static Candidate SelectCandidate(
+            int slot,
             out bool activeCorruption,
             out bool pendingPresent)
         {
-            bool primaryPresent = PlayerPrefs.HasKey(ActivePrimaryKey);
-            pendingPresent = PlayerPrefs.HasKey(ActivePendingKey);
-            bool backupPresent = PlayerPrefs.HasKey(ActiveBackupKey);
-            Candidate primary = Read(ActivePrimaryKey, SaveSource.Primary);
-            Candidate pending = Read(ActivePendingKey, SaveSource.Pending);
+            string primaryKey = PrimaryKeyForSlot(slot);
+            string pendingKey = primaryKey + "_PENDING";
+            string backupKey = primaryKey + "_BACKUP";
+            bool primaryPresent = PlayerPrefs.HasKey(primaryKey);
+            pendingPresent = PlayerPrefs.HasKey(pendingKey);
+            bool backupPresent = PlayerPrefs.HasKey(backupKey);
+            Candidate primary = Read(primaryKey, SaveSource.Primary);
+            Candidate pending = Read(pendingKey, SaveSource.Pending);
             bool backupEligible = primaryPresent || pending != null;
             Candidate backup = backupEligible
-                ? Read(ActiveBackupKey, SaveSource.Backup)
+                ? Read(backupKey, SaveSource.Backup)
                 : null;
             activeCorruption =
                 (primaryPresent && primary == null) ||
@@ -184,7 +214,7 @@ namespace Wake.Core
                 return current;
             }
 
-            if (activeSlot != 1)
+            if (slot != 1)
             {
                 return null;
             }
@@ -193,6 +223,14 @@ namespace Wake.Core
             Candidate legacyPending =
                 ReadLegacy(LegacyPendingKey, SaveSource.LegacyPending);
             return Newer(legacyPrimary, legacyPending);
+        }
+
+        private static string PrimaryKeyForSlot(int slot)
+        {
+            int normalizedSlot = Mathf.Clamp(slot, 1, 3);
+            return normalizedSlot == 1
+                ? PrimaryKey
+                : $"{PrimaryKey}_SLOT_{normalizedSlot}";
         }
 
         private static Candidate Newer(Candidate current, Candidate candidate)

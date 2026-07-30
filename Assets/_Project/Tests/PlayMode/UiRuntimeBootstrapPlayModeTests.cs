@@ -687,12 +687,7 @@ namespace Wake.Tests.PlayMode
                 .GetComponentsInChildren<Button>(true)
                 .First(button => button.name == "시작하기");
             yield return InvokeAndSettle(startButton);
-            Button slot = RequireObject("StartScene/Save Slot Selection")
-                .GetComponentsInChildren<Button>(true)
-                .First(button =>
-                    button.name.StartsWith("Save Slot") &&
-                    button.GetComponentInChildren<TMP_Text>(true).text.Contains(
-                        "비어 있는 기록"));
+            Button slot = RequireSaveSlotButton(1);
             yield return InvokeAndSettle(slot);
             Button confirm = RequireObject(
                     "StartScene/Save Slot Selection/Start Confirmation/Confirm")
