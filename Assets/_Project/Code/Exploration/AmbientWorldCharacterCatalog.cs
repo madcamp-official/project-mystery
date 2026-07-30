@@ -132,13 +132,27 @@ namespace Wake.Exploration
             {
                 ["CREW_ATTENDANT"] = ExpressionFigure(
                     "crew_attendant", 0.6483f, 0.1309f, 0.0270f),
+                ["CREW_ATTENDANT_BALLROOM"] = ExpressionFigure(
+                    "crew_attendant", 0.6483f, 0.1309f, 0.0270f),
                 ["CREW_ENGINEER"] = ExpressionFigure(
                     "crew_engineer", 0.6255f, 0.0416f, 0.0391f),
+                ["CREW_ENGINEER_GENERATOR"] = ExpressionFigure(
+                    "crew_engineer", 0.6255f, 0.0416f, 0.0391f),
                 ["CREW_SECURITY"] = ExpressionFigure(
+                    "crew_security", 0.7500f, 0.0442f, 0.0262f),
+                ["CREW_SECURITY_DECK"] = ExpressionFigure(
+                    "crew_security", 0.7500f, 0.0442f, 0.0262f),
+                ["CREW_SECURITY_STAIRS"] = ExpressionFigure(
+                    "crew_security", 0.7500f, 0.0442f, 0.0262f),
+                ["CREW_SECURITY_VAULT"] = ExpressionFigure(
                     "crew_security", 0.7500f, 0.0442f, 0.0262f),
                 ["VAULT_GUARD"] = ExpressionFigure(
                     "crew_security", 0.7500f, 0.0442f, 0.0262f),
                 ["PASSENGER_A"] = ExpressionFigure(
+                    "passenger_a", 0.6255f, 0.0000f, 0.0328f),
+                ["PASSENGER_ATRIUM"] = ExpressionFigure(
+                    "passenger_a", 0.6255f, 0.0000f, 0.0328f),
+                ["PASSENGER_PROMENADE_2"] = ExpressionFigure(
                     "passenger_a", 0.6255f, 0.0000f, 0.0328f),
                 ["PASSENGER_B"] = ExpressionFigure(
                     "passenger_b", 0.7500f, 0.0000f, 0.0200f),
@@ -146,7 +160,13 @@ namespace Wake.Exploration
                     "passenger_c", 0.6255f, 0.0277f, 0.0214f),
                 ["PASSENGER_D"] = ExpressionFigure(
                     "passenger_d", 0.7500f, 0.0470f, 0.0193f),
+                ["PASSENGER_NEWS"] = ExpressionFigure(
+                    "passenger_d", 0.7500f, 0.0470f, 0.0193f),
+                ["PASSENGER_PROMENADE"] = ExpressionFigure(
+                    "passenger_d", 0.7500f, 0.0470f, 0.0193f),
                 ["PASSENGER_E"] = ExpressionFigure(
+                    "passenger_e", 0.6255f, 0.0328f, 0.0227f),
+                ["PASSENGER_DECK"] = ExpressionFigure(
                     "passenger_e", 0.6255f, 0.0328f, 0.0227f),
                 ["PASSENGER_F"] = ExpressionFigure(
                     "passenger_f", 0.7500f, 0.0055f, 0.0276f),
@@ -159,6 +179,7 @@ namespace Wake.Exploration
                 ["RAIL_TECHNICIAN"] = Specialist("rail_technician"),
                 ["SHIP_MEDIC"] = Specialist("ship_medic"),
                 ["BALLAST_CONTROLLER"] = Specialist("ballast_controller"),
+                ["BALLAST_CONTROLLER_TANKS"] = Specialist("ballast_controller"),
                 ["CHIEF_ENGINEER"] = Specialist("chief_engineer"),
                 ["SUITE_STEWARD"] = Specialist("suite_steward"),
                 ["ARCHIVIST"] = Specialist("archivist"),

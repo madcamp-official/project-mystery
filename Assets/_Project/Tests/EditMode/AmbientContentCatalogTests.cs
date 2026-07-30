@@ -179,7 +179,7 @@ namespace Wake.Tests
                 .Distinct()
                 .ToArray();
 
-            Assert.That(speakers, Has.Length.EqualTo(24));
+            Assert.That(speakers, Has.Length.EqualTo(35));
             foreach (string speaker in speakers)
             {
                 Assert.That(
