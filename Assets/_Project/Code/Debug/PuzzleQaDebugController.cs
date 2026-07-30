@@ -46,7 +46,21 @@ namespace Wake.QA
                 yield return null;
             }
 
-            UIManager.Instance.ShowIngame();
+            // UIManager's own boot flow (ShowStartScene, run from inside
+            // EnsureInitialized) kicks off an async panel transition that
+            // can still be running the moment IsInitialized flips true.
+            // SetActivePanel silently no-ops while a transition is in
+            // flight, so a single ShowIngame() call here can race it and
+            // get swallowed - keep retrying until it actually sticks.
+            while (UIManager.Instance.ActivePanel != UiPrimaryPanel.Ingame)
+            {
+                if (!UIManager.Instance.IsTransitioning)
+                {
+                    UIManager.Instance.ShowIngame();
+                }
+                yield return null;
+            }
+
             BuildPicker();
         }
 
