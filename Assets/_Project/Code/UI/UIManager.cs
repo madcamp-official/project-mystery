@@ -259,9 +259,25 @@ namespace Wake.UI
         // Evidence's back button flip to a different icon on hover/click.
         private static void ApplyMinimalBackButtonStyle(Transform target)
         {
+            ApplyFlatButtonStyle(target);
+            TMP_Text label = target.GetComponentInChildren<TMP_Text>(true);
+            if (label != null)
+            {
+                label.text = "← 돌아가기";
+                UiVisualThemeService.ApplyText(
+                    label,
+                    UiTextStyle.Technical);
+                label.alignment = TextAlignmentOptions.Center;
+            }
+        }
+
+        // The visual half of ApplyMinimalBackButtonStyle, reusable for any
+        // button/card that should match the back button's plain look
+        // without inheriting its "돌아가기" label text.
+        internal static void ApplyFlatButtonStyle(Transform target)
+        {
             Button button = target.GetComponent<Button>();
             Image image = target.GetComponent<Image>();
-            TMP_Text label = target.GetComponentInChildren<TMP_Text>(true);
             if (image != null)
             {
                 image.sprite = null;
@@ -277,13 +293,15 @@ namespace Wake.UI
             UiVisualThemeService.ApplyButton(
                 button,
                 UiButtonStyle.Secondary);
-            if (label != null)
+            // ColorTint only repaints on the next real Selectable state
+            // transition (hover/select/etc.) - writing button.colors alone
+            // leaves whatever color was already rendered (e.g. the
+            // button's original authored art) on screen until then. Set
+            // the graphic's color directly so the flat look is correct
+            // immediately.
+            if (image != null && button != null)
             {
-                label.text = "← 돌아가기";
-                UiVisualThemeService.ApplyText(
-                    label,
-                    UiTextStyle.Technical);
-                label.alignment = TextAlignmentOptions.Center;
+                image.color = button.colors.normalColor;
             }
         }
 

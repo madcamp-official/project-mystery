@@ -347,6 +347,11 @@ namespace Wake.Evidence
             SetButtonLabel(turnLeftButton, string.Empty);
             SetButtonLabel(turnRightButton, string.Empty);
             SetButtonLabel(theoryBoardButton, "기록 비교");
+            // Match the "돌아가기" button's plain, no-sprite look instead of
+            // each element's own distinct authored art (record-comparison
+            // button, evidence carousel cards).
+            UIManager.ApplyFlatButtonStyle(theoryBoardButton.transform);
+            UIManager.ApplyFlatButtonStyle(itemTemplate.transform);
             nextButton.onClick.AddListener(() => Advance(1));
             prevButton.onClick.AddListener(() => Advance(-1));
             backButton.onClick.AddListener(

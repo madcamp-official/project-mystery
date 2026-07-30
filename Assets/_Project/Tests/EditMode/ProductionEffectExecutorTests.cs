@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using Wake.Core;
+using Wake.Evidence;
 using Wake.Narrative;
 
 namespace Wake.Tests
@@ -136,6 +137,46 @@ namespace Wake.Tests
             Assert.That(
                 state.CollectedEvidenceIds,
                 Is.EquivalentTo(new[] { "C-07_PARTIAL", "MODULE_CASE" }));
+        }
+
+        [Test]
+        public void EvidenceFallback_StillReachesEvidenceInventory_WhenIdIsCanonical()
+        {
+            GameObject inventoryHost = new("EvidenceInventoryHost");
+            EvidenceInventory inventory =
+                inventoryHost.AddComponent<EvidenceInventory>();
+            // EvidenceInventory.Awake() (which sets Instance) only runs in
+            // Play Mode - EditMode tests never trigger it, so the
+            // singleton has to be wired up manually here the same way
+            // Awake would.
+            System.Reflection.PropertyInfo instanceProperty =
+                typeof(EvidenceInventory).GetProperty(
+                    nameof(EvidenceInventory.Instance));
+            instanceProperty.SetValue(null, inventory);
+            // Add() reports the grant to GameStateManager.Instance unless
+            // bound explicitly - also Awake-only wiring in real play, so
+            // point it at this test's local state instance directly.
+            inventory.BindState(state);
+            try
+            {
+                executor = new ProductionEffectExecutor(state, _ => false);
+
+                ProductionEffectExecutionResult result =
+                    executor.Execute("evidence:C-01");
+
+                Assert.That(result.Success, Is.True);
+                // Regression guard: the fallback used to write only to
+                // GameStateManager, leaving the item marked collected in
+                // save data while never appearing in the evidence
+                // notebook (EvidenceInventory is what the UI reads).
+                Assert.That(inventory.Contains("C-01"), Is.True);
+                Assert.That(state.CollectedEvidenceIds, Contains.Item("C-01"));
+            }
+            finally
+            {
+                instanceProperty.SetValue(null, null);
+                Object.DestroyImmediate(inventoryHost);
+            }
         }
 
         [Test]
