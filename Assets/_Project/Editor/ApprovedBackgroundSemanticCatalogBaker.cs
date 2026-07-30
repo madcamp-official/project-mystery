@@ -1137,7 +1137,8 @@ namespace Wake.Editor
                             assignments,
                             offCamera,
                             source.backgroundProfileId,
-                            source.castFingerprint));
+                            source.castFingerprint,
+                            source.enforceMeasuredAlphaBounds));
                 }
             }
 
@@ -1553,6 +1554,8 @@ namespace Wake.Editor
                 actual.VariantKey != expected.VariantKey ||
                 actual.BackgroundProfileId !=
                 expected.BackgroundProfileId ||
+                actual.EnforceMeasuredAlphaBounds !=
+                expected.EnforceMeasuredAlphaBounds ||
                 !string.Equals(
                     actual.CastFingerprint,
                     expected.CastFingerprint,
@@ -2129,6 +2132,7 @@ namespace Wake.Editor
             public RuntimePoint coverFocus;
             public float coverZoom;
             public string castFingerprint;
+            public bool enforceMeasuredAlphaBounds;
             public RuntimeAssignment[] assignments;
             public string[] offCameraCharacters;
         }
