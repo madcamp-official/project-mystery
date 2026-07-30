@@ -350,8 +350,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. The circular mosaic is the primary staging area. Keep the small champagne flute and its table clear; the flute\u0027s direct-image bounds are much tighter than the broad runtime hotspot.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_ballast_annex_d6_subtle",
@@ -796,8 +796,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate for the D6-03 room state. The shoe-sole piece, wiped drain trace, nitrogen manifold, and purge display all need review protection. The center-right floor is physically walkable but visually evidence-heavy.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_ballroom_default_mask",
@@ -1115,8 +1115,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. The central polished dance floor supports the largest group compositions. The mask itself is tiny and sits above the staging floor on the right table, so its tight protected bounds are important.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_bridge_d3_day",
@@ -1461,8 +1461,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate for D3-03. The open deck foreground is highly usable; protect the helm, chart, and radar as operational story landmarks rather than placing actors directly in front of them.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_cabin_claire_d5_dismantled",
@@ -1760,8 +1760,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate for D5-02. The opened service robot and tools are the scene\u0027s main physical explanation and must never be covered. Keep actors on the foreground strip.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_cabin_claire_d5_smoke",
@@ -2062,8 +2062,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate for D5-01. Actor feet remain on the clear foreground edge because the middle floor is smoke-obscured. The generated art does not visibly show the scripted fallen-curtain silhouette, which should be checked during approval.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_cabin_claire_default_morning",
@@ -2361,8 +2361,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate for the default morning state. No confirmed evidence hotspot is visible; the empty robot cradle is a useful soft foreshadowing element.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_cabin_daniel_d2_late_afternoon",
@@ -2643,8 +2643,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate for D2-06. The foreground passage between bed and desk is narrow. The art visibly includes a tablet although the scripted investigation emphasizes its absence; retain that region for explicit approval review.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_crew_stairs_d4_reconstruction",
@@ -2957,8 +2957,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate for D4-03. Only the foreground landing and right walkway are suitable for flat-foot staging. The white tape and chalk reconstruction marks are the readable evidence layer.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_crew_stairs_d4_wet",
@@ -3304,8 +3304,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate for D4-02. All viable staging surfaces are wet, so confidence is intentionally reduced. Keep silhouettes away from the footprint trail and folded warning sign; four-character compositions will be crowded.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_crew_stairs_default",
@@ -3570,8 +3570,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate for the default service-stair state. No image-specific clue or MacGuffin is present, so narrativeProtectedZones is intentionally empty.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_gangway_default_luggage",
@@ -3891,8 +3891,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. The corridor offers strong perspective scaling but narrows quickly. Keep the left foreground luggage clear, especially in the P-02 multi-character composition.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_horizon_cleared_day",
@@ -4280,8 +4280,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate for the cleared-day Horizon Room. Protect all five catalog clue regions. C-02 is visually closed in this art, while C-07 is represented by three evidence markers rather than visible blood; both require explicit approval.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_horizon_d1_discovery",
@@ -4707,8 +4707,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Scene D1-06; protect catalog evidence C-02 and C-07 plus the body/blood composition. Runtime worst case is CREW_ATTENDANT, HELENA, and RICHARD, but two simultaneously visible actors are recommended.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_horizon_d8_finale",
@@ -5109,8 +5109,8 @@
                          "analysisNotes":  "Scene D8-01 and persistent finale state. Catalog evidence C-02, C-03, C-04, C-05, and C-07 has no clear corresponding visual anchor in this image and requires review. Runtime can request CREW_SECURITY plus EVELYN, RICHARD, CLAIRE, and THOMAS; use at most three until hotspot and silhouette conflicts are resolved.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_interview_d5_day",
@@ -5451,8 +5451,8 @@
                          "analysisNotes":  "Scene D5-03. Keep evidence C-13 on the central table unobscured. Runtime worst case is SECURITY_OPERATOR and CLAIRE; the symmetric far-left and far-right near slots are the safest pair.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_medbay_baseline",
@@ -5533,7 +5533,7 @@
                                                     "points":  null
                                                 },
                                                 {
-                                                    "kind":  "medical_bed",
+                                                    "kind":  "medical_bed_structure",
                                                     "rect":  {
                                                                  "x":  0.40,
                                                                  "y":  0.21,
@@ -5799,8 +5799,8 @@
                          "analysisNotes":  "Default for scenes D1-07 and D2-03 before the forensic state. Protect C-11 when active and keep the bed readable. D1-07 can request SHIP_MEDIC, THOMAS, MARCUS, HELENA, and RICHARD, but only three actors are visually recommended.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_medbay_dna",
@@ -6166,8 +6166,8 @@
                          "analysisNotes":  "Scene D7-02 and persistent DNA state. Protect C-11, C-15, and especially the visually anchored C-16 DNA kit. Runtime worst case is SHIP_MEDIC and HELENA; three foreground candidates are available for flexibility.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_medbay_forensic",
@@ -6486,8 +6486,8 @@
                          "analysisNotes":  "Exact scenes D4-04 and D6-04; persistent after D4-04 until the DNA state. Protect C-11 and C-15 and keep the forensic vials, envelope, and body diagram visible. D4-04 worst case is SHIP_MEDIC, HELENA, and MARCUS.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_news_lounge_d3",
@@ -6902,8 +6902,8 @@
                          "analysisNotes":  "Default for D3-01 and free travel before D6-05. Protect PROP_COFFEE and the newspaper clipping board. Runtime worst case is PASSENGER_D, RICHARD, and CLAIRE; favor far-left, center, and the safest available right-side slot.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_news_lounge_d6_evidence_board",
@@ -7294,8 +7294,8 @@
                          "analysisNotes":  "Scene D6-05 and persistent evidence-board state. Protect PROP_COFFEE and the critical red/blue-thread evidence board at approximately x 0.38-0.72, y 0.49-0.94. Runtime currently shows only PASSENGER_D; use no more than two actors to preserve the board.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_open_deck_d8_morning",
@@ -7645,8 +7645,8 @@
                          "analysisNotes":  "Scene D8-02 and persistent morning state. Protect PROP_TOKEN on the foreground-right table. Runtime worst case is CREW_SECURITY, EVELYN, and MARCUS; the near-left, near-center, and mid-right candidates form the clearest three-person composition.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_port_d8_epilogue",
@@ -7992,8 +7992,8 @@
                          "analysisNotes":  "Scene D8-03 and persistent epilogue state. Protect the open C-18 newspaper and the ship/gangway silhouette. C-01 and PROP_BROCHURE are absent from this daylight variant. Runtime can request DOCK_PORTER, RICHARD, CLAIRE, MARCUS, and THOMAS, but no more than three actors are recommended.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_promenade_d3_night",
@@ -8401,8 +8401,8 @@
                          "analysisNotes":  "Scene D3-05 only. Protect C-14 on the left bench and PROP_ROBOT on the right-middle cart. Runtime worst case is PASSENGER_D and CLAIRE; near-left and near-right provide the cleanest separation.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_service_rail_d6_subtle",
@@ -8788,8 +8788,8 @@
                          "analysisNotes":  "Scene D6-02. This background has two disconnected walkable islands: the main track and the right grate. Protect C-10 hanging cargo. Runtime worst case is RAIL_TECHNICIAN and OWEN; main_near_center plus grate_near_center avoids the current x 0.72/x 0.77 overlap.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_vault_d7_damaged",
@@ -9193,8 +9193,8 @@
                          "analysisNotes":  "Scene D7-01 and persistent damaged-vault state. No EvidenceLocationHotspotCatalog or AmbientInspectableCatalog IDs are registered here, so the vault door, biometric panel, damaged console, and casefile table must remain semantically protected. Logical cast is VAULT_GUARD, EVELYN, and THOMAS, but VAULT_GUARD currently has no ambient character asset; two visible actors are recommended.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_d10_1_richard_suite",
@@ -9460,8 +9460,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Locations: RICHARD_SUITE. Central carpet is the safest actor plane; avoid obscuring desk documents.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_d10_2_vip_lounge",
@@ -9728,8 +9728,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Shared base sprite for locations: CABIN_CLAIRE, VIP_LOUNGE. The lounge semantics are weaker when reused as Claire\u0027s cabin.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_d10_3_open_deck",
@@ -9983,8 +9983,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Locations: OPEN_DECK. The central hatch makes the near-right floor a lower-confidence standing plane.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_d6_1_vault",
@@ -10278,8 +10278,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Locations: VAULT. Preserve the lower-right evidence cart even when characters enter from the right.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_d6_2_archive",
@@ -10612,8 +10612,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Locations: ARCHIVE. The right half is evidence-dense; prefer actor placement in the left aisle.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_d7_1_medbay_evidence",
@@ -10907,8 +10907,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Locations: MEDBAY. The scene has separate foreground and gurney evidence clusters; keep both clear.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_d7_2_ballast_control_annex_evidence",
@@ -11212,8 +11212,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Locations: BALLAST_CONTROL_ANNEX. Actor confidence is deliberately lower because most safe floor intersects blood, wet grating, or evidence sightlines.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_d7_3_engine_control_evidence",
@@ -11580,8 +11580,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Shared base sprite for locations: BRIDGE, ENGINE_CONTROL. Visual semantics strongly describe engine control and are weaker for BRIDGE reuse.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_d7_4_crew_stairs",
@@ -11882,8 +11882,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Shared base sprite for locations: CREW_STAIRS, SERVICE7. This is a hazard-heavy composition; all actor slots require user review.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_d8_1_atrium",
@@ -12174,8 +12174,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Locations: ATRIUM. The broad mosaic supports multiple actors, but overlapping its center should be staged sparingly.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_d8_2_news_lounge_evidence",
@@ -12480,8 +12480,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Shared base sprite for locations: CABIN_DANIEL, NEWS_LOUNGE. The news-lounge identity and clue board are semantically inconsistent with cabin reuse.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_d8_3_security_evidence",
@@ -12842,8 +12842,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Shared base sprite for locations: INTERVIEW, SECURITY. Security-room semantics are inconsistent with INTERVIEW reuse; C-08 catalog placement also appears visually offset and needs manual reconciliation.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_d8_4_service_rail",
@@ -13139,8 +13139,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Locations: SERVICE_RAIL. Candidate slots on the central track are intentionally low-confidence; the right grate is the safest near plane.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_d9_1_ballroom",
@@ -13441,8 +13441,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Locations: BALLROOM. This is the cleanest multi-character stage among the base backgrounds.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_d9_2_dining",
@@ -13711,8 +13711,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Locations: DINING. Foreground furniture narrows the usable plane to a central aisle.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_d9_3_promenade_evidence",
@@ -14026,8 +14026,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Locations: PROMENADE. Strong one-point corridor perspective provides reliable depth scaling.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_d9_4_horizon_room_evidence",
@@ -14356,8 +14356,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Locations: HORIZON. The body, dropped items, blood, and flooded floor leave no high-confidence near-center actor slot.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_gangway",
@@ -14640,8 +14640,8 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Locations: GANGWAY. Strong corridor perspective supports stable depth scaling; the left foreground is entirely reserved for the registration desk.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      },
                      {
                          "profileId":  "bg_location_port_evidence",
@@ -15011,11 +15011,11 @@
                          "analysisNotes":  "Bottom-left normalized visual estimate. Locations: PORT. The base image contains C-01 on the bench and PROP_BROCHURE on the luggage-cart stack; C-18 is absent until the D8 epilogue variant. Dock tracks and rope geometry lower actor confidence outside the three near-left/center slots.",
                          "runtimeConnected":  true,
                          "reviewer":  "project-owner",
-                         "revision":  5,
-                         "approvedAtUtc":  "2026-07-30T11:03:00Z"
+                         "revision":  6,
+                         "approvedAtUtc":  "2026-07-30T16:09:04Z"
                      }
                  ],
     "reviewer":  "project-owner",
-    "revision":  5,
-    "approvedAtUtc":  "2026-07-30T11:03:00Z"
+    "revision":  6,
+    "approvedAtUtc":  "2026-07-30T16:09:04Z"
 }
