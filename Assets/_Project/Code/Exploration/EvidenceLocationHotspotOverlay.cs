@@ -201,18 +201,29 @@ namespace Wake.Exploration
             string displayName = entry?.DisplayName ?? spec.EvidenceId;
             if (inventory.Contains(spec.EvidenceId))
             {
-                ToastController.Instance?.Show($"이미 확보한 단서: {displayName}");
-                UIManager.Instance?.ShowEvidence(spec.EvidenceId);
+                if (InvestigationScreenController.Instance?.Begin(
+                        spec.EvidenceId) != true)
+                {
+                    UIManager.Instance?.ShowEvidence(spec.EvidenceId);
+                }
                 return;
             }
 
-            if (!inventory.TryAddById(spec.EvidenceId))
+            if (InvestigationScreenController.Instance?.Begin(
+                    spec.EvidenceId) == true)
             {
-                ToastController.Instance?.Show($"단서를 확인할 수 없습니다: {displayName}");
                 return;
             }
 
-            UIManager.Instance?.ShowEvidence(spec.EvidenceId);
+            if (InvestigationTargetCatalog.RequiresInspection(spec.EvidenceId))
+            {
+                ToastController.Instance?.Show(
+                    $"조사 화면을 열 수 없습니다: {displayName}");
+                return;
+            }
+
+            if (inventory.TryAddById(spec.EvidenceId))
+                UIManager.Instance?.ShowEvidence(spec.EvidenceId);
         }
 
         private void Clear()

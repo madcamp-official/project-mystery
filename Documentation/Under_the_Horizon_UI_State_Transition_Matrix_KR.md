@@ -97,7 +97,7 @@ WF-01~WF-40 상태를 조합하며, 장소·인물·대사·퍼즐 데이터만 
 | WF-13 | WF-11 인물 클릭, WF-20 종료, 컷신 대화 | WF-14, WF-11, WF-22, 다음 장면 | WF-06·15·17 | 대화 시작 전 WF-11 또는 직전 대사 | 장소 배경 유지, 화자 연출로 전환 | 가능 | 대화가 있는 장면 | `DialogueScreenShell`; `DialogueController` | UI-ST-013 |
 | WF-14 | WF-13 선택 노드 | WF-13 또는 조건부 다음 장면 | WF-06·15·17·09 | WF-13 직전 대사 | 화자·배경·직전 대사 유지 | 가능 | 선택지가 있는 장면 | `DialogueScreenShell/Choice`; `DialogueController` | UI-ST-014 |
 | WF-15 | WF-13·14·20의 로그 | 부모 대화 상태 | WF-06 | 부모 상태 ↩ | 부모 대화 배경·페이지 유지 | 불가 | 대화가 있는 장면 | `DialogueScreenShell/Log`; `DialogueController` | UI-ST-015 |
-| WF-16 | WF-11 조사 대상 클릭 | WF-11, WF-19, WF-23~35 | WF-06·08·17·09 | 같은 장면 WF-11 ↩ | 조사 카메라와 대상 변환 저장 | 가능 | 조사 대상이 있는 장면 | `InvestigationScreenShell`; `InvestigationDialogueUIController` | UI-ST-016 |
+| WF-16 | WF-11 조사 대상 클릭 | WF-11, WF-19, WF-23~35 | WF-06·08·17·09 | 같은 장면 WF-11 ↩ | 조사 카메라와 대상 변환 저장 | 가능 | 조사 대상이 있는 장면 | `InvestigationScreenShell`; `InvestigationScreenController`; `InvestigationDialogueUIController` | UI-ST-016 |
 | WF-17 | 플레이 화면의 조사 기록 | WF-18 또는 부모 상태 | WF-06·09 | 부모 상태 ↩ | 부모 `ViewSnapshot` 보존 | 불가 | P-02 이후 | `InvestigationScreenShell/Archive`; `EvidencePanelController`, `EvidenceNotebookTabsController` | UI-ST-017 |
 | WF-18 | WF-17 기록 선택, 대화 중 기록 제시 | WF-17, WF-13·20, WF-23 | WF-06·09 | 진입한 부모 상태 ↩ | 기록 확대 상태와 부모 배경 유지 | 불가 | 기록 획득 이후 | `InvestigationScreenShell/Detail`; `EvidencePanelController` | UI-ST-018 |
 | WF-19 | 기록 최초 획득 이벤트 | 부모 상태 또는 연속 획득 WF-19 | WF-09 | 부모 상태 ↩ | 획득 시점 배경 유지, 알림 순차 표시 | 체크포인트만 | 기록 획득 장면 | `ModalOverlayShell/EvidenceNotice`; `EvidenceAcquisitionNoticeController` | UI-ST-019 |

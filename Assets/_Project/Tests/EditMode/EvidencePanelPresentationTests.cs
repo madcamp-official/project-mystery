@@ -95,10 +95,21 @@ namespace Wake.Tests
 
             Assert.That(item.AcquisitionPlace, Does.Contain("보안 금고"));
             Assert.That(item.AcquisitionPlace, Does.Contain("의무실"));
-            Assert.That(item.RelatedPeople, Is.EqualTo("마커스 케인"));
+            Assert.That(item.RelatedPeople, Is.EqualTo("마커스 벨"));
             Assert.That(item.Detail, Does.Not.Contain(item.Id));
             Assert.That(item.Detail, Does.Not.Contain("총 단서"));
             Assert.That(item.Detail, Does.Not.Contain("수집률"));
+        }
+
+        [Test]
+        public void RelatedPeople_UseCanonicalCharacterNames()
+        {
+            inventory.TryAddById("C-13");
+            EvidencePanelItem item =
+                EvidencePanelPresentation.Create(inventory, 100).Items[0];
+
+            Assert.That(item.RelatedPeople, Does.Contain("이블린 쇼"));
+            Assert.That(item.RelatedPeople, Does.Not.Contain("그레이"));
         }
 
         [Test]

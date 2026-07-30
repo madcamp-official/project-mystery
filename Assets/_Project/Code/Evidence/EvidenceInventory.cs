@@ -66,6 +66,11 @@ namespace Wake.Evidence
             return collectedIds.Contains(CanonicalEvidenceCatalog.NormalizeId(evidenceId));
         }
 
+        public EvidenceDefinition FindDefinition(string evidenceId)
+        {
+            return ResolveDefinition(evidenceId);
+        }
+
         /// Silently repopulates the inventory from saved evidence IDs (continue flow).
         /// Does not fire EvidenceAdded/audio/toast side effects.
         public void RestoreFromIds(IReadOnlyList<string> evidenceIds)

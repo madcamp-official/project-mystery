@@ -2,11 +2,13 @@ using TMPro;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using Wake.Core;
 using Wake.Evidence;
+using Wake.Exploration;
 using Wake.Puzzles;
 using Wake.UI;
 
@@ -172,6 +174,15 @@ namespace Wake.Narrative
                         InvestigationDialogueUIController>();
             }
             investigationUi.Initialize(canvas);
+            InvestigationScreenController investigationScreen =
+                FindFirstObjectByType<InvestigationScreenController>(
+                    FindObjectsInactive.Include);
+            if (investigationScreen == null)
+            {
+                investigationScreen =
+                    canvas.gameObject.AddComponent<InvestigationScreenController>();
+            }
+            investigationScreen.Initialize(canvas);
             linePanel.SetActive(false);
             advanceControl.SetState(DialogueAdvanceState.Hidden);
         }
@@ -571,9 +582,7 @@ namespace Wake.Narrative
                 database.Records.Values,
                 null,
                 Wake.Core.GameStateManager.Instance,
-                evidenceId =>
-                    EvidenceInventory.Instance != null &&
-                    EvidenceInventory.Instance.TryAddById(evidenceId));
+                TryGrantEvidenceAfterInspection);
         }
 
         private void BeginProductionPresentation()
@@ -803,9 +812,41 @@ namespace Wake.Narrative
                 {
                     investigationUi.Hide();
                     pendingInvestigationTitle = string.Empty;
-                    productionFlow?.Advance();
-                    RenderProduction();
+                    string evidenceId =
+                        CanonicalEvidenceCatalog.GetGrantedEvidenceIds(
+                                record.StableLineId)
+                            .FirstOrDefault(id =>
+                                InvestigationTargetCatalog.RequiresInspection(id) &&
+                                EvidenceInventory.Instance?.Contains(id) != true);
+                    if (!string.IsNullOrEmpty(evidenceId) &&
+                        InvestigationScreenController.Instance?.Begin(
+                            evidenceId,
+                            AdvanceAfterInvestigation) == true)
+                    {
+                        return;
+                    }
+                    AdvanceAfterInvestigation();
                 });
+        }
+
+        private static bool TryGrantEvidenceAfterInspection(string evidenceId)
+        {
+            EvidenceInventory inventory = EvidenceInventory.Instance;
+            if (inventory == null)
+                return false;
+            if (InvestigationTargetCatalog.RequiresInspection(evidenceId) &&
+                !inventory.Contains(evidenceId))
+            {
+                return false;
+            }
+            return inventory.Contains(evidenceId) ||
+                   inventory.TryAddById(evidenceId);
+        }
+
+        private void AdvanceAfterInvestigation()
+        {
+            productionFlow?.Advance();
+            RenderProduction();
         }
 
         private void GoToNode(string nodeId)

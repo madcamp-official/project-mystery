@@ -26,11 +26,11 @@ namespace Wake.Tests.PlayMode
                 RequireObject("Status HUD").activeSelf,
                 Is.False,
                 "시작 화면에서는 게임 상태 HUD가 숨겨져야 합니다.");
-            Assert.That(Ui.RuntimeModalControllerCount, Is.EqualTo(10));
+            Assert.That(Ui.RuntimeModalControllerCount, Is.EqualTo(11));
 
             Assert.That(Ui.EnsureInitialized(), Is.True);
             Assert.That(Ui.EnsureInitialized(), Is.True);
-            Assert.That(Ui.RuntimeModalControllerCount, Is.EqualTo(10));
+            Assert.That(Ui.RuntimeModalControllerCount, Is.EqualTo(11));
 
             GameObject ingame = RequireObject("Ingame");
             Assert.That(
