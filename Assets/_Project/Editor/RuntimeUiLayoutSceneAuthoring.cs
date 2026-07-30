@@ -39,6 +39,7 @@ namespace Wake.Editor
             BuildSaveSlotScreen(layout);
             BuildHud(layout);
             BuildDialogue(layout);
+            ConfigureDialogueSpeakerName(canvas);
             ConfigureDialogueAdvance(canvas);
             BuildEvidenceRecords(canvas, layout);
             BuildModals(layout);
@@ -426,6 +427,44 @@ namespace Wake.Editor
             control.Initialize(button);
             control.SetSprites(normal, pressed);
             EditorUtility.SetDirty(target.gameObject);
+        }
+
+        private static void ConfigureDialogueSpeakerName(
+            RectTransform canvas)
+        {
+            TMP_Text speakerName = canvas
+                .Find("Ingame/Line Panel/Image/Text (TMP)")
+                ?.GetComponent<TMP_Text>();
+            if (speakerName == null)
+            {
+                Debug.LogWarning(
+                    "Dialogue speaker name text was not found while authoring.");
+                return;
+            }
+
+            RectTransform rect = speakerName.rectTransform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.pivot = new Vector2(.5f, .5f);
+            rect.offsetMin = new Vector2(32f, 2f);
+            rect.offsetMax = new Vector2(-32f, -2f);
+
+            speakerName.fontSize =
+                DialogueTypographyMetrics.SpeakerMaximum;
+            speakerName.enableAutoSizing = true;
+            speakerName.fontSizeMin =
+                DialogueTypographyMetrics.SpeakerMinimum;
+            speakerName.fontSizeMax =
+                DialogueTypographyMetrics.SpeakerMaximum;
+            speakerName.alignment = TextAlignmentOptions.Center;
+            speakerName.textWrappingMode = TextWrappingModes.NoWrap;
+            speakerName.overflowMode = TextOverflowModes.Ellipsis;
+            speakerName.maxVisibleLines = 1;
+            speakerName.margin = Vector4.zero;
+            speakerName.raycastTarget = false;
+
+            EditorUtility.SetDirty(rect);
+            EditorUtility.SetDirty(speakerName);
         }
 
         private static void BuildEvidenceRecords(
