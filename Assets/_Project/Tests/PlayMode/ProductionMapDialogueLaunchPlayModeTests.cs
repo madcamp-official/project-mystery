@@ -168,6 +168,103 @@ namespace Wake.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator DayOneMedbay_HasOnlySeparatedClickableFocusCast()
+        {
+            yield return StartNewGameFromVisibleButton(
+                startOpeningDialogue: false);
+            foreach (ProductionSceneDefinition scene in
+                     ProductionSceneCatalog.All.TakeWhile(
+                         scene => scene.SceneId != "D1-07"))
+            {
+                State.RecordCompletedScene(scene.SceneId);
+            }
+            State.UnlockProductionScene("D1-07");
+
+            MapController map = RequireMap();
+            map.RefreshMap();
+            ProductionMapEntry medbay =
+                map.CurrentViewModel.Entries.Single(
+                    entry => entry.Spec.Code == "MEDBAY");
+            LocationLoader.Instance.PrepareNarrativeScene("D1-07");
+            Assert.That(
+                LocationLoader.Instance.TryLoadLocation(
+                    medbay.Location,
+                    out _),
+                Is.True);
+            Ui.ShowIngame();
+            yield return WaitForUiTransition();
+            yield return null;
+
+            Button[] characters = FindActiveAmbientCharacters();
+            string names = string.Join(
+                ", ",
+                characters.Select(button => button.name));
+            Assert.That(
+                characters,
+                Has.Length.EqualTo(3),
+                "D1-07 MEDBAY must render only the three focus " +
+                $"characters. Active characters: {names}");
+            Assert.That(
+                characters.Any(button =>
+                    button.name.StartsWith(
+                        "AmbientCharacter_MARCUS_")),
+                Is.True,
+                names);
+            Assert.That(
+                characters.Any(button =>
+                    button.name.StartsWith(
+                        "AmbientCharacter_THOMAS_")),
+                Is.True,
+                names);
+            Assert.That(
+                characters.Any(button =>
+                    button.name.StartsWith(
+                        "AmbientCharacter_HELENA_")),
+                Is.True,
+                names);
+            foreach (Button character in characters)
+                AssertCharacterHasAlphaClickTarget(character);
+            AssertRenderedCharactersDoNotOverlap(characters);
+
+            Button[] supportingCast =
+                Object.FindObjectsByType<Button>(
+                        FindObjectsInactive.Include,
+                        FindObjectsSortMode.None)
+                    .Where(button =>
+                        button.name.StartsWith(
+                            "AmbientCharacter_RICHARD_") ||
+                        button.name.StartsWith(
+                            "AmbientCharacter_SHIP_MEDIC_"))
+                    .ToArray();
+            Assert.That(
+                supportingCast.All(button =>
+                    !button.gameObject.activeInHierarchy),
+                Is.True,
+                "Off-camera supporting actors must not intercept input: " +
+                string.Join(
+                    ", ",
+                    supportingCast.Select(button => button.name)));
+
+            Button marcus = characters.Single(button =>
+                button.name.StartsWith("AmbientCharacter_MARCUS_"));
+            yield return InvokeAndSettle(marcus);
+            Assert.That(Dialogue.IsBusy, Is.True);
+            Assert.That(
+                Dialogue.ActiveProductionSceneId,
+                Is.EqualTo("D1-07"),
+                "Any visible focus actor must launch the complete D1-07 " +
+                "dialogue, including off-camera speakers.");
+            yield return CompleteActiveProductionDialogue();
+            Assert.That(State.HasCompletedScene("D1-07"), Is.True);
+            Assert.That(
+                State.IsProductionSceneUnlocked("D2-01"),
+                Is.True,
+                "Keeping Richard and the ship medic off-camera must not " +
+                "change the D1-07 completion or Day 2 unlock flow.");
+            AssertNoRuntimeErrors("Day 1 MEDBAY character composition");
+        }
+
+        [UnityTest]
         public IEnumerator D202Horizon_HasCleanClickableAttendantCrop()
         {
             yield return StartNewGameFromVisibleButton(

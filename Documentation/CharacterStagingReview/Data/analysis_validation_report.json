@@ -31,10 +31,8 @@
                      "Scene D1-02: DINING_SOMMELIER is off-camera because semantic slot capacity is 3.",
                      "Scene D1-06: RICHARD at near_mid_left may occlude a hard protected clue.",
                      "Scene D1-06: CREW_ATTENDANT at near_left may occlude a hard protected clue.",
-                     "Scene D1-07: MARCUS at near_mid_left may occlude a hard protected clue.",
+                     "Scene D1-07: HELENA at near_right may occlude a hard protected clue.",
                      "Scene D1-07: THOMAS at near_center may occlude a hard protected clue.",
-                     "Scene D1-07: RICHARD at near_mid_right may occlude a hard protected clue.",
-                     "Scene D1-07: SHIP_MEDIC at near_right may occlude a hard protected clue.",
                      "Scene D2-03: SHIP_MEDIC at near_mid_left may occlude a hard protected clue.",
                      "Scene D2-04: MARCUS at near_center may occlude a hard protected clue.",
                      "Scene D2-04: SECURITY_OPERATOR at near_left may occlude a hard protected clue.",
@@ -71,8 +69,8 @@
                      "Scene D8-03: DOCK_PORTER at near_far_left may occlude a hard protected clue."
                  ],
     "reviewer":  "project-owner",
-    "revision":  5,
-    "approvedAtUtc":  "2026-07-30T11:03:00Z",
+    "revision":  6,
+    "approvedAtUtc":  "2026-07-30T16:09:04Z",
     "approvedWarnings":  true,
-    "approvedWarningCount":  44
+    "approvedWarningCount":  42
 }

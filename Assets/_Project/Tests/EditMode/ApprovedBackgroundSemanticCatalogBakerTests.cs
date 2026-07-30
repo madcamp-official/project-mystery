@@ -204,6 +204,136 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void MedbayDayOneLayout_ShowsFocusTrioAndKeepsSupportingCastOffCamera()
+        {
+            ApprovedBackgroundSemanticCatalog catalog =
+                AssetDatabase.LoadAssetAtPath<
+                    ApprovedBackgroundSemanticCatalog>(
+                    ApprovedBackgroundSemanticCatalogBaker
+                        .CatalogAssetPath);
+            Assert.That(catalog, Is.Not.Null);
+
+            ApprovedBackgroundSemanticSceneLayout layout =
+                catalog.SceneLayouts.Single(value =>
+                    value.SceneId == "D1-07");
+            Assert.That(layout.LocationCode, Is.EqualTo("MEDBAY"));
+            Assert.That(layout.EnforceMeasuredAlphaBounds, Is.True);
+            Assert.That(
+                layout.Assignments.ToDictionary(
+                    value => value.CharacterId,
+                    value => value.SlotId,
+                    StringComparer.OrdinalIgnoreCase),
+                Is.EquivalentTo(
+                    new System.Collections.Generic.Dictionary<
+                        string,
+                        string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["MARCUS"] = "near_left",
+                        ["THOMAS"] = "near_center",
+                        ["HELENA"] = "near_right"
+                    }));
+            Assert.That(
+                layout.OffCameraCharacterIds,
+                Is.EquivalentTo(new[] { "RICHARD", "SHIP_MEDIC" }));
+
+            ApprovedBackgroundSemanticBinding binding =
+                catalog.Bindings.Single(value =>
+                    value.LocationCode == "MEDBAY" &&
+                    value.VariantKey.Contains("bg_medbay_baseline"));
+            ApprovedBackgroundSemanticResolver.SetCatalogForTests(
+                catalog);
+            try
+            {
+                Assert.That(
+                    ApprovedBackgroundSemanticResolver.TryResolve(
+                        "MEDBAY",
+                        binding.VariantKey,
+                        binding.SourceSprite,
+                        "D1-07",
+                        out BackgroundSemanticRuntimeResolution resolution),
+                    Is.True);
+
+                var requests = new[]
+                {
+                    new BackgroundSemanticCharacterRequest(
+                        "SHIP_MEDIC",
+                        BackgroundSemanticCharacterRole.Context),
+                    new BackgroundSemanticCharacterRequest(
+                        "RICHARD",
+                        BackgroundSemanticCharacterRole.Main),
+                    new BackgroundSemanticCharacterRequest(
+                        "THOMAS",
+                        BackgroundSemanticCharacterRole.Focus),
+                    new BackgroundSemanticCharacterRequest(
+                        "MARCUS",
+                        BackgroundSemanticCharacterRole.Focus),
+                    new BackgroundSemanticCharacterRequest(
+                        "HELENA",
+                        BackgroundSemanticCharacterRole.Focus)
+                };
+                var visibleRects = new[]
+                {
+                    new Rect(0f, 0f, 1f, 1f),
+                    new Rect(.05f, 0f, .90f, 1f),
+                    new Rect(.125f, 0f, .75f, 1f)
+                };
+                string[] aspectLabels = { "16:9", "16:10", "4:3" };
+                float sourceAspect =
+                    binding.SourceSprite.rect.width /
+                    binding.SourceSprite.rect.height;
+                for (int aspectIndex = 0;
+                     aspectIndex < visibleRects.Length;
+                     aspectIndex++)
+                {
+                    BackgroundSemanticPlacementResult placement =
+                        BackgroundSemanticPlacementResolver.Resolve(
+                            resolution,
+                            requests,
+                            visibleRects[aspectIndex],
+                            sourceAspect);
+
+                    Assert.That(
+                        placement.IsValid,
+                        Is.True,
+                        aspectLabels[aspectIndex] + ": " +
+                        string.Join(" | ", placement.Diagnostics));
+                    Assert.That(
+                        placement.Assignments,
+                        Has.Count.EqualTo(3),
+                        aspectLabels[aspectIndex]);
+                    Assert.That(
+                        placement.OffCameraCharacterIds,
+                        Is.EquivalentTo(
+                            new[] { "RICHARD", "SHIP_MEDIC" }),
+                        aspectLabels[aspectIndex]);
+                    for (int current = 0;
+                         current < placement.Assignments.Count;
+                         current++)
+                    {
+                        for (int previous = 0;
+                             previous < current;
+                             previous++)
+                        {
+                            Assert.That(
+                                placement.Assignments[current]
+                                    .SilhouetteRect.Overlaps(
+                                        placement.Assignments[previous]
+                                            .SilhouetteRect,
+                                        true),
+                                Is.False,
+                                aspectLabels[aspectIndex]);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                ApprovedBackgroundSemanticResolver
+                    .ResetCacheForTests();
+            }
+        }
+
+        [Test]
         public void VipLoungeDynamicPlacement_PreservesSeparatedMainCast()
         {
             ApprovedBackgroundSemanticCatalog catalog =
