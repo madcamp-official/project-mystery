@@ -475,6 +475,7 @@ namespace Wake.UI
                     location?.LocationCode,
                     state))
             {
+                UIManager.Instance?.ShowIngame();
                 DialogueController.Instance?.StartAmbientLine(
                     "ADRIAN",
                     AtriumInvestigationMonologueLines[
