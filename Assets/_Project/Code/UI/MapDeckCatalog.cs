@@ -48,6 +48,9 @@ namespace Wake.UI
 
     public static class MapDeckCatalog
     {
+        public const string InvestigationUnlockSceneId = "D1-04";
+        public const string TechnicalUnlockSceneId = "D6-02";
+
         public static readonly int[] DeckOrder = { 10, 9, 8, 7, 0 };
 
         private static readonly MapLocationPlacement[] Placements =
@@ -198,8 +201,8 @@ namespace Wake.UI
                 completedSceneIds ?? Array.Empty<string>(),
                 StringComparer.Ordinal);
             return mode == MapLayerMode.Investigation
-                ? completed.Contains("D1-04")
-                : completed.Contains("D6-02");
+                ? completed.Contains(InvestigationUnlockSceneId)
+                : completed.Contains(TechnicalUnlockSceneId);
         }
 
         public static bool ShouldReveal(
