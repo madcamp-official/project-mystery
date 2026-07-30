@@ -48,6 +48,7 @@ namespace Wake.UI
             R("D9_INTERNAL_BALLROOM_ID", 9),
             R("D9_INTERNAL_DINING_ID", 9),
             R("D9_INTERNAL_HORIZON_ID", 9),
+            R("D9_ATRIUM_CONNECTION_TEXT", 9),
             R("D9_KITCHEN", 9, "D1-04", MapLayerMode.Investigation,
                 V(.490f, .222f), V(.620f, .222f),
                 V(.620f, .254f), V(.490f, .254f)),
@@ -56,6 +57,7 @@ namespace Wake.UI
                 V(.770f, .522f), V(.665f, .522f)),
 
             R("D10_INTERNAL_SUITE_ID", 10),
+            R("D10_ATRIUM_CONNECTION_TEXT", 10),
             R("D10_SERVICE_ACCESS", 10, "D6-02", MapLayerMode.Technical,
                 V(.490f, .650f), V(.625f, .650f),
                 V(.625f, .682f), V(.490f, .682f)),
@@ -115,7 +117,11 @@ namespace Wake.UI
                 "D9_INTERNAL_BALLROOM_ID" => Rect(.159f, .425f, .253f, .461f),
                 "D9_INTERNAL_DINING_ID" => Rect(.447f, .398f, .531f, .432f),
                 "D9_INTERNAL_HORIZON_ID" => Rect(.817f, .439f, .888f, .475f),
+                "D9_ATRIUM_CONNECTION_TEXT" =>
+                    Rect(.445f, .560f, .525f, .630f),
                 "D10_INTERNAL_SUITE_ID" => Rect(.218f, .394f, .300f, .431f),
+                "D10_ATRIUM_CONNECTION_TEXT" =>
+                    Rect(.470f, .400f, .550f, .470f),
                 "D10_BRIDGE_NAME" => Rect(.790f, .405f, .846f, .445f),
                 "D10_INTERVIEW_NAME" => Rect(.596f, .210f, .675f, .298f),
                 "D10_ARCHIVE_NAME" => Rect(.405f, .225f, .478f, .275f),

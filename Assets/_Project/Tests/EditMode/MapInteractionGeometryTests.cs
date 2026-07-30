@@ -313,7 +313,9 @@ namespace Wake.Tests
                 "D7_NORTH_TECHNICAL",
                 "D9_BALLROOM_SERVICE",
                 "D9_INTERNAL_BALLROOM_ID",
+                "D9_ATRIUM_CONNECTION_TEXT",
                 "D10_INTERNAL_SUITE_ID",
+                "D10_ATRIUM_CONNECTION_TEXT",
                 "D10_SERVICE_ACCESS"
             };
             foreach (string id in required)
