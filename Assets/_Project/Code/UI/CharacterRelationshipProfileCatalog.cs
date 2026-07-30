@@ -5,8 +5,49 @@ using Wake.Core;
 
 namespace Wake.UI
 {
+    public sealed class CharacterRelationshipNoteTier
+    {
+        public CharacterRelationshipNoteTier(
+            string text,
+            string flag = "",
+            string sceneId = "")
+        {
+            Text = text ?? string.Empty;
+            Flag = flag ?? string.Empty;
+            SceneId = sceneId ?? string.Empty;
+        }
+
+        public string Text { get; }
+        public string Flag { get; }
+        public string SceneId { get; }
+
+        public bool IsSatisfied(GameStateManager state)
+        {
+            if (string.IsNullOrWhiteSpace(Flag) &&
+                string.IsNullOrWhiteSpace(SceneId))
+            {
+                return true;
+            }
+
+            if (state == null)
+            {
+                return false;
+            }
+
+            return (!string.IsNullOrWhiteSpace(Flag) &&
+                    state.HasFlag(Flag)) ||
+                   (!string.IsNullOrWhiteSpace(SceneId) &&
+                    state.CompletedProductionSceneIds.Contains(
+                        SceneId,
+                        StringComparer.OrdinalIgnoreCase));
+        }
+    }
+
     public sealed class CharacterRelationshipProfile
     {
+        private readonly IReadOnlyList<CharacterRelationshipNoteTier>
+            knownNoteTiers;
+
         public CharacterRelationshipProfile(
             string characterId,
             string role,
@@ -15,12 +56,32 @@ namespace Wake.UI
             string knownNote,
             string discoveryFlag = "",
             string discoverySceneId = "")
+            : this(
+                characterId,
+                role,
+                affiliation,
+                summary,
+                new[] { new CharacterRelationshipNoteTier(knownNote) },
+                discoveryFlag,
+                discoverySceneId)
+        {
+        }
+
+        public CharacterRelationshipProfile(
+            string characterId,
+            string role,
+            string affiliation,
+            string summary,
+            IReadOnlyList<CharacterRelationshipNoteTier> knownNoteTiers,
+            string discoveryFlag = "",
+            string discoverySceneId = "")
         {
             CharacterId = characterId ?? string.Empty;
             Role = role ?? string.Empty;
             Affiliation = affiliation ?? string.Empty;
             Summary = summary ?? string.Empty;
-            KnownNote = knownNote ?? string.Empty;
+            this.knownNoteTiers = knownNoteTiers ??
+                Array.Empty<CharacterRelationshipNoteTier>();
             DiscoveryFlag = discoveryFlag ?? string.Empty;
             DiscoverySceneId = discoverySceneId ?? string.Empty;
         }
@@ -29,9 +90,28 @@ namespace Wake.UI
         public string Role { get; }
         public string Affiliation { get; }
         public string Summary { get; }
-        public string KnownNote { get; }
+        public string KnownNote => GetKnownNote(null);
         public string DiscoveryFlag { get; }
         public string DiscoverySceneId { get; }
+
+        /// <summary>
+        /// Returns the latest known-note tier whose flag/scene gate is
+        /// satisfied. Tiers are authored in ascending story order, so the
+        /// last satisfied one is the most current - this is what keeps the
+        /// note from revealing a fact before the scene that establishes it.
+        /// </summary>
+        public string GetKnownNote(GameStateManager state)
+        {
+            for (int index = knownNoteTiers.Count - 1; index >= 0; index--)
+            {
+                if (knownNoteTiers[index].IsSatisfied(state))
+                {
+                    return knownNoteTiers[index].Text;
+                }
+            }
+
+            return string.Empty;
+        }
 
         public bool IsDiscovered(GameStateManager state)
         {
@@ -67,19 +147,33 @@ namespace Wake.UI
                 "독립 조사자",
                 "MV Elysium에서 벌어진 협박과 불가능 사건을 조사하는 탐정.",
                 "현재 수사를 이끌고 있으며 모든 인물의 진술과 단서를 교차 검증한다."),
-            P(
+            PTiered(
                 "CLAIRE",
                 "호손 그룹 후계자",
                 "호손 가문",
                 "회사 내부 사정과 가족 신탁 문제를 잘 알고 있는 예정된 후계자.",
-                "회사 비자금과 가족 문제에 예민하며 다니엘과 공개적으로 충돌했다.",
+                new[]
+                {
+                    new CharacterRelationshipNoteTier(
+                        "회사 비자금과 가족 문제에 예민하다."),
+                    new CharacterRelationshipNoteTier(
+                        "회사 비자금과 가족 문제에 예민하며 다니엘과 공개적으로 충돌했다.",
+                        sceneId: "D1-02")
+                },
                 "met_claire"),
-            P(
+            PTiered(
                 "DANIEL",
                 "탐사 기자",
                 "독립 언론인",
                 "오르페우스 사고와 호손 그룹의 기록을 추적해 온 기자.",
-                "탐정에게 선내의 위험을 경고했으며 협박 사건의 핵심 피해자가 되었다.",
+                new[]
+                {
+                    new CharacterRelationshipNoteTier(
+                        "선내 위험을 경고하며 오르페우스 사고 기록을 조사하고 있다."),
+                    new CharacterRelationshipNoteTier(
+                        "탐정에게 선내의 위험을 경고했으며 협박 사건의 핵심 피해자가 되었다.",
+                        sceneId: "D1-06")
+                },
                 discoverySceneId: "P-01"),
             P(
                 "RICHARD",
@@ -109,12 +203,19 @@ namespace Wake.UI
                 "보안 카메라와 출입 기록, 제한구역 통제를 담당한다.",
                 "사건 시간대에는 보안실에서 카메라와 승무원 통로를 감시했다고 진술했다.",
                 "met_marcus"),
-            P(
+            PTiered(
                 "HELENA",
                 "선내 의사",
                 "MV Elysium 의무실",
                 "의료 기록과 사망 시각, 혈흔 및 약물 관련 판단을 담당한다.",
-                "다니엘에게 안정제를 처방했으며 의학적 판단의 독립성을 요구했다.",
+                new[]
+                {
+                    new CharacterRelationshipNoteTier(
+                        "다니엘에게 안정제를 처방했다."),
+                    new CharacterRelationshipNoteTier(
+                        "다니엘에게 안정제를 처방했으며 의학적 판단의 독립성을 요구했다.",
+                        sceneId: "D1-07")
+                },
                 "met_helena"),
             P(
                 "OWEN",
@@ -155,6 +256,23 @@ namespace Wake.UI
                 affiliation,
                 summary,
                 knownNote,
+                discoveryFlag,
+                discoverySceneId);
+
+        private static CharacterRelationshipProfile PTiered(
+            string characterId,
+            string role,
+            string affiliation,
+            string summary,
+            IReadOnlyList<CharacterRelationshipNoteTier> knownNoteTiers,
+            string discoveryFlag = "",
+            string discoverySceneId = "") =>
+            new(
+                characterId,
+                role,
+                affiliation,
+                summary,
+                knownNoteTiers,
                 discoveryFlag,
                 discoverySceneId);
     }
