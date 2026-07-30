@@ -3,6 +3,7 @@ using System.Linq;
 using NUnit.Framework;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
 using Wake.Exploration;
@@ -183,6 +184,117 @@ namespace Wake.Tests.PlayMode
                 RequireSceneButton("P-02").gameObject.activeSelf,
                 Is.False);
             AssertNoRuntimeErrors("프롤로그 순차 이동");
+        }
+
+        [UnityTest]
+        public IEnumerator PassengerMap_UsesPolygonRoomsAndHidesTechnicalData()
+        {
+            yield return CompleteOpeningScene();
+            yield return ShowOrRefreshMap();
+
+            Assert.That(
+                RequireObject(
+                    "Map/Rooms/Layered Map Surface/Deck Map/" +
+                    "Map Room Hit Areas/Room Hit Area PORT"),
+                Is.Not.Null);
+            Button deckNine = Object.FindObjectsByType<Button>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None)
+                .Single(button => button.name == "Deck 9 Tab");
+            yield return InvokeAndSettle(deckNine);
+
+            MapRoomHitAreaGraphic[] deckNineRooms =
+                Object.FindObjectsByType<MapRoomHitAreaGraphic>(
+                        FindObjectsInactive.Exclude,
+                        FindObjectsSortMode.None)
+                    .Where(graphic =>
+                        graphic.transform.parent?.name ==
+                        "Map Room Hit Areas")
+                    .ToArray();
+            Assert.That(deckNineRooms, Has.Length.EqualTo(4));
+            MapRoomHitAreaPointerHandler ballroom =
+                Object.FindObjectsByType<MapRoomHitAreaPointerHandler>(
+                        FindObjectsInactive.Exclude,
+                        FindObjectsSortMode.None)
+                    .Single(handler =>
+                        handler.name == "Room Hit Area BALLROOM");
+            ballroom.OnPointerClick(
+                new PointerEventData(EventSystem.current));
+            yield return null;
+            Assert.That(
+                RequireObject(
+                        "Map/Rooms/Layered Map Surface/Location Detail/" +
+                        "Location Name")
+                    .GetComponent<TMP_Text>().text,
+                Is.EqualTo(
+                    CanonicalLocationCatalog.FindSpec("BALLROOM")
+                        .DisplayName));
+            Assert.That(
+                State.CurrentLocationCode,
+                Is.EqualTo("PORT"),
+                "방 영역 선택만으로는 이동하면 안 됩니다.");
+            Assert.That(
+                RequireObject(
+                    "Map/Rooms/Layered Map Surface/Deck Map/" +
+                    "Passenger Spoiler Redactions/" +
+                    "Passenger Redaction D9_BALLROOM_SERVICE"),
+                Is.Not.Null);
+
+            Button technical = Object.FindObjectsByType<Button>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None)
+                .Single(button => button.name == "Technical Layer Tab");
+            Assert.That(technical.interactable, Is.False);
+            Assert.That(
+                Object.FindObjectsByType<MapRoomHitAreaGraphic>(
+                        FindObjectsInactive.Include,
+                        FindObjectsSortMode.None)
+                    .Any(graphic =>
+                        graphic.name == "Room Hit Area SERVICE_RAIL"),
+                Is.False);
+        }
+
+        [UnityTest]
+        public IEnumerator CompletingD602_RevealsTechnicalLayerOnlyOnSelection()
+        {
+            yield return CompleteOpeningScene();
+            State.RecordCompletedScene(
+                MapDeckCatalog.TechnicalUnlockSceneId);
+            yield return ShowOrRefreshMap();
+
+            Button deckSeven = Object.FindObjectsByType<Button>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None)
+                .Single(button => button.name == "Deck 7 Tab");
+            yield return InvokeAndSettle(deckSeven);
+            Button technical = Object.FindObjectsByType<Button>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None)
+                .Single(button => button.name == "Technical Layer Tab");
+            Assert.That(technical.interactable, Is.True);
+            Assert.That(
+                RequireObject(
+                        "Map/Rooms/Layered Map Surface/Deck Map/" +
+                        "Technical Overlay")
+                    .GetComponent<Image>().enabled,
+                Is.False);
+
+            yield return InvokeAndSettle(technical);
+
+            Assert.That(
+                RequireObject(
+                        "Map/Rooms/Layered Map Surface/Deck Map/" +
+                        "Technical Overlay")
+                    .GetComponent<Image>().enabled,
+                Is.True);
+            Assert.That(
+                Object.FindObjectsByType<MapPassengerRedactionGraphic>(
+                        FindObjectsInactive.Exclude,
+                        FindObjectsSortMode.None)
+                    .Any(graphic =>
+                        graphic.name ==
+                        "Passenger Redaction D7_NORTH_TECHNICAL"),
+                Is.False);
         }
 
         private static bool HasLayeredGangwayNode() =>
