@@ -455,6 +455,43 @@ namespace Wake.Core
             sfxSource.PlayOneShot(clip);
         }
 
+        public void DuckMusic(float duckMultiplier, float holdSeconds)
+        {
+            if (activeMusicSource == null)
+            {
+                return;
+            }
+
+            StartCoroutine(DuckMusicRoutine(
+                Mathf.Clamp01(duckMultiplier), Mathf.Max(0.05f, holdSeconds)));
+        }
+
+        private IEnumerator DuckMusicRoutine(float duckMultiplier, float holdSeconds)
+        {
+            float baseVolume = MusicVolume * currentMusicMix;
+            float duckedVolume = baseVolume * duckMultiplier;
+            yield return FadeSourceVolume(activeMusicSource, duckedVolume, 0.15f);
+            yield return new WaitForSeconds(holdSeconds);
+            yield return FadeSourceVolume(activeMusicSource, baseVolume, 0.25f);
+        }
+
+        private static IEnumerator FadeSourceVolume(
+            AudioSource source, float targetVolume, float duration)
+        {
+            float safeDuration = Mathf.Max(0f, duration);
+            float startVolume = source.volume;
+            float elapsed = 0f;
+            while (elapsed < safeDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                source.volume = Mathf.Lerp(
+                    startVolume, targetVolume, Mathf.Clamp01(elapsed / safeDuration));
+                yield return null;
+            }
+
+            source.volume = targetVolume;
+        }
+
         public void SetMusicVolume(float value)
         {
             MusicVolume = Mathf.Clamp01(value);
