@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d364ddb6f43d1f946a8d01d18ea6b683, type: 3}
+  m_Name: Port_RoomMasks
+  m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RoomMasksAsset
+  deck: 0
+  sourceMap: {fileID: 21300000, guid: 1e21a5fc4eb447cabd9259b966e34fd0, type: 3}
+  authoredSourceHash: cbff4134e29ab80bf7b6dd0dbec35534
+  masks:
+  - locationCode: GANGWAY
+    polygon:
+    - {x: 0.38, y: 0.43}
+    - {x: 0.77, y: 0.64}
+    - {x: 0.8, y: 0.59000003}
+    - {x: 0.4, y: 0.35000002}
+    correctiveArtworkRecommended: 0
+  - locationCode: PORT
+    polygon:
+    - {x: 0.05, y: 0.87}
+    - {x: 0.35, y: 0.87}
+    - {x: 0.36, y: 0.81}
+    - {x: 0.36, y: 0.16000003}
+    - {x: 0.35, y: 0.110000014}
+    - {x: 0.05, y: 0.110000014}
+    correctiveArtworkRecommended: 0

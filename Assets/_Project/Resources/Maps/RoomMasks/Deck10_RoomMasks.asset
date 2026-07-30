@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d364ddb6f43d1f946a8d01d18ea6b683, type: 3}
+  m_Name: Deck10_RoomMasks
+  m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RoomMasksAsset
+  deck: 10
+  sourceMap: {fileID: 21300000, guid: 8a7062ac8b096134cb323e5c7d0978ea, type: 3}
+  authoredSourceHash: 7d25fefbe5fc19c5d475c9ab491a23fa
+  masks:
+  - locationCode: ARCHIVE
+    polygon:
+    - {x: 0.35, y: 0.78}
+    - {x: 0.5, y: 0.78}
+    - {x: 0.5, y: 0.51}
+    - {x: 0.35, y: 0.51}
+    correctiveArtworkRecommended: 0
+  - locationCode: BRIDGE
+    polygon:
+    - {x: 0.78, y: 0.7}
+    - {x: 0.91, y: 0.65999997}
+    - {x: 0.95, y: 0.53999996}
+    - {x: 0.94, y: 0.38}
+    - {x: 0.79, y: 0.38}
+    correctiveArtworkRecommended: 0
+  - locationCode: INTERVIEW
+    polygon:
+    - {x: 0.58, y: 0.8}
+    - {x: 0.68, y: 0.8}
+    - {x: 0.68, y: 0.64}
+    - {x: 0.58, y: 0.64}
+    correctiveArtworkRecommended: 0
+  - locationCode: OPEN_DECK
+    polygon:
+    - {x: 0.1, y: 0.84000003}
+    - {x: 0.34, y: 0.84000003}
+    - {x: 0.34, y: 0.8}
+    - {x: 0.1, y: 0.8}
+    correctiveArtworkRecommended: 1
+  - locationCode: RICHARD_SUITE
+    polygon:
+    - {x: 0.17, y: 0.8}
+    - {x: 0.35, y: 0.8}
+    - {x: 0.35, y: 0.36}
+    - {x: 0.08, y: 0.36}
+    - {x: 0.08, y: 0.57}
+    - {x: 0.17, y: 0.57}
+    correctiveArtworkRecommended: 0
+  - locationCode: VAULT
+    polygon:
+    - {x: 0.11, y: 0.36}
+    - {x: 0.28, y: 0.36}
+    - {x: 0.29, y: 0.25}
+    - {x: 0.12, y: 0.24000001}
+    - {x: 0.08, y: 0.3}
+    correctiveArtworkRecommended: 0
+  - locationCode: VIP_LOUNGE
+    polygon:
+    - {x: 0.08, y: 0.78}
+    - {x: 0.17, y: 0.78}
+    - {x: 0.17, y: 0.57}
+    - {x: 0.08, y: 0.57}
+    correctiveArtworkRecommended: 1

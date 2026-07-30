@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d364ddb6f43d1f946a8d01d18ea6b683, type: 3}
+  m_Name: Deck08_RoomMasks
+  m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RoomMasksAsset
+  deck: 8
+  sourceMap: {fileID: 21300000, guid: ac5566586ffde7c4184cf0f3d0f0f059, type: 3}
+  authoredSourceHash: fd31d87c0b3798ca1b03c8bfcfc67cb1
+  masks:
+  - locationCode: ATRIUM
+    polygon:
+    - {x: 0.36, y: 0.8}
+    - {x: 0.59, y: 0.8}
+    - {x: 0.59, y: 0.55}
+    - {x: 0.59, y: 0.48000002}
+    - {x: 0.59, y: 0.3}
+    - {x: 0.36, y: 0.3}
+    - {x: 0.33, y: 0.42000002}
+    - {x: 0.36, y: 0.55}
+    correctiveArtworkRecommended: 0
+  - locationCode: CABIN_CLAIRE
+    polygon:
+    - {x: 0.61, y: 0.51}
+    - {x: 0.84, y: 0.51}
+    - {x: 0.84, y: 0.29000002}
+    - {x: 0.61, y: 0.29000002}
+    correctiveArtworkRecommended: 0
+  - locationCode: MEDBAY
+    polygon:
+    - {x: 0.59, y: 0.8}
+    - {x: 0.84, y: 0.8}
+    - {x: 0.84, y: 0.55}
+    - {x: 0.59, y: 0.55}
+    correctiveArtworkRecommended: 0
+  - locationCode: NEWS_LOUNGE
+    polygon:
+    - {x: 0.07, y: 0.8}
+    - {x: 0.35, y: 0.8}
+    - {x: 0.35, y: 0.55}
+    - {x: 0.07, y: 0.55}
+    correctiveArtworkRecommended: 0
+  - locationCode: SECURITY
+    polygon:
+    - {x: 0.59, y: 0.55}
+    - {x: 0.84, y: 0.55}
+    - {x: 0.84, y: 0.51}
+    - {x: 0.59, y: 0.51}
+    correctiveArtworkRecommended: 1

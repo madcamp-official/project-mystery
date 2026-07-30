@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52fee3c64ad37f344be6ada9f74cfdb1, type: 3}
+  m_Name: Deck07_MapNodes
+  m_EditorClassIdentifier: Wake.Runtime::Wake.UI.MapNodesAsset
+  deck: 7
+  sourceMap: {fileID: 21300000, guid: d7f8db20880831a44b870dd38e343725, type: 3}
+  authoredSourceHash: ccc031b1592964df4217a9f2f4d86f07
+  nodes:
+  - locationCode: BALLAST_CONTROL_ANNEX
+    normalizedPosition: {x: 0.9, y: 0.53999996}
+    entryPointId: 
+  - locationCode: CABIN_DANIEL
+    normalizedPosition: {x: 0.15, y: 0.55}
+    entryPointId: 
+  - locationCode: CREW_STAIRS
+    normalizedPosition: {x: 0.78, y: 0.33999997}
+    entryPointId: 
+  - locationCode: ENGINE_CONTROL
+    normalizedPosition: {x: 0.77, y: 0.53999996}
+    entryPointId: 
+  - locationCode: SERVICE7
+    normalizedPosition: {x: 0.42, y: 0.75}
+    entryPointId: 
+  - locationCode: SERVICE_RAIL
+    normalizedPosition: {x: 0.87, y: 0.73}
+    entryPointId: 
