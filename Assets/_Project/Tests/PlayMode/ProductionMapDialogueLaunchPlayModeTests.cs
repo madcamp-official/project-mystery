@@ -226,9 +226,7 @@ namespace Wake.Tests.PlayMode
                         "Map/Rooms/Layered Map Surface/Location Detail/" +
                         "Location Name")
                     .GetComponent<TMP_Text>().text,
-                Is.EqualTo(
-                    CanonicalLocationCatalog.FindSpec("BALLROOM")
-                        .DisplayName));
+                Is.EqualTo("잠긴 장소"));
             Assert.That(
                 State.CurrentLocationCode,
                 Is.EqualTo("PORT"),
@@ -252,6 +250,86 @@ namespace Wake.Tests.PlayMode
                     .Any(graphic =>
                         graphic.name == "Room Hit Area SERVICE_RAIL"),
                 Is.False);
+        }
+
+        [UnityTest]
+        public IEnumerator LockedPublicRoom_UsesPadlockAndRedactsDetails()
+        {
+            yield return ShowOrRefreshMap();
+
+            Button deckTen = Object.FindObjectsByType<Button>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None)
+                .Single(button => button.name == "Deck 10 Tab");
+            yield return InvokeAndSettle(deckTen);
+
+            GameObject node = RequireObject(
+                "Map/Rooms/Layered Map Surface/Deck Map/" +
+                "Map Location Nodes/Layered Map Node RICHARD_SUITE");
+            Assert.That(
+                node.GetComponentsInChildren<MapPadlockGraphic>(true),
+                Has.Length.EqualTo(1));
+            Assert.That(
+                node.GetComponentsInChildren<TMP_Text>(true),
+                Is.Empty,
+                "잠긴 지도 노드에는 장소 이름을 노출하지 않아야 합니다.");
+            Assert.That(
+                node.GetComponent<Image>().raycastTarget,
+                Is.False,
+                "방 polygon만 클릭을 처리해야 합니다.");
+
+            string roomPath =
+                "Map/Rooms/Layered Map Surface/Deck Map/" +
+                "Map Room Hit Areas/Room Hit Area RICHARD_SUITE";
+            MapRoomHitAreaGraphic room =
+                RequireComponent<MapRoomHitAreaGraphic>(roomPath);
+            Assert.That(room.IsLocked, Is.True);
+            RequireComponent<MapRoomHitAreaPointerHandler>(roomPath)
+                .OnPointerClick(new PointerEventData(EventSystem.current));
+            yield return null;
+
+            const string detailPath =
+                "Map/Rooms/Layered Map Surface/Location Detail/";
+            TMP_Text locationName =
+                RequireComponent<TMP_Text>(detailPath + "Location Name");
+            TMP_Text locationDescription =
+                RequireComponent<TMP_Text>(
+                    detailPath + "Location Description");
+            TMP_Text knownPeople =
+                RequireComponent<TMP_Text>(detailPath + "Known People");
+            TMP_Text accessDescription =
+                RequireComponent<TMP_Text>(
+                    detailPath + "Access Description");
+            Button travel = RequireLayeredTravelButton();
+
+            Assert.That(locationName.text, Is.EqualTo("잠긴 장소"));
+            Assert.That(locationDescription.text, Is.Empty);
+            Assert.That(knownPeople.text, Is.Empty);
+            Assert.That(accessDescription.text, Is.Empty);
+            Assert.That(
+                locationDescription.gameObject.activeSelf,
+                Is.False);
+            Assert.That(knownPeople.gameObject.activeSelf, Is.False);
+            Assert.That(
+                accessDescription.gameObject.activeSelf,
+                Is.False);
+            Assert.That(travel.interactable, Is.False);
+
+            TMP_Text[] detailTexts = RequireObject(
+                    "Map/Rooms/Layered Map Surface/Location Detail")
+                .GetComponentsInChildren<TMP_Text>(true);
+            string renderedDetail = string.Join(
+                "\n",
+                detailTexts.Select(text => text.text));
+            Assert.That(
+                renderedDetail,
+                Does.Not.Contain(
+                    CanonicalLocationCatalog
+                        .FindSpec("RICHARD_SUITE")
+                        .DisplayName));
+            Assert.That(
+                renderedDetail,
+                Does.Not.Contain("선행 장면 필요"));
         }
 
         [UnityTest]
