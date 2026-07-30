@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d364ddb6f43d1f946a8d01d18ea6b683, type: 3}
+  m_Name: Deck09_RoomMasks
+  m_EditorClassIdentifier: Wake.Runtime::Wake.UI.RoomMasksAsset
+  deck: 9
+  sourceMap: {fileID: 21300000, guid: 67f6568b8a318ed459907cf67eb40f8c, type: 3}
+  authoredSourceHash: 5a5daaead5a1793c59b6d4c03d3c4ddd
+  masks:
+  - locationCode: BALLROOM
+    polygon:
+    - {x: 0.05, y: 0.76}
+    - {x: 0.32, y: 0.76}
+    - {x: 0.32, y: 0.33999997}
+    - {x: 0.06, y: 0.33999997}
+    correctiveArtworkRecommended: 0
+  - locationCode: DINING
+    polygon:
+    - {x: 0.34, y: 0.82}
+    - {x: 0.63, y: 0.82}
+    - {x: 0.63, y: 0.49}
+    - {x: 0.34, y: 0.49}
+    correctiveArtworkRecommended: 0
+  - locationCode: HORIZON
+    polygon:
+    - {x: 0.75, y: 0.75}
+    - {x: 0.88, y: 0.79}
+    - {x: 0.96, y: 0.68}
+    - {x: 0.96, y: 0.42000002}
+    - {x: 0.87, y: 0.33999997}
+    - {x: 0.75, y: 0.43}
+    correctiveArtworkRecommended: 0
+  - locationCode: PROMENADE
+    polygon:
+    - {x: 0.14, y: 0.32}
+    - {x: 0.84, y: 0.32}
+    - {x: 0.84, y: 0.20999998}
+    - {x: 0.14, y: 0.20999998}
+    correctiveArtworkRecommended: 1
