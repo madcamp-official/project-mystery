@@ -40,6 +40,9 @@ namespace Wake.UI
         private TMP_Text instructionText;
         private TMP_Text feedbackText;
         private TMP_Text toolStatusText;
+        private GameObject completionOverlay;
+        private TMP_Text completionConclusionText;
+        private TMP_Text completionSummaryText;
         private GameObject markerA;
         private GameObject markerB;
         private GameObject postureOverlay;
@@ -86,6 +89,7 @@ namespace Wake.UI
                 id => EvidenceInventory.Instance != null &&
                       EvidenceInventory.Instance.Contains(id));
             puzzle = new BloodDirectionPuzzleSession();
+            completionOverlay.SetActive(false);
             RuntimeModalTransition.Open(
                 root,
                 () => LocationLoader.Instance
@@ -274,7 +278,15 @@ namespace Wake.UI
             {
                 button.gameObject.SetActive(false);
             }
-            StartCoroutine(CloseAfterDelay());
+            ShowCompletionOverlay();
+        }
+
+        private void ShowCompletionOverlay()
+        {
+            completionConclusionText.text = instructionText.text;
+            completionSummaryText.text = feedbackText.text;
+            completionOverlay.SetActive(true);
+            completionOverlay.transform.SetAsLastSibling();
         }
 
         private void Refresh()
@@ -453,12 +465,59 @@ namespace Wake.UI
             Button close = MakeButton(root.transform, "닫기", 18f);
             SetRect(close.GetComponent<RectTransform>(), 0.89f, 0.035f, 0.965f, 0.09f);
             close.onClick.AddListener(Close);
+            BuildCompletionOverlay();
             FeatureTypography.ApplyPuzzle(
                 root.transform,
                 title,
                 instructionText,
                 feedbackText);
             root.SetActive(false);
+        }
+
+        private void BuildCompletionOverlay()
+        {
+            completionOverlay = MakePanel(
+                "Completion Overlay",
+                root.transform,
+                new Color(0.02f, 0.015f, 0.02f, 0.86f));
+            RectTransform overlayRect =
+                completionOverlay.GetComponent<RectTransform>();
+            SetRect(overlayRect, 0f, 0f, 1f, 1f);
+
+            GameObject card = MakePanel(
+                "Completion Card",
+                completionOverlay.transform,
+                Paper);
+            RectTransform cardRect = card.GetComponent<RectTransform>();
+            SetRect(cardRect, 0.22f, 0.28f, 0.78f, 0.72f);
+
+            TMP_Text badge = MakeText(card.transform, "분석 완료", 22f);
+            SetRect(badge.rectTransform, 0.08f, 0.78f, 0.92f, 0.92f);
+            badge.color = Burgundy;
+            badge.fontStyle = FontStyles.Bold;
+
+            completionConclusionText = MakeText(card.transform, string.Empty, 22f);
+            SetRect(
+                completionConclusionText.rectTransform, 0.08f, 0.42f, 0.92f, 0.76f);
+            completionConclusionText.color = Ink;
+            completionConclusionText.textWrappingMode = TextWrappingModes.Normal;
+
+            completionSummaryText = MakeText(card.transform, string.Empty, 16f);
+            SetRect(
+                completionSummaryText.rectTransform, 0.08f, 0.24f, 0.92f, 0.40f);
+            completionSummaryText.color = new Color(0.35f, 0.13f, 0.14f);
+            completionSummaryText.textWrappingMode = TextWrappingModes.Normal;
+
+            Button continueButton = MakeButton(card.transform, "계속", 18f);
+            SetRect(
+                continueButton.GetComponent<RectTransform>(),
+                0.34f,
+                0.06f,
+                0.66f,
+                0.18f);
+            continueButton.onClick.AddListener(Close);
+
+            completionOverlay.SetActive(false);
         }
 
         private void BuildPostureTools()
@@ -655,11 +714,6 @@ namespace Wake.UI
             directionOverlay.SetActive(false);
         }
 
-        private IEnumerator CloseAfterDelay()
-        {
-            yield return new WaitForSecondsRealtime(3.2f);
-            Close();
-        }
 
         private Sprite CreateGridSprite(Texture2D texture, int source)
         {
