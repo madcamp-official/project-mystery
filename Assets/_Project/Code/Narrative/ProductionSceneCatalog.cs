@@ -84,7 +84,7 @@ namespace Wake.Narrative
             S("D2-01", 2, 7, 30, "HORIZON", ProductionSceneType.Puzzle, "D1-07"),
             S("D2-02", 2, 8, 40, "HORIZON", ProductionSceneType.Puzzle, "D2-01"),
             S("D2-03", 2, 9, 30, "MEDBAY", ProductionSceneType.Interrogation, "D2-02"),
-            S("D2-04", 2, 11, 0, "SECURITY", ProductionSceneType.Investigation, "D2-01"),
+            S("D2-04", 2, 11, 0, "SECURITY", ProductionSceneType.Investigation, "D2-03"),
             S("D2-05", 2, 14, 0, "HORIZON", ProductionSceneType.Investigation, "D2-04"),
             S("D2-06", 2, 17, 20, "CABIN_DANIEL", ProductionSceneType.Investigation, "D2-03"),
             S("D3-01", 3, 8, 0, "NEWS_LOUNGE", ProductionSceneType.Investigation, "D2-06"),

@@ -53,13 +53,13 @@ namespace Wake.Tests
             SceneTravelResult allowed = SceneTravelPolicy.EvaluateScene(
                 "D2-04",
                 graph,
-                new[] { "D2-01" },
+                new[] { "D2-03" },
                 15);
 
             Assert.That(denied.IsAllowed, Is.False);
             Assert.That(denied.DenialReason,
                 Is.EqualTo(SceneAccessDenialReason.PrerequisiteSceneIncomplete));
-            Assert.That(denied.Detail, Does.Contain("D2-01"));
+            Assert.That(denied.Detail, Does.Contain("D2-03"));
             Assert.That(allowed.IsAllowed, Is.True);
             Assert.That(allowed.Location.LocationCode, Is.EqualTo("SECURITY"));
         }
@@ -70,12 +70,12 @@ namespace Wake.Tests
             SceneTravelResult belowThreshold = SceneTravelPolicy.EvaluateScene(
                 "D2-04",
                 graph,
-                new[] { "D2-01" },
+                new[] { "D2-03" },
                 69);
             SceneTravelResult atThreshold = SceneTravelPolicy.EvaluateScene(
                 "D2-04",
                 graph,
-                new[] { "D2-01" },
+                new[] { "D2-03" },
                 70);
 
             Assert.That(belowThreshold.IsAllowed, Is.True);
