@@ -44,6 +44,8 @@ namespace Wake.Puzzles
         VerdictRecorded,
         VerdictUpdated,
         VerdictsIncomplete,
+        VerdictsCorrect,
+        VerdictsIncorrect,
         InvalidTheory,
         TheoryRecorded,
         EvidenceUnavailable,
@@ -581,6 +583,46 @@ namespace Wake.Puzzles
             HintLevel++;
             Save();
             return true;
+        }
+
+        public ExitInspectionAction ValidateRouteVerdicts()
+        {
+            string[] missing = ExitInspectionCatalog.All
+                .Where(item => GetVerdict(item.Id) == ExitRouteVerdict.None)
+                .Select(item => item.Id)
+                .ToArray();
+            if (missing.Length > 0)
+            {
+                return Action(
+                    ExitInspectionActionCode.VerdictsIncomplete,
+                    false,
+                    "세 후보 출구의 판정을 모두 선택하세요.");
+            }
+
+            string[] incorrect = ExitInspectionCatalog.All
+                .Where(item => GetVerdict(item.Id) != ExitRouteVerdict.Unused)
+                .Select(item => item.Id)
+                .ToArray();
+            if (incorrect.Length > 0)
+            {
+                string routes = string.Join(
+                    ", ",
+                    incorrect.Select(id =>
+                        ExitInspectionCatalog.TryGet(
+                            id,
+                            out ExitInspectionDefinition definition)
+                            ? definition.Title
+                            : id));
+                return Action(
+                    ExitInspectionActionCode.VerdictsIncorrect,
+                    false,
+                    $"판정 불일치: {routes}의 선택이 관찰 기록과 모순됩니다.");
+            }
+
+            return Action(
+                ExitInspectionActionCode.VerdictsCorrect,
+                true,
+                "판정 정확: 세 후보 출구 모두 사람의 이동에 사용되지 않았습니다.");
         }
 
         public ExitInspectionCompletion TryComplete()

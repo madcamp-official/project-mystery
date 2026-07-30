@@ -47,8 +47,10 @@ namespace Wake.UI
         private TMP_Text hintText;
         private TMP_Text statusText;
         private ExitInspectionSession session;
+        private AmbientCharacterHotspotOverlay ambientCharacters;
         private ViewStage stage;
         private bool forceCompare;
+        private bool routeVerdictsValidated;
 
         public bool IsOpen => root != null && root.activeSelf;
         public ExitInspectionSession Session => session;
@@ -61,6 +63,7 @@ namespace Wake.UI
         {
             root?.SetActive(false);
             reopenButton?.gameObject.SetActive(false);
+            SetExplorationPresentationSuppressed(false);
         }
 
         private void Update()
@@ -90,21 +93,39 @@ namespace Wake.UI
                 inventory.TryAddById);
             forceCompare = false;
             SynchronizeAuthoredObservations();
+            routeVerdictsValidated =
+                session.SelectedTheory != ExitInspectionTheory.None;
             statusText.text = session.IsCompleted
                 ? "이미 입증한 결론입니다."
                 : session.Step == 0
-                    ? "각 경로의 세부 흔적을 관찰한 뒤 사용 여부를 판정하세요."
+                    ? "세 후보 출구를 모두 조사해 살아 있는 제3자가 빠져나갔는지 검증하세요."
                     : "저장된 관찰·판정·가설 상태를 복원했습니다.";
             reopenButton.gameObject.SetActive(false);
-            Refresh();
-            RuntimeModalTransition.Open(root, FocusStageEntry);
+            SetExplorationPresentationSuppressed(true);
+            RuntimeModalTransition.Open(
+                root,
+                () =>
+                {
+                    ApplyAuthoredLayout();
+                    Refresh();
+                    Canvas.ForceUpdateCanvases();
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(
+                        root.GetComponent<RectTransform>());
+                    FocusStageEntry();
+                });
             return true;
         }
 
         public void Close()
         {
             RestoreInteraction();
-            RuntimeModalTransition.Close(root, SetReopenVisibility);
+            RuntimeModalTransition.Close(
+                root,
+                () =>
+                {
+                    SetExplorationPresentationSuppressed(false);
+                    SetReopenVisibility();
+                });
         }
 
         // Kept for old callers and save migration. It records authored
@@ -137,7 +158,7 @@ namespace Wake.UI
         {
             bool changed = session != null && session.UseHint();
             statusText.text = changed
-                ? $"힌트 {session.HintLevel}/3을 확인했습니다."
+                ? $"힌트 {session.HintLevel}/3을 열었습니다. 이전 힌트도 아래 기록에서 확인할 수 있습니다."
                 : "사용할 수 있는 힌트를 모두 확인했습니다.";
             Refresh();
             return changed;
@@ -157,6 +178,10 @@ namespace Wake.UI
 
             ExitInspectionAction result =
                 session.SetRouteVerdict(inspectionId, verdict);
+            if (result.Accepted)
+            {
+                routeVerdictsValidated = false;
+            }
             statusText.text = result.Message;
             Refresh();
             return result;
@@ -328,18 +353,19 @@ namespace Wake.UI
             theoryPanel.SetActive(stage == ViewStage.Theory);
             stageText.text = stage switch
             {
-                ViewStage.Observe => "1 · 경로 관찰",
-                ViewStage.Compare => "2 · 흔적 비교",
+                ViewStage.Observe => "1 · 세 후보 출구의 판정 근거 수집",
+                ViewStage.Compare => "2 · 사람의 통과 여부 판정",
                 ViewStage.Theory => "3 · 가설 검증",
                 _ => "검증 완료"
             };
             progressText.text = ProgressMessage();
-            hintText.text = Hint(session.HintLevel);
+            hintText.text = HintHistory(session.HintLevel);
 
             hintButton.interactable =
                 !session.IsCompleted && session.HintLevel < 3;
-            Label(hintButton).text =
-                $"힌트 {session.HintLevel}/3";
+            Label(hintButton).text = session.HintLevel < 3
+                ? $"다음 힌트 보기 {session.HintLevel}/3"
+                : "힌트 모두 확인";
 
             RefreshRoutes();
             RefreshVerdicts();
@@ -361,8 +387,8 @@ namespace Wake.UI
                 Button button = routeButtons[index];
                 button.interactable = !session.IsCompleted;
                 Label(button).text = done
-                    ? $"{definition.Title} · 관찰 완료"
-                    : $"{definition.Title} · 조사하기";
+                    ? $"{definition.Title} · 판정 근거 확보"
+                    : $"{definition.Title} · 통과 흔적 조사하기";
                 UiVisualThemeService.ApplyButton(
                     button,
                     done ? UiButtonStyle.Primary : UiButtonStyle.Secondary);
@@ -373,7 +399,7 @@ namespace Wake.UI
                 {
                     finding.text = done
                         ? definition.Finding
-                        : "세부 화면에서 두 가지 필수 흔적을 확인하세요.";
+                        : "이 경로가 사건 당시 사람의 이동에 사용됐는지 판단할 두 가지 흔적을 확인하세요.";
                     finding.color = UiVisualThemeService.Resolve(
                         done
                             ? UiColorToken.TextPrimary
@@ -462,6 +488,7 @@ namespace Wake.UI
                 return ViewStage.Observe;
             }
             if (forceCompare ||
+                !routeVerdictsValidated ||
                 ExitInspectionCatalog.All.Any(
                     item =>
                         session.GetVerdict(item.Id) ==
@@ -480,9 +507,9 @@ namespace Wake.UI
             return stage switch
             {
                 ViewStage.Observe =>
-                    $"관찰 완료 {observed}/3 · 각 경로의 두 필수 흔적을 확인하세요.",
+                    $"근거 수집 {observed}/3 · 세 후보 출구마다 통과 여부를 판단할 흔적 2개를 확보하세요.",
                 ViewStage.Compare =>
-                    $"경로 판정 {verdicts}/3 · 관찰과 모순되지 않는 판정을 고르세요.",
+                    $"경로 판정 {verdicts}/3 · 사건 당시 살아 있는 제3자가 각 경로를 통과했는지 판단하세요.",
                 ViewStage.Theory =>
                     "세 경로의 미사용 기록과 문턱 흔적을 함께 설명할 가설을 고르세요.",
                 _ => "호라이즌 룸 출구 논증이 조사 기록에 보존됐습니다."
@@ -496,7 +523,21 @@ namespace Wake.UI
                     item =>
                         session.GetVerdict(item.Id) != ExitRouteVerdict.None))
             {
+                ExitInspectionAction validation =
+                    session.ValidateRouteVerdicts();
+                statusText.text = validation.Message;
+                if (!validation.Accepted)
+                {
+                    ToastController.Instance?.ShowAlert(validation.Message);
+                    Refresh();
+                    FocusStageEntry();
+                    return;
+                }
+
+                ToastController.Instance?.ShowAlert(
+                    "판정 정확 · 세 후보 출구 모두 미사용");
                 forceCompare = false;
+                routeVerdictsValidated = true;
                 Refresh();
                 FocusStageEntry();
                 return;
@@ -526,6 +567,28 @@ namespace Wake.UI
             }
             canvasGroup.interactable = true;
             canvasGroup.blocksRaycasts = true;
+        }
+
+        private void ApplyAuthoredLayout()
+        {
+            if (root == null)
+            {
+                return;
+            }
+
+            ScreenShellRuntimePresenter.Place(
+                root.GetComponent<RectTransform>(),
+                ScreenShellSlotIds.PuzzlePanel,
+                new Vector2(.04f, .06f),
+                new Vector2(.96f, .94f));
+        }
+
+        private void SetExplorationPresentationSuppressed(bool suppressed)
+        {
+            ambientCharacters ??=
+                FindFirstObjectByType<AmbientCharacterHotspotOverlay>(
+                    FindObjectsInactive.Include);
+            ambientCharacters?.SetModalPresentationSuppressed(suppressed);
         }
 
         private void FocusStageEntry()
@@ -586,12 +649,15 @@ namespace Wake.UI
                 $"출구 검증 재개 · 관찰 {count}/3";
         }
 
-        private static string Hint(int level) => level switch
+        private static string HintHistory(int level) => level switch
         {
-            <= 0 => "힌트 없이 검증하고 있습니다.",
-            1 => "경로가 사용됐다면 반드시 남아야 할 흔적부터 찾으세요.",
-            2 => "표면의 물리 흔적과 센서·구조 기록을 함께 비교하세요.",
-            _ => "출구가 아니라 사건 당시 방 안에 누가 있었는지 전제를 의심하세요."
+            <= 0 => "힌트 기록 없음 · 필요하면 ‘다음 힌트 보기’를 선택하세요.",
+            1 => "힌트 1 · 경로가 사용됐다면 반드시 남아야 할 흔적부터 찾으세요.",
+            2 => "힌트 1 · 경로가 사용됐다면 반드시 남아야 할 흔적부터 찾으세요.\n" +
+                 "힌트 2 · 표면의 물리 흔적과 센서·구조 기록을 함께 비교하세요.",
+            _ => "힌트 1 · 경로가 사용됐다면 반드시 남아야 할 흔적부터 찾으세요.\n" +
+                 "힌트 2 · 표면의 물리 흔적과 센서·구조 기록을 함께 비교하세요.\n" +
+                 "힌트 3 · 출구가 아니라 사건 당시 방 안에 누가 있었는지 전제를 의심하세요."
         };
 
         private void BuildUi()
@@ -681,9 +747,9 @@ namespace Wake.UI
             hintButton = CreateLayoutButton(
                 footer.transform,
                 "Hint",
-                "힌트 0/3",
+                "다음 힌트 보기 0/3",
                 UiButtonStyle.Quiet,
-                160f);
+                210f);
             hintButton.onClick.AddListener(() => UseHint());
             AddFlexibleSpacer(footer.transform);
             primaryButton = CreateLayoutButton(
@@ -764,9 +830,10 @@ namespace Wake.UI
             CreateLayoutText(
                 panel.transform,
                 "Premise",
-                "문턱에는 두 번째 인물의 출입 흔적이 없다. 각 경로의 관찰과 함께 비교하세요.",
+                "판정 질문 · 사건 당시 살아 있는 제3자가 이 경로를 통과했는가?\n" +
+                "문턱 기록과 각 경로에서 확보한 물리 흔적을 함께 비교하세요.",
                 UiTextStyle.Body,
-                38f,
+                48f,
                 TextAlignmentOptions.Center);
             foreach (ExitInspectionDefinition definition
                      in ExitInspectionCatalog.All)
@@ -797,7 +864,7 @@ namespace Wake.UI
                         $"Exit Verdict {routeId} {verdict}",
                         VerdictLabel(verdict),
                         UiButtonStyle.Secondary,
-                        150f,
+                        175f,
                         56f);
                     button.onClick.AddListener(
                         () => SetVerdict(routeId, captured));
@@ -1105,9 +1172,9 @@ namespace Wake.UI
         private static string VerdictLabel(ExitRouteVerdict verdict) =>
             verdict switch
             {
-                ExitRouteVerdict.Used => "사용됨",
-                ExitRouteVerdict.Unused => "사용되지 않음",
-                ExitRouteVerdict.Inconclusive => "판단 불가",
+                ExitRouteVerdict.Used => "통과함\n(사용 흔적 있음)",
+                ExitRouteVerdict.Unused => "통과하지 않음\n(사용 흔적 없음)",
+                ExitRouteVerdict.Inconclusive => "증거 부족\n(판단 보류)",
                 _ => "미선택"
             };
 

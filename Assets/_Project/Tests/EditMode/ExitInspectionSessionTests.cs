@@ -134,6 +134,39 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void ValidateRouteVerdicts_ReportsWhetherObservedRoutesAgree()
+        {
+            ExitInspectionSession session = CreateSession();
+            InspectAll(session);
+            foreach (ExitInspectionDefinition definition
+                     in ExitInspectionCatalog.All)
+            {
+                session.SetRouteVerdict(
+                    definition.Id,
+                    ExitRouteVerdict.Unused);
+            }
+
+            ExitInspectionAction correct =
+                session.ValidateRouteVerdicts();
+            session.SetRouteVerdict(
+                ExitInspectionCatalog.AirDuct,
+                ExitRouteVerdict.Used);
+            ExitInspectionAction incorrect =
+                session.ValidateRouteVerdicts();
+
+            Assert.That(correct.Accepted, Is.True);
+            Assert.That(
+                correct.Code,
+                Is.EqualTo(ExitInspectionActionCode.VerdictsCorrect));
+            Assert.That(correct.Message, Does.Contain("판정 정확"));
+            Assert.That(incorrect.Accepted, Is.False);
+            Assert.That(
+                incorrect.Code,
+                Is.EqualTo(ExitInspectionActionCode.VerdictsIncorrect));
+            Assert.That(incorrect.Message, Does.Contain("공조 덕트"));
+        }
+
+        [Test]
         public void Completion_ClickingEveryRouteAloneCannotComplete()
         {
             ExitInspectionSession session = CreateSession();
