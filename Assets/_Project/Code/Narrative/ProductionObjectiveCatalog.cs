@@ -481,7 +481,7 @@ namespace Wake.Narrative
             O("D1-05", ObjectiveActionType.Inspect, "리처드에게 전달된 호출 확인하기", "이블린과 리처드를 통해 호출 내용을 확인하자.", ObjectiveMarkerMode.Npc, "이블린과 리처드의 대화 듣기", "리처드 명의 메시지 확인하기", "메시지 원문을 요구하기"),
             O("D1-06", ObjectiveActionType.Inspect, "호라이즌 룸의 상황 확인하기", "방 안의 인물과 주변 흔적을 차분히 확인하자.", ObjectiveMarkerMode.Area, "방 안으로 들어가기", "다니엘의 상태 확인하기", "현장을 봉쇄할지 결정하기", "열린 문과 주변 흔적 조사하기"),
             O("D1-07", ObjectiveActionType.Decide, "비밀 수사의 조건 정하기", "관련 인물들의 설명을 듣고 수사 조건을 정하자.", ObjectiveMarkerMode.Npc, "관련 인물들과 이야기하기", "공식 발표 확인하기", "수락 또는 제한 조건 결정하기"),
-            O("D2-01", ObjectiveActionType.Inspect, "가능한 출구 세 곳 검증하기", "발판과 덕트, 점검구를 하나씩 직접 조사하자.", ObjectiveMarkerMode.Hover, "외벽 발판의 흔적 확인하기", "공조 덕트 조사하기", "설비 점검구 조사하기", "출구 조사 결과 정리하기"),
+            O("D2-01", ObjectiveActionType.Inspect, "흔적 없는 출구 논증하기", "세 경로를 관찰하고 사용 여부를 판정한 뒤 하나의 가설로 설명하자.", ObjectiveMarkerMode.Hover, "출구별 필수 흔적 관찰하기", "세 경로의 사용 여부 판정하기", "문턱 기록과 출구 판정 비교하기", "사건 당시의 최종 가설 검증하기"),
             O("D2-02", ObjectiveActionType.Solve, "혈흔의 방향 재구성하기", "혈흔 사진과 위치 관계를 이용해 방향을 재구성하자.", ObjectiveMarkerMode.None, "혈흔 사진 살펴보기", "사진 조각 배열하기", "시신 위치와 혈흔 중심 비교하기", "결론 선택하기"),
             O("D2-03", ObjectiveActionType.Compare, "사망 시각 추정을 다시 확인하기", "헬레나의 설명과 의료 기록을 함께 확인하자.", ObjectiveMarkerMode.Npc, "헬레나와 이야기하기", "안정제 처방 확인하기", "체온 기록 비교하기", "압박 또는 협조 요청 결정하기"),
             O("D2-04", ObjectiveActionType.Compare, "영상과 설비 로그 대조하기", "보안 영상과 출입·감지 기록의 시간을 맞춰보자.", ObjectiveMarkerMode.Hover, "마커스와 이야기하기", "보안 영상 확인하기", "출입 로그 확인하기", "감지기 기록과 시간 맞추기"),
