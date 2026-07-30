@@ -15,21 +15,21 @@ MonoBehaviour:
   schemaVersion: 1
   approved: 1
   reviewer: project-owner
-  revision: 1
-  approvedAtUtc: 2026-07-29T18:34:18Z
+  revision: 5
+  approvedAtUtc: 2026-07-30T11:03:00Z
   approvedWarnings: 1
-  approvedWarningCount: 40
-  sourceInventoryGeneratedAtUtc: 2026-07-29T18:27:07Z
+  approvedWarningCount: 44
+  sourceInventoryGeneratedAtUtc: 2026-07-30T11:02:43Z
   bindings:
   - locationCode: ARCHIVE
     variantKey: serialized:bg_location_d6_2_archive
     sourceSprite: {fileID: 21300000, guid: 4039632bf8832b343b76634a9388f234, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d6_2_archive.png
     sourceImageHash: 743dc3befc696c7731ae60fc8a83a49ad6083a6152766ee087f454f04cb6dc16
-    semanticContentHash: 1b9a071f433faa171e761641a48c723ae6c10de2afb05f98acec7235f132fd2a
+    semanticContentHash: e57181ce4d289e51038148dde13fe9368d4c6f41e0cec458fc07d3d15b7fc951
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d6_2_archive
       locationCode: ARCHIVE
@@ -37,11 +37,11 @@ MonoBehaviour:
       sourceImageHash: 743dc3befc696c7731ae60fc8a83a49ad6083a6152766ee087f454f04cb6dc16
       status:
         state: 2
-        note: 'Semantic content SHA-256: 1b9a071f433faa171e761641a48c723ae6c10de2afb05f98acec7235f132fd2a;
+        note: 'Semantic content SHA-256: e57181ce4d289e51038148dde13fe9368d4c6f41e0cec458fc07d3d15b7fc951;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d6_2_archive.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.75333333
         source: approved-semantic-review
@@ -157,10 +157,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.57
-          y: 0.21
-          width: 0.2
-          height: 0.2
+          x: 0.551
+          y: 0.204
+          width: 0.23499995
+          height: 0.31199998
         clearance: 0
         enabled: 1
         confidence:
@@ -304,10 +304,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: a7c2738685b9f964990d914727c384d1, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_atrium_default_champagne.png
     sourceImageHash: 244030aeb2d062120c00beca0d21902ac56b6be38964c5b1ac5904bcd998ee91
-    semanticContentHash: ce919903adad286afc228f931a2ef6d8a54fae654d717c69498832ccb750a067
+    semanticContentHash: 3a8deae6add3b940f903cfa97588cd7f844610795e4d605385f9b50e01ab2937
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_atrium_default_champagne
       locationCode: ATRIUM
@@ -315,11 +315,11 @@ MonoBehaviour:
       sourceImageHash: 244030aeb2d062120c00beca0d21902ac56b6be38964c5b1ac5904bcd998ee91
       status:
         state: 2
-        note: 'Semantic content SHA-256: ce919903adad286afc228f931a2ef6d8a54fae654d717c69498832ccb750a067;
+        note: 'Semantic content SHA-256: 3a8deae6add3b940f903cfa97588cd7f844610795e4d605385f9b50e01ab2937;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_atrium_default_champagne.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.846
         source: approved-semantic-review
@@ -423,10 +423,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.193
-          y: 0.252
-          width: 0.019
-          height: 0.079
+          x: 0.19
+          y: 0.2255
+          width: 0.025600001
+          height: 0.10690002
         clearance: 0
         enabled: 1
         confidence:
@@ -623,10 +623,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: da47a3ef78b930342971044068afe2cc, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_1_atrium.png
     sourceImageHash: 594fe6d18e22481d0c48d94b66e7f1e66e51eadf4460251e56c711e8fc120622
-    semanticContentHash: a7a853788c94b8c0dc03ef2f92d1bf9748241e53ded6135f98ed8524e7f479a3
+    semanticContentHash: 278dc6f004bc6421b9ab004bc5c058c014d81e0ef2568ae1a6a9b57eb9fe58fb
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d8_1_atrium
       locationCode: ATRIUM
@@ -634,11 +634,11 @@ MonoBehaviour:
       sourceImageHash: 594fe6d18e22481d0c48d94b66e7f1e66e51eadf4460251e56c711e8fc120622
       status:
         state: 2
-        note: 'Semantic content SHA-256: a7a853788c94b8c0dc03ef2f92d1bf9748241e53ded6135f98ed8524e7f479a3;
+        note: 'Semantic content SHA-256: 278dc6f004bc6421b9ab004bc5c058c014d81e0ef2568ae1a6a9b57eb9fe58fb;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_1_atrium.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.84
         source: approved-semantic-review
@@ -744,20 +744,6 @@ MonoBehaviour:
           y: 0.24
           width: 0.29
           height: 0.37
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: PROP_CHAMPAGNE
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.125
-          y: 0.18499999
-          width: 0.15
-          height: 0.15
         clearance: 0
         enabled: 1
         confidence:
@@ -923,10 +909,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: d01482632af9ce644a13c17c4fb57309, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_ballast_annex_d6_subtle.png
     sourceImageHash: 81fdb18febd19922f0bb24dc68c28bf3b4523569c0254caf553682d46c5d1651
-    semanticContentHash: 268c78c0d8726d728de5d98070af29e2c2af3cfe208bae2d279839c526373bf1
+    semanticContentHash: 56191e8edd8248b7d66406bd17f30138dc0292299413ad0210f81224f4f9a022
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_ballast_annex_d6_subtle
       locationCode: BALLAST_CONTROL_ANNEX
@@ -934,11 +920,11 @@ MonoBehaviour:
       sourceImageHash: 81fdb18febd19922f0bb24dc68c28bf3b4523569c0254caf553682d46c5d1651
       status:
         state: 2
-        note: 'Semantic content SHA-256: 268c78c0d8726d728de5d98070af29e2c2af3cfe208bae2d279839c526373bf1;
+        note: 'Semantic content SHA-256: 56191e8edd8248b7d66406bd17f30138dc0292299413ad0210f81224f4f9a022;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_ballast_annex_d6_subtle.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.746
         source: approved-semantic-review
@@ -1027,10 +1013,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.205
-          y: 0.067
-          width: 0.055
-          height: 0.065
+          x: 0.201
+          y: 0.072000004
+          width: 0.03999999
+          height: 0.058999993
         clearance: 0
         enabled: 1
         confidence:
@@ -1041,10 +1027,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.59
-          y: 0.35
-          width: 0.17
-          height: 0.4
+          x: 0.598
+          y: 0.34199998
+          width: 0.16600001
+          height: 0.35099998
         clearance: 0
         enabled: 1
         confidence:
@@ -1260,10 +1246,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 7041110e723e440e86adc77aed7364e0, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_2_ballast_control_annex_evidence.png
     sourceImageHash: 978c0dc83633b9e739ac0c91cd6d6e69b158aa74129c9be1a24d1253f036b47c
-    semanticContentHash: b2fc677e754d9253128e24a3a59005e912f21ac499568f705290618e849be8af
+    semanticContentHash: 3b61b581dd751bbfaff21549796c72666c5dbe6b3195487f342628fc5d0b8934
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d7_2_ballast_control_annex_evidence
       locationCode: BALLAST_CONTROL_ANNEX
@@ -1271,11 +1257,11 @@ MonoBehaviour:
       sourceImageHash: 978c0dc83633b9e739ac0c91cd6d6e69b158aa74129c9be1a24d1253f036b47c
       status:
         state: 2
-        note: 'Semantic content SHA-256: b2fc677e754d9253128e24a3a59005e912f21ac499568f705290618e849be8af;
+        note: 'Semantic content SHA-256: 3b61b581dd751bbfaff21549796c72666c5dbe6b3195487f342628fc5d0b8934;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_2_ballast_control_annex_evidence.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.5
         source: approved-semantic-review
@@ -1552,10 +1538,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 38e8e2d6aef429d4ab364a82cff653c9, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_ballroom_default_mask.png
     sourceImageHash: 4f829055e7ab3558057b9213a99dc55736af89802b508e3cc45acd0bb00d9dec
-    semanticContentHash: 6257eff8718188e34f12f531fba969d9b98422064f970c6bf36f8c451c1c6dbf
+    semanticContentHash: 4ab20f2ea9db590661b4e845b3e31ee399306fd7189b40fbe76b968279cfcab5
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_ballroom_default_mask
       locationCode: BALLROOM
@@ -1563,11 +1549,11 @@ MonoBehaviour:
       sourceImageHash: 4f829055e7ab3558057b9213a99dc55736af89802b508e3cc45acd0bb00d9dec
       status:
         state: 2
-        note: 'Semantic content SHA-256: 6257eff8718188e34f12f531fba969d9b98422064f970c6bf36f8c451c1c6dbf;
+        note: 'Semantic content SHA-256: 4ab20f2ea9db590661b4e845b3e31ee399306fd7189b40fbe76b968279cfcab5;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_ballroom_default_mask.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.828
         source: approved-semantic-review
@@ -1655,10 +1641,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.884
-          y: 0.264
-          width: 0.035
-          height: 0.075
+          x: 0.8833
+          y: 0.25559998
+          width: 0.047800004
+          height: 0.053600043
         clearance: 0
         enabled: 1
         confidence:
@@ -1864,10 +1850,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: bce3df1dc39103e4ca8e0e960f62ed6b, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d9_1_ballroom.png
     sourceImageHash: 7feb1f8b4f6092a800cc527fb3e20f315227ab77428c9059562d23e0f92588f0
-    semanticContentHash: ac4a4f75a05c173e05a7f5345614789b65f5a260c74fc9c6e7399fe371dece32
+    semanticContentHash: e067b2a18ce606ccd7fc737be70e595c0203b75d1323240701fab14f0afd5e73
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d9_1_ballroom
       locationCode: BALLROOM
@@ -1875,11 +1861,11 @@ MonoBehaviour:
       sourceImageHash: 7feb1f8b4f6092a800cc527fb3e20f315227ab77428c9059562d23e0f92588f0
       status:
         state: 2
-        note: 'Semantic content SHA-256: ac4a4f75a05c173e05a7f5345614789b65f5a260c74fc9c6e7399fe371dece32;
+        note: 'Semantic content SHA-256: e067b2a18ce606ccd7fc737be70e595c0203b75d1323240701fab14f0afd5e73;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d9_1_ballroom.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.85
         source: approved-semantic-review
@@ -1985,20 +1971,6 @@ MonoBehaviour:
           y: 0.35
           width: 1
           height: 0.65
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: PROP_MASK
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.825
-          y: 0.21499999
-          width: 0.15
-          height: 0.15
         clearance: 0
         enabled: 1
         confidence:
@@ -2187,10 +2159,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 17b1378e06f393d4b86375898a78d4f7, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_bridge_d3_day.png
     sourceImageHash: d224b27838d75aa7c762da748a209322719c242f4adefcc681a024cb5dba6d45
-    semanticContentHash: f7bf3cf92079e6c5c0da16baf15367c11e51af43b9e9eedac0a9fc60b14ed04f
+    semanticContentHash: 9a6a05f1f7d50cc2ee53732b4f8e032770fd02c302dcc4c5352047fbe1c2e584
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_bridge_d3_day
       locationCode: BRIDGE
@@ -2198,11 +2170,11 @@ MonoBehaviour:
       sourceImageHash: d224b27838d75aa7c762da748a209322719c242f4adefcc681a024cb5dba6d45
       status:
         state: 2
-        note: 'Semantic content SHA-256: f7bf3cf92079e6c5c0da16baf15367c11e51af43b9e9eedac0a9fc60b14ed04f;
+        note: 'Semantic content SHA-256: 9a6a05f1f7d50cc2ee53732b4f8e032770fd02c302dcc4c5352047fbe1c2e584;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_bridge_d3_day.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.83166665
         source: approved-semantic-review
@@ -2549,10 +2521,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 45cb03f7bcad4fcc98ab5d393c7243ae, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_3_engine_control_evidence.png
     sourceImageHash: f507597d0d777b5bf76bd780ca7bbabb5ee50506db9dc5bf80db8dc5b8f5e933
-    semanticContentHash: 24c33faae49cc98c7e558e6c4c6b2f57e3c957fe6200c21c9fee07f98388eee6
+    semanticContentHash: 1165a20efec6d444842d936fef29833ff17b3cb8edcfb7f120a95db5e82d670a
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d7_3_engine_control_evidence
       locationCode: BRIDGE
@@ -2560,11 +2532,11 @@ MonoBehaviour:
       sourceImageHash: f507597d0d777b5bf76bd780ca7bbabb5ee50506db9dc5bf80db8dc5b8f5e933
       status:
         state: 2
-        note: 'Semantic content SHA-256: 24c33faae49cc98c7e558e6c4c6b2f57e3c957fe6200c21c9fee07f98388eee6;
+        note: 'Semantic content SHA-256: 1165a20efec6d444842d936fef29833ff17b3cb8edcfb7f120a95db5e82d670a;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_3_engine_control_evidence.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.77666664
         source: approved-semantic-review
@@ -2638,10 +2610,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.015
-          y: 0.26
-          width: 0.17
-          height: 0.24
+          x: 0.018
+          y: 0.376
+          width: 0.141
+          height: 0.148
         clearance: 0
         enabled: 1
         confidence:
@@ -2680,10 +2652,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.034999996
-          y: 0.19500001
-          width: 0.15
-          height: 0.15
+          x: 0.077300005
+          y: 0.1727
+          width: 0.09149999
+          height: 0.1917
         clearance: 0
         enabled: 1
         confidence:
@@ -2827,10 +2799,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: d7983939103c83a4791186f1d2851c61, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_cabin_claire_d5_dismantled.png
     sourceImageHash: 891b8b25d87c98067f3565084355d980f2b613841437ed911dcd3e5cf5a86eb5
-    semanticContentHash: 26ada025337bcfc23b916910dc56867629c1161e60f64cd8dae8f85d48c88924
+    semanticContentHash: 750c45d3740272c09dce4602c52c43c2eeffa74b73b47f5282fc6ca4b0bc65eb
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_cabin_claire_d5_dismantled
       locationCode: CABIN_CLAIRE
@@ -2838,11 +2810,11 @@ MonoBehaviour:
       sourceImageHash: 891b8b25d87c98067f3565084355d980f2b613841437ed911dcd3e5cf5a86eb5
       status:
         state: 2
-        note: 'Semantic content SHA-256: 26ada025337bcfc23b916910dc56867629c1161e60f64cd8dae8f85d48c88924;
+        note: 'Semantic content SHA-256: 750c45d3740272c09dce4602c52c43c2eeffa74b73b47f5282fc6ca4b0bc65eb;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_cabin_claire_d5_dismantled.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.818
         source: approved-semantic-review
@@ -3135,10 +3107,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 6234ac5abf43f3649a730054fba7869e, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_cabin_claire_d5_smoke.png
     sourceImageHash: d28f2631b0f37fa3ba7ba8dec493baac07fc0ddec7b4eef036983b5e17b9a144
-    semanticContentHash: 6f8138a99463466729b967df91bc97868247e84b2e9ecf87863d0fa33a754a85
+    semanticContentHash: 8f4cf48c098c14298a60cce3f5e66711cab9e46ab38194db5d93c2570d0a6747
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_cabin_claire_d5_smoke
       locationCode: CABIN_CLAIRE
@@ -3146,11 +3118,11 @@ MonoBehaviour:
       sourceImageHash: d28f2631b0f37fa3ba7ba8dec493baac07fc0ddec7b4eef036983b5e17b9a144
       status:
         state: 2
-        note: 'Semantic content SHA-256: 6f8138a99463466729b967df91bc97868247e84b2e9ecf87863d0fa33a754a85;
+        note: 'Semantic content SHA-256: 8f4cf48c098c14298a60cce3f5e66711cab9e46ab38194db5d93c2570d0a6747;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_cabin_claire_d5_smoke.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.775
         source: approved-semantic-review
@@ -3417,10 +3389,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 95c8f4f89652d094c8ce65c7e6f571cc, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_cabin_claire_default_morning.png
     sourceImageHash: 947d0ab2544ae7c8d155f0b8406138bc5f70ef366e25d6d9d8d42dbd08fd31e7
-    semanticContentHash: 890ad1051a238e4ee0b6aad370dfd7933b2b506259bdc8b41bf164e9bf71dcb3
+    semanticContentHash: f5e97e3088e1f1eada7d4b5667c71386c40d2f3b86aa77b6be4b1332b2186a1a
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_cabin_claire_default_morning
       locationCode: CABIN_CLAIRE
@@ -3428,11 +3400,11 @@ MonoBehaviour:
       sourceImageHash: 947d0ab2544ae7c8d155f0b8406138bc5f70ef366e25d6d9d8d42dbd08fd31e7
       status:
         state: 2
-        note: 'Semantic content SHA-256: 890ad1051a238e4ee0b6aad370dfd7933b2b506259bdc8b41bf164e9bf71dcb3;
+        note: 'Semantic content SHA-256: f5e97e3088e1f1eada7d4b5667c71386c40d2f3b86aa77b6be4b1332b2186a1a;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_cabin_claire_default_morning.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.822
         source: approved-semantic-review
@@ -3725,10 +3697,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 06c92c0e9b92c344bb6706aa3eb3dcd2, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d10_2_vip_lounge.png
     sourceImageHash: b4a2f5f2692e1312cd68091cda1fdb40541221e0ab46fcf21e757acc9d617c46
-    semanticContentHash: 8382160563bc327097977ae2a56dc513009de8e1e12a64cd453fe4c385e0b414
+    semanticContentHash: 916c8f3b52a57b9160014e36c09a992b39328098622d3906469eadeb989d6d9d
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d10_2_vip_lounge
       locationCode: CABIN_CLAIRE
@@ -3736,11 +3708,11 @@ MonoBehaviour:
       sourceImageHash: b4a2f5f2692e1312cd68091cda1fdb40541221e0ab46fcf21e757acc9d617c46
       status:
         state: 2
-        note: 'Semantic content SHA-256: 8382160563bc327097977ae2a56dc513009de8e1e12a64cd453fe4c385e0b414;
+        note: 'Semantic content SHA-256: 916c8f3b52a57b9160014e36c09a992b39328098622d3906469eadeb989d6d9d;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d10_2_vip_lounge.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.8125
         source: approved-semantic-review
@@ -3804,20 +3776,6 @@ MonoBehaviour:
           y: 0
           width: 0.3
           height: 0.37
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: PROP_BELL
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.64500004
-          y: 0.28500003
-          width: 0.15
-          height: 0.15
         clearance: 0
         enabled: 1
         confidence:
@@ -4020,10 +3978,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 84630adeb5e59954896120b64537eea0, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_cabin_daniel_d2_late_afternoon.png
     sourceImageHash: ce6c2f9bf52cd503dd2fd8dd1632143e88e66f460a6e22717cd1da8531fea426
-    semanticContentHash: 5524e221258007ba07606702c9ddf841691354a990e3c018d709adf87092c1f3
+    semanticContentHash: 5e5cb911ef107d6ff6b396545b15969fdc6581ca845be295d97f1c6e579d2de2
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_cabin_daniel_d2_late_afternoon
       locationCode: CABIN_DANIEL
@@ -4031,11 +3989,11 @@ MonoBehaviour:
       sourceImageHash: ce6c2f9bf52cd503dd2fd8dd1632143e88e66f460a6e22717cd1da8531fea426
       status:
         state: 2
-        note: 'Semantic content SHA-256: 5524e221258007ba07606702c9ddf841691354a990e3c018d709adf87092c1f3;
+        note: 'Semantic content SHA-256: 5e5cb911ef107d6ff6b396545b15969fdc6581ca845be295d97f1c6e579d2de2;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_cabin_daniel_d2_late_afternoon.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.7625
         source: approved-semantic-review
@@ -4283,10 +4241,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 8edc2b823665457db15b764bfaea15d6, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_2_news_lounge_evidence.png
     sourceImageHash: fc3efa21e58369f2c33ecb43cec2affe98eb2c7dc340327c1c8b3c1d50f3e1a7
-    semanticContentHash: 913f55eb216b3f109a6d9c2f7284057f8c05090b484608e40d5f043ceaa47006
+    semanticContentHash: 11649b3ecde33556fe177d71fc2eff8ed4e4f9428af20e9a1e4bf9d927feb55d
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d8_2_news_lounge_evidence
       locationCode: CABIN_DANIEL
@@ -4294,11 +4252,11 @@ MonoBehaviour:
       sourceImageHash: fc3efa21e58369f2c33ecb43cec2affe98eb2c7dc340327c1c8b3c1d50f3e1a7
       status:
         state: 2
-        note: 'Semantic content SHA-256: 913f55eb216b3f109a6d9c2f7284057f8c05090b484608e40d5f043ceaa47006;
+        note: 'Semantic content SHA-256: 11649b3ecde33556fe177d71fc2eff8ed4e4f9428af20e9a1e4bf9d927feb55d;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_2_news_lounge_evidence.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.7733333
         source: approved-semantic-review
@@ -4418,20 +4376,6 @@ MonoBehaviour:
           y: 0.36
           width: 0.16
           height: 0.18
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: PROP_COFFEE
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.52500004
-          y: 0.445
-          width: 0.15
-          height: 0.15
         clearance: 0
         enabled: 1
         confidence:
@@ -4580,10 +4524,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 2bf2a0376a1911142b558ccfca1dec3a, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_crew_stairs_d4_reconstruction.png
     sourceImageHash: 4aec122adb3d8e36cb3860cda8ea746e8979e15259025968a099bd59dd38273d
-    semanticContentHash: 8724911b9a7d4a933ca4f2551437fd8ae174f8362fadff091ba1409c56352090
+    semanticContentHash: e2eb8b2304592c12f3347e826d043c5114f27aeb235b372e2a1a0277d14ce25a
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_crew_stairs_d4_reconstruction
       locationCode: CREW_STAIRS
@@ -4591,11 +4535,11 @@ MonoBehaviour:
       sourceImageHash: 4aec122adb3d8e36cb3860cda8ea746e8979e15259025968a099bd59dd38273d
       status:
         state: 2
-        note: 'Semantic content SHA-256: 8724911b9a7d4a933ca4f2551437fd8ae174f8362fadff091ba1409c56352090;
+        note: 'Semantic content SHA-256: e2eb8b2304592c12f3347e826d043c5114f27aeb235b372e2a1a0277d14ce25a;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_crew_stairs_d4_reconstruction.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.784
         source: approved-semantic-review
@@ -4880,10 +4824,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 35cc59f293d8d5c4fb25b3174ce08bb6, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_crew_stairs_d4_wet.png
     sourceImageHash: ed5bb21fe8bdd71b62f07657051c128c217f6b00169501659313b3d769421a14
-    semanticContentHash: 0129b68af9e096d300d3f086ab4766121dc5be1624387183a2aa3e995d323810
+    semanticContentHash: 4d78bd8fe646a2a2b1f892252228b78805190f320357c6c04cc8cebbdd039137
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_crew_stairs_d4_wet
       locationCode: CREW_STAIRS
@@ -4891,11 +4835,11 @@ MonoBehaviour:
       sourceImageHash: ed5bb21fe8bdd71b62f07657051c128c217f6b00169501659313b3d769421a14
       status:
         state: 2
-        note: 'Semantic content SHA-256: 0129b68af9e096d300d3f086ab4766121dc5be1624387183a2aa3e995d323810;
+        note: 'Semantic content SHA-256: 4d78bd8fe646a2a2b1f892252228b78805190f320357c6c04cc8cebbdd039137;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_crew_stairs_d4_wet.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.645
         source: approved-semantic-review
@@ -5208,7 +5152,7 @@ MonoBehaviour:
     semanticContentHash: 7d967b40636b1536bcf35811ad4cca33df7e67beedf09df47619651091871b98
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_crew_stairs_default
       locationCode: CREW_STAIRS
@@ -5218,9 +5162,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 7d967b40636b1536bcf35811ad4cca33df7e67beedf09df47619651091871b98;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_crew_stairs_default.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.804
         source: approved-semantic-review
@@ -5477,10 +5421,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 7c3f3813118ed5549bf381fdab31d377, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_4_crew_stairs.png
     sourceImageHash: 2ac307183357aff52d53982d4a0083dbf8869e1f434e84c606977147d3baac66
-    semanticContentHash: ece8342118600f3785d53f415b8b0cd8d803bf6076e4483dd017f9be833e2f68
+    semanticContentHash: 1a9e16b3bf5137a26b0e76dfc67549be306abfb16285e191599b478738a7311d
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d7_4_crew_stairs
       locationCode: CREW_STAIRS
@@ -5488,11 +5432,11 @@ MonoBehaviour:
       sourceImageHash: 2ac307183357aff52d53982d4a0083dbf8869e1f434e84c606977147d3baac66
       status:
         state: 2
-        note: 'Semantic content SHA-256: ece8342118600f3785d53f415b8b0cd8d803bf6076e4483dd017f9be833e2f68;
+        note: 'Semantic content SHA-256: 1a9e16b3bf5137a26b0e76dfc67549be306abfb16285e191599b478738a7311d;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_4_crew_stairs.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.48333332
         source: approved-semantic-review
@@ -5768,10 +5712,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: a8e6ea40cde16a84f92f9e72beeec9ee, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d9_2_dining.png
     sourceImageHash: 19e8f52e798a715cf40d59b91b59fca210d5d425e3f48482fad677c6c9e43f2d
-    semanticContentHash: 6a92e9a9a9f521c3aa74ce544ceebd36918e0aedc595d9ef6b8ac484554512b4
+    semanticContentHash: 16fe8bfa20fbc824c39fe6e8bed0156da45ec926b5e39f20cce0b6721a936cf0
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d9_2_dining
       locationCode: DINING
@@ -5779,11 +5723,11 @@ MonoBehaviour:
       sourceImageHash: 19e8f52e798a715cf40d59b91b59fca210d5d425e3f48482fad677c6c9e43f2d
       status:
         state: 2
-        note: 'Semantic content SHA-256: 6a92e9a9a9f521c3aa74ce544ceebd36918e0aedc595d9ef6b8ac484554512b4;
+        note: 'Semantic content SHA-256: 16fe8bfa20fbc824c39fe6e8bed0156da45ec926b5e39f20cce0b6721a936cf0;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d9_2_dining.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.81666666
         source: approved-semantic-review
@@ -6032,10 +5976,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 45cb03f7bcad4fcc98ab5d393c7243ae, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_3_engine_control_evidence.png
     sourceImageHash: f507597d0d777b5bf76bd780ca7bbabb5ee50506db9dc5bf80db8dc5b8f5e933
-    semanticContentHash: 24c33faae49cc98c7e558e6c4c6b2f57e3c957fe6200c21c9fee07f98388eee6
+    semanticContentHash: 1165a20efec6d444842d936fef29833ff17b3cb8edcfb7f120a95db5e82d670a
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d7_3_engine_control_evidence
       locationCode: ENGINE_CONTROL
@@ -6043,11 +5987,11 @@ MonoBehaviour:
       sourceImageHash: f507597d0d777b5bf76bd780ca7bbabb5ee50506db9dc5bf80db8dc5b8f5e933
       status:
         state: 2
-        note: 'Semantic content SHA-256: 24c33faae49cc98c7e558e6c4c6b2f57e3c957fe6200c21c9fee07f98388eee6;
+        note: 'Semantic content SHA-256: 1165a20efec6d444842d936fef29833ff17b3cb8edcfb7f120a95db5e82d670a;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_3_engine_control_evidence.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.77666664
         source: approved-semantic-review
@@ -6121,10 +6065,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.015
-          y: 0.26
-          width: 0.17
-          height: 0.24
+          x: 0.018
+          y: 0.376
+          width: 0.141
+          height: 0.148
         clearance: 0
         enabled: 1
         confidence:
@@ -6163,10 +6107,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.034999996
-          y: 0.19500001
-          width: 0.15
-          height: 0.15
+          x: 0.077300005
+          y: 0.1727
+          width: 0.09149999
+          height: 0.1917
         clearance: 0
         enabled: 1
         confidence:
@@ -6310,10 +6254,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: c163ae35b68e1b04fb2dda28f084c991, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_gangway_default_luggage.png
     sourceImageHash: 3300633db75beed1e24652a704b9f44fac3605637c11750d3d3cec4b82756781
-    semanticContentHash: 59392338d1e295a7edb8b425153d87531da693d756a56be7aea74eb671737155
+    semanticContentHash: 12d4d9f68486e7bb6c4f4354ba4b4c1b21af7a774381af5a88aa0bd6134be757
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_gangway_default_luggage
       locationCode: GANGWAY
@@ -6321,11 +6265,11 @@ MonoBehaviour:
       sourceImageHash: 3300633db75beed1e24652a704b9f44fac3605637c11750d3d3cec4b82756781
       status:
         state: 2
-        note: 'Semantic content SHA-256: 59392338d1e295a7edb8b425153d87531da693d756a56be7aea74eb671737155;
+        note: 'Semantic content SHA-256: 12d4d9f68486e7bb6c4f4354ba4b4c1b21af7a774381af5a88aa0bd6134be757;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_gangway_default_luggage.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.81666666
         source: approved-semantic-review
@@ -6383,10 +6327,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.36
-          y: 0.03
-          width: 0.12
-          height: 0.21
+          x: 0.36969998
+          y: 0
+          width: 0.1467
+          height: 0.2525
         clearance: 0
         enabled: 1
         confidence:
@@ -6605,10 +6549,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 4d6cab773a7d1a44196f5021a0009dc7, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_gangway.png
     sourceImageHash: 9dd7dd02e382c627aaffcda6c4c3f1b5c862c415d51302ebb2613c83ed167723
-    semanticContentHash: 0bba630a44b77ddbafa6f12b4548a961eaca8d28bfc925193e2112f7183fbf2a
+    semanticContentHash: 1a278873e5ecd12f12c1c728bbff62c2f85f254074b387463d9c9d2811f5afc2
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_gangway
       locationCode: GANGWAY
@@ -6616,11 +6560,11 @@ MonoBehaviour:
       sourceImageHash: 9dd7dd02e382c627aaffcda6c4c3f1b5c862c415d51302ebb2613c83ed167723
       status:
         state: 2
-        note: 'Semantic content SHA-256: 0bba630a44b77ddbafa6f12b4548a961eaca8d28bfc925193e2112f7183fbf2a;
+        note: 'Semantic content SHA-256: 1a278873e5ecd12f12c1c728bbff62c2f85f254074b387463d9c9d2811f5afc2;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_gangway.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.8275
         source: approved-semantic-review
@@ -6724,20 +6668,6 @@ MonoBehaviour:
           y: 0.55
           width: 0.54
           height: 0.45
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: PROP_LUGGAGE
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.365
-          y: 0.024999999
-          width: 0.15
-          height: 0.15
         clearance: 0
         enabled: 1
         confidence:
@@ -6912,10 +6842,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 42ce1971b63db81498e09cad220fd909, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_horizon_cleared_day.png
     sourceImageHash: 9885039d169192a4c709682fe16d1ea934e8bb3c91f807cd99605b417c279d24
-    semanticContentHash: 93a200024220d906c74e6c4efdeae5306ae5fafefe958ff7e7df2f72790a22de
+    semanticContentHash: 559a0ca308dde50b3ff7845055b6fced19ebe5569f4e2531aac1ddf3ffd5dac5
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_horizon_cleared_day
       locationCode: HORIZON
@@ -6923,11 +6853,11 @@ MonoBehaviour:
       sourceImageHash: 9885039d169192a4c709682fe16d1ea934e8bb3c91f807cd99605b417c279d24
       status:
         state: 2
-        note: 'Semantic content SHA-256: 93a200024220d906c74e6c4efdeae5306ae5fafefe958ff7e7df2f72790a22de;
+        note: 'Semantic content SHA-256: 559a0ca308dde50b3ff7845055b6fced19ebe5569f4e2531aac1ddf3ffd5dac5;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_horizon_cleared_day.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.7783333
         source: approved-semantic-review
@@ -7001,24 +6931,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.1
-          y: 0.45
-          width: 0.13
-          height: 0.41
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-03
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.36
-          y: 0.5
-          width: 0.09
-          height: 0.14
+          x: 0.099
+          y: 0.376
+          width: 0.12799999
+          height: 0.46499997
         clearance: 0
         enabled: 1
         confidence:
@@ -7030,9 +6946,9 @@ MonoBehaviour:
         normalizedRect:
           serializedVersion: 2
           x: 0.015
-          y: 0.84
+          y: 0.843
           width: 0.055
-          height: 0.08
+          height: 0.05399996
         clearance: 0
         enabled: 1
         confidence:
@@ -7043,24 +6959,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.135
-          y: 0.43
-          width: 0.08
-          height: 0.13
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-07
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.38
-          y: 0.08
-          width: 0.28
-          height: 0.21
+          x: 0.139
+          y: 0.426
+          width: 0.042999998
+          height: 0.088
         clearance: 0
         enabled: 1
         confidence:
@@ -7261,10 +7163,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: e07053b65c3f8b14099ea36f4b678dc2, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_horizon_d1_discovery.png
     sourceImageHash: 8327680e005064e2268a34cb4037662c06991df68e46c8f8c3da28b83e6c1516
-    semanticContentHash: 4883b8f761e7736b5908ef44405cff4c0f59c219153ab980c240ff1b0f934850
+    semanticContentHash: dba5380b253029b913de8913172e1d7c8e8c1d13bbd3ac327ba66718bd20295b
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_horizon_d1_discovery
       locationCode: HORIZON
@@ -7272,11 +7174,11 @@ MonoBehaviour:
       sourceImageHash: 8327680e005064e2268a34cb4037662c06991df68e46c8f8c3da28b83e6c1516
       status:
         state: 2
-        note: 'Semantic content SHA-256: 4883b8f761e7736b5908ef44405cff4c0f59c219153ab980c240ff1b0f934850;
+        note: 'Semantic content SHA-256: dba5380b253029b913de8913172e1d7c8e8c1d13bbd3ac327ba66718bd20295b;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_horizon_d1_discovery.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.624
         source: approved-semantic-review
@@ -7379,52 +7281,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.15
-          y: 0.375
-          width: 0.1
-          height: 0.23
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-03
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.39
-          y: 0.45
-          width: 0.12
-          height: 0.1
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-04
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0
-          y: 0.75
-          width: 0.08
-          height: 0.1
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-05
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.14000002
-          y: 0.42
-          width: 0.08
-          height: 0.12
+          x: 0.104
+          y: 0.38799998
+          width: 0.131
+          height: 0.40699998
         clearance: 0
         enabled: 1
         confidence:
@@ -7435,10 +7295,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.475
-          y: 0.21
-          width: 0.17
-          height: 0.14
+          x: 0.53000003
+          y: 0.23900001
+          width: 0.10199994
+          height: 0.119
         clearance: 0
         enabled: 1
         confidence:
@@ -7677,10 +7537,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: fdd9b3b8c815c744781e417532e6762d, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_horizon_d8_finale.png
     sourceImageHash: d895f4252f4ca001ff92b56b2a229919147ce9a9076cdf4bfb99b6c91c99ea1f
-    semanticContentHash: e2c085ed83071d0e3421fc769d012e3375f44a73fdb5f1cc401df00391cd8272
+    semanticContentHash: 497dd18e8b36df3689a52a923d14eb67b1835b494fe4471823752af1770ecb03
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_horizon_d8_finale
       locationCode: HORIZON
@@ -7688,11 +7548,11 @@ MonoBehaviour:
       sourceImageHash: d895f4252f4ca001ff92b56b2a229919147ce9a9076cdf4bfb99b6c91c99ea1f
       status:
         state: 2
-        note: 'Semantic content SHA-256: e2c085ed83071d0e3421fc769d012e3375f44a73fdb5f1cc401df00391cd8272;
+        note: 'Semantic content SHA-256: 497dd18e8b36df3689a52a923d14eb67b1835b494fe4471823752af1770ecb03;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_horizon_d8_finale.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.686
         source: approved-semantic-review
@@ -7766,24 +7626,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.15
-          y: 0.375
-          width: 0.1
-          height: 0.23
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-03
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.39
-          y: 0.45
-          width: 0.12
-          height: 0.1
+          x: 0.106000006
+          y: 0.33999997
+          width: 0.124999985
+          height: 0.366
         clearance: 0
         enabled: 1
         confidence:
@@ -7794,10 +7640,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0
-          y: 0.75
-          width: 0.08
-          height: 0.1
+          x: 0.019000001
+          y: 0.74700004
+          width: 0.063999996
+          height: 0.07699996
         clearance: 0
         enabled: 1
         confidence:
@@ -7808,24 +7654,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.14
-          y: 0.42
-          width: 0.08
-          height: 0.12
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-07
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.475
-          y: 0.21
-          width: 0.17
-          height: 0.14
+          x: 0.209
+          y: 0.29
+          width: 0.042999998
+          height: 0.12500003
         clearance: 0
         enabled: 1
         confidence:
@@ -8041,10 +7873,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 18ad6fb49feb40daac3eebab664bb05f, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d9_4_horizon_room_evidence.png
     sourceImageHash: dfa412bbf3d89d174c66e0c888fcd02ad5eb77a4a314be516fffee376e262137
-    semanticContentHash: af2131cfb8750f8594cb878766dc33c2c3b2cecb9f60f3f200421d97457d2c31
+    semanticContentHash: 79fdf3c02e455bc5b7cceb2451f4692de10ff92560189497df1938a23a0ee2a6
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d9_4_horizon_room_evidence
       locationCode: HORIZON
@@ -8052,11 +7884,11 @@ MonoBehaviour:
       sourceImageHash: dfa412bbf3d89d174c66e0c888fcd02ad5eb77a4a314be516fffee376e262137
       status:
         state: 2
-        note: 'Semantic content SHA-256: af2131cfb8750f8594cb878766dc33c2c3b2cecb9f60f3f200421d97457d2c31;
+        note: 'Semantic content SHA-256: 79fdf3c02e455bc5b7cceb2451f4692de10ff92560189497df1938a23a0ee2a6;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d9_4_horizon_room_evidence.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.41333333
         source: approved-semantic-review
@@ -8120,76 +7952,6 @@ MonoBehaviour:
           y: 0
           width: 0.17
           height: 0.48
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-02
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.15
-          y: 0.375
-          width: 0.1
-          height: 0.23
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-03
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.39
-          y: 0.45
-          width: 0.12
-          height: 0.1
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-04
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0
-          y: 0.75
-          width: 0.08
-          height: 0.1
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-05
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.14000002
-          y: 0.42
-          width: 0.08
-          height: 0.12
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-07
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.475
-          y: 0.21000001
-          width: 0.17
-          height: 0.14
         clearance: 0
         enabled: 1
         confidence:
@@ -8417,10 +8179,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 508122e7c4fcc3947898aa66831305d1, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_interview_d5_day.png
     sourceImageHash: 3f27edd6d3e1e400618175e8fb3a00e3997b7cdd8ee579dc830beb85ae2e7e9a
-    semanticContentHash: 6cef81dd8d66ac11b8033b71e23b8ff7904ab26e228a9116815bb47ccae4a06f
+    semanticContentHash: 52b9fab56fe95c8cd9593ced464c72acc82b3bc8abc123ea2adf1fffffdf105e
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_interview_d5_day
       locationCode: INTERVIEW
@@ -8428,11 +8190,11 @@ MonoBehaviour:
       sourceImageHash: 3f27edd6d3e1e400618175e8fb3a00e3997b7cdd8ee579dc830beb85ae2e7e9a
       status:
         state: 2
-        note: 'Semantic content SHA-256: 6cef81dd8d66ac11b8033b71e23b8ff7904ab26e228a9116815bb47ccae4a06f;
+        note: 'Semantic content SHA-256: 52b9fab56fe95c8cd9593ced464c72acc82b3bc8abc123ea2adf1fffffdf105e;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_interview_d5_day.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.69666666
         source: approved-semantic-review
@@ -8522,10 +8284,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.46
-          y: 0.42
-          width: 0.16
-          height: 0.14
+          x: 0.509
+          y: 0.44099998
+          width: 0.08199996
+          height: 0.06800002
         clearance: 0
         enabled: 1
         confidence:
@@ -8754,10 +8516,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: fedc476c37e04b2086b7a1771210ea2c, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_3_security_evidence.png
     sourceImageHash: 081f96f54681e46f2743379b4b9d3ea0b138ebe328ecc074008b58a1a6af8624
-    semanticContentHash: 0f5f983662154b807b0b73ea162e111f9c257120cde93123eeb4dd5d85d7ff48
+    semanticContentHash: a9bbeb83379b20ed9b168c0167ce070b1560c2774f6506d426c4d67edbe2c47a
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d8_3_security_evidence
       locationCode: INTERVIEW
@@ -8765,11 +8527,11 @@ MonoBehaviour:
       sourceImageHash: 081f96f54681e46f2743379b4b9d3ea0b138ebe328ecc074008b58a1a6af8624
       status:
         state: 2
-        note: 'Semantic content SHA-256: 0f5f983662154b807b0b73ea162e111f9c257120cde93123eeb4dd5d85d7ff48;
+        note: 'Semantic content SHA-256: a9bbeb83379b20ed9b168c0167ce070b1560c2774f6506d426c4d67edbe2c47a;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_3_security_evidence.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.78
         source: approved-semantic-review
@@ -8843,10 +8605,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.6
-          y: 0.83
-          width: 0.12
-          height: 0.1
+          x: 0.62200004
+          y: 0.91
+          width: 0.06799996
+          height: 0.075999975
         clearance: 0
         enabled: 1
         confidence:
@@ -9077,10 +8839,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 4e0e15c09ae4f1848997ba081c5b8b3d, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_medbay_baseline.png
     sourceImageHash: cd7907b6d751a347467bb285811fa1cfed3cbe3328f005149fa643878331d8cb
-    semanticContentHash: 00113ed6bf38ec04850272335c2b6755de42c723773b7d6fc8dcaaf48d36fba7
+    semanticContentHash: 9ebedfad45caff29d1139c91230e9e340a2a047945bd9af4c5348944dad89f71
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_medbay_baseline
       locationCode: MEDBAY
@@ -9088,11 +8850,11 @@ MonoBehaviour:
       sourceImageHash: cd7907b6d751a347467bb285811fa1cfed3cbe3328f005149fa643878331d8cb
       status:
         state: 2
-        note: 'Semantic content SHA-256: 00113ed6bf38ec04850272335c2b6755de42c723773b7d6fc8dcaaf48d36fba7;
+        note: 'Semantic content SHA-256: 9ebedfad45caff29d1139c91230e9e340a2a047945bd9af4c5348944dad89f71;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_medbay_baseline.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.744
         source: approved-semantic-review
@@ -9182,38 +8944,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.06
-          y: 0.045
-          width: 0.14
-          height: 0.15
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-15
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.81
-          y: 0.16999999
-          width: 0.16
-          height: 0.14
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-16
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.73
-          y: 0.13999999
-          width: 0.18
-          height: 0.2
+          x: 0.038
+          y: 0.106000006
+          width: 0.036000002
+          height: 0.116
         clearance: 0
         enabled: 1
         confidence:
@@ -9429,10 +9163,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 194dfd32728407145aebe44bbe0094eb, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_medbay_dna.png
     sourceImageHash: dcd511c2ea0dddd8ece8dd5819c7052199df7099171d9532d0e3a46f87edd0ba
-    semanticContentHash: edcc34f6a192eba0594c83089d93be02718d60d1117c6ab8719db5dc7f447a1f
+    semanticContentHash: 8170993db253ddb7e8859169112f0a7106f23f9365628d47a9b70b5c7c3ac0e4
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_medbay_dna
       locationCode: MEDBAY
@@ -9440,11 +9174,11 @@ MonoBehaviour:
       sourceImageHash: dcd511c2ea0dddd8ece8dd5819c7052199df7099171d9532d0e3a46f87edd0ba
       status:
         state: 2
-        note: 'Semantic content SHA-256: edcc34f6a192eba0594c83089d93be02718d60d1117c6ab8719db5dc7f447a1f;
+        note: 'Semantic content SHA-256: 8170993db253ddb7e8859169112f0a7106f23f9365628d47a9b70b5c7c3ac0e4;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_medbay_dna.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.788
         source: approved-semantic-review
@@ -9533,24 +9267,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.06
-          y: 0.045
-          width: 0.14
-          height: 0.15
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-15
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.81
-          y: 0.17
-          width: 0.16
-          height: 0.14
+          x: 0.038
+          y: 0.106000006
+          width: 0.036000002
+          height: 0.116
         clearance: 0
         enabled: 1
         confidence:
@@ -9561,10 +9281,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.73
-          y: 0.14
-          width: 0.18
-          height: 0.2
+          x: 0.723
+          y: 0.177
+          width: 0.12800002
+          height: 0.205
         clearance: 0
         enabled: 1
         confidence:
@@ -9757,10 +9477,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 189ee9fb68ba95e42b558ec18a12039f, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_medbay_forensic.png
     sourceImageHash: 95fd5e454572262312f4ff50104001d4e6d1f7223370a7d10f5298e577b7d6d0
-    semanticContentHash: e7d43a7a6d7e4d591f81a458a5b8771be5c040105287007aae5d1d57fb0644d7
+    semanticContentHash: 64d1c12964f4f2938890942bc6495b92b296e91514a857bee222d163897d77e7
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_medbay_forensic
       locationCode: MEDBAY
@@ -9768,11 +9488,11 @@ MonoBehaviour:
       sourceImageHash: 95fd5e454572262312f4ff50104001d4e6d1f7223370a7d10f5298e577b7d6d0
       status:
         state: 2
-        note: 'Semantic content SHA-256: e7d43a7a6d7e4d591f81a458a5b8771be5c040105287007aae5d1d57fb0644d7;
+        note: 'Semantic content SHA-256: 64d1c12964f4f2938890942bc6495b92b296e91514a857bee222d163897d77e7;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_medbay_forensic.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.772
         source: approved-semantic-review
@@ -9861,38 +9581,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.06
-          y: 0.045
-          width: 0.14
-          height: 0.15
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-15
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.81
-          y: 0.17
-          width: 0.16
-          height: 0.14
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-16
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.73
-          y: 0.13999999
-          width: 0.18
-          height: 0.2
+          x: 0.038
+          y: 0.106000006
+          width: 0.036000002
+          height: 0.116
         clearance: 0
         enabled: 1
         confidence:
@@ -10085,10 +9777,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: b556c7c28b094d4b8d664e0539bd22bb, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_1_medbay_evidence.png
     sourceImageHash: 850457c73e468f02b6b5f762eaf7540a489b4df43cc30dbcc57481f1478b960b
-    semanticContentHash: 47618da6769c16eca5d072fd0fd57fd12f13e075791dc208c04b9d4fe16072dd
+    semanticContentHash: 232edcf71adcdc7931efb02598aaea236c88aae7a705699a7a589d5f8151d8a5
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d7_1_medbay_evidence
       locationCode: MEDBAY
@@ -10096,11 +9788,11 @@ MonoBehaviour:
       sourceImageHash: 850457c73e468f02b6b5f762eaf7540a489b4df43cc30dbcc57481f1478b960b
       status:
         state: 2
-        note: 'Semantic content SHA-256: 47618da6769c16eca5d072fd0fd57fd12f13e075791dc208c04b9d4fe16072dd;
+        note: 'Semantic content SHA-256: 232edcf71adcdc7931efb02598aaea236c88aae7a705699a7a589d5f8151d8a5;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_1_medbay_evidence.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.74333334
         source: approved-semantic-review
@@ -10363,10 +10055,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 76602b36a90497648b55fc597d3783be, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_news_lounge_d3.png
     sourceImageHash: 48258b7644dbf1623955556041e99e53179393b0d7849de3a42c31ddc996dde5
-    semanticContentHash: c547e2498ed1fca8d708e1b7097f4731f65a7010dd14cf008b4eb3b324049134
+    semanticContentHash: 812d07205493375f431f80bdb7cabe50bf7917cee9c4da9fb7d61e010758bd44
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_news_lounge_d3
       locationCode: NEWS_LOUNGE
@@ -10374,11 +10066,11 @@ MonoBehaviour:
       sourceImageHash: 48258b7644dbf1623955556041e99e53179393b0d7849de3a42c31ddc996dde5
       status:
         state: 2
-        note: 'Semantic content SHA-256: c547e2498ed1fca8d708e1b7097f4731f65a7010dd14cf008b4eb3b324049134;
+        note: 'Semantic content SHA-256: 812d07205493375f431f80bdb7cabe50bf7917cee9c4da9fb7d61e010758bd44;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_news_lounge_d3.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.69666666
         source: approved-semantic-review
@@ -10482,10 +10174,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.525
-          y: 0.445
-          width: 0.15
-          height: 0.15
+          x: 0.5765
+          y: 0.4403
+          width: 0.055700004
+          height: 0.057700038
         clearance: 0
         enabled: 1
         confidence:
@@ -10709,10 +10401,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 81421b870d0cecb4ca9bd09041cff256, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_news_lounge_d6_evidence_board.png
     sourceImageHash: 38e9fc13386e9736fac0997027c21ff04da41257314ddc9a744124dec9f2fd03
-    semanticContentHash: 116fef598a9cc2c06ac9ff6dc86ecbf10b03d2b31f24fdfae1cfa8a8ff5d6e5f
+    semanticContentHash: 91a0790e1fe65224f11d43654b44823a22ee38b2004c4a5aa00a279bbd390fb7
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_news_lounge_d6_evidence_board
       locationCode: NEWS_LOUNGE
@@ -10720,11 +10412,11 @@ MonoBehaviour:
       sourceImageHash: 38e9fc13386e9736fac0997027c21ff04da41257314ddc9a744124dec9f2fd03
       status:
         state: 2
-        note: 'Semantic content SHA-256: 116fef598a9cc2c06ac9ff6dc86ecbf10b03d2b31f24fdfae1cfa8a8ff5d6e5f;
+        note: 'Semantic content SHA-256: 91a0790e1fe65224f11d43654b44823a22ee38b2004c4a5aa00a279bbd390fb7;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_news_lounge_d6_evidence_board.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.6533333
         source: approved-semantic-review
@@ -10828,10 +10520,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.525
-          y: 0.445
-          width: 0.15
-          height: 0.15
+          x: 0.5873
+          y: 0.45409998
+          width: 0.0449
+          height: 0.050300032
         clearance: 0
         enabled: 1
         confidence:
@@ -11055,10 +10747,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 8edc2b823665457db15b764bfaea15d6, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_2_news_lounge_evidence.png
     sourceImageHash: fc3efa21e58369f2c33ecb43cec2affe98eb2c7dc340327c1c8b3c1d50f3e1a7
-    semanticContentHash: 913f55eb216b3f109a6d9c2f7284057f8c05090b484608e40d5f043ceaa47006
+    semanticContentHash: 11649b3ecde33556fe177d71fc2eff8ed4e4f9428af20e9a1e4bf9d927feb55d
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d8_2_news_lounge_evidence
       locationCode: NEWS_LOUNGE
@@ -11066,11 +10758,11 @@ MonoBehaviour:
       sourceImageHash: fc3efa21e58369f2c33ecb43cec2affe98eb2c7dc340327c1c8b3c1d50f3e1a7
       status:
         state: 2
-        note: 'Semantic content SHA-256: 913f55eb216b3f109a6d9c2f7284057f8c05090b484608e40d5f043ceaa47006;
+        note: 'Semantic content SHA-256: 11649b3ecde33556fe177d71fc2eff8ed4e4f9428af20e9a1e4bf9d927feb55d;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_2_news_lounge_evidence.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.7733333
         source: approved-semantic-review
@@ -11190,20 +10882,6 @@ MonoBehaviour:
           y: 0.36
           width: 0.16
           height: 0.18
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: PROP_COFFEE
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.52500004
-          y: 0.445
-          width: 0.15
-          height: 0.15
         clearance: 0
         enabled: 1
         confidence:
@@ -11352,10 +11030,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 9025ef24e87d47f40ba181d102116096, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_open_deck_d8_morning.png
     sourceImageHash: 2daf31211ebb0825aa9019c814da64a0df74f607d2a65f33b061880df376c422
-    semanticContentHash: 97fc2447d2944b18c87af0b85b91e8d387974a5a3dc9446df8d01b3500e61899
+    semanticContentHash: 8c4b8310b266d188b5acb0cdb316342210ae1ab0b2427e653b42a4bddf57d9e5
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_open_deck_d8_morning
       locationCode: OPEN_DECK
@@ -11363,11 +11041,11 @@ MonoBehaviour:
       sourceImageHash: 2daf31211ebb0825aa9019c814da64a0df74f607d2a65f33b061880df376c422
       status:
         state: 2
-        note: 'Semantic content SHA-256: 97fc2447d2944b18c87af0b85b91e8d387974a5a3dc9446df8d01b3500e61899;
+        note: 'Semantic content SHA-256: 8c4b8310b266d188b5acb0cdb316342210ae1ab0b2427e653b42a4bddf57d9e5;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_open_deck_d8_morning.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.74833333
         source: approved-semantic-review
@@ -11456,10 +11134,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.745
-          y: 0.035
-          width: 0.15
-          height: 0.15
+          x: 0.7458
+          y: 0.0758
+          width: 0.09809995
+          height: 0.1055
         clearance: 0
         enabled: 1
         confidence:
@@ -11710,10 +11388,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: aaa0e470bbfac2446b19fcd2555f833c, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d10_3_open_deck.png
     sourceImageHash: 8481e21e87db57303a85c5fca5fd5c9941a12ce2cf2baadf9feee3d707f435dd
-    semanticContentHash: b2d885b63f56a92891784440d31160ca9fa3fa5cfe94ea0b93b1a24fde819236
+    semanticContentHash: 31be39012af68adba277cf5ffc131ba7296469af23fac67296774226c20a69c6
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d10_3_open_deck
       locationCode: OPEN_DECK
@@ -11721,11 +11399,11 @@ MonoBehaviour:
       sourceImageHash: 8481e21e87db57303a85c5fca5fd5c9941a12ce2cf2baadf9feee3d707f435dd
       status:
         state: 2
-        note: 'Semantic content SHA-256: b2d885b63f56a92891784440d31160ca9fa3fa5cfe94ea0b93b1a24fde819236;
+        note: 'Semantic content SHA-256: 31be39012af68adba277cf5ffc131ba7296469af23fac67296774226c20a69c6;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d10_3_open_deck.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.7966667
         source: approved-semantic-review
@@ -11817,20 +11495,6 @@ MonoBehaviour:
           y: 0.37
           width: 0.12
           height: 0.29
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: PROP_TOKEN
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.745
-          y: 0.034999996
-          width: 0.15
-          height: 0.15
         clearance: 0
         enabled: 1
         confidence:
@@ -11988,10 +11652,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: c953a2e9df8042841a0531f4b9698f0f, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_port_d8_epilogue.png
     sourceImageHash: c22857a5da58ca1dbe361b370bd128abc9de1a9a855ff754e83047121804e266
-    semanticContentHash: 09af8c1b35603b5c2d16c4a50c1e8971c38740fc69430200550375e9b7eaf21d
+    semanticContentHash: 5aedc15db5044edcf6f276b0a054f6a7c0b6e566db1f425a224a55f3640ad178
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_port_d8_epilogue
       locationCode: PORT
@@ -11999,11 +11663,11 @@ MonoBehaviour:
       sourceImageHash: c22857a5da58ca1dbe361b370bd128abc9de1a9a855ff754e83047121804e266
       status:
         state: 2
-        note: 'Semantic content SHA-256: 09af8c1b35603b5c2d16c4a50c1e8971c38740fc69430200550375e9b7eaf21d;
+        note: 'Semantic content SHA-256: 5aedc15db5044edcf6f276b0a054f6a7c0b6e566db1f425a224a55f3640ad178;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_port_d8_epilogue.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.722
         source: approved-semantic-review
@@ -12033,7 +11697,7 @@ MonoBehaviour:
           score: 1
           source: approved-semantic-review
           manuallyVerified: 1
-      - id: brochure_cart
+      - id: newspaper_display_cart
         kind: 0
         normalizedRect:
           serializedVersion: 2
@@ -12089,42 +11753,14 @@ MonoBehaviour:
           score: 1
           source: approved-semantic-review
           manuallyVerified: 1
-      - id: C-01
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.005
-          y: 0.115
-          width: 0.11
-          height: 0.11
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
       - id: C-18
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.165
-          y: 0.135
-          width: 0.13
-          height: 0.13
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: PROP_BROCHURE
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.245
-          y: 0.175
-          width: 0.15
-          height: 0.15
+          x: 0.176
+          y: 0.19
+          width: 0.11700001
+          height: 0.13800001
         clearance: 0
         enabled: 1
         confidence:
@@ -12362,23 +11998,23 @@ MonoBehaviour:
     variantKey: serialized:bg_location_port_evidence
     sourceSprite: {fileID: 21300000, guid: fd85cdd6e6e64585af8ae2d616ecab6e, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_port_evidence.png
-    sourceImageHash: 7a6a17faa06f3d0e16e386261c87778eac032579276888531c8f092378f0d4ec
-    semanticContentHash: 3f0c3e34ebde5403e09579e706da3de5550e62c8dc15db2969162168e2e53b92
+    sourceImageHash: cb763e64fc431558553c2eead94099bc0ab1053d5ac1b0e07958b95aafa5c80c
+    semanticContentHash: dec194c005a7ed01bff8f58014abc73d56ad7ccf4d186d05fe236fa778d82245
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_port_evidence
       locationCode: PORT
       variantId: serialized:bg_location_port_evidence
-      sourceImageHash: 7a6a17faa06f3d0e16e386261c87778eac032579276888531c8f092378f0d4ec
+      sourceImageHash: cb763e64fc431558553c2eead94099bc0ab1053d5ac1b0e07958b95aafa5c80c
       status:
         state: 2
-        note: 'Semantic content SHA-256: 3f0c3e34ebde5403e09579e706da3de5550e62c8dc15db2969162168e2e53b92;
+        note: 'Semantic content SHA-256: dec194c005a7ed01bff8f58014abc73d56ad7ccf4d186d05fe236fa778d82245;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_port_evidence.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.81
         source: approved-semantic-review
@@ -12452,24 +12088,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.005
-          y: 0.115
-          width: 0.11
-          height: 0.11
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: C-18
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.165
-          y: 0.135
-          width: 0.13
-          height: 0.13
+          x: 0.011999999
+          y: 0.182
+          width: 0.06599999
+          height: 0.08600001
         clearance: 0
         enabled: 1
         confidence:
@@ -12504,28 +12126,14 @@ MonoBehaviour:
           score: 1
           source: approved-semantic-review
           manuallyVerified: 1
-      - id: port_visible_bench_envelope
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0
-          y: 0.12
-          width: 0.14
-          height: 0.2
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
       - id: PROP_BROCHURE
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.24499999
-          y: 0.175
-          width: 0.15
-          height: 0.15
+          x: 0.1861
+          y: 0.2059
+          width: 0.063399985
+          height: 0.055000022
         clearance: 0
         enabled: 1
         confidence:
@@ -12674,8 +12282,8 @@ MonoBehaviour:
       generatedFootprintSize: {x: 0.1, y: 0.36}
     slotVisualGrades:
     - slotId: near_left
-      lightTintMultiplier: {r: 0.81960785, g: 0.8039216, b: 0.7921569, a: 1}
-      saturationMultiplier: 0.621
+      lightTintMultiplier: {r: 0.81960785, g: 0.80784315, b: 0.79607844, a: 1}
+      saturationMultiplier: 0.622
       exposureMultiplier: 1.15
       contrastMultiplier: 0.86
       softnessOffset: 0.3
@@ -12692,8 +12300,8 @@ MonoBehaviour:
       groundShadowScale: 0.62
       shadowDistance: 0.018
     - slotId: near_right
-      lightTintMultiplier: {r: 0.8, g: 0.7921569, b: 0.78431374, a: 1}
-      saturationMultiplier: 0.607
+      lightTintMultiplier: {r: 0.8039216, g: 0.79607844, b: 0.78431374, a: 1}
+      saturationMultiplier: 0.608
       exposureMultiplier: 1.15
       contrastMultiplier: 0.86
       softnessOffset: 0.3
@@ -12701,8 +12309,8 @@ MonoBehaviour:
       groundShadowScale: 0.62
       shadowDistance: 0.018
     - slotId: mid_right
-      lightTintMultiplier: {r: 0.8392157, g: 0.8156863, b: 0.79607844, a: 1}
-      saturationMultiplier: 0.651
+      lightTintMultiplier: {r: 0.84313726, g: 0.81960785, b: 0.8, a: 1}
+      saturationMultiplier: 0.652
       exposureMultiplier: 1.15
       contrastMultiplier: 0.86
       softnessOffset: 0.3
@@ -12714,10 +12322,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: c4224c4ddedfb2341bc42e2aa4bc99bc, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_promenade_d3_night.png
     sourceImageHash: 6ba30533ff3572faeb8d76891487179d3fe2b7d241b96470393ebb8857a036f2
-    semanticContentHash: a380352b8ee1fb419c1f64baf5305184625958c01b0841973c4176948f7172f0
+    semanticContentHash: de86636a2329dfa1f885a97ea460e4313d397569c18ee3e28e2e3f8bd4fb0d3e
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_promenade_d3_night
       locationCode: PROMENADE
@@ -12725,11 +12333,11 @@ MonoBehaviour:
       sourceImageHash: 6ba30533ff3572faeb8d76891487179d3fe2b7d241b96470393ebb8857a036f2
       status:
         state: 2
-        note: 'Semantic content SHA-256: a380352b8ee1fb419c1f64baf5305184625958c01b0841973c4176948f7172f0;
+        note: 'Semantic content SHA-256: de86636a2329dfa1f885a97ea460e4313d397569c18ee3e28e2e3f8bd4fb0d3e;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_promenade_d3_night.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.75333333
         source: approved-semantic-review
@@ -12805,10 +12413,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.14
-          y: 0.27
-          width: 0.18
-          height: 0.18
+          x: 0.15900001
+          y: 0.267
+          width: 0.15
+          height: 0.17700002
         clearance: 0
         enabled: 1
         confidence:
@@ -12819,10 +12427,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.525
-          y: 0.275
-          width: 0.15
-          height: 0.15
+          x: 0.55560005
+          y: 0.27989998
+          width: 0.08319992
+          height: 0.20640004
         clearance: 0
         enabled: 1
         confidence:
@@ -13064,10 +12672,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 3a3c6861160c4cd686b017b0c83ef5aa, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d9_3_promenade_evidence.png
     sourceImageHash: 78894e0f55be2e51cbe9258ae5e5ab1027bea3cb787c6b95c0f96ed57fbfb962
-    semanticContentHash: d3fb6e026f05cd1dd641c1befc1d52b6607eb0a625d8511d59164370aa373d68
+    semanticContentHash: dff6cf8b101405fb7c2084c7046cccf6f3359ac2cc4d89c7244c36cb134a2c51
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d9_3_promenade_evidence
       locationCode: PROMENADE
@@ -13075,11 +12683,11 @@ MonoBehaviour:
       sourceImageHash: 78894e0f55be2e51cbe9258ae5e5ab1027bea3cb787c6b95c0f96ed57fbfb962
       status:
         state: 2
-        note: 'Semantic content SHA-256: d3fb6e026f05cd1dd641c1befc1d52b6607eb0a625d8511d59164370aa373d68;
+        note: 'Semantic content SHA-256: dff6cf8b101405fb7c2084c7046cccf6f3359ac2cc4d89c7244c36cb134a2c51;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d9_3_promenade_evidence.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.83000004
         source: approved-semantic-review
@@ -13151,10 +12759,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.14
-          y: 0.27
-          width: 0.18
-          height: 0.18
+          x: 0.172
+          y: 0.27199998
+          width: 0.14800002
+          height: 0.16200003
         clearance: 0
         enabled: 1
         confidence:
@@ -13183,20 +12791,6 @@ MonoBehaviour:
           y: 0.29
           width: 0.15
           height: 0.2
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: PROP_ROBOT
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.52500004
-          y: 0.27499998
-          width: 0.15
-          height: 0.15
         clearance: 0
         enabled: 1
         confidence:
@@ -13371,10 +12965,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: b3d56a4ebad292f44aa96d62a543dba6, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d10_1_richard_suite.png
     sourceImageHash: 462662134e7087b2c45d2773fa86f209539cf4d63f430df6fcc404a560396f64
-    semanticContentHash: 5eba3150b9bba56ca07f0c0ec0b8d2e3efc736c850931b181c6781060c113064
+    semanticContentHash: 76d973da60ed1967b0806f2e47280ac6a8c63f174a2d5c5f32bdb7cca05cf223
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d10_1_richard_suite
       locationCode: RICHARD_SUITE
@@ -13382,11 +12976,11 @@ MonoBehaviour:
       sourceImageHash: 462662134e7087b2c45d2773fa86f209539cf4d63f430df6fcc404a560396f64
       status:
         state: 2
-        note: 'Semantic content SHA-256: 5eba3150b9bba56ca07f0c0ec0b8d2e3efc736c850931b181c6781060c113064;
+        note: 'Semantic content SHA-256: 76d973da60ed1967b0806f2e47280ac6a8c63f174a2d5c5f32bdb7cca05cf223;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d10_1_richard_suite.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.8125
         source: approved-semantic-review
@@ -13652,10 +13246,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: fedc476c37e04b2086b7a1771210ea2c, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_3_security_evidence.png
     sourceImageHash: 081f96f54681e46f2743379b4b9d3ea0b138ebe328ecc074008b58a1a6af8624
-    semanticContentHash: 0f5f983662154b807b0b73ea162e111f9c257120cde93123eeb4dd5d85d7ff48
+    semanticContentHash: a9bbeb83379b20ed9b168c0167ce070b1560c2774f6506d426c4d67edbe2c47a
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d8_3_security_evidence
       locationCode: SECURITY
@@ -13663,11 +13257,11 @@ MonoBehaviour:
       sourceImageHash: 081f96f54681e46f2743379b4b9d3ea0b138ebe328ecc074008b58a1a6af8624
       status:
         state: 2
-        note: 'Semantic content SHA-256: 0f5f983662154b807b0b73ea162e111f9c257120cde93123eeb4dd5d85d7ff48;
+        note: 'Semantic content SHA-256: a9bbeb83379b20ed9b168c0167ce070b1560c2774f6506d426c4d67edbe2c47a;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_3_security_evidence.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.78
         source: approved-semantic-review
@@ -13741,10 +13335,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.6
-          y: 0.83
-          width: 0.12
-          height: 0.1
+          x: 0.62200004
+          y: 0.91
+          width: 0.06799996
+          height: 0.075999975
         clearance: 0
         enabled: 1
         confidence:
@@ -13975,10 +13569,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 01b667222b7986b46b0599ef03e92340, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_service_rail_d6_subtle.png
     sourceImageHash: 9b008533c18305b11e3712f8bada7ea433620889f0659064d3528c4bb999d30f
-    semanticContentHash: 6fa6f787cbc40da9b5135130fc32f0b54cadb89018eb486cdfe731ab8e59ea98
+    semanticContentHash: 6af41340361a3344f534c2b14f4eb895fd9877b5be086a0745ceda4c946ee4d6
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_service_rail_d6_subtle
       locationCode: SERVICE_RAIL
@@ -13986,11 +13580,11 @@ MonoBehaviour:
       sourceImageHash: 9b008533c18305b11e3712f8bada7ea433620889f0659064d3528c4bb999d30f
       status:
         state: 2
-        note: 'Semantic content SHA-256: 6fa6f787cbc40da9b5135130fc32f0b54cadb89018eb486cdfe731ab8e59ea98;
+        note: 'Semantic content SHA-256: 6af41340361a3344f534c2b14f4eb895fd9877b5be086a0745ceda4c946ee4d6;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_service_rail_d6_subtle.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.675
         source: approved-semantic-review
@@ -14098,10 +13692,10 @@ MonoBehaviour:
         kind: 1
         normalizedRect:
           serializedVersion: 2
-          x: 0.235
-          y: 0.37
-          width: 0.15
-          height: 0.22
+          x: 0.26099998
+          y: 0.385
+          width: 0.13900003
+          height: 0.23299998
         clearance: 0
         enabled: 1
         confidence:
@@ -14343,10 +13937,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: c7627c7477112324c9b092c54615e763, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_4_service_rail.png
     sourceImageHash: d3ef41216c55ff34d6f8a39326877484b56aa4815a1b6232355a2fa691fe865c
-    semanticContentHash: c882fed98d1b5ce628cc68ac08ce4159fe6d5033875af9bbcb3cbeb5b79d8dd9
+    semanticContentHash: 677405d321f01b278b2cbd97189ff727dd9c58202d488088cdc7955939bfd5d2
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d8_4_service_rail
       locationCode: SERVICE_RAIL
@@ -14354,11 +13948,11 @@ MonoBehaviour:
       sourceImageHash: d3ef41216c55ff34d6f8a39326877484b56aa4815a1b6232355a2fa691fe865c
       status:
         state: 2
-        note: 'Semantic content SHA-256: c882fed98d1b5ce628cc68ac08ce4159fe6d5033875af9bbcb3cbeb5b79d8dd9;
+        note: 'Semantic content SHA-256: 677405d321f01b278b2cbd97189ff727dd9c58202d488088cdc7955939bfd5d2;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d8_4_service_rail.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.56
         source: approved-semantic-review
@@ -14636,7 +14230,7 @@ MonoBehaviour:
     semanticContentHash: 7d967b40636b1536bcf35811ad4cca33df7e67beedf09df47619651091871b98
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_crew_stairs_default
       locationCode: SERVICE7
@@ -14646,9 +14240,9 @@ MonoBehaviour:
         state: 2
         note: 'Semantic content SHA-256: 7d967b40636b1536bcf35811ad4cca33df7e67beedf09df47619651091871b98;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_crew_stairs_default.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.804
         source: approved-semantic-review
@@ -14905,10 +14499,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 7c3f3813118ed5549bf381fdab31d377, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_4_crew_stairs.png
     sourceImageHash: 2ac307183357aff52d53982d4a0083dbf8869e1f434e84c606977147d3baac66
-    semanticContentHash: ece8342118600f3785d53f415b8b0cd8d803bf6076e4483dd017f9be833e2f68
+    semanticContentHash: 1a9e16b3bf5137a26b0e76dfc67549be306abfb16285e191599b478738a7311d
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d7_4_crew_stairs
       locationCode: SERVICE7
@@ -14916,11 +14510,11 @@ MonoBehaviour:
       sourceImageHash: 2ac307183357aff52d53982d4a0083dbf8869e1f434e84c606977147d3baac66
       status:
         state: 2
-        note: 'Semantic content SHA-256: ece8342118600f3785d53f415b8b0cd8d803bf6076e4483dd017f9be833e2f68;
+        note: 'Semantic content SHA-256: 1a9e16b3bf5137a26b0e76dfc67549be306abfb16285e191599b478738a7311d;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d7_4_crew_stairs.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.48333332
         source: approved-semantic-review
@@ -15196,10 +14790,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 5556569cb70768e49a9149884f0e5d13, type: 3}
     assetPath: Assets/_Project/Resources/LocationBackgroundVariants/bg_vault_d7_damaged.png
     sourceImageHash: 7e3176ffcd81e41ee40edcd6e3b5ce23428d977dfdfa852e81dcdb5f1e00506f
-    semanticContentHash: 5b559f55a038a0c19627e58e773dc38f54a8c38dafdd724168423eed5147a4e4
+    semanticContentHash: a9bb9c2e99390e90f39e2b77e2278b966ea7eee5143aa90a2253aaee28be73cc
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_vault_d7_damaged
       locationCode: VAULT
@@ -15207,11 +14801,11 @@ MonoBehaviour:
       sourceImageHash: 7e3176ffcd81e41ee40edcd6e3b5ce23428d977dfdfa852e81dcdb5f1e00506f
       status:
         state: 2
-        note: 'Semantic content SHA-256: 5b559f55a038a0c19627e58e773dc38f54a8c38dafdd724168423eed5147a4e4;
+        note: 'Semantic content SHA-256: a9bb9c2e99390e90f39e2b77e2278b966ea7eee5143aa90a2253aaee28be73cc;
           source asset: Assets/_Project/Resources/LocationBackgroundVariants/bg_vault_d7_damaged.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.605
         source: approved-semantic-review
@@ -15606,10 +15200,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: ecd3c952693f65145be0b0f93bab4be1, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d6_1_vault.png
     sourceImageHash: af916a276b575938b9829834eee974dddfa1de3f0bbd4da9b3b03c9ff1d37730
-    semanticContentHash: f3fec062cf5f9492c0df72cea30bd7e12690b64464a6bdc0540ee20fe9ad563c
+    semanticContentHash: ec7b385cfe983abe0a9cd689cfda0ef9cf2978868c56a29b19c03a0888d18560
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d6_1_vault
       locationCode: VAULT
@@ -15617,11 +15211,11 @@ MonoBehaviour:
       sourceImageHash: af916a276b575938b9829834eee974dddfa1de3f0bbd4da9b3b03c9ff1d37730
       status:
         state: 2
-        note: 'Semantic content SHA-256: f3fec062cf5f9492c0df72cea30bd7e12690b64464a6bdc0540ee20fe9ad563c;
+        note: 'Semantic content SHA-256: ec7b385cfe983abe0a9cd689cfda0ef9cf2978868c56a29b19c03a0888d18560;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d6_1_vault.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.7166667
         source: approved-semantic-review
@@ -15884,10 +15478,10 @@ MonoBehaviour:
     sourceSprite: {fileID: 21300000, guid: 06c92c0e9b92c344bb6706aa3eb3dcd2, type: 3}
     assetPath: Assets/_Project/Art/Backgrounds/Locations/bg_location_d10_2_vip_lounge.png
     sourceImageHash: b4a2f5f2692e1312cd68091cda1fdb40541221e0ab46fcf21e757acc9d617c46
-    semanticContentHash: 8382160563bc327097977ae2a56dc513009de8e1e12a64cd453fe4c385e0b414
+    semanticContentHash: 916c8f3b52a57b9160014e36c09a992b39328098622d3906469eadeb989d6d9d
     approved: 1
     reviewer: project-owner
-    approvalRevision: 1
+    approvalRevision: 5
     profile:
       profileId: bg_location_d10_2_vip_lounge
       locationCode: VIP_LOUNGE
@@ -15895,11 +15489,11 @@ MonoBehaviour:
       sourceImageHash: b4a2f5f2692e1312cd68091cda1fdb40541221e0ab46fcf21e757acc9d617c46
       status:
         state: 2
-        note: 'Semantic content SHA-256: 8382160563bc327097977ae2a56dc513009de8e1e12a64cd453fe4c385e0b414;
+        note: 'Semantic content SHA-256: 916c8f3b52a57b9160014e36c09a992b39328098622d3906469eadeb989d6d9d;
           source asset: Assets/_Project/Art/Backgrounds/Locations/bg_location_d10_2_vip_lounge.png;
-          approved at 2026-07-29T18:34:18Z.'
+          approved at 2026-07-30T11:03:00Z.'
         reviewer: project-owner
-        revision: 1
+        revision: 5
       confidence:
         score: 0.8125
         source: approved-semantic-review
@@ -15963,20 +15557,6 @@ MonoBehaviour:
           y: 0
           width: 0.3
           height: 0.37
-        clearance: 0
-        enabled: 1
-        confidence:
-          score: 1
-          source: approved-semantic-review
-          manuallyVerified: 1
-      - id: PROP_BELL
-        kind: 1
-        normalizedRect:
-          serializedVersion: 2
-          x: 0.64500004
-          y: 0.28500003
-          width: 0.15
-          height: 0.15
         clearance: 0
         enabled: 1
         confidence:
@@ -16183,15 +15763,15 @@ MonoBehaviour:
     castFingerprint: c7a6b90893add7328161ad8b6f6916dbeb524cda6684fcc6df4b0b60b2db0167
     approved: 1
     assignments:
-    - characterId: HELENA
+    - characterId: CLAIRE
       slotId: near_center
       role: 2
       hardProtectionOverlap: 0
-    - characterId: MARCUS
+    - characterId: HELENA
       slotId: near_left
       role: 2
       hardProtectionOverlap: 0
-    - characterId: CLAIRE
+    - characterId: MARCUS
       slotId: near_right
       role: 2
       hardProtectionOverlap: 0
@@ -16365,11 +15945,11 @@ MonoBehaviour:
     approved: 1
     assignments:
     - characterId: MARCUS
-      slotId: near_far_right
+      slotId: near_right
       role: 2
       hardProtectionOverlap: 0
     - characterId: CREW_SECURITY
-      slotId: mid_right
+      slotId: near_far_right
       role: 0
       hardProtectionOverlap: 0
     offCameraCharacterIds: []
@@ -16382,11 +15962,11 @@ MonoBehaviour:
     approved: 1
     assignments:
     - characterId: HELENA
-      slotId: near_far_right
+      slotId: near_right
       role: 2
       hardProtectionOverlap: 0
     - characterId: CREW_ATTENDANT
-      slotId: mid_right
+      slotId: near_far_right
       role: 0
       hardProtectionOverlap: 0
     offCameraCharacterIds: []
@@ -16418,11 +15998,11 @@ MonoBehaviour:
     - characterId: MARCUS
       slotId: near_center
       role: 2
-      hardProtectionOverlap: 0
+      hardProtectionOverlap: 1
     - characterId: SECURITY_OPERATOR
-      slotId: near_right
+      slotId: near_left
       role: 0
-      hardProtectionOverlap: 0
+      hardProtectionOverlap: 1
     offCameraCharacterIds: []
   - sceneId: D2-04
     locationCode: SECURITY
@@ -16435,11 +16015,11 @@ MonoBehaviour:
     - characterId: MARCUS
       slotId: near_center
       role: 2
-      hardProtectionOverlap: 0
+      hardProtectionOverlap: 1
     - characterId: SECURITY_OPERATOR
-      slotId: near_right
+      slotId: near_left
       role: 0
-      hardProtectionOverlap: 0
+      hardProtectionOverlap: 1
     offCameraCharacterIds: []
   - sceneId: D2-05
     locationCode: HORIZON
@@ -16450,11 +16030,11 @@ MonoBehaviour:
     approved: 1
     assignments:
     - characterId: OWEN
-      slotId: near_far_right
+      slotId: near_right
       role: 2
       hardProtectionOverlap: 0
     - characterId: CREW_ENGINEER
-      slotId: mid_right
+      slotId: near_far_right
       role: 0
       hardProtectionOverlap: 0
     offCameraCharacterIds: []
@@ -16573,11 +16153,11 @@ MonoBehaviour:
     - characterId: MARCUS
       slotId: near_center
       role: 2
-      hardProtectionOverlap: 0
+      hardProtectionOverlap: 1
     - characterId: SECURITY_OPERATOR
-      slotId: near_right
+      slotId: near_left
       role: 0
-      hardProtectionOverlap: 0
+      hardProtectionOverlap: 1
     offCameraCharacterIds: []
   - sceneId: D4-01
     locationCode: SECURITY
@@ -16590,11 +16170,11 @@ MonoBehaviour:
     - characterId: MARCUS
       slotId: near_center
       role: 2
-      hardProtectionOverlap: 0
+      hardProtectionOverlap: 1
     - characterId: SECURITY_OPERATOR
-      slotId: near_right
+      slotId: near_left
       role: 0
-      hardProtectionOverlap: 0
+      hardProtectionOverlap: 1
     offCameraCharacterIds: []
   - sceneId: D4-02
     locationCode: CREW_STAIRS
@@ -16719,7 +16299,7 @@ MonoBehaviour:
     approved: 1
     assignments:
     - characterId: CREW_ATTENDANT
-      slotId: near_far_right
+      slotId: near_right
       role: 0
       hardProtectionOverlap: 0
     offCameraCharacterIds: []
@@ -16898,11 +16478,11 @@ MonoBehaviour:
     approved: 1
     assignments:
     - characterId: EVELYN
-      slotId: rear_center
+      slotId: near_center
       role: 2
       hardProtectionOverlap: 0
     - characterId: CREW_ATTENDANT
-      slotId: near_center
+      slotId: rear_center
       role: 0
       hardProtectionOverlap: 0
     offCameraCharacterIds: []
@@ -16915,23 +16495,23 @@ MonoBehaviour:
     approved: 1
     assignments:
     - characterId: CLAIRE
-      slotId: near_far_right
-      role: 2
-      hardProtectionOverlap: 1
-    - characterId: EVELYN
-      slotId: near_far_left
-      role: 2
-      hardProtectionOverlap: 1
-    - characterId: RICHARD
       slotId: mid_left
       role: 2
       hardProtectionOverlap: 1
-    - characterId: THOMAS
+    - characterId: EVELYN
+      slotId: near_far_right
+      role: 2
+      hardProtectionOverlap: 1
+    - characterId: RICHARD
       slotId: mid_right
+      role: 2
+      hardProtectionOverlap: 1
+    - characterId: THOMAS
+      slotId: near_center
       role: 1
       hardProtectionOverlap: 1
     - characterId: CREW_SECURITY
-      slotId: near_center
+      slotId: near_far_left
       role: 0
       hardProtectionOverlap: 1
     offCameraCharacterIds: []
@@ -16965,19 +16545,19 @@ MonoBehaviour:
     approved: 1
     assignments:
     - characterId: CLAIRE
-      slotId: near_mid_right
-      role: 2
-      hardProtectionOverlap: 1
-    - characterId: MARCUS
-      slotId: near_right
-      role: 2
-      hardProtectionOverlap: 1
-    - characterId: RICHARD
       slotId: near_center
       role: 2
       hardProtectionOverlap: 1
-    - characterId: THOMAS
+    - characterId: MARCUS
+      slotId: near_mid_right
+      role: 2
+      hardProtectionOverlap: 1
+    - characterId: RICHARD
       slotId: near_left
+      role: 2
+      hardProtectionOverlap: 1
+    - characterId: THOMAS
+      slotId: near_right
       role: 1
       hardProtectionOverlap: 1
     - characterId: DOCK_PORTER
@@ -16988,17 +16568,17 @@ MonoBehaviour:
   - sceneId: P-01
     locationCode: PORT
     variantKey: serialized:bg_location_port_evidence
-    sourceImageHash: 7a6a17faa06f3d0e16e386261c87778eac032579276888531c8f092378f0d4ec
+    sourceImageHash: cb763e64fc431558553c2eead94099bc0ab1053d5ac1b0e07958b95aafa5c80c
     backgroundProfileId: bg_location_port_evidence
     castFingerprint: bff72aae30e5b7d509265f3e657672dbe09faf862b38a23d9ab9e4f5216debee
     approved: 1
     assignments:
     - characterId: DANIEL
-      slotId: near_right
+      slotId: near_center
       role: 2
       hardProtectionOverlap: 1
     - characterId: DOCK_PORTER
-      slotId: mid_right
+      slotId: near_right
       role: 0
       hardProtectionOverlap: 1
     offCameraCharacterIds: []
@@ -17019,11 +16599,11 @@ MonoBehaviour:
       role: 2
       hardProtectionOverlap: 0
     - characterId: RICHARD
-      slotId: mid_left
+      slotId: mid_right
       role: 2
       hardProtectionOverlap: 0
     - characterId: CREW_SECURITY
-      slotId: mid_right
+      slotId: rear_center
       role: 0
       hardProtectionOverlap: 0
     offCameraCharacterIds: []

@@ -771,13 +771,38 @@
         { "id": "mid_right", "foot": { "x": 0.54, "y": 0.23 }, "depth": 0.36, "normalizedHeight": 0.54, "confidence": 0.68 }
       ],
       "narrativeProtectedZones": [
-        { "id": "C-01", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.005, "y": 0.115, "width": 0.11, "height": 0.11 }, "points": null, "note": "Catalog clue C-01 at the left dock bench." },
-        { "id": "C-18", "kind": "MainClue", "priority": "Hard", "rect": { "x": 0.165, "y": 0.135, "width": 0.13, "height": 0.13 }, "points": null, "note": "Catalog clue C-18 around the lower-left dock/luggage area." },
-        { "id": "port_visible_bench_envelope", "kind": "SecondaryClue", "priority": "Hard", "rect": { "x": 0.00, "y": 0.12, "width": 0.14, "height": 0.20 }, "points": null, "note": "Protect the visible envelope/document on the bench." },
+        {
+          "id": "C-01",
+          "kind": "MainClue",
+          "priority": "Hard",
+          "rect": { "x": 0.012, "y": 0.182, "width": 0.066, "height": 0.086 },
+          "points": [
+            { "x": 0.022, "y": 0.258 },
+            { "x": 0.061, "y": 0.262 },
+            { "x": 0.072, "y": 0.233 },
+            { "x": 0.069, "y": 0.194 },
+            { "x": 0.028, "y": 0.188 },
+            { "x": 0.018, "y": 0.218 }
+          ],
+          "note": "C-01 is the visible sealed envelope on the left dock bench; this polygon replaces the duplicate bench-envelope protection."
+        },
+        {
+          "id": "PROP_BROCHURE",
+          "kind": "AmbientInspectable",
+          "priority": "Soft",
+          "rect": { "x": 0.1861, "y": 0.2059, "width": 0.0634, "height": 0.055 },
+          "points": [
+            { "x": 0.2090, "y": 0.2549 },
+            { "x": 0.2435, "y": 0.2393 },
+            { "x": 0.2292, "y": 0.2119 },
+            { "x": 0.1921, "y": 0.2314 }
+          ],
+          "note": "Protect the newly rendered navy boarding guidebook resting on top of the luggage-cart stack."
+        },
         { "id": "port_boarding_gangway", "kind": "StoryObject", "priority": "Hard", "rect": { "x": 0.38, "y": 0.36, "width": 0.24, "height": 0.25 }, "points": null, "note": "The boarding gangway is a critical route landmark." },
         { "id": "port_ship_identity", "kind": "StoryObject", "priority": "Hard", "rect": { "x": 0.43, "y": 0.35, "width": 0.55, "height": 0.55 }, "points": null, "note": "Avoid overlays that obscure the ship silhouette and embarkation context." }
       ],
-      "analysisNotes": "Bottom-left normalized visual estimate. Locations: PORT. Dock tracks and rope geometry lower actor confidence outside the three near-left/center slots."
+      "analysisNotes": "Bottom-left normalized visual estimate. Locations: PORT. The base image contains C-01 on the bench and PROP_BROCHURE on the luggage-cart stack; C-18 is absent until the D8 epilogue variant. Dock tracks and rope geometry lower actor confidence outside the three near-left/center slots."
     }
   ]
 }
