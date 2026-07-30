@@ -294,7 +294,52 @@ namespace Wake.Tests.PlayMode
                     Is.LessThan(maximumSteps),
                     "프로덕션 대사가 완료되기 전에 진행 상한을 초과했습니다.");
 
-                if (investigation.activeInHierarchy)
+                InvestigationScreenController detailedController =
+                    Object.FindFirstObjectByType<InvestigationScreenController>(
+                        FindObjectsInactive.Include);
+                if (detailedController != null &&
+                    detailedController.IsOpen)
+                {
+                    GameObject detailedInvestigation =
+                        Object.FindObjectsByType<Transform>(
+                                FindObjectsInactive.Include,
+                                FindObjectsSortMode.None)
+                            .First(item =>
+                                item.name == "Investigation Screen" &&
+                                item.gameObject.activeInHierarchy)
+                            .gameObject;
+                    Button detailedInvestigationAction =
+                        detailedInvestigation.transform
+                            .Find("Primary Action")
+                            .GetComponent<Button>();
+                    if (!detailedInvestigationAction.interactable)
+                    {
+                        Button[] points = detailedInvestigation
+                            .GetComponentsInChildren<Button>(false)
+                            .Where(button =>
+                                button.name.StartsWith("Inspection Point ") &&
+                                button.gameObject.activeInHierarchy &&
+                                button.interactable)
+                            .ToArray();
+                        Assert.That(
+                            points,
+                            Is.Not.Empty,
+                            "세부 조사 화면에서 확인할 관찰 지점을 찾지 못했습니다.");
+                        foreach (Button point in points)
+                        {
+                            point.onClick.Invoke();
+                            yield return null;
+                        }
+                        UnityEngine.Canvas.ForceUpdateCanvases();
+                    }
+
+                    Assert.That(
+                        detailedInvestigationAction.interactable,
+                        Is.True,
+                        "모든 관찰 지점을 확인한 뒤 세부 조사 완료 버튼이 활성화되어야 합니다.");
+                    yield return InvokeAndSettle(detailedInvestigationAction);
+                }
+                else if (investigation.activeInHierarchy)
                 {
                     yield return InvokeAndSettle(investigationAction);
                 }

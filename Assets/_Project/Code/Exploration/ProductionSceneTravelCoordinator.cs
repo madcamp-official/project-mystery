@@ -10,7 +10,7 @@ namespace Wake.Exploration
         private readonly GameStateManager state;
         private readonly IProductionScenePlayer player;
         private readonly Func<LocationDefinition, bool> tryLoadLocation;
-        private readonly Action<string> prepareNarrativeScene;
+        private readonly Action<string, bool> prepareNarrativeScene;
         private string deferredPhysicalSceneId = string.Empty;
 
         public ProductionSceneTravelCoordinator(
@@ -18,7 +18,7 @@ namespace Wake.Exploration
             GameStateManager state,
             IProductionScenePlayer player,
             Func<LocationDefinition, bool> tryLoadLocation,
-            Action<string> prepareNarrativeScene = null)
+            Action<string, bool> prepareNarrativeScene = null)
         {
             this.graph = graph;
             this.state = state;
@@ -92,7 +92,16 @@ namespace Wake.Exploration
             }
 
             if (loadPhysicalLocation)
-                prepareNarrativeScene?.Invoke(evaluated.Scene.SceneId);
+            {
+                // The following location load is the single owner of the
+                // interaction-overlay refresh. Preparing the scene context
+                // must not rebuild the current room immediately, otherwise a
+                // same-location scene transition creates two character sets
+                // in one frame while the first set awaits deferred Destroy.
+                prepareNarrativeScene?.Invoke(
+                    evaluated.Scene.SceneId,
+                    false);
+            }
 
             if (loadPhysicalLocation &&
                 (tryLoadLocation == null ||

@@ -244,6 +244,41 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void LocationLoader_CanDeferSceneRefreshUntilSameLocationLoad()
+        {
+            GameObject loaderHost =
+                new("LocationLoaderDeferredSceneRefreshTest");
+            LocationLoader loader =
+                loaderHost.AddComponent<LocationLoader>();
+            EnsureAwake(loader, LocationLoader.Instance);
+            LocationDefinition horizon = graph.FindByCode("HORIZON");
+
+            loader.PrepareNarrativeScene("D1-06");
+            Assert.That(
+                loader.TryLoadLocation(horizon, out _),
+                Is.True);
+            Sprite discoveryBackground = loader.ActiveBackgroundSprite;
+
+            state.RecordCompletedScene("D1-06");
+            loader.PrepareNarrativeScene("D2-01", false);
+
+            Assert.That(loader.NarrativeSceneContext, Is.EqualTo("D2-01"));
+            Assert.That(
+                loader.ActiveBackgroundSprite,
+                Is.SameAs(discoveryBackground),
+                "Context-only preparation must not rebuild the active room.");
+
+            Assert.That(
+                loader.TryLoadLocation(horizon, out _),
+                Is.True);
+            Assert.That(
+                loader.ActiveBackgroundSprite?.name,
+                Is.EqualTo("bg_horizon_cleared_day"));
+
+            Object.DestroyImmediate(loaderHost);
+        }
+
+        [Test]
         public void MapTravel_LoadsLocationDefersDialogueAndUsesScheduleTime()
         {
             state.RecordCompletedScene("D1-01");
@@ -254,6 +289,8 @@ namespace Wake.Tests
             RecordingScenePlayer player = new();
             int loadCount = 0;
             int sceneEnteredCount = 0;
+            string preparedSceneId = string.Empty;
+            bool? requestedImmediateRefresh = null;
             ProductionSceneTravelCoordinator coordinator = new(
                 graph,
                 state,
@@ -262,6 +299,15 @@ namespace Wake.Tests
                 {
                     loadCount++;
                     return loader.TryLoadLocation(location, out _);
+                },
+                (sceneId, refreshInteractionOverlays) =>
+                {
+                    preparedSceneId = sceneId;
+                    requestedImmediateRefresh =
+                        refreshInteractionOverlays;
+                    loader.PrepareNarrativeScene(
+                        sceneId,
+                        refreshInteractionOverlays);
                 });
             System.Action<InvestigationEvent> capture = investigationEvent =>
             {
@@ -290,6 +336,8 @@ namespace Wake.Tests
             Assert.That(player.StartedSceneId, Is.Empty);
             Assert.That(player.StartCount, Is.Zero);
             Assert.That(loadCount, Is.EqualTo(1));
+            Assert.That(preparedSceneId, Is.EqualTo("D1-02"));
+            Assert.That(requestedImmediateRefresh, Is.False);
             Assert.That(sceneEnteredCount, Is.EqualTo(1));
             Assert.That(state.Day, Is.EqualTo(1));
             Assert.That(state.CurrentTimeBlock, Is.EqualTo(TimeBlock.NIGHT));

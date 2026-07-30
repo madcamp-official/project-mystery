@@ -189,9 +189,19 @@ namespace Wake.Exploration
 
         public void PrepareNarrativeScene(string sceneId)
         {
+            PrepareNarrativeScene(sceneId, true);
+        }
+
+        public void PrepareNarrativeScene(
+            string sceneId,
+            bool refreshInteractionOverlays)
+        {
             NarrativeSceneContext =
                 sceneId?.Trim().ToUpperInvariant() ?? string.Empty;
-            RefreshInteractionOverlays();
+            if (refreshInteractionOverlays)
+            {
+                RefreshInteractionOverlays();
+            }
         }
 
         private void RefreshInteractionOverlays()
