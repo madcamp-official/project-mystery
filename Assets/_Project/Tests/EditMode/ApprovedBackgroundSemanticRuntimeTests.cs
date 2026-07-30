@@ -473,7 +473,7 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void Placement_BacktrackingPreservesDenseFivePersonFixedCast()
+        public void Placement_D107UsesThreeFixedActorsAndMeasuredAlphaBounds()
         {
             Sprite sprite = CreateSprite("bg_runtime_test");
             BackgroundSemanticSlot[] slots =
@@ -528,28 +528,22 @@ namespace Wake.Tests
                 new[]
                 {
                     new BackgroundSemanticCharacterSlotBinding(
-                        "HELENA",
-                        "near_left",
-                        BackgroundSemanticCharacterRole.Focus),
-                    new BackgroundSemanticCharacterSlotBinding(
                         "MARCUS",
-                        "near_mid_left",
+                        "near_left",
                         BackgroundSemanticCharacterRole.Focus),
                     new BackgroundSemanticCharacterSlotBinding(
                         "THOMAS",
                         "near_center",
                         BackgroundSemanticCharacterRole.Focus),
                     new BackgroundSemanticCharacterSlotBinding(
-                        "RICHARD",
-                        "near_mid_right",
-                        BackgroundSemanticCharacterRole.Main),
-                    new BackgroundSemanticCharacterSlotBinding(
-                        "SHIP_MEDIC",
+                        "HELENA",
                         "near_right",
-                        BackgroundSemanticCharacterRole.Context)
+                        BackgroundSemanticCharacterRole.Focus)
                 },
+                new[] { "RICHARD", "SHIP_MEDIC" },
                 backgroundProfileId: profile.ProfileId,
-                castFingerprint: CastFingerprint);
+                castFingerprint: CastFingerprint,
+                enforceMeasuredAlphaBounds: true);
             ApprovedBackgroundSemanticCatalog catalog =
                 CreateCatalog(
                     binding,
@@ -582,45 +576,67 @@ namespace Wake.Tests
                             BackgroundSemanticCharacterRole.Focus)
                     });
 
-            var originals = slots.ToDictionary(
-                value => value.Id,
-                StringComparer.OrdinalIgnoreCase);
             Assert.That(result.IsValid, Is.True);
-            Assert.That(result.Assignments, Has.Count.EqualTo(5));
-            Assert.That(result.OffCameraCharacterIds, Is.Empty);
+            Assert.That(result.UsedFixedSceneLayout, Is.True);
+            Assert.That(layout.EnforceMeasuredAlphaBounds, Is.True);
+            Assert.That(result.Assignments, Has.Count.EqualTo(3));
+            Assert.That(
+                result.OffCameraCharacterIds,
+                Is.EquivalentTo(new[] { "RICHARD", "SHIP_MEDIC" }));
             Assert.That(
                 result.Assignments.All(value =>
                     value.FixedBySceneLayout),
                 Is.True);
             Assert.That(
-                result.Assignments.Any(value =>
-                    Mathf.Abs(
-                        value.Slot.Anchor.x -
-                        originals[value.Slot.Id].Anchor.x) >
-                    .0001f),
-                Is.True);
+                result.Assignments.ToDictionary(
+                    value => value.Character.CharacterId,
+                    value => value.Slot.Id,
+                    StringComparer.OrdinalIgnoreCase),
+                Is.EquivalentTo(
+                    new Dictionary<string, string>(
+                        StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["MARCUS"] = "near_left",
+                        ["THOMAS"] = "near_center",
+                        ["HELENA"] = "near_right"
+                    }));
 
             foreach (BackgroundSemanticPlacementAssignment assignment in
                      result.Assignments)
             {
-                BackgroundSemanticSlot original =
-                    originals[assignment.Slot.Id];
+                Rect measured =
+                    BackgroundSemanticPlacementResolver
+                        .CalculateSilhouetteRect(
+                            assignment.Slot,
+                            assignment.Character.CharacterAsset,
+                            16f / 9f);
                 Assert.That(
-                    Mathf.Abs(
-                        assignment.Slot.Anchor.x -
-                        original.Anchor.x),
-                    Is.LessThanOrEqualTo(
-                        original.FootprintSize.x * .5f +
-                        .0001f));
+                    assignment.SilhouetteRect.xMin,
+                    Is.EqualTo(measured.xMin).Within(.0001f));
                 Assert.That(
-                    assignment.Slot.Anchor.y,
-                    Is.EqualTo(original.Anchor.y));
+                    assignment.SilhouetteRect.xMax,
+                    Is.EqualTo(measured.xMax).Within(.0001f));
                 Assert.That(
-                    assignment.Slot.NormalizedHeight,
-                    Is.EqualTo(original.NormalizedHeight));
-                Assert.That(
-                    assignment.Slot.Depth01,
-                    Is.EqualTo(original.Depth01));
+                    assignment.SilhouetteRect.width,
+                    Is.EqualTo(measured.width).Within(.0001f));
+            }
+
+            for (int current = 0;
+                 current < result.Assignments.Count;
+                 current++)
+            {
+                for (int previous = 0;
+                     previous < current;
+                     previous++)
+                {
+                    Assert.That(
+                        result.Assignments[current]
+                            .SilhouetteRect.Overlaps(
+                                result.Assignments[previous]
+                                    .SilhouetteRect,
+                                true),
+                        Is.False);
+                }
             }
 
             Assert.That(

@@ -301,6 +301,7 @@ namespace Wake.Exploration
         [SerializeField] private string backgroundProfileId = string.Empty;
         [SerializeField] private string castFingerprint = string.Empty;
         [SerializeField] private bool approved;
+        [SerializeField] private bool enforceMeasuredAlphaBounds;
         [SerializeField] private List<BackgroundSemanticCharacterSlotBinding>
             assignments = new();
         [SerializeField] private List<string> offCameraCharacterIds = new();
@@ -319,7 +320,8 @@ namespace Wake.Exploration
                 assignments,
             IEnumerable<string> offCameraCharacterIds = null,
             string backgroundProfileId = "",
-            string castFingerprint = "")
+            string castFingerprint = "",
+            bool enforceMeasuredAlphaBounds = false)
         {
             Initialize(
                 sceneId,
@@ -330,7 +332,8 @@ namespace Wake.Exploration
                 assignments,
                 offCameraCharacterIds,
                 backgroundProfileId,
-                castFingerprint);
+                castFingerprint,
+                enforceMeasuredAlphaBounds);
         }
 
         public string SceneId =>
@@ -346,6 +349,8 @@ namespace Wake.Exploration
         public string CastFingerprint =>
             castFingerprint?.Trim().ToLowerInvariant() ?? string.Empty;
         public bool Approved => approved;
+        public bool EnforceMeasuredAlphaBounds =>
+            enforceMeasuredAlphaBounds;
         public IReadOnlyList<BackgroundSemanticCharacterSlotBinding>
             Assignments =>
                 assignments ??=
@@ -363,7 +368,8 @@ namespace Wake.Exploration
                 valueAssignments,
             IEnumerable<string> valueOffCameraCharacterIds = null,
             string valueBackgroundProfileId = "",
-            string valueCastFingerprint = "")
+            string valueCastFingerprint = "",
+            bool valueEnforceMeasuredAlphaBounds = false)
         {
             sceneId =
                 BackgroundSemanticCharacterSlotBinding.NormalizeCode(
@@ -381,6 +387,8 @@ namespace Wake.Exploration
                 valueCastFingerprint?.Trim().ToLowerInvariant() ??
                 string.Empty;
             approved = valueApproved;
+            enforceMeasuredAlphaBounds =
+                valueEnforceMeasuredAlphaBounds;
             assignments = valueAssignments != null
                 ? new List<BackgroundSemanticCharacterSlotBinding>(
                     valueAssignments)

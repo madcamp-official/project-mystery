@@ -1343,6 +1343,32 @@ foreach ($profile in $profiles) {
     $profileById[[string]$profile.profileId] = $profile
 }
 
+# Some story scenes intentionally keep supporting speakers off-camera so the
+# environment remains readable while the complete cast stays available to the
+# dialogue runtime. Keep these choices data-like and explicit: automatic
+# focus/role sorting cannot express a deliberate left/center/right composition.
+$sceneCompositionOverrides = @{
+    "D1-07" = [pscustomobject][ordered]@{
+        visibleAssignments = @(
+            [pscustomobject][ordered]@{
+                characterId = "MARCUS"
+                slotId = "near_left"
+            },
+            [pscustomobject][ordered]@{
+                characterId = "THOMAS"
+                slotId = "near_center"
+            },
+            [pscustomobject][ordered]@{
+                characterId = "HELENA"
+                slotId = "near_right"
+            })
+        offCameraCharacters = @(
+            "RICHARD",
+            "SHIP_MEDIC")
+        enforceMeasuredAlphaBounds = $true
+    }
+}
+
 $sceneImages = [System.Collections.Generic.List[object]]::new()
 $sceneLayouts = [System.Collections.Generic.List[object]]::new()
 $sceneScreenshotBaselines =
@@ -1468,17 +1494,134 @@ foreach ($scene in $inventory.scenes) {
             $castFingerprint = Get-StringSha256 (
                 $castFingerprintParts -join "|")
             $castIndex = 0
+            $sceneComposition = $null
+            $explicitSlotByCharacter = @{}
+            $explicitOffCamera =
+                [System.Collections.Generic.HashSet[string]]::new(
+                    [StringComparer]::OrdinalIgnoreCase)
+            $usedExplicitSlots =
+                [System.Collections.Generic.HashSet[string]]::new(
+                    [StringComparer]::OrdinalIgnoreCase)
+            $availableSlotById = @{}
+            foreach ($availableSlot in $availableSlots) {
+                $availableSlotById[[string]$availableSlot.id] =
+                    $availableSlot
+            }
+            $sceneId = [string]$scene.sceneId
+            if ($sceneCompositionOverrides.ContainsKey($sceneId)) {
+                $sceneComposition =
+                    $sceneCompositionOverrides[$sceneId]
+                foreach ($visibleAssignment in
+                         @($sceneComposition.visibleAssignments)) {
+                    $characterId =
+                        ([string]$visibleAssignment.characterId).Trim()
+                    $slotId =
+                        ([string]$visibleAssignment.slotId).Trim()
+                    if ([string]::IsNullOrWhiteSpace($characterId) -or
+                        [string]::IsNullOrWhiteSpace($slotId)) {
+                        $errors.Add(
+                            "Scene $sceneId has an empty explicit character " +
+                            "or slot ID.")
+                        continue
+                    }
+                    if ($explicitSlotByCharacter.ContainsKey($characterId)) {
+                        $errors.Add(
+                            "Scene $sceneId assigns $characterId more than " +
+                            "once in its composition override.")
+                        continue
+                    }
+                    if (-not $usedExplicitSlots.Add($slotId)) {
+                        $errors.Add(
+                            "Scene $sceneId reuses explicit slot $slotId.")
+                        continue
+                    }
+                    if (-not $availableSlotById.ContainsKey($slotId)) {
+                        $errors.Add(
+                            "Scene $sceneId requests unavailable explicit " +
+                            "slot $slotId for $characterId.")
+                        continue
+                    }
+                    $explicitSlotByCharacter[$characterId] = $slotId
+                }
+                foreach ($characterId in
+                         @($sceneComposition.offCameraCharacters)) {
+                    $normalizedCharacterId =
+                        ([string]$characterId).Trim()
+                    if ([string]::IsNullOrWhiteSpace(
+                            $normalizedCharacterId)) {
+                        $errors.Add(
+                            "Scene $sceneId has an empty explicit " +
+                            "off-camera character ID.")
+                        continue
+                    }
+                    if (-not $explicitOffCamera.Add(
+                            $normalizedCharacterId)) {
+                        $errors.Add(
+                            "Scene $sceneId repeats off-camera character " +
+                            "$normalizedCharacterId.")
+                    }
+                    if ($explicitSlotByCharacter.ContainsKey(
+                            $normalizedCharacterId)) {
+                        $errors.Add(
+                            "Scene $sceneId marks $normalizedCharacterId " +
+                            "both visible and off-camera.")
+                    }
+                }
+
+                $castIds = [System.Collections.Generic.HashSet[string]]::new(
+                    [StringComparer]::OrdinalIgnoreCase)
+                foreach ($member in $orderedCast) {
+                    $memberId = [string]$member.characterId
+                    $castIds.Add($memberId) | Out-Null
+                    if (-not $explicitSlotByCharacter.ContainsKey(
+                            $memberId) -and
+                        -not $explicitOffCamera.Contains($memberId)) {
+                        $errors.Add(
+                            "Scene $sceneId composition override does not " +
+                            "classify cast member $memberId.")
+                    }
+                }
+                foreach ($characterId in
+                         @($explicitSlotByCharacter.Keys) +
+                         @($explicitOffCamera)) {
+                    if (-not $castIds.Contains([string]$characterId)) {
+                        $errors.Add(
+                            "Scene $sceneId composition override references " +
+                            "non-cast member $characterId.")
+                    }
+                }
+            }
             $offCamera = [System.Collections.Generic.List[string]]::new()
             $unsafePlacements =
                 [System.Collections.Generic.List[string]]::new()
             $assignments =
                 [System.Collections.Generic.List[object]]::new()
             foreach ($member in $orderedCast) {
-                if ($castIndex -ge $availableSlots.Count) {
+                $memberId = [string]$member.characterId
+                $slot = $null
+                $isOffCamera = $false
+                if ($null -ne $sceneComposition) {
+                    if ($explicitOffCamera.Contains($memberId)) {
+                        $isOffCamera = $true
+                    } elseif ($explicitSlotByCharacter.ContainsKey(
+                            $memberId)) {
+                        $slotId = [string]$explicitSlotByCharacter[$memberId]
+                        $slot = $availableSlotById[$slotId]
+                    } else {
+                        $isOffCamera = $true
+                    }
+                } elseif ($castIndex -ge $availableSlots.Count) {
+                    $isOffCamera = $true
                     $warnings.Add(
-                        "Scene $($scene.sceneId): $($member.characterId) " +
-                        "is off-camera because semantic slot capacity is " +
+                        "Scene ${sceneId}: $memberId is off-camera because " +
+                        "semantic slot capacity is " +
                         "$($availableSlots.Count).")
+                } else {
+                    $slot = $availableSlots[$castIndex]
+                    $castIndex++
+                }
+
+                if ($isOffCamera) {
                     $offCamera.Add([string]$member.characterId)
                     $assignments.Add([pscustomobject][ordered]@{
                         characterId = [string]$member.characterId
@@ -1491,7 +1634,6 @@ foreach ($scene in $inventory.scenes) {
                     })
                     continue
                 }
-                $slot = $availableSlots[$castIndex]
                 $overlapPenalty = Get-ProtectionOverlapPenalty `
                     $slot `
                     $sceneProtections
@@ -1528,7 +1670,6 @@ foreach ($scene in $inventory.scenes) {
                     hardProtectionOverlap =
                         [bool]($overlapPenalty -ge 100)
                 })
-                $castIndex++
             }
             $noticeParts = [System.Collections.Generic.List[string]]::new()
             if ($unsafePlacements.Count -gt 0) {
@@ -1561,7 +1702,7 @@ foreach ($scene in $inventory.scenes) {
                 path = $outputPath
                 label = "$($scene.sceneId) $($scene.locationCode)"
             })
-            $sceneLayouts.Add([pscustomobject][ordered]@{
+            $sceneLayoutDocument = [ordered]@{
                 sceneId = [string]$scene.sceneId
                 locationCode = [string]$scene.locationCode
                 backgroundProfileId =
@@ -1574,7 +1715,14 @@ foreach ($scene in $inventory.scenes) {
                 croppedSlotCount = $croppedSlotCount
                 assignments = @($assignments)
                 offCameraCharacters = @($offCamera)
-            })
+            }
+            if ($null -ne $sceneComposition -and
+                [bool]$sceneComposition.enforceMeasuredAlphaBounds) {
+                $sceneLayoutDocument["enforceMeasuredAlphaBounds"] =
+                    $true
+            }
+            $sceneLayouts.Add(
+                [pscustomobject]$sceneLayoutDocument)
             if ($ApproveForRuntime) {
                 $sceneScreenshotBaselines.Add(
                     [pscustomobject][ordered]@{

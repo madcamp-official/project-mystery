@@ -266,6 +266,8 @@ namespace Wake.Exploration
                     "integrity validation and was ignored.");
                 layout = null;
             }
+            bool enforceMeasuredAlphaBounds =
+                layout?.EnforceMeasuredAlphaBounds == true;
             var explicitOffCamera = new HashSet<string>(
                 layout?.OffCameraCharacterIds ??
                 Array.Empty<string>(),
@@ -290,6 +292,7 @@ namespace Wake.Exploration
                     slotsById,
                     visible,
                     safeAspect,
+                    enforceMeasuredAlphaBounds,
                     out IReadOnlyList<
                         BackgroundSemanticPlacementAssignment>
                         fixedAssignments))
@@ -364,6 +367,8 @@ namespace Wake.Exploration
                             assignments,
                             usedSlots,
                             fixedBySceneLayout: true,
+                            useMeasuredAlphaBounds:
+                                enforceMeasuredAlphaBounds,
                             allowProtectedZoneOverlap: true,
                             out PlacementFailure failure,
                             out string reason))
@@ -435,6 +440,7 @@ namespace Wake.Exploration
                             assignments,
                             usedSlots,
                             fixedBySceneLayout: false,
+                            useMeasuredAlphaBounds: true,
                             allowProtectedZoneOverlap:
                                 allowProtectedZoneOverlap,
                             out _,
@@ -451,6 +457,7 @@ namespace Wake.Exploration
                         assignments,
                         usedSlots,
                         fixedBySceneLayout: false,
+                        useMeasuredAlphaBounds: true,
                         allowProtectedZoneOverlap:
                             allowProtectedZoneOverlap,
                         out _,
@@ -493,14 +500,14 @@ namespace Wake.Exploration
                 slot,
                 characterAsset,
                 backgroundAspectRatio,
-                useApprovedReviewBounds: false);
+                constrainToApprovedReviewFootprint: false);
         }
 
         private static Rect CalculateSilhouetteRect(
             BackgroundSemanticSlot slot,
             AmbientWorldCharacterAsset characterAsset,
             float backgroundAspectRatio,
-            bool useApprovedReviewBounds)
+            bool constrainToApprovedReviewFootprint)
         {
             if (slot == null)
                 return default;
@@ -539,7 +546,7 @@ namespace Wake.Exploration
                 slot.FootprintSize.x);
             float reviewSilhouetteWidth =
                 slot.NormalizedHeight * .28f / safeAspect;
-            float visibleWidth = useApprovedReviewBounds
+            float visibleWidth = constrainToApprovedReviewFootprint
                 ? Mathf.Min(
                     alphaWidth,
                     approvedWidth,
@@ -710,6 +717,7 @@ namespace Wake.Exploration
             IReadOnlyDictionary<string, BackgroundSemanticSlot> slotsById,
             Rect visible,
             float backgroundAspectRatio,
+            bool useMeasuredAlphaBounds,
             out IReadOnlyList<BackgroundSemanticPlacementAssignment>
                 result)
         {
@@ -767,6 +775,7 @@ namespace Wake.Exploration
                 entries,
                 visible,
                 backgroundAspectRatio,
+                useMeasuredAlphaBounds,
                 useApprovedProtectionExceptions: false,
                 entryIndex: 0,
                 currentCost: 0f,
@@ -783,6 +792,7 @@ namespace Wake.Exploration
                     entries,
                     visible,
                     backgroundAspectRatio,
+                    useMeasuredAlphaBounds,
                     useApprovedProtectionExceptions: true,
                     entryIndex: 0,
                     currentCost: 0f,
@@ -805,6 +815,7 @@ namespace Wake.Exploration
             IReadOnlyList<FixedPlacementSearchEntry> entries,
             Rect visible,
             float backgroundAspectRatio,
+            bool useMeasuredAlphaBounds,
             bool useApprovedProtectionExceptions,
             int entryIndex,
             float currentCost,
@@ -840,6 +851,8 @@ namespace Wake.Exploration
                         working,
                         usedSlots,
                         fixedBySceneLayout: true,
+                        useMeasuredAlphaBounds:
+                            useMeasuredAlphaBounds,
                         allowProtectedZoneOverlap:
                             useApprovedProtectionExceptions,
                         out _,
@@ -852,7 +865,8 @@ namespace Wake.Exploration
                     candidate.Slot,
                     entry.Character.CharacterAsset,
                     backgroundAspectRatio,
-                    useApprovedReviewBounds: true);
+                    constrainToApprovedReviewFootprint:
+                        !useMeasuredAlphaBounds);
                 working.Add(
                     new BackgroundSemanticPlacementAssignment(
                         entry.Character,
@@ -866,6 +880,7 @@ namespace Wake.Exploration
                     entries,
                     visible,
                     backgroundAspectRatio,
+                    useMeasuredAlphaBounds,
                     useApprovedProtectionExceptions,
                     entryIndex + 1,
                     nextCost,
@@ -954,6 +969,7 @@ namespace Wake.Exploration
                 assignments,
             ISet<string> usedSlots,
             bool fixedBySceneLayout,
+            bool useMeasuredAlphaBounds,
             bool allowProtectedZoneOverlap,
             out PlacementFailure failure,
             out string reason)
@@ -968,6 +984,7 @@ namespace Wake.Exploration
                     assignments,
                     usedSlots,
                     fixedBySceneLayout,
+                    useMeasuredAlphaBounds,
                     allowProtectedZoneOverlap,
                     out failure,
                     out reason))
@@ -979,7 +996,9 @@ namespace Wake.Exploration
                 slot,
                 character.CharacterAsset,
                 backgroundAspectRatio,
-                useApprovedReviewBounds: fixedBySceneLayout);
+                constrainToApprovedReviewFootprint:
+                    fixedBySceneLayout &&
+                    !useMeasuredAlphaBounds);
             assignments.Add(
                 new BackgroundSemanticPlacementAssignment(
                     character,
@@ -1001,6 +1020,7 @@ namespace Wake.Exploration
                 assignments,
             ISet<string> usedSlots,
             bool fixedBySceneLayout,
+            bool useMeasuredAlphaBounds,
             bool allowProtectedZoneOverlap,
             out PlacementFailure failure,
             out string reason)
@@ -1057,7 +1077,9 @@ namespace Wake.Exploration
                 slot,
                 character.CharacterAsset,
                 backgroundAspectRatio,
-                useApprovedReviewBounds: fixedBySceneLayout);
+                constrainToApprovedReviewFootprint:
+                    fixedBySceneLayout &&
+                    !useMeasuredAlphaBounds);
             if (!ContainsRect(visible, silhouette))
             {
                 failure = PlacementFailure.Viewport;
@@ -1066,13 +1088,25 @@ namespace Wake.Exploration
                 return false;
             }
 
+            // A fixed layout can opt into measured alpha bounds after its
+            // composition has been reviewed at runtime. Older approved
+            // layouts keep their legacy review footprint until they receive
+            // that explicit re-approval, while generic placements always use
+            // measured alpha bounds.
+            Rect protectedZoneFootprint = fixedBySceneLayout
+                ? CalculateSilhouetteRect(
+                    slot,
+                    character.CharacterAsset,
+                    backgroundAspectRatio,
+                    constrainToApprovedReviewFootprint: true)
+                : silhouette;
             if (!allowProtectedZoneOverlap &&
                 profile.Zones.Any(zone =>
                     zone != null &&
                     zone.Enabled &&
                     zone.Kind ==
                     BackgroundSemanticZoneKind.Protected &&
-                    silhouette.Overlaps(
+                    protectedZoneFootprint.Overlaps(
                         zone.ExpandedRect,
                         true)))
             {
