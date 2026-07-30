@@ -57,6 +57,9 @@ namespace Wake.Narrative
         private AudioClip typewriterClip;
         private Coroutine typewriterRoutine;
         private bool isTypewriterActive;
+        private AudioSource voiceBarkAudioSource;
+        private VoiceBarkPlayer voiceBarkPlayer;
+        private string lastBarkSpeakerId = string.Empty;
         private int lastAdvanceInputFrame = -1;
         private IReadOnlyList<string> linePages = Array.Empty<string>();
         private int linePageIndex;
@@ -133,6 +136,11 @@ namespace Wake.Narrative
             typewriterAudioSource.clip = typewriterClip;
             typewriterAudioSource.volume =
                 AudioManager.Instance?.SfxVolume ?? 1f;
+            voiceBarkAudioSource = gameObject.AddComponent<AudioSource>();
+            voiceBarkAudioSource.playOnAwake = false;
+            voiceBarkAudioSource.loop = false;
+            voiceBarkPlayer = new VoiceBarkPlayer(
+                new ResourcesVoiceBarkClipProvider(), voiceBarkAudioSource);
             responsiveLayout = canvas.gameObject
                 .GetComponent<ResponsiveDialogueLayout>();
             if (responsiveLayout == null)
@@ -677,6 +685,7 @@ namespace Wake.Narrative
             ambientLineActive = false;
             pendingInvestigationTitle = string.Empty;
             pendingWorldCharacterId = string.Empty;
+            lastBarkSpeakerId = string.Empty;
             ApplyPresentation(DialoguePresentationPolicy.Hidden);
             linePanel?.SetActive(false);
             investigationUi?.Hide();
@@ -765,6 +774,48 @@ namespace Wake.Narrative
                 DialoguePresentationMap.GetEmotion(record.Emotion));
             FindFirstObjectByType<StatusHUDController>()
                 ?.SetContextCharacter(speaker.PortraitId);
+            if (record.VoiceRequired)
+            {
+                PlayVoiceForRecord(record, speaker);
+            }
+        }
+
+        private void PlayVoiceForRecord(
+            DialogueRecord record, DialogueSpeakerIdentity speaker)
+        {
+            if (speaker.Kind == DialogueSpeakerKind.RecordedVoice)
+            {
+                if (!StoryRecordingCatalog.TryGet(
+                        record.StableLineId, out string resourcePath))
+                {
+                    return;
+                }
+
+                AudioClip clip = Resources.Load<AudioClip>(
+                    $"SoundEffect/Dubbing/story_recording/{resourcePath}");
+                if (clip == null)
+                {
+                    return;
+                }
+
+                AudioManager.Instance?.PlaySfx(clip);
+                AudioManager.Instance?.DuckMusic(0.5f, clip.length);
+                return;
+            }
+
+            if (speaker.Kind != DialogueSpeakerKind.Character &&
+                speaker.Kind != DialogueSpeakerKind.Monologue)
+            {
+                return;
+            }
+
+            bool isNewSpeakerTurn = speaker.PortraitId != lastBarkSpeakerId;
+            lastBarkSpeakerId = speaker.PortraitId;
+            voiceBarkPlayer?.TryPlayBark(
+                speaker.PortraitId,
+                DialoguePresentationMap.GetEmotion(record.Emotion),
+                isNewSpeakerTurn,
+                Time.unscaledTime);
         }
 
         private void RenderProduction()
@@ -1218,6 +1269,7 @@ namespace Wake.Narrative
             ambientLineActive = false;
             pendingInvestigationTitle = string.Empty;
             pendingWorldCharacterId = string.Empty;
+            lastBarkSpeakerId = string.Empty;
             ApplyPresentation(DialoguePresentationPolicy.Hidden);
             presentationView?.SetChoicesVisible(false);
             choicePresentation?.Hide();
