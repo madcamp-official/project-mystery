@@ -52,7 +52,8 @@ namespace Wake.UI
                 return count;
             }
         }
-        public bool HasStingerClip => stingerSource?.clip != null;
+        public bool HasStingerClip =>
+            stingerSource != null && stingerSource.clip != null;
 
         private void OnEnable()
         {
@@ -166,7 +167,7 @@ namespace Wake.UI
             rootGroup.gameObject.transform.SetAsLastSibling();
             rootGroup.alpha = 1f;
             frameImage.color = new Color(1f, 1f, 1f, 0f);
-            if (stingerSource?.clip != null)
+            if (stingerSource != null && stingerSource.clip != null)
             {
                 stingerSource.volume =
                     (AudioManager.Instance?.SfxVolume ?? 1f) * .88f;
@@ -248,7 +249,10 @@ namespace Wake.UI
 
         private void CompleteSequence()
         {
-            stingerSource?.Stop();
+            if (stingerSource != null)
+            {
+                stingerSource.Stop();
+            }
             rootGroup.alpha = 0f;
             rootGroup.gameObject.SetActive(false);
             frameImage.texture = null;
@@ -264,7 +268,10 @@ namespace Wake.UI
                 StopCoroutine(sequence);
                 sequence = null;
             }
-            stingerSource?.Stop();
+            if (stingerSource != null)
+            {
+                stingerSource.Stop();
+            }
             if (rootGroup != null)
             {
                 rootGroup.alpha = 0f;

@@ -547,8 +547,10 @@ namespace Wake.UI
                 location =>
                     LocationLoader.Instance != null &&
                     LocationLoader.Instance.TryLoadLocation(location, out _),
-                sceneId =>
-                    LocationLoader.Instance?.PrepareNarrativeScene(sceneId));
+                (sceneId, refreshInteractionOverlays) =>
+                    LocationLoader.Instance?.PrepareNarrativeScene(
+                        sceneId,
+                        refreshInteractionOverlays));
         }
 
         private void ShowTravelFeedback()
