@@ -15,10 +15,21 @@ namespace Wake.Narrative
             CandidatesByEmotion = new Dictionary<PortraitEmotion, string[]>
             {
                 [PortraitEmotion.Neutral] = new[] { "ACK_POS", "SUSPICIOUS" },
-                [PortraitEmotion.Positive] = new[] { "ACK_POS", "LAUGH" },
+                // "realization" is this bucket's single largest tag (23 of
+                // 58 lines) - an insight/"aha" beat fits THINK far better
+                // than the flavor-only ACK_POS/LAUGH pair alone.
+                [PortraitEmotion.Positive] = new[] { "ACK_POS", "THINK", "LAUGH" },
+                // Dominated by "focused"/"firm" (234 of 362 lines) - steady,
+                // concentrated investigation tone, not genuine anger. THINK
+                // and SUSPICIOUS fit both that and the smaller real-anger
+                // tags (angry/corrective/commanding/...), so they're
+                // duplicated to weight selection toward them; ACK_NEG/
+                // ANNOYED/SURPRISED stay in the pool once each for the
+                // genuinely angry lines.
                 [PortraitEmotion.Angry] = new[]
                 {
-                    "ACK_NEG", "THINK", "SURPRISED", "SUSPICIOUS", "ANNOYED"
+                    "THINK", "THINK", "SUSPICIOUS", "SUSPICIOUS",
+                    "ACK_NEG", "ANNOYED", "SURPRISED"
                 },
                 [PortraitEmotion.Concerned] = new[]
                 {

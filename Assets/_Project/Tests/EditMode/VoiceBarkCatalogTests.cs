@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Wake.Narrative;
@@ -20,10 +21,14 @@ namespace Wake.Tests
         }
 
         [TestCase(PortraitEmotion.Neutral, new[] { "ACK_POS", "SUSPICIOUS" })]
-        [TestCase(PortraitEmotion.Positive, new[] { "ACK_POS", "LAUGH" })]
+        [TestCase(PortraitEmotion.Positive, new[] { "ACK_POS", "THINK", "LAUGH" })]
         [TestCase(
             PortraitEmotion.Angry,
-            new[] { "ACK_NEG", "THINK", "SURPRISED", "SUSPICIOUS", "ANNOYED" })]
+            new[]
+            {
+                "THINK", "THINK", "SUSPICIOUS", "SUSPICIOUS",
+                "ACK_NEG", "ANNOYED", "SURPRISED"
+            })]
         [TestCase(
             PortraitEmotion.Concerned,
             new[] { "ACK_NEG", "THINK", "CONFUSED", "SURPRISED", "SIGH", "WORRIED" })]
@@ -32,6 +37,20 @@ namespace Wake.Tests
             string[] expected)
         {
             Assert.That(VoiceBarkCatalog.CandidateCues(emotion), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void CandidateCues_AngryBucketWeightsThinkAndSuspiciousHigher()
+        {
+            // Angry's dominant real-world tags are "focused"/"firm" (steady
+            // investigation tone, not genuine anger) - THINK/SUSPICIOUS fit
+            // that better than ACK_NEG/ANNOYED/SURPRISED, so they must
+            // appear more than once to be picked more often by the uniform
+            // random index in VoiceBarkPlayer.
+            IReadOnlyList<string> angryCues = VoiceBarkCatalog.CandidateCues(
+                PortraitEmotion.Angry);
+            Assert.That(angryCues.Count(cue => cue == "THINK"), Is.EqualTo(2));
+            Assert.That(angryCues.Count(cue => cue == "SUSPICIOUS"), Is.EqualTo(2));
         }
 
         [Test]

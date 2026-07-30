@@ -783,16 +783,16 @@ namespace Wake.Narrative
         private void PlayVoiceForRecord(
             DialogueRecord record, DialogueSpeakerIdentity speaker)
         {
-            if (speaker.Kind == DialogueSpeakerKind.RecordedVoice)
+            // Explicit per-line story recordings (StoryRecordingCatalog) take
+            // priority over the generic emotion bark regardless of Kind -
+            // ANON_CHAT resolves to Narration (its identity is deliberately
+            // hidden from the speaker label/portrait), but it still has a
+            // real scripted recording that must play.
+            if (StoryRecordingCatalog.TryGet(
+                    record.StableLineId, out string resourcePath))
             {
-                if (!StoryRecordingCatalog.TryGet(
-                        record.StableLineId, out string resourcePath))
-                {
-                    return;
-                }
-
                 AudioClip clip = Resources.Load<AudioClip>(
-                    $"SoundEffect/Dubbing/story_recording/{resourcePath}");
+                    $"VoiceBarks/story_recording/{resourcePath}");
                 if (clip == null)
                 {
                     return;

@@ -12,7 +12,7 @@ namespace Wake.UI
 {
     public sealed class ResourcesOrpheusAudioProvider : IOrpheusAudioProvider
     {
-        private const string ResourceFolder = "SoundEffect/Dubbing/story_recording";
+        private const string ResourceFolder = "VoiceBarks/story_recording";
 
         public bool TryGetClip(string stableLineId, out AudioClip clip)
         {

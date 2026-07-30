@@ -35,7 +35,7 @@ namespace Wake.Narrative
             }
 
             string upperCue = cueId.ToUpperInvariant();
-            return Resources.LoadAll<AudioClip>($"SoundEffect/Dubbing/{folder}")
+            return Resources.LoadAll<AudioClip>($"VoiceBarks/{folder}")
                 .Where(clip => clip.name.ToUpperInvariant().Contains(upperCue))
                 .ToArray();
         }
