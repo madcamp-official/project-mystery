@@ -507,6 +507,30 @@ namespace Wake.Core
             return true;
         }
 
+#if UNITY_EDITOR
+        /// QA-only: clears one puzzle's completion state (scene completion
+        /// + its PuzzleSessionState) without touching anything else on the
+        /// active save slot. Never call StartNewGame/SelectSaveSlot here —
+        /// real slots are 1-3 and StartNewGame wipes whichever is active.
+        public void DebugResetPuzzle(string sceneId, string interactionId)
+        {
+            string normalizedScene = NormalizeSceneId(sceneId);
+            if (!string.IsNullOrEmpty(normalizedScene))
+            {
+                data.completedProductionSceneIds.Remove(normalizedScene);
+            }
+
+            string normalizedInteraction = NormalizeObjectiveId(interactionId);
+            if (!string.IsNullOrEmpty(normalizedInteraction))
+            {
+                data.puzzleSessions.RemoveAll(item =>
+                    item != null && item.puzzleId == normalizedInteraction);
+            }
+
+            SaveAndNotify();
+        }
+#endif
+
         public bool HasUnlockedDeduction(string deductionId)
         {
             string normalized = NormalizeDeductionId(deductionId);

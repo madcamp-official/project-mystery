@@ -261,6 +261,47 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void DebugResetPuzzle_ClearsCompletionAndSession()
+        {
+            state.RecordCompletedScene("D2-02");
+            state.SavePuzzleSession(new PuzzleSessionState
+            {
+                puzzleId = "blood_pattern",
+                completed = true,
+                step = 3,
+                hintLevel = 2
+            });
+
+            state.DebugResetPuzzle("D2-02", "blood_pattern");
+
+            Assert.That(state.HasCompletedScene("D2-02"), Is.False);
+            Assert.That(
+                state.TryGetPuzzleSession("blood_pattern", out _),
+                Is.False);
+        }
+
+        [Test]
+        public void DebugResetPuzzle_LeavesOtherSceneAndPuzzleUntouched()
+        {
+            state.RecordCompletedScene("D2-02");
+            state.RecordCompletedScene("D6-05");
+            state.SavePuzzleSession(new PuzzleSessionState
+            {
+                puzzleId = "timeline_12_cards",
+                completed = true
+            });
+
+            state.DebugResetPuzzle("D2-02", "blood_pattern");
+
+            Assert.That(state.HasCompletedScene("D6-05"), Is.True);
+            Assert.That(
+                state.TryGetPuzzleSession(
+                    "timeline_12_cards", out PuzzleSessionState session),
+                Is.True);
+            Assert.That(session.completed, Is.True);
+        }
+
+        [Test]
         public void CompletedScenes_RestoreAfterManagerRecreation()
         {
             state.RecordCompletedScene("P-01");
