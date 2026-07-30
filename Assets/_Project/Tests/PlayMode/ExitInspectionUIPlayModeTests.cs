@@ -7,6 +7,7 @@ using UnityEngine.TestTools;
 using UnityEngine.UI;
 using Wake.Core;
 using Wake.Evidence;
+using Wake.Exploration;
 using Wake.Narrative;
 using Wake.Puzzles;
 using Wake.UI;
@@ -38,7 +39,23 @@ namespace Wake.Tests.PlayMode
                 $"flow={Flow.HasActiveSession}, dialogue={Dialogue.IsBusy}");
             Assert.That(State.DialogueCheckpoint.pendingInteractionId,
                 Is.EqualTo(ExitInspectionCatalog.SessionId));
+            AmbientCharacterHotspotOverlay ambient =
+                Object.FindFirstObjectByType<AmbientCharacterHotspotOverlay>(
+                    FindObjectsInactive.Include);
+            Assert.That(ambient, Is.Not.Null);
+            Assert.That(
+                ambient.IsModalPresentationSuppressed,
+                Is.True,
+                "출구 검증 퍼즐이 열려 있는 동안 탐색 인물과 말풍선은 숨겨져야 합니다.");
             GameObject panel = RequireObject("Exit Inspection");
+            global::UnityEngine.Canvas.ForceUpdateCanvases();
+            RectTransform observeStage = panel.transform
+                .Find("Observe Stage")
+                .GetComponent<RectTransform>();
+            Assert.That(
+                observeStage.rect.height,
+                Is.GreaterThan(180f),
+                "퍼즐 최초 진입 프레임에도 관찰 카드 영역의 레이아웃이 계산되어야 합니다.");
             Button[] inspections = panel.GetComponentsInChildren<Button>(true)
                 .Where(button => button.name.StartsWith("Inspection "))
                 .ToArray();
@@ -112,6 +129,12 @@ namespace Wake.Tests.PlayMode
             Assert.That(reopen.gameObject.activeSelf, Is.False);
             Assert.That(controller.StatusMessage, Does.Contain("복원했습니다"));
             Assert.That(controller.Session.HintLevel, Is.EqualTo(1));
+            Assert.That(controller.UseHint(), Is.True);
+            TMP_Text hintHistory = panel.transform
+                .Find("Hint Text")
+                .GetComponent<TMP_Text>();
+            Assert.That(hintHistory.text, Does.Contain("힌트 1"));
+            Assert.That(hintHistory.text, Does.Contain("힌트 2"));
             Assert.That(
                 controller.Session.GetVerdict(
                     ExitInspectionCatalog.ServiceHatch),
@@ -124,22 +147,30 @@ namespace Wake.Tests.PlayMode
                 ExitInspectionCatalog.AirDuct,
                 ExitRouteVerdict.Unused).Accepted, Is.True);
 
-            Assert.That(controller.SelectTheory(
-                ExitInspectionTheory.NoLiveThirdParty).Accepted, Is.True);
-            ExitInspectionCompletion wrongRoute = controller.Submit();
-            Assert.That(wrongRoute.Completed, Is.False);
+            Button compareComplete = panel.transform
+                .Find("Footer/Primary Action")
+                .GetComponent<Button>();
+            yield return InvokeAndSettle(compareComplete);
             Assert.That(
-                wrongRoute.Failure,
-                Is.EqualTo(
-                    ExitInspectionCompletionFailure.IncorrectVerdicts));
+                controller.StatusMessage,
+                Does.Contain("판정 불일치"));
             Assert.That(
                 RequireObject("Exit Inspection/Compare Stage")
                     .activeInHierarchy,
                 Is.True,
-                "잘못된 경로 판정은 비교 화면으로 돌아가 수정할 수 있어야 합니다.");
+                "잘못된 경로 판정은 가설 단계로 넘어가면 안 됩니다.");
             Assert.That(controller.SetVerdict(
                 ExitInspectionCatalog.ExteriorLedge,
                 ExitRouteVerdict.Unused).Accepted, Is.True);
+            yield return InvokeAndSettle(compareComplete);
+            Assert.That(
+                controller.StatusMessage,
+                Does.Contain("판정 정확"));
+            Assert.That(
+                RequireObject("Exit Inspection/Theory Stage")
+                    .activeInHierarchy,
+                Is.True,
+                "정확한 경로 판정을 확인한 뒤에만 최종 가설 단계로 이동해야 합니다.");
 
             Assert.That(controller.SelectTheory(
                 ExitInspectionTheory.PerfectCleanup).Accepted, Is.True);
@@ -219,6 +250,19 @@ namespace Wake.Tests.PlayMode
                     button.interactable)
                 .ToArray();
             Assert.That(points, Has.Length.EqualTo(2));
+            Assert.That(
+                screen.transform.Find("Zoom In"),
+                Is.Null,
+                "세부 관찰과 무관한 확대 조작을 표시하지 않아야 합니다.");
+            Assert.That(
+                screen.transform.Find("Rotate"),
+                Is.Null,
+                "세부 관찰과 무관한 회전 조작을 표시하지 않아야 합니다.");
+            Assert.That(
+                points.All(point =>
+                    point.transform.Find("Trace Marker/Label") != null),
+                Is.True,
+                "모든 필수 흔적은 화면에서 식별 가능한 표식을 제공해야 합니다.");
             foreach (Button point in points)
             {
                 yield return InvokeAndSettle(point);

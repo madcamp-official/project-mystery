@@ -16,6 +16,7 @@ namespace Wake.UI
         IRuntimeModalController
     {
         private readonly List<Button> pointButtons = new();
+        private readonly Dictionary<string, TMP_Text> pointMarkers = new();
         private GameObject root;
         private RectTransform imageTransform;
         private Image closeupImage;
@@ -28,8 +29,6 @@ namespace Wake.UI
         private InvestigationTargetDefinition target;
         private EvidenceDefinition evidence;
         private Action exitAction;
-        private float zoom = 1f;
-        private float rotation;
 
         public static InvestigationScreenController Instance { get; private set; }
         public bool IsOpen => root != null && root.activeSelf;
@@ -116,7 +115,7 @@ namespace Wake.UI
             observationLabel = Text(
                 root.transform,
                 "Adrian Observation",
-                new Rect(.22f, .06f, .52f, .14f),
+                new Rect(.06f, .05f, .68f, .15f),
                 25f,
                 TextAlignmentOptions.TopLeft,
                 new Color32(235, 231, 215, 255));
@@ -125,34 +124,15 @@ namespace Wake.UI
             observationLabel.fontSizeMin = 18f;
             observationLabel.fontSizeMax = 25f;
 
-            Button zoomOut = Button(
+            TMP_Text markerGuide = Text(
                 root.transform,
-                "Zoom Out",
-                "－",
-                new Rect(.03f, .08f, .055f, .07f),
-                () => SetZoom(zoom - .2f));
-            Button zoomIn = Button(
-                root.transform,
-                "Zoom In",
-                "＋",
-                new Rect(.09f, .08f, .055f, .07f),
-                () => SetZoom(zoom + .2f));
-            Button rotate = Button(
-                root.transform,
-                "Rotate",
-                "회전",
-                new Rect(.03f, .16f, .115f, .055f),
-                () => SetRotation(rotation + 90f));
-            Button reset = Button(
-                root.transform,
-                "Reset",
-                "초기화",
-                new Rect(.03f, .02f, .115f, .05f),
-                ResetView);
-            zoomOut.navigation = Navigation.defaultNavigation;
-            zoomIn.navigation = Navigation.defaultNavigation;
-            rotate.navigation = Navigation.defaultNavigation;
-            reset.navigation = Navigation.defaultNavigation;
+                "Trace Marker Guide",
+                new Rect(.16f, .815f, .50f, .035f),
+                19f,
+                TextAlignmentOptions.Left,
+                new Color32(207, 169, 96, 255));
+            markerGuide.text =
+                "빛나는 흔적 표식을 선택해 세부 관찰을 기록하세요.";
 
             Button(
                 root.transform,
@@ -206,10 +186,13 @@ namespace Wake.UI
                     ? "이미 조사 기록에 정리한 대상이다. 필요한 흔적을 다시 확인할 수 있다."
                     : "화면의 세부 지점에 포인터를 가까이 대거나 포커스를 이동해 조사하세요.";
             ResetView();
-            BuildPoints();
-            RefreshCompletion();
             root.transform.SetAsLastSibling();
             root.SetActive(true);
+            BuildPoints();
+            RefreshCompletion();
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(
+                root.GetComponent<RectTransform>());
             EventSystem.current?.SetSelectedGameObject(
                 pointButtons.Count > 0
                     ? pointButtons[0].gameObject
@@ -225,6 +208,7 @@ namespace Wake.UI
                     Destroy(button.gameObject);
             }
             pointButtons.Clear();
+            pointMarkers.Clear();
 
             foreach (InspectionPointDefinition point in target.Points)
             {
@@ -242,9 +226,7 @@ namespace Wake.UI
                 bool inspected = IsInspected(point.PointId);
                 image.color = inspected
                     ? new Color(83f / 255f, 139f / 255f, 145f / 255f, .10f)
-                    : ExplorationHotspotFeedback.AccessibilityIndicatorsEnabled
-                        ? new Color(1f, .79f, .31f, .10f)
-                        : new Color(1f, .79f, .31f, .001f);
+                    : new Color(1f, .79f, .31f, .035f);
                 Button button = pointObject.GetComponent<Button>();
                 ColorBlock colors = button.colors;
                 colors.normalColor = Color.white;
@@ -257,9 +239,40 @@ namespace Wake.UI
                 button.onClick.AddListener(() => Inspect(point, image));
                 Outline outline = pointObject.GetComponent<Outline>();
                 outline.effectColor = new Color(1f, .78f, .30f, .65f);
-                outline.effectDistance = Vector2.zero;
+                outline.effectDistance = new Vector2(2f, -2f);
                 pointObject.AddComponent<ExplorationHotspotFeedback>()
                     .Configure();
+
+                GameObject marker = Create(
+                    "Trace Marker",
+                    pointObject.transform,
+                    typeof(Image),
+                    typeof(Outline));
+                RectTransform markerRect =
+                    marker.GetComponent<RectTransform>();
+                markerRect.anchorMin = markerRect.anchorMax =
+                    new Vector2(.5f, .5f);
+                markerRect.pivot = new Vector2(.5f, .5f);
+                markerRect.anchoredPosition = Vector2.zero;
+                markerRect.sizeDelta = new Vector2(92f, 42f);
+                Image markerImage = marker.GetComponent<Image>();
+                markerImage.color = inspected
+                    ? new Color32(66, 117, 123, 238)
+                    : new Color32(190, 151, 82, 244);
+                markerImage.raycastTarget = false;
+                Outline markerOutline = marker.GetComponent<Outline>();
+                markerOutline.effectColor =
+                    new Color32(248, 235, 207, 220);
+                markerOutline.effectDistance = new Vector2(2f, -2f);
+                TMP_Text markerText = Text(
+                    marker.transform,
+                    "Label",
+                    new Rect(0f, 0f, 1f, 1f),
+                    18f,
+                    TextAlignmentOptions.Center,
+                    new Color32(10, 20, 31, 255));
+                markerText.text = inspected ? "확인됨" : "흔적";
+                pointMarkers[point.PointId] = markerText;
                 pointButtons.Add(button);
             }
         }
@@ -278,6 +291,14 @@ namespace Wake.UI
             }
             pointImage.color =
                 new Color(83f / 255f, 139f / 255f, 145f / 255f, .10f);
+            if (pointMarkers.TryGetValue(
+                    point.PointId,
+                    out TMP_Text marker))
+            {
+                marker.text = "확인됨";
+                marker.transform.parent.GetComponent<Image>().color =
+                    new Color32(66, 117, 123, 238);
+            }
             observationLabel.text = repeated
                 ? $"다시 확인했다. {point.Observation}"
                 : point.Observation;
@@ -375,23 +396,8 @@ namespace Wake.UI
 
         public void Close() => Exit();
 
-        private void SetZoom(float value)
-        {
-            zoom = Mathf.Clamp(value, 1f, 2f);
-            imageTransform.localScale = Vector3.one * zoom;
-        }
-
-        private void SetRotation(float value)
-        {
-            rotation = Mathf.Repeat(value, 360f);
-            imageTransform.localRotation =
-                Quaternion.Euler(0f, 0f, rotation);
-        }
-
         private void ResetView()
         {
-            zoom = 1f;
-            rotation = 0f;
             if (imageTransform == null)
                 return;
             imageTransform.localScale = Vector3.one;
