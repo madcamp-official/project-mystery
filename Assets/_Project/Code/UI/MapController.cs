@@ -66,26 +66,32 @@ namespace Wake.UI
                     ? ProductionObjectiveViewModel.Resolve(state).Presentation
                     : null;
 
-            foreach (ProductionMapEntry entry in CurrentViewModel.Entries)
+            // The authored cutaway nodes are a compatibility view. A scene
+            // that uses only the layered deck map intentionally has none, so
+            // do not report every canonical location as a missing object.
+            if (mapNodes.Count > 0)
             {
-                if (!mapNodes.TryGetValue(
-                        entry.Spec.Code,
-                        out MapNodeView node))
+                foreach (ProductionMapEntry entry in CurrentViewModel.Entries)
                 {
-                    Debug.LogError(
-                        $"MapController is missing the authored node " +
-                        $"'Map Node {entry.Spec.Code}'.");
-                    continue;
-                }
+                    if (!mapNodes.TryGetValue(
+                            entry.Spec.Code,
+                            out MapNodeView node))
+                    {
+                        Debug.LogError(
+                            $"MapController is missing the authored node " +
+                            $"'Map Node {entry.Spec.Code}'.");
+                        continue;
+                    }
 
-                bool isObjectiveDestination =
-                    objective.HasValue &&
-                    objective.Value.MarkerMode == ObjectiveMarkerMode.Map &&
-                    string.Equals(
-                        objective.Value.TargetLocation,
-                        entry.Spec.Code,
-                        StringComparison.Ordinal);
-                ApplyEntry(node, entry, isObjectiveDestination);
+                    bool isObjectiveDestination =
+                        objective.HasValue &&
+                        objective.Value.MarkerMode == ObjectiveMarkerMode.Map &&
+                        string.Equals(
+                            objective.Value.TargetLocation,
+                            entry.Spec.Code,
+                            StringComparison.Ordinal);
+                    ApplyEntry(node, entry, isObjectiveDestination);
+                }
             }
 
             layeredPresenter.Refresh(
@@ -127,13 +133,17 @@ namespace Wake.UI
             }
 
             Transform mapPanel = roomsContainer.parent;
+            MapScreenBackdropPresenter.Ensure(mapPanel);
             screenTitle = mapPanel
                 .Find("Map Screen Title")
                 ?.GetComponent<TMP_Text>();
             if (screenTitle != null)
             {
-                MapTypography.ApplyLocation(screenTitle);
-                screenTitle.text = "엘리시움호 · 장소 선택";
+                MapTypography.ApplyScreenTitle(screenTitle);
+                screenTitle.text = string.Empty;
+                screenTitle.enableAutoSizing = true;
+                screenTitle.fontSizeMin = 26f;
+                screenTitle.fontSizeMax = 38f;
             }
 
             Transform viewport = roomsContainer.Find(
@@ -170,7 +180,10 @@ namespace Wake.UI
             }
 
             BindAuthoredNodes();
-            layeredPresenter.Build(roomsContainer, BeginConfirmedTravel);
+            layeredPresenter.Build(
+                roomsContainer,
+                screenTitle,
+                BeginConfirmedTravel);
             viewport.gameObject.SetActive(false);
             initialized = true;
             return true;
