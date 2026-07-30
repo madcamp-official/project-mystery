@@ -607,7 +607,7 @@ namespace Wake.UI
                   InterrogationRelationshipPresentation.ResolveTrust(trust);
             detailSummary.text = $"인물 정보\n{profile.Summary}";
             detailNote.text = profile.IsDiscovered(state)
-                ? $"조사 메모\n{profile.KnownNote}"
+                ? $"조사 메모\n{profile.GetKnownNote(state)}"
                 : "조사 메모\n아직 직접 만나 확인한 기록이 없습니다.";
 
             characterList?.SetActive(false);

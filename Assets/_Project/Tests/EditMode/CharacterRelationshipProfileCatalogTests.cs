@@ -42,6 +42,66 @@ namespace Wake.Tests.EditMode
             }
         }
 
+        [TestCase("DANIEL", "D1-06", "핵심 피해자")]
+        [TestCase("CLAIRE", "D1-02", "공개적으로 충돌")]
+        [TestCase("HELENA", "D1-07", "의학적 판단의 독립성")]
+        public void ProgressGatedNote_WithholdsLaterFactUntilItsSceneCompletes(
+            string characterId,
+            string gatingSceneId,
+            string laterOnlyPhrase)
+        {
+            GameObject host = new("CharacterRelationshipProgressTestState");
+            try
+            {
+                Wake.Core.GameStateManager state =
+                    host.AddComponent<Wake.Core.GameStateManager>();
+                state.StartNewGame();
+
+                Assert.That(
+                    CharacterRelationshipProfileCatalog.TryGet(
+                        characterId,
+                        out CharacterRelationshipProfile profile),
+                    Is.True);
+
+                string beforeNote = profile.GetKnownNote(state);
+                Assert.That(beforeNote, Is.Not.Empty);
+                Assert.That(
+                    beforeNote,
+                    Does.Not.Contain(laterOnlyPhrase),
+                    $"{characterId} 노트가 {gatingSceneId} 완료 전인데 " +
+                    "이후 사실을 이미 담고 있습니다.");
+
+                state.RecordCompletedScene(gatingSceneId);
+
+                string afterNote = profile.GetKnownNote(state);
+                Assert.That(afterNote, Does.Contain(laterOnlyPhrase));
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+            }
+        }
+
+        [TestCase("RICHARD")]
+        [TestCase("EVELYN")]
+        [TestCase("THOMAS")]
+        [TestCase("MARCUS")]
+        [TestCase("OWEN")]
+        [TestCase("ADRIAN")]
+        public void SingleTierCharacters_ReturnSameNoteRegardlessOfProgress(
+            string characterId)
+        {
+            Assert.That(
+                CharacterRelationshipProfileCatalog.TryGet(
+                    characterId,
+                    out CharacterRelationshipProfile profile),
+                Is.True);
+
+            Assert.That(
+                profile.GetKnownNote(null),
+                Is.EqualTo(profile.KnownNote));
+        }
+
         [Test]
         public void Catalog_UsesUniqueCharacterIds()
         {
