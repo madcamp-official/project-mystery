@@ -29,7 +29,7 @@ MonoBehaviour:
     normalizedPosition: {x: 0.22, y: 0.815}
     entryPointId: 
   - locationCode: RICHARD_SUITE
-    normalizedPosition: {x: 0.28, y: 0.57}
+    normalizedPosition: {x: 0.28, y: 0.6}
     entryPointId: 
   - locationCode: VAULT
     normalizedPosition: {x: 0.18, y: 0.29000002}

@@ -188,6 +188,8 @@ namespace Wake.UI
                 ProductionSceneDefinition target =
                     scenes.FirstOrDefault(scene => !completed.Contains(scene.SceneId)) ??
                     scenes.LastOrDefault();
+                bool hasCompletedSceneAtLocation =
+                    scenes.Any(scene => completed.Contains(scene.SceneId));
 
                 if (target == null)
                 {
@@ -220,27 +222,49 @@ namespace Wake.UI
                     unlocked == null ||
                     unlocked.Contains(target.SceneId);
                 bool isCompleted = completed.Contains(target.SceneId);
-                SceneTravelResult completedMapTravel = isCompleted
-                    ? SceneTravelPolicy.EvaluateMapTravel(
+
+                if (!isCompleted && isUnlocked && result.IsAllowed)
+                {
+                    entries.Add(new ProductionMapEntry(
+                        spec,
                         location,
-                        completed,
-                        unlocked,
-                        publicAnxiety)
-                    : default;
+                        target.SceneId,
+                        ProductionMapEntryStatus.Available,
+                        SceneAccessDenialReason.None,
+                        isVisible));
+                    continue;
+                }
+
+                if (isCompleted || hasCompletedSceneAtLocation)
+                {
+                    SceneTravelResult revisitResult =
+                        SceneTravelPolicy.EvaluateMapTravel(
+                            location,
+                            completed,
+                            unlocked,
+                            publicAnxiety);
+                    entries.Add(new ProductionMapEntry(
+                        spec,
+                        location,
+                        revisitResult.IsAllowed
+                            ? string.Empty
+                            : target.SceneId,
+                        revisitResult.IsAllowed
+                            ? isCompleted
+                                ? ProductionMapEntryStatus.Completed
+                                : ProductionMapEntryStatus.LocationOnly
+                            : ProductionMapEntryStatus.Locked,
+                        revisitResult.DenialReason,
+                        isVisible));
+                    continue;
+                }
+
                 entries.Add(new ProductionMapEntry(
                     spec,
                     location,
                     target.SceneId,
-                    isCompleted
-                        ? completedMapTravel.IsAllowed
-                            ? ProductionMapEntryStatus.Completed
-                            : ProductionMapEntryStatus.Locked
-                        : isUnlocked && result.IsAllowed
-                            ? ProductionMapEntryStatus.Available
-                            : ProductionMapEntryStatus.Locked,
-                    isCompleted
-                        ? completedMapTravel.DenialReason
-                        : !isUnlocked
+                    ProductionMapEntryStatus.Locked,
+                    !isUnlocked
                         ? SceneAccessDenialReason.SceneNotUnlocked
                         : result.DenialReason,
                     isVisible));

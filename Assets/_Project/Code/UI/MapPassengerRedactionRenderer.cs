@@ -27,25 +27,82 @@ namespace Wake.UI
                 return;
 
             Rect rect = rectTransform.rect;
-            Color32 fill = new(8, 18, 30, 255);
-            int start = vh.currentVertCount;
-            for (int index = 0; index < points.Count; index++)
-            {
-                vh.AddVert(
-                    ToLocal(points[index], rect),
-                    fill,
-                    Vector2.zero);
-            }
+            GetBounds(
+                out float left,
+                out float bottom,
+                out float right,
+                out float top);
+            float width = right - left;
+            float height = top - bottom;
+            if (width <= 0f || height <= 0f)
+                return;
 
-            IReadOnlyList<int> triangles =
-                MapPolygonUtility.Triangulate(points);
-            for (int index = 0; index + 2 < triangles.Count; index += 3)
+            Color32 ink = new(8, 18, 30, 238);
+            const int StrokeCount = 5;
+            for (int index = 0; index < StrokeCount; index++)
             {
-                vh.AddTriangle(
-                    start + triangles[index],
-                    start + triangles[index + 1],
-                    start + triangles[index + 2]);
+                float t = (index + .5f) / StrokeCount;
+                float centerY = Mathf.Lerp(bottom, top, t);
+                float halfThickness = height *
+                                      (index % 2 == 0 ? .055f : .045f);
+                float leftInset = width *
+                                  (index % 3 == 0 ? .015f : .035f);
+                float rightInset = width *
+                                   (index % 2 == 0 ? .025f : .01f);
+                float slope = height *
+                              (index % 2 == 0 ? .045f : -.035f);
+
+                AddStroke(
+                    vh,
+                    rect,
+                    new Vector2(left + leftInset, centerY - halfThickness),
+                    new Vector2(
+                        right - rightInset,
+                        centerY - halfThickness + slope),
+                    new Vector2(
+                        right - rightInset,
+                        centerY + halfThickness + slope),
+                    new Vector2(
+                        left + leftInset,
+                        centerY + halfThickness),
+                    ink);
             }
+        }
+
+        private void GetBounds(
+            out float left,
+            out float bottom,
+            out float right,
+            out float top)
+        {
+            left = right = points[0].x;
+            bottom = top = points[0].y;
+            for (int index = 1; index < points.Count; index++)
+            {
+                Vector2 point = points[index];
+                left = Mathf.Min(left, point.x);
+                bottom = Mathf.Min(bottom, point.y);
+                right = Mathf.Max(right, point.x);
+                top = Mathf.Max(top, point.y);
+            }
+        }
+
+        private static void AddStroke(
+            VertexHelper vh,
+            Rect rect,
+            Vector2 bottomLeft,
+            Vector2 bottomRight,
+            Vector2 topRight,
+            Vector2 topLeft,
+            Color32 color)
+        {
+            int start = vh.currentVertCount;
+            vh.AddVert(ToLocal(bottomLeft, rect), color, Vector2.zero);
+            vh.AddVert(ToLocal(bottomRight, rect), color, Vector2.zero);
+            vh.AddVert(ToLocal(topRight, rect), color, Vector2.zero);
+            vh.AddVert(ToLocal(topLeft, rect), color, Vector2.zero);
+            vh.AddTriangle(start, start + 1, start + 2);
+            vh.AddTriangle(start, start + 2, start + 3);
         }
 
         private static Vector2 ToLocal(Vector2 point, Rect rect) =>

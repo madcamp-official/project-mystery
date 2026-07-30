@@ -183,6 +183,16 @@ namespace Wake.Tests.PlayMode
             Assert.That(
                 RequireSceneButton("P-02").gameObject.activeSelf,
                 Is.False);
+            ProductionMapEntry revisitableSuite =
+                RequireMap().CurrentViewModel.Entries.Single(
+                    entry => entry.Spec.Code == "RICHARD_SUITE");
+            Assert.That(
+                revisitableSuite.Status,
+                Is.EqualTo(ProductionMapEntryStatus.LocationOnly));
+            Assert.That(revisitableSuite.SceneId, Is.Empty);
+            Assert.That(
+                RequireLocationButton("RICHARD_SUITE").interactable,
+                Is.True);
             AssertNoRuntimeErrors("프롤로그 순차 이동");
         }
 
@@ -202,6 +212,12 @@ namespace Wake.Tests.PlayMode
                     FindObjectsSortMode.None)
                 .Single(button => button.name == "Deck 9 Tab");
             yield return InvokeAndSettle(deckNine);
+            Assert.That(
+                RequireComponent<TMP_Text>(
+                    "Map/Rooms/Layered Map Surface/Deck Map/" +
+                    "Structural Map Annotations/Atrium Connection Label")
+                    .text,
+                Is.EqualTo("아트리움"));
 
             MapRoomHitAreaGraphic[] deckNineRooms =
                 Object.FindObjectsByType<MapRoomHitAreaGraphic>(
@@ -262,6 +278,13 @@ namespace Wake.Tests.PlayMode
                     FindObjectsSortMode.None)
                 .Single(button => button.name == "Deck 10 Tab");
             yield return InvokeAndSettle(deckTen);
+
+            TMP_Text atriumLabel = RequireComponent<TMP_Text>(
+                "Map/Rooms/Layered Map Surface/Deck Map/" +
+                "Structural Map Annotations/Atrium Connection Label");
+            Assert.That(atriumLabel.text, Is.EqualTo("아트리움"));
+            Assert.That(atriumLabel.text, Does.Not.Contain("DECK"));
+            Assert.That(atriumLabel.text, Does.Not.Contain("개방"));
 
             GameObject node = RequireObject(
                 "Map/Rooms/Layered Map Surface/Deck Map/" +

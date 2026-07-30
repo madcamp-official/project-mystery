@@ -139,6 +139,14 @@ namespace Wake.Tests
                 afterBoarding.Entries.Single(
                     entry => entry.Spec.Code == "VIP_LOUNGE").Status,
                 Is.EqualTo(ProductionMapEntryStatus.LocationOnly));
+            ProductionMapEntry revisitableSuite =
+                afterBoarding.Entries.Single(
+                    entry => entry.Spec.Code == "RICHARD_SUITE");
+            Assert.That(
+                revisitableSuite.Status,
+                Is.EqualTo(ProductionMapEntryStatus.LocationOnly));
+            Assert.That(revisitableSuite.SceneId, Is.Empty);
+            Assert.That(revisitableSuite.UsesSceneTravel, Is.False);
             Assert.That(
                 afterBoarding.Entries.Single(
                     entry => entry.Spec.Code == "GANGWAY").IsVisible,
@@ -158,6 +166,69 @@ namespace Wake.Tests
                     Is.EqualTo(ProductionMapEntryStatus.Locked),
                     futureStoryLocation);
             }
+        }
+
+        [Test]
+        public void RevisitedLocation_StartsFutureSceneOnlyAfterItIsReady()
+        {
+            ProductionMapViewModel beforeInterrogation =
+                ProductionMapViewModel.Create(
+                    graph,
+                    new[] { "P-01", "P-02", "P-03", "D3-01" },
+                    15,
+                    "",
+                    System.Array.Empty<string>());
+            ProductionMapEntry freeVisit =
+                beforeInterrogation.Entries.Single(
+                    entry => entry.Spec.Code == "RICHARD_SUITE");
+
+            Assert.That(
+                freeVisit.Status,
+                Is.EqualTo(ProductionMapEntryStatus.LocationOnly));
+            Assert.That(freeVisit.SceneId, Is.Empty);
+
+            ProductionMapViewModel afterUnlock =
+                ProductionMapViewModel.Create(
+                    graph,
+                    new[] { "P-01", "P-02", "P-03", "D3-01" },
+                    15,
+                    "",
+                    new[] { "D3-02" });
+            ProductionMapEntry interrogation =
+                afterUnlock.Entries.Single(
+                    entry => entry.Spec.Code == "RICHARD_SUITE");
+
+            Assert.That(
+                interrogation.Status,
+                Is.EqualTo(ProductionMapEntryStatus.Available));
+            Assert.That(interrogation.SceneId, Is.EqualTo("D3-02"));
+            Assert.That(interrogation.StartsProductionScene, Is.True);
+        }
+
+        [Test]
+        public void FullyCompletedLocation_RevisitsWithoutPreparingOldScene()
+        {
+            ProductionMapViewModel model =
+                ProductionMapViewModel.Create(
+                    graph,
+                    new[]
+                    {
+                        "P-01",
+                        "P-02",
+                        "P-03",
+                        "D3-01",
+                        "D3-02"
+                    },
+                    15);
+            ProductionMapEntry suite =
+                model.Entries.Single(
+                    entry => entry.Spec.Code == "RICHARD_SUITE");
+
+            Assert.That(
+                suite.Status,
+                Is.EqualTo(ProductionMapEntryStatus.Completed));
+            Assert.That(suite.SceneId, Is.Empty);
+            Assert.That(suite.UsesSceneTravel, Is.False);
         }
 
         [Test]
