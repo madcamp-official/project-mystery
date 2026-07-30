@@ -471,6 +471,13 @@ namespace Wake.UI
 
     }
 
+    public static class SaveSlotLayoutIds
+    {
+        public const string Title = "save.title";
+        public const string Cards = "save.cards";
+        public const string Back = "save.back";
+    }
+
     [DisallowMultipleComponent]
     public sealed class SaveSlotSelectionController : MonoBehaviour
     {
@@ -515,7 +522,9 @@ namespace Wake.UI
         private int pendingSlot;
         private bool pendingContinue;
         private bool pendingDelete;
-        private readonly TMP_Text[] slotLabels = new TMP_Text[3];
+        private readonly TMP_Text[] slotChapterLabels = new TMP_Text[3];
+        private readonly TMP_Text[] slotStatusLabels = new TMP_Text[3];
+        private readonly TMP_Text[] slotActionLabels = new TMP_Text[3];
         private readonly Button[] deleteButtons = new Button[3];
 
         private Vector3 WaterHome => waterHome ?? Vector3.zero;
@@ -792,8 +801,9 @@ namespace Wake.UI
                 "Slot Frame",
                 UiVisualThemeService.Resolve(UiColorToken.Surface));
             RectTransform frameRect = frame.GetComponent<RectTransform>();
-            RuntimeUiLayoutRegistry.CopyWorldLayout(
+            CopySaveLayout(
                 frameRect,
+                SaveSlotLayoutIds.Cards,
                 ScreenRegionIds.ContentCenter);
             frame.AddComponent<Outline>().effectColor =
                 UiVisualThemeService.Resolve(UiColorToken.Brass);
@@ -818,29 +828,13 @@ namespace Wake.UI
                 Vector2.zero,
                 Vector2.zero);
             heading.name = "Title";
-            RuntimeUiLayoutRegistry.CopyWorldLayout(
+            CopySaveLayout(
                 heading.rectTransform,
+                SaveSlotLayoutIds.Title,
                 ScreenRegionIds.ObjectiveTop);
             UiVisualThemeService.ApplyText(
                 heading,
                 UiTextStyle.Display);
-            TMP_Text guide = MakeText(
-                root,
-                "저장된 기록은 이어서, 빈 기록은 처음부터 시작합니다.",
-                21,
-                Vector2.zero,
-                Vector2.zero);
-            guide.name = "Guide";
-            RuntimeUiLayoutRegistry.CopyWorldLayout(
-                guide.rectTransform,
-                ScreenRegionIds.ReadingBottom);
-            UiVisualThemeService.ApplyText(
-                guide,
-                UiTextStyle.Body);
-            // The reading-bottom slot overlaps the delete buttons on each
-            // slot card; being a later sibling, this label's default
-            // raycastTarget swallowed clicks meant for them.
-            guide.raycastTarget = false;
 
             for (int index = 0; index < 3; index++)
             {
@@ -874,13 +868,51 @@ namespace Wake.UI
                     button.gameObject.AddComponent<LayoutElement>();
                 element.minHeight = 190f;
                 element.flexibleHeight = 1f;
-                slotLabels[index] = MakeText(
-                    button.transform as RectTransform, string.Empty, 25,
-                    Vector2.zero, Vector2.zero);
-                Stretch(slotLabels[index].rectTransform);
                 UiVisualThemeService.ApplyButton(
                     button,
                     UiButtonStyle.Secondary);
+
+                VerticalLayoutGroup details =
+                    button.gameObject.AddComponent<VerticalLayoutGroup>();
+                int detailPadding = Mathf.RoundToInt(
+                    UiVisualThemeService.Resolve(UiSpacingToken.ExtraLarge));
+                details.padding = new RectOffset(
+                    detailPadding,
+                    detailPadding,
+                    detailPadding,
+                    detailPadding);
+                details.spacing =
+                    UiVisualThemeService.Resolve(UiSpacingToken.Medium);
+                details.childAlignment = TextAnchor.MiddleCenter;
+                details.childControlWidth = true;
+                details.childControlHeight = true;
+                details.childForceExpandWidth = true;
+                details.childForceExpandHeight = false;
+
+                MakeCardText(
+                    button.transform as RectTransform,
+                    $"항해 기록 {slot}",
+                    "SlotTitle",
+                    UiTextStyle.Heading,
+                    54f);
+                slotChapterLabels[index] = MakeCardText(
+                    button.transform as RectTransform,
+                    string.Empty,
+                    "Chapter",
+                    UiTextStyle.BodyLarge,
+                    64f);
+                slotStatusLabels[index] = MakeCardText(
+                    button.transform as RectTransform,
+                    string.Empty,
+                    "Status",
+                    UiTextStyle.BodyLarge,
+                    64f);
+                slotActionLabels[index] = MakeCardText(
+                    button.transform as RectTransform,
+                    string.Empty,
+                    "Action",
+                    UiTextStyle.Choice,
+                    48f);
                 button.onClick.AddListener(() => Ask(slot));
 
                 Button delete = MakeButton(
@@ -907,8 +939,9 @@ namespace Wake.UI
             }
             Button close = MakeButton(
                 root, "닫기", Vector2.zero, Vector2.zero);
-            RuntimeUiLayoutRegistry.CopyWorldLayout(
+            CopySaveLayout(
                 close.transform as RectTransform,
+                SaveSlotLayoutIds.Back,
                 ScreenRegionIds.ToolsBottomLeft);
             TMP_Text closeLabel = MakeText(
                 close.transform as RectTransform,
@@ -985,10 +1018,12 @@ namespace Wake.UI
 
         private void Refresh()
         {
-            for (int index = 0; index < slotLabels.Length; index++)
+            for (int index = 0; index < slotChapterLabels.Length; index++)
             {
-                bool occupied = GameStateManager.HasSaveDataInSlot(index + 1);
-                Button button = slotLabels[index]
+                SaveSlotSummary summary =
+                    GameStateManager.GetSaveSlotSummary(index + 1);
+                bool occupied = summary.IsOccupied;
+                Button button = slotActionLabels[index]
                     .GetComponentInParent<Button>();
                 if (button != null)
                 {
@@ -997,18 +1032,25 @@ namespace Wake.UI
                         : new Color32(18, 31, 52, 252);
                 }
                 deleteButtons[index].gameObject.SetActive(occupied);
-                slotLabels[index].text =
-                    $"항해 기록 {index + 1}\n\n" +
-                    (occupied
-                        ? "저장된 수사 기록\n\n이어하기"
-                        : "비어 있는 기록\n\n새로하기");
+                slotChapterLabels[index].text = occupied
+                    ? summary.ChapterLabel
+                    : string.Empty;
+                slotChapterLabels[index].gameObject.SetActive(occupied);
+                slotStatusLabels[index].text = occupied
+                    ? string.Empty
+                    : "비어 있는 기록";
+                slotStatusLabels[index].gameObject.SetActive(!occupied);
+                slotActionLabels[index].text = occupied
+                    ? "이어하기"
+                    : "새로하기";
             }
         }
 
         private void Ask(int slot)
         {
             pendingSlot = slot;
-            pendingContinue = GameStateManager.HasSaveDataInSlot(slot);
+            pendingContinue =
+                GameStateManager.GetSaveSlotSummary(slot).IsOccupied;
             pendingDelete = false;
             confirmation.transform.Find("Message").GetComponent<TMP_Text>().text =
                 pendingContinue
@@ -1157,6 +1199,50 @@ namespace Wake.UI
         {
             yield return new WaitForSecondsRealtime(delay);
             ScreenFadeTransition.Ensure()?.FadeIn(duration, color);
+        }
+
+        private static void CopySaveLayout(
+            RectTransform target,
+            string saveSlotId,
+            string fallbackSlotId)
+        {
+            if (!RuntimeUiLayoutRegistry.CopyWorldLayout(
+                    target,
+                    saveSlotId))
+            {
+                RuntimeUiLayoutRegistry.CopyWorldLayout(
+                    target,
+                    fallbackSlotId);
+            }
+        }
+
+        private static TMP_Text MakeCardText(
+            RectTransform parent,
+            string text,
+            string name,
+            UiTextStyle style,
+            float preferredHeight)
+        {
+            TMP_Text label = MakeText(
+                parent,
+                text,
+                25f,
+                Vector2.zero,
+                Vector2.zero);
+            label.name = name;
+            label.raycastTarget = false;
+            label.alignment = TextAlignmentOptions.Center;
+            label.textWrappingMode = TextWrappingModes.NoWrap;
+            UiVisualThemeService.ApplyText(label, style);
+            label.enableAutoSizing = true;
+            label.fontSizeMax = label.fontSize;
+            label.fontSizeMin = 18f;
+
+            LayoutElement layout =
+                label.gameObject.AddComponent<LayoutElement>();
+            layout.minHeight = Mathf.Min(36f, preferredHeight);
+            layout.preferredHeight = preferredHeight;
+            return label;
         }
 
         internal static GameObject Panel(Transform parent, string name, Color color)

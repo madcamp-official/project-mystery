@@ -36,6 +36,7 @@ namespace Wake.Editor
                 "Dialogue Slots/Focus Panel Slot");
 
             BuildScreenShellSlots(layout);
+            BuildSaveSlotScreen(layout);
             BuildHud(layout);
             BuildDialogue(layout);
             ConfigureDialogueAdvance(canvas);
@@ -134,6 +135,39 @@ namespace Wake.Editor
                 reading,
                 primary,
                 content);
+        }
+
+        private static void BuildSaveSlotScreen(RectTransform layout)
+        {
+            Color gold = new(.94f, .70f, .30f, .92f);
+            RectTransform saveSlots =
+                EnsureRect(layout, "Save Slot Screen Slots");
+            Stretch(saveSlots);
+
+            Slot(
+                saveSlots,
+                "Save Title Slot",
+                SaveSlotLayoutIds.Title,
+                new Vector2(.12f, .84f),
+                new Vector2(.88f, .96f),
+                Vector2.zero,
+                gold);
+            Slot(
+                saveSlots,
+                "Save Cards Slot",
+                SaveSlotLayoutIds.Cards,
+                new Vector2(.04f, .24f),
+                new Vector2(.96f, .82f),
+                Vector2.zero,
+                gold);
+            Slot(
+                saveSlots,
+                "Save Back Slot",
+                SaveSlotLayoutIds.Back,
+                new Vector2(.04f, .06f),
+                new Vector2(.22f, .18f),
+                Vector2.zero,
+                gold);
         }
 
         private static void BuildLateGameScreens(RectTransform layout)
