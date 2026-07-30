@@ -78,7 +78,7 @@ namespace Wake.Narrative
                 "amused", "always", "VIP_LOUNGE"),
             B("VIP_ROBOT", "VIP_HOST",
                 "서비스 로봇은 임시 중단되었습니다. 객실 서비스가 지연될 수 있습니다.",
-                "professional", "chapter=Day5", "VIP_LOUNGE"),
+                "professional", "chapter=5", "VIP_LOUNGE"),
 
             B("OPEN_DECK_NATURALIST", "PASSENGER_E",
                 "바람 방향이 조금 바뀌었어요. 망원경으로 보면 항로 오른편에 돌고래 떼가 있습니다.",
@@ -116,7 +116,7 @@ namespace Wake.Narrative
                 "professional", "always", "HORIZON"),
             B("HORIZON_CLOSED", "CREW_ATTENDANT",
                 "호라이즌 룸은 예약이 중단되었습니다. 다른 라운지를 이용해 주세요.",
-                "professional", "chapter>=Day2", "HORIZON"),
+                "professional", "chapter>=2", "HORIZON"),
             B("HORIZON_FINALE", "PASSENGER_E",
                 "탐정이 모두를 이 방에 불렀대요. 드디어 끝나는 건가요?",
                 "anxious", "scene=D8-01", "HORIZON"),
@@ -129,7 +129,7 @@ namespace Wake.Narrative
                 "professional", "always", "ATRIUM"),
             B("ATRIUM_MEDBAY_RUMOR", "PASSENGER_A",
                 "파티가 끝나기도 전에 의무실로 사람이 실려 갔다더군요.",
-                "whisper", "chapter=Day2", "ATRIUM"),
+                "whisper", "chapter=2", "ATRIUM"),
 
             B("NEWS_COFFEE", "PASSENGER_F",
                 "뉴스 라운지 커피는 형편없지만 통신 수신은 선내에서 가장 빠릅니다.",
@@ -282,16 +282,42 @@ namespace Wake.Narrative
             GameStateManager state,
             string sceneId)
         {
+            if (string.IsNullOrWhiteSpace(condition))
+            {
+                return false;
+            }
+
+            if (condition.StartsWith("flag:") || condition.StartsWith("scene="))
+            {
+                return MatchesSingle(condition, state, sceneId);
+            }
+
+            return condition
+                .Split(" and ", StringSplitOptions.RemoveEmptyEntries)
+                .All(clause => MatchesSingle(clause.Trim(), state, sceneId));
+        }
+
+        private static bool MatchesSingle(
+            string condition,
+            GameStateManager state,
+            string sceneId)
+        {
             int anxiety = state?.PublicAnxiety ?? 15;
             int day = state?.Day ?? 1;
             if (condition == "always") return true;
             if (condition == "publicAnxiety<40") return anxiety < 40;
-            if (condition == "publicAnxiety>=40 and publicAnxiety<70")
-                return anxiety >= 40 && anxiety < 70;
+            if (condition == "publicAnxiety>=40") return anxiety >= 40;
+            if (condition == "publicAnxiety<70") return anxiety < 70;
             if (condition == "publicAnxiety>=70") return anxiety >= 70;
-            if (condition == "chapter=Day2") return day == 2;
-            if (condition == "chapter>=Day2") return day >= 2;
-            if (condition == "chapter=Day5") return day == 5;
+            if (condition.StartsWith("chapter>="))
+                return int.TryParse(condition.Substring(9), out int gte) &&
+                       day >= gte;
+            if (condition.StartsWith("chapter<="))
+                return int.TryParse(condition.Substring(9), out int lte) &&
+                       day <= lte;
+            if (condition.StartsWith("chapter="))
+                return int.TryParse(condition.Substring(8), out int eq) &&
+                       day == eq;
             if (condition.StartsWith("flag:"))
                 return state?.HasFlag(condition.Substring(5)) == true;
             if (condition.StartsWith("scene="))
