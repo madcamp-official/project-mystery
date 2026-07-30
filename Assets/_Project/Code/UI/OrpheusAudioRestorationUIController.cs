@@ -12,15 +12,56 @@ namespace Wake.UI
 {
     public sealed class ResourcesOrpheusAudioProvider : IOrpheusAudioProvider
     {
-        private const string ResourceFolder = "Audio/Dialogue";
+        private const string ResourceFolder = "VoiceBarks/story_recording";
 
         public bool TryGetClip(string stableLineId, out AudioClip clip)
         {
-            string normalized = OrpheusRecordSegment.Normalize(stableLineId);
-            clip = string.IsNullOrEmpty(normalized)
-                ? null
-                : Resources.Load<AudioClip>($"{ResourceFolder}/{normalized}");
-            return clip != null;
+            clip = null;
+            if (!OrpheusRecordCatalog.TryGet(
+                    stableLineId, out OrpheusRecordSegment segment))
+            {
+                return false;
+            }
+
+            AudioClip[] allClips = Resources.LoadAll<AudioClip>(ResourceFolder);
+            int index = SelectClipIndex(
+                segment,
+                OrpheusRecordCatalog.All,
+                allClips.Select(item => item.name).ToArray());
+            if (index < 0)
+            {
+                return false;
+            }
+
+            clip = allClips[index];
+            return true;
+        }
+
+        public static int SelectClipIndex(
+            OrpheusRecordSegment segment,
+            IReadOnlyList<OrpheusRecordSegment> allSegments,
+            IReadOnlyList<string> candidateClipNames)
+        {
+            string speakerPrefix = segment.Speaker
+                .Replace("_RECORD", string.Empty)
+                .Replace("_MESSAGE", string.Empty)
+                .ToUpperInvariant();
+            int[] matchingIndexes = candidateClipNames
+                .Select((name, index) => (name, index))
+                .Where(item => item.name.ToUpperInvariant().Contains(speakerPrefix))
+                .OrderBy(item => item.name, StringComparer.Ordinal)
+                .Select(item => item.index)
+                .ToArray();
+
+            int sameSpeakerPosition = allSegments
+                .Where(item => item.Speaker == segment.Speaker)
+                .ToList()
+                .IndexOf(segment);
+
+            return sameSpeakerPosition >= 0 &&
+                   sameSpeakerPosition < matchingIndexes.Length
+                ? matchingIndexes[sameSpeakerPosition]
+                : -1;
         }
     }
 

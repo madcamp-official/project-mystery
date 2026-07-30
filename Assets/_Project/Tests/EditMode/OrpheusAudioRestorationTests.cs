@@ -165,5 +165,40 @@ namespace Wake.Tests
             Assert.That(text, Does.Contain("한국어 자막"));
             Assert.That(text, Does.Contain("아버지"));
         }
+
+        [Test]
+        public void SelectClipIndex_PairsBothJulianSegmentsToDistinctClips()
+        {
+            OrpheusRecordSegment julian1 = OrpheusRecordCatalog.All[0];
+            OrpheusRecordSegment julian2 = OrpheusRecordCatalog.All[2];
+            string[] candidateNames =
+            {
+                "D7-03_JULIAN_01", "D7-03_JULIAN_02",
+                "D7-03_JULIAN_03", "D7-03_JULIAN_04", "D7-03_THOMAS_01"
+            };
+
+            int index1 = ResourcesOrpheusAudioProvider.SelectClipIndex(
+                julian1, OrpheusRecordCatalog.All, candidateNames);
+            int index2 = ResourcesOrpheusAudioProvider.SelectClipIndex(
+                julian2, OrpheusRecordCatalog.All, candidateNames);
+
+            Assert.That(index1, Is.EqualTo(0));
+            Assert.That(index2, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void SelectClipIndex_ReturnsMinusOneWhenNoFileMatchesSpeaker()
+        {
+            OrpheusRecordSegment evelynSegment = OrpheusRecordCatalog.All[1];
+            string[] candidateNames =
+            {
+                "D7-03_JULIAN_01", "D7-03_THOMAS_01"
+            };
+
+            int index = ResourcesOrpheusAudioProvider.SelectClipIndex(
+                evelynSegment, OrpheusRecordCatalog.All, candidateNames);
+
+            Assert.That(index, Is.EqualTo(-1));
+        }
     }
 }
