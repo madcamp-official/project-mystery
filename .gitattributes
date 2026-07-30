@@ -1,3 +1,4 @@
 Assets/_Project/Resources/Typography/*.asset filter=lfs diff=lfs merge=lfs -text
 *.meta text eol=lf whitespace=-trailing-space
 *.unity merge=unityyamlmerge
+Documentation/CharacterStagingReview/Data/*.json text eol=lf
