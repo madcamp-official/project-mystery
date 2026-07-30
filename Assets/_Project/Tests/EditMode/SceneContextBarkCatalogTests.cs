@@ -146,7 +146,7 @@ namespace Wake.Tests
         {
             Assert.That(
                 AmbientBarkCatalog.All.Count,
-                Is.EqualTo(47));
+                Is.EqualTo(96));
             Assert.That(
                 AmbientBarkCatalog.Contextual.Count,
                 Is.EqualTo(41));

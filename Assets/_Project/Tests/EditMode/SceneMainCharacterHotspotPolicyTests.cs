@@ -145,7 +145,8 @@ namespace Wake.Tests
                 .Select(character =>
                     MainCharacterWorldLineCatalog.Get(
                         character,
-                        SceneCharacterState.Normal))
+                        SceneCharacterState.Normal,
+                        1))
                 .ToArray();
 
             Assert.That(lines, Is.Unique);
@@ -155,12 +156,14 @@ namespace Wake.Tests
             Assert.That(
                 MainCharacterWorldLineCatalog.Get(
                     "HELENA",
-                    SceneCharacterState.Normal),
+                    SceneCharacterState.Normal,
+                    1),
                 Does.Contain("의학"));
             Assert.That(
                 MainCharacterWorldLineCatalog.Get(
                     "THOMAS",
-                    SceneCharacterState.Normal),
+                    SceneCharacterState.Normal,
+                    1),
                 Does.Contain("장비"));
         }
 
@@ -170,11 +173,13 @@ namespace Wake.Tests
             string injured =
                 MainCharacterWorldLineCatalog.Get(
                     "MARCUS",
-                    SceneCharacterState.Injured);
+                    SceneCharacterState.Injured,
+                    1);
             string detained =
                 MainCharacterWorldLineCatalog.Get(
                     "EVELYN",
-                    SceneCharacterState.Detained);
+                    SceneCharacterState.Detained,
+                    1);
 
             Assert.That(injured, Does.Contain("부상"));
             Assert.That(detained, Does.Contain("경비"));
@@ -199,7 +204,8 @@ namespace Wake.Tests
                 .Select(character =>
                     MainCharacterWorldLineCatalog.GetCompleted(
                         character,
-                        SceneCharacterState.Normal))
+                        SceneCharacterState.Normal,
+                        1))
                 .ToArray();
 
             Assert.That(lines, Is.Unique);
@@ -207,7 +213,8 @@ namespace Wake.Tests
             Assert.That(
                 MainCharacterWorldLineCatalog.GetCompleted(
                     "MARCUS",
-                    SceneCharacterState.Detained),
+                    SceneCharacterState.Detained,
+                    1),
                 Does.Contain("이미 진술을 마쳤습니다"));
         }
 

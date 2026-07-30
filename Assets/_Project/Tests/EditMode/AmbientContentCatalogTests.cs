@@ -11,7 +11,7 @@ namespace Wake.Tests
         [Test]
         public void WorkbookAmbientBarks_AreAllRepresented()
         {
-            Assert.That(AmbientBarkCatalog.All.Count, Is.EqualTo(47));
+            Assert.That(AmbientBarkCatalog.All.Count, Is.EqualTo(96));
             Assert.That(
                 AmbientBarkCatalog.All.Select(item => item.Id),
                 Is.Unique);
