@@ -427,7 +427,7 @@ namespace Wake.Tests
                 speakerTextRect.anchorMin = Vector2.zero;
                 speakerTextRect.anchorMax = Vector2.one;
                 speakerTextRect.anchoredPosition = Vector2.zero;
-                speakerTextRect.sizeDelta = new Vector2(-64f, -24f);
+                speakerTextRect.sizeDelta = new Vector2(-64f, -4f);
                 AuthoredSpeakerTextOverflow = TextOverflowModes.Ellipsis;
                 SpeakerText.overflowMode = AuthoredSpeakerTextOverflow;
                 SpeakerText.fontSize =

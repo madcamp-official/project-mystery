@@ -911,6 +911,8 @@ namespace Wake.Tests.PlayMode
             Assert.That(
                 speaker.text,
                 Is.EqualTo("무도회장 바이올리니스트"));
+            Assert.That(plate.gameObject.activeInHierarchy, Is.True);
+            Assert.That(speaker.gameObject.activeInHierarchy, Is.True);
             Assert.That(speaker.enableAutoSizing, Is.True);
             Assert.That(
                 speaker.textWrappingMode,
@@ -920,6 +922,16 @@ namespace Wake.Tests.PlayMode
                 Is.EqualTo(TextOverflowModes.Ellipsis));
             Assert.That(speaker.textInfo.lineCount, Is.EqualTo(1));
             Assert.That(speaker.isTextOverflowing, Is.False);
+            Assert.That(speaker.firstOverflowCharacterIndex, Is.EqualTo(-1));
+            Assert.That(
+                speaker.textInfo.characterCount,
+                Is.EqualTo(speaker.text.Length));
+            Assert.That(
+                speaker.textInfo.characterInfo
+                    .Take(speaker.textInfo.characterCount)
+                    .Count(character => character.isVisible),
+                Is.EqualTo(speaker.text.Count(character =>
+                    !char.IsWhiteSpace(character))));
             Assert.That(
                 speaker.fontSize,
                 Is.GreaterThanOrEqualTo(

@@ -446,8 +446,8 @@ namespace Wake.Editor
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
             rect.pivot = new Vector2(.5f, .5f);
-            rect.offsetMin = new Vector2(32f, 12f);
-            rect.offsetMax = new Vector2(-32f, -12f);
+            rect.offsetMin = new Vector2(32f, 2f);
+            rect.offsetMax = new Vector2(-32f, -2f);
 
             speakerName.fontSize =
                 DialogueTypographyMetrics.SpeakerMaximum;

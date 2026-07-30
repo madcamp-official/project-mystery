@@ -339,7 +339,7 @@ namespace Wake.Tests
                     "이름표 왼쪽에 Inspector-authored padding이 필요합니다.");
                 Assert.That(
                     textRect.offsetMin.y,
-                    Is.EqualTo(12f).Within(0.01f),
+                    Is.EqualTo(2f).Within(0.01f),
                     "이름표 아래쪽에 Inspector-authored padding이 필요합니다.");
                 Assert.That(
                     textRect.offsetMax.x,
@@ -347,7 +347,7 @@ namespace Wake.Tests
                     "이름표 오른쪽에 Inspector-authored padding이 필요합니다.");
                 Assert.That(
                     textRect.offsetMax.y,
-                    Is.EqualTo(-12f).Within(0.01f),
+                    Is.EqualTo(-2f).Within(0.01f),
                     "이름표 위쪽에 Inspector-authored padding이 필요합니다.");
                 Assert.That(textRect.rect.width, Is.GreaterThan(0f));
                 Assert.That(textRect.rect.height, Is.GreaterThan(0f));
@@ -397,6 +397,10 @@ namespace Wake.Tests
                 foreach (string label in labels)
                 {
                     measurementText.text = label;
+                    RectTransform measurementPlate =
+                        measurementText.rectTransform.parent as RectTransform;
+                    Assert.That(measurementPlate, Is.Not.Null);
+                    measurementPlate.sizeDelta = new Vector2(480f, 64.8f);
                     Canvas.ForceUpdateCanvases();
                     measurementText.ForceMeshUpdate(
                         ignoreActiveState: true,
@@ -410,6 +414,21 @@ namespace Wake.Tests
                         measurementText.isTextOverflowing,
                         Is.False,
                         $"화자명 '{label}'이 Inspector-authored 이름표를 벗어납니다.");
+                    Assert.That(
+                        measurementText.firstOverflowCharacterIndex,
+                        Is.EqualTo(-1),
+                        $"화자명 '{label}'은 첫 글자부터 잘려서는 안 됩니다.");
+                    Assert.That(
+                        measurementText.textInfo.characterCount,
+                        Is.EqualTo(label.Length),
+                        $"화자명 '{label}'의 모든 글자가 레이아웃에 포함되어야 합니다.");
+                    Assert.That(
+                        measurementText.textInfo.characterInfo
+                            .Take(measurementText.textInfo.characterCount)
+                            .Count(character => character.isVisible),
+                        Is.EqualTo(label.Count(character =>
+                            !char.IsWhiteSpace(character))),
+                        $"화자명 '{label}'의 실제 글리프가 모두 렌더링되어야 합니다.");
                     Assert.That(
                         measurementText.fontSize,
                         Is.GreaterThanOrEqualTo(
