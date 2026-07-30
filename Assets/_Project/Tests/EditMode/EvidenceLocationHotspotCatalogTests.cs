@@ -1,6 +1,7 @@
 using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.UI;
 using Wake.Exploration;
 
 namespace Wake.Tests.EditMode
@@ -63,6 +64,89 @@ namespace Wake.Tests.EditMode
 
             Assert.That(entry.LocationCode, Is.EqualTo(expectedLocation));
             Assert.That(entry.AvailableFromScene, Is.EqualTo(expectedScene));
+        }
+
+        [Test]
+        public void PortEvidenceOverlay_UsesTransparentPolygonTarget()
+        {
+            GameObject root = new(
+                "Evidence Overlay Test",
+                typeof(RectTransform),
+                typeof(EvidenceLocationHotspotOverlay));
+            try
+            {
+                RectTransform content = root.GetComponent<RectTransform>();
+                EvidenceLocationHotspotOverlay overlay =
+                    root.GetComponent<EvidenceLocationHotspotOverlay>();
+                overlay.Initialize(content);
+                overlay.Show(
+                    "PORT",
+                    new LocationBackgroundSelection(
+                        null,
+                        "serialized:bg_location_port_evidence",
+                        string.Empty,
+                        usesSerializedFallback: false));
+
+                Transform target = content.Find("EvidenceHotspot_C-01");
+                Assert.That(target, Is.Not.Null);
+                Assert.That(
+                    target.GetComponent<Image>().color,
+                    Is.EqualTo(Color.clear));
+                Assert.That(
+                    target.GetComponent<Button>().transition,
+                    Is.EqualTo(Selectable.Transition.None));
+                Assert.That(target.GetComponent<Outline>(), Is.Null);
+                Assert.That(
+                    target.GetComponent<PolygonHotspotRaycastFilter>(),
+                    Is.Not.Null);
+                Assert.That(
+                    target.Find("Interaction Label"),
+                    Is.Null);
+                Assert.That(
+                    target.Find("Accessibility Focus Marker"),
+                    Is.Not.Null);
+                Assert.That(
+                    content.Find("EvidenceHotspot_C-18"),
+                    Is.Null);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [Test]
+        public void EvidenceOverlay_WithoutApprovedPolygonFailsClosed()
+        {
+            GameObject root = new(
+                "Evidence Overlay Test",
+                typeof(RectTransform),
+                typeof(EvidenceLocationHotspotOverlay));
+            try
+            {
+                RectTransform content = root.GetComponent<RectTransform>();
+                EvidenceLocationHotspotOverlay overlay =
+                    root.GetComponent<EvidenceLocationHotspotOverlay>();
+                overlay.Initialize(content);
+                overlay.Show(
+                    "PORT",
+                    new LocationBackgroundSelection(
+                        null,
+                        "serialized:unapproved_port_background",
+                        string.Empty,
+                        usesSerializedFallback: false));
+
+                Assert.That(
+                    content.Find("EvidenceHotspot_C-01"),
+                    Is.Null);
+                Assert.That(
+                    content.Find("EvidenceHotspot_C-18"),
+                    Is.Null);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
         }
     }
 }

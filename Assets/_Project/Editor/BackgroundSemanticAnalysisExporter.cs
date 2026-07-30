@@ -206,21 +206,31 @@ namespace Wake.EditorTools
                 EvidenceMasterCatalog.TryGet(
                     evidence.EvidenceId,
                     out EvidenceMasterRecord master);
-                result.Add(new SemanticProtectionRecord
+                BackgroundInteractionShape[] authoredShapes =
+                    BackgroundInteractionShapeCatalog.All
+                        .Where(shape =>
+                            shape.ObjectId == evidence.EvidenceId &&
+                            shape.LocationCode == canonicalLocation)
+                        .ToArray();
+                if (authoredShapes.Length > 0)
                 {
-                    locationCode = canonicalLocation,
-                    objectId = evidence.EvidenceId,
-                    kind = "Evidence",
-                    priority = "Hard",
-                    normalizedRect =
-                        SemanticRect.From(evidence.NormalizedRect),
-                    availableFromScene = evidence.AvailableFromScene,
-                    requiredEnding = evidence.RequiredEnding,
-                    argumentRole = master?.ArgumentRole ?? string.Empty,
-                    coverage = master?.Coverage ?? string.Empty,
-                    sourceScenes = master?.SourceScenes?.ToArray() ??
-                                   Array.Empty<string>()
-                });
+                    foreach (BackgroundInteractionShape shape in
+                             authoredShapes)
+                    {
+                        result.Add(CreateEvidenceProtection(
+                            evidence,
+                            master,
+                            canonicalLocation,
+                            shape));
+                    }
+                    continue;
+                }
+
+                result.Add(CreateEvidenceProtection(
+                    evidence,
+                    master,
+                    canonicalLocation,
+                    null));
             }
 
             foreach (AmbientInspectableSpec inspectable in
@@ -232,24 +242,89 @@ namespace Wake.EditorTools
                 if (!CanonicalLocationCatalog.IsPlayable(canonicalLocation))
                     continue;
 
-                result.Add(new SemanticProtectionRecord
+                BackgroundInteractionShape[] authoredShapes =
+                    BackgroundInteractionShapeCatalog.All
+                        .Where(shape =>
+                            shape.ObjectId == inspectable.Id &&
+                            shape.LocationCode == canonicalLocation)
+                        .ToArray();
+                if (authoredShapes.Length > 0)
                 {
-                    locationCode = canonicalLocation,
-                    objectId = inspectable.Id,
-                    kind = "Inspectable",
-                    priority = "Soft",
-                    normalizedRect =
-                        SemanticRect.From(inspectable.Hotspot),
-                    displayName = inspectable.Title,
-                    description = inspectable.Description,
-                    sourceScenes = Array.Empty<string>()
-                });
+                    foreach (BackgroundInteractionShape shape in
+                             authoredShapes)
+                    {
+                        result.Add(CreateInspectableProtection(
+                            inspectable,
+                            canonicalLocation,
+                            shape));
+                    }
+                    continue;
+                }
+
+                result.Add(CreateInspectableProtection(
+                    inspectable,
+                    canonicalLocation,
+                    null));
             }
 
             return result
                 .OrderBy(item => item.locationCode, StringComparer.Ordinal)
                 .ThenBy(item => item.objectId, StringComparer.Ordinal)
+                .ThenBy(item => item.variantKey, StringComparer.Ordinal)
                 .ToList();
+        }
+
+        private static SemanticProtectionRecord CreateEvidenceProtection(
+            EvidenceLocationHotspotSpec evidence,
+            EvidenceMasterRecord master,
+            string canonicalLocation,
+            BackgroundInteractionShape shape)
+        {
+            Rect bounds = shape?.NormalizedBounds ??
+                          evidence.NormalizedRect;
+            return new SemanticProtectionRecord
+            {
+                locationCode = canonicalLocation,
+                objectId = evidence.EvidenceId,
+                kind = "Evidence",
+                priority = "Hard",
+                normalizedRect = SemanticRect.From(bounds),
+                points = shape?.NormalizedPolygon
+                    .Select(SemanticPoint.From)
+                    .ToArray() ?? Array.Empty<SemanticPoint>(),
+                variantKey = shape?.BackgroundVariantKey ?? string.Empty,
+                isPresent = shape?.IsPresent ?? true,
+                availableFromScene = evidence.AvailableFromScene,
+                requiredEnding = evidence.RequiredEnding,
+                argumentRole = master?.ArgumentRole ?? string.Empty,
+                coverage = master?.Coverage ?? string.Empty,
+                sourceScenes = master?.SourceScenes?.ToArray() ??
+                               Array.Empty<string>()
+            };
+        }
+
+        private static SemanticProtectionRecord CreateInspectableProtection(
+            AmbientInspectableSpec inspectable,
+            string canonicalLocation,
+            BackgroundInteractionShape shape)
+        {
+            Rect bounds = shape?.NormalizedBounds ?? inspectable.Hotspot;
+            return new SemanticProtectionRecord
+            {
+                locationCode = canonicalLocation,
+                objectId = inspectable.Id,
+                kind = "Inspectable",
+                priority = "Soft",
+                normalizedRect = SemanticRect.From(bounds),
+                points = shape?.NormalizedPolygon
+                    .Select(SemanticPoint.From)
+                    .ToArray() ?? Array.Empty<SemanticPoint>(),
+                variantKey = shape?.BackgroundVariantKey ?? string.Empty,
+                isPresent = shape?.IsPresent ?? true,
+                displayName = inspectable.Title,
+                description = inspectable.Description,
+                sourceScenes = Array.Empty<string>()
+            };
         }
 
         private static List<SemanticSceneRecord> CollectScenes(
@@ -438,6 +513,9 @@ namespace Wake.EditorTools
             public string displayName;
             public string description;
             public SemanticRect normalizedRect;
+            public SemanticPoint[] points;
+            public string variantKey;
+            public bool isPresent = true;
             public string availableFromScene;
             public string requiredEnding;
             public string argumentRole;

@@ -33,7 +33,7 @@ namespace Wake.Tests
         }
 
         [Test]
-        public void ButtonColors_ProvideVisibleHoverAndPressStates()
+        public void ButtonColors_KeepPaintedHotspotsVisuallyTransparent()
         {
             var worldCharacter =
                 AmbientInteractionPresentation.CharacterSpriteColors(
@@ -52,13 +52,13 @@ namespace Wake.Tests
                 Is.Not.EqualTo(worldCharacter.highlightedColor));
             Assert.That(
                 hotspot.normalColor.a,
-                Is.GreaterThan(0f));
+                Is.Zero);
             Assert.That(
                 hotspot.highlightedColor.a,
-                Is.GreaterThan(hotspot.normalColor.a));
+                Is.Zero);
             Assert.That(
-                hotspot.pressedColor,
-                Is.Not.EqualTo(hotspot.highlightedColor));
+                hotspot.pressedColor.a,
+                Is.Zero);
         }
 
         [Test]
