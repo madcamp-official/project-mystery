@@ -25,11 +25,11 @@ namespace Wake.Tests
         public void ProductionCsv_PreservesContractTotals()
         {
             Assert.That(production.Success, Is.True, string.Join("\n", production.Errors));
-            Assert.That(production.Records.Count, Is.EqualTo(1063));
+            Assert.That(production.Records.Count, Is.EqualTo(1083));
             Assert.That(
                 production.Records.Select(record => record.SceneId).Distinct().Count(),
                 Is.EqualTo(41));
-            Assert.That(production.Records.Count(record => record.VoiceRequired), Is.EqualTo(668));
+            Assert.That(production.Records.Count(record => record.VoiceRequired), Is.EqualTo(677));
         }
 
         [Test]
@@ -44,8 +44,8 @@ namespace Wake.Tests
         public void StableLineIds_AreUniqueAndNormalized()
         {
             List<string> ids = production.Records.Select(record => record.StableLineId).ToList();
-            Assert.That(ids.Count, Is.EqualTo(1063));
-            Assert.That(ids.Distinct().Count(), Is.EqualTo(1063));
+            Assert.That(ids.Count, Is.EqualTo(1083));
+            Assert.That(ids.Distinct().Count(), Is.EqualTo(1083));
             Assert.That(ids, Does.Contain("p_01_01"));
             Assert.That(ids, Does.Contain("d1_06_08"));
             Assert.That(
@@ -63,13 +63,13 @@ namespace Wake.Tests
                 .Where(record => record.Speaker == "PLAYER_CHOICE")
                 .ToList();
 
-            Assert.That(choices.Count, Is.EqualTo(90));
+            Assert.That(choices.Count, Is.EqualTo(100));
             Assert.That(
                 choices.Select(record => record.BranchGroup)
                     .Where(group => !string.IsNullOrEmpty(group))
                     .Distinct()
                     .Count(),
-                Is.EqualTo(33));
+                Is.EqualTo(38));
             Assert.That(choices, Has.All.Matches<DialogueRecord>(record =>
                 !string.IsNullOrWhiteSpace(record.ChoiceId)));
         }

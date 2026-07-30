@@ -57,13 +57,13 @@ namespace Wake.Tests
         [Test]
         public void ProductionCsv_PreservesRowsScenesStableIdsAndKorean()
         {
-            Assert.That(records, Has.Count.EqualTo(1063));
+            Assert.That(records, Has.Count.EqualTo(1083));
             Assert.That(
                 records.Select(item => item.SceneId).Distinct().Count(),
                 Is.EqualTo(41));
             Assert.That(
                 records.Select(item => item.StableLineId).Distinct().Count(),
-                Is.EqualTo(1063));
+                Is.EqualTo(1083));
             Assert.That(
                 records.Any(item => item.StableLineId == "p_01_01"),
                 Is.True);

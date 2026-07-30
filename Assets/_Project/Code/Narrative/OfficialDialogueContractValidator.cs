@@ -23,8 +23,8 @@ namespace Wake.Narrative
     /// </summary>
     public static class OfficialDialogueContractValidator
     {
-        public const int ExpectedDialogueCount = 1063;
-        public const int ExpectedChoiceCount = 90;
+        public const int ExpectedDialogueCount = 1083;
+        public const int ExpectedChoiceCount = 100;
         public const int ExpectedSceneCount = 41;
         public const int ExpectedEndingCount = 4;
 

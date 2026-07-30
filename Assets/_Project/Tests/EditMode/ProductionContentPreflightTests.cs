@@ -37,7 +37,7 @@ namespace Wake.Tests
                 "VOICE_CLIP_MISSING"
             }));
             Assert.That(Find("VOICE_CLIP_MISSING").Message,
-                Does.Contain("668개"));
+                Does.Contain("677개"));
         }
 
         [Test]

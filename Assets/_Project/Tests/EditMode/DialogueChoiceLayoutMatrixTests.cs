@@ -60,9 +60,9 @@ namespace Wake.Tests
         {
             DialogueRecord[] choices = records.Where(IsChoice).ToArray();
 
-            Assert.That(choices, Has.Length.EqualTo(90));
-            Assert.That(groups, Has.Count.EqualTo(33));
-            Assert.That(groups.Sum(group => group.Rows.Count), Is.EqualTo(90));
+            Assert.That(choices, Has.Length.EqualTo(100));
+            Assert.That(groups, Has.Count.EqualTo(38));
+            Assert.That(groups.Sum(group => group.Rows.Count), Is.EqualTo(100));
             Assert.That(choices, Has.All.Matches<DialogueRecord>(row =>
                 !string.IsNullOrWhiteSpace(row.ChoiceId)));
         }

@@ -162,7 +162,7 @@ namespace Wake.Tests
         {
             Assert.That(
                 records.Count(record => record.StageDirection == "UI choice"),
-                Is.EqualTo(90));
+                Is.EqualTo(100));
             IReadOnlyList<SceneScheduleDiagnostic> diagnostics =
                 ProductionSceneScheduleValidator.Validate(records);
 
