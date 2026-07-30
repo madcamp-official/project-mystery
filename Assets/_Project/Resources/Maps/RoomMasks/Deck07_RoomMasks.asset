@@ -18,45 +18,56 @@ MonoBehaviour:
   masks:
   - locationCode: BALLAST_CONTROL_ANNEX
     polygon:
-    - {x: 0.86, y: 0.64}
-    - {x: 0.95, y: 0.6}
-    - {x: 0.95, y: 0.45999998}
-    - {x: 0.86, y: 0.44}
-    correctiveArtworkRecommended: 0
+    - {x: 0.79, y: 0.617}
+    - {x: 0.909, y: 0.617}
+    - {x: 0.913, y: 0.598}
+    - {x: 0.913, y: 0.49400002}
+    - {x: 0.79, y: 0.49400002}
+    correctiveArtworkRecommended: 1
   - locationCode: CABIN_DANIEL
     polygon:
-    - {x: 0.06, y: 0.65999997}
-    - {x: 0.23, y: 0.65999997}
-    - {x: 0.23, y: 0.45}
-    - {x: 0.06, y: 0.45}
+    - {x: 0.067, y: 0.663}
+    - {x: 0.226, y: 0.663}
+    - {x: 0.226, y: 0.45200002}
+    - {x: 0.066, y: 0.45200002}
+    - {x: 0.056, y: 0.48400003}
+    - {x: 0.053, y: 0.556}
+    - {x: 0.058, y: 0.622}
     correctiveArtworkRecommended: 0
   - locationCode: CREW_STAIRS
     polygon:
-    - {x: 0.73, y: 0.43}
-    - {x: 0.84, y: 0.43}
-    - {x: 0.84, y: 0.25}
-    - {x: 0.73, y: 0.25}
-    correctiveArtworkRecommended: 0
+    - {x: 0.762, y: 0.45599997}
+    - {x: 0.806, y: 0.45599997}
+    - {x: 0.806, y: 0.30900002}
+    - {x: 0.762, y: 0.30900002}
+    correctiveArtworkRecommended: 1
   - locationCode: ENGINE_CONTROL
     polygon:
-    - {x: 0.7, y: 0.64}
-    - {x: 0.85, y: 0.64}
-    - {x: 0.85, y: 0.45}
-    - {x: 0.7, y: 0.45}
-    correctiveArtworkRecommended: 0
+    - {x: 0.714, y: 0.662}
+    - {x: 0.776, y: 0.662}
+    - {x: 0.776, y: 0.49}
+    - {x: 0.714, y: 0.49}
+    correctiveArtworkRecommended: 1
   - locationCode: SERVICE7
     polygon:
-    - {x: 0.1, y: 0.82}
-    - {x: 0.73, y: 0.82}
-    - {x: 0.78, y: 0.78}
-    - {x: 0.74, y: 0.69}
-    - {x: 0.11, y: 0.69}
-    - {x: 0.08, y: 0.74}
+    - {x: 0.103, y: 0.81299996}
+    - {x: 0.744, y: 0.81299996}
+    - {x: 0.752, y: 0.803}
+    - {x: 0.752, y: 0.7}
+    - {x: 0.095, y: 0.7}
+    - {x: 0.093, y: 0.73}
+    - {x: 0.096, y: 0.779}
     correctiveArtworkRecommended: 0
   - locationCode: SERVICE_RAIL
     polygon:
-    - {x: 0.8, y: 0.82}
-    - {x: 0.93, y: 0.79}
-    - {x: 0.94, y: 0.65999997}
-    - {x: 0.81, y: 0.65999997}
-    correctiveArtworkRecommended: 0
+    - {x: 0.752, y: 0.81200004}
+    - {x: 0.779, y: 0.805}
+    - {x: 0.831, y: 0.779}
+    - {x: 0.879, y: 0.737}
+    - {x: 0.906, y: 0.694}
+    - {x: 0.915, y: 0.65900004}
+    - {x: 0.795, y: 0.65900004}
+    - {x: 0.786, y: 0.675}
+    - {x: 0.781, y: 0.694}
+    - {x: 0.752, y: 0.694}
+    correctiveArtworkRecommended: 1

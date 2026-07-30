@@ -17,17 +17,17 @@ MonoBehaviour:
   authoredSourceHash: fd31d87c0b3798ca1b03c8bfcfc67cb1
   nodes:
   - locationCode: ATRIUM
-    normalizedPosition: {x: 0.48, y: 0.52}
+    normalizedPosition: {x: 0.476, y: 0.536}
     entryPointId: 
   - locationCode: CABIN_CLAIRE
-    normalizedPosition: {x: 0.72, y: 0.39999998}
+    normalizedPosition: {x: 0.728, y: 0.39499998}
     entryPointId: 
   - locationCode: MEDBAY
-    normalizedPosition: {x: 0.71, y: 0.66999996}
+    normalizedPosition: {x: 0.718, y: 0.676}
     entryPointId: 
   - locationCode: NEWS_LOUNGE
-    normalizedPosition: {x: 0.21, y: 0.66999996}
+    normalizedPosition: {x: 0.208, y: 0.672}
     entryPointId: 
   - locationCode: SECURITY
-    normalizedPosition: {x: 0.71, y: 0.53}
+    normalizedPosition: {x: 0.665, y: 0.526}
     entryPointId: 

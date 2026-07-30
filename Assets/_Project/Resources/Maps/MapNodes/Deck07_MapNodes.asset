@@ -17,20 +17,20 @@ MonoBehaviour:
   authoredSourceHash: ccc031b1592964df4217a9f2f4d86f07
   nodes:
   - locationCode: BALLAST_CONTROL_ANNEX
-    normalizedPosition: {x: 0.9, y: 0.53999996}
+    normalizedPosition: {x: 0.851, y: 0.555}
     entryPointId: 
   - locationCode: CABIN_DANIEL
-    normalizedPosition: {x: 0.15, y: 0.55}
+    normalizedPosition: {x: 0.142, y: 0.55700004}
     entryPointId: 
   - locationCode: CREW_STAIRS
-    normalizedPosition: {x: 0.78, y: 0.33999997}
+    normalizedPosition: {x: 0.784, y: 0.38200003}
     entryPointId: 
   - locationCode: ENGINE_CONTROL
-    normalizedPosition: {x: 0.77, y: 0.53999996}
+    normalizedPosition: {x: 0.745, y: 0.576}
     entryPointId: 
   - locationCode: SERVICE7
-    normalizedPosition: {x: 0.42, y: 0.75}
+    normalizedPosition: {x: 0.424, y: 0.756}
     entryPointId: 
   - locationCode: SERVICE_RAIL
-    normalizedPosition: {x: 0.87, y: 0.73}
+    normalizedPosition: {x: 0.821, y: 0.723}
     entryPointId: 
