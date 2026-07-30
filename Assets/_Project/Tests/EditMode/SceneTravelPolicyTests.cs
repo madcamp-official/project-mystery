@@ -343,6 +343,48 @@ namespace Wake.Tests
             }
         }
 
+        [Test]
+        public void AtriumTravel_IsBlockedUntilAllFourSuspectsAreInterviewed()
+        {
+            Assert.That(
+                SceneTravelPolicy.IsTravelBlockedByIncompleteInvestigation(
+                    "ATRIUM",
+                    "DINING",
+                    state),
+                Is.True);
+
+            state.RecordCompletedScene("D1-01");
+
+            Assert.That(
+                SceneTravelPolicy.IsTravelBlockedByIncompleteInvestigation(
+                    "ATRIUM",
+                    "DINING",
+                    state),
+                Is.False);
+        }
+
+        [Test]
+        public void AtriumTravel_IsNeverBlockedWhenDestinationIsTheSameLocation()
+        {
+            Assert.That(
+                SceneTravelPolicy.IsTravelBlockedByIncompleteInvestigation(
+                    "ATRIUM",
+                    "ATRIUM",
+                    state),
+                Is.False);
+        }
+
+        [Test]
+        public void UnrelatedLocation_IsNeverBlockedByTheInvestigationGate()
+        {
+            Assert.That(
+                SceneTravelPolicy.IsTravelBlockedByIncompleteInvestigation(
+                    "DINING",
+                    "ATRIUM",
+                    state),
+                Is.False);
+        }
+
         private static void EnsureAwake<T>(T component, T instance) where T : Component
         {
             if (instance == component)
