@@ -767,6 +767,22 @@ namespace Wake.Narrative
             linePanel.SetActive(false);
             pendingInvestigationTitle =
                 InvestigationPresentationPolicy.MarkerTitle(marker);
+            string evidenceId =
+                productionFlow?.FindUpcomingGrantedEvidenceId();
+            if (!string.IsNullOrEmpty(evidenceId) &&
+                InvestigationTargetCatalog.RequiresInspection(evidenceId) &&
+                InvestigationScreenController.Instance?.Begin(
+                    evidenceId,
+                    () => FinishDetailedInvestigation(evidenceId)) == true)
+            {
+                return;
+            }
+
+            PresentLegacyInvestigationTarget();
+        }
+
+        private void PresentLegacyInvestigationTarget()
+        {
             if (investigationUi == null)
             {
                 productionFlow?.Advance();
@@ -778,6 +794,17 @@ namespace Wake.Narrative
                 () =>
                 {
                     investigationUi.Hide();
+                    string evidenceId =
+                        productionFlow?.FindUpcomingGrantedEvidenceId();
+                    if (!string.IsNullOrEmpty(evidenceId) &&
+                        InvestigationTargetCatalog.RequiresInspection(
+                            evidenceId) &&
+                        InvestigationScreenController.Instance?.Begin(
+                            evidenceId,
+                            () => FinishDetailedInvestigation(evidenceId)) == true)
+                    {
+                        return;
+                    }
                     productionFlow?.Advance();
                     RenderProduction();
                 });
@@ -827,6 +854,27 @@ namespace Wake.Narrative
                     }
                     AdvanceAfterInvestigation();
                 });
+        }
+
+        private void FinishDetailedInvestigation(string evidenceId)
+        {
+            if (EvidenceInventory.Instance?.Contains(evidenceId) != true)
+            {
+                PresentLegacyInvestigationTarget();
+                return;
+            }
+
+            // The detailed screen replaces both the marker and its one-line
+            // observation modal. Advance over those records; the following
+            // evidence/system record remains visible in the normal flow.
+            productionFlow?.Advance();
+            if (InvestigationPresentationPolicy.IsInvestigationResult(
+                    productionFlow?.Current))
+            {
+                productionFlow.Advance();
+            }
+            pendingInvestigationTitle = string.Empty;
+            RenderProduction();
         }
 
         private static bool TryGrantEvidenceAfterInspection(string evidenceId)

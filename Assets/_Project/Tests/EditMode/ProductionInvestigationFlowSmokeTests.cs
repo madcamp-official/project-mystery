@@ -131,6 +131,51 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void InvestigationMarker_ResolvesUpcomingDetailedEvidence()
+        {
+            var flow = new ProductionDialogueFlow(records, null, state);
+            Assert.That(flow.StartScene("P-01"), Is.True);
+
+            while (flow.Current?.CanonicalLineId != "P-01_003")
+                flow.Advance();
+
+            Assert.That(
+                InvestigationPresentationPolicy.IsMarker(flow.Current),
+                Is.True);
+            Assert.That(
+                flow.FindUpcomingGrantedEvidenceId(),
+                Is.EqualTo("C-01"));
+            Assert.That(
+                InvestigationTargetCatalog.RequiresInspection(
+                    flow.FindUpcomingGrantedEvidenceId()),
+                Is.True);
+
+            state.RecordCompletedScene("D1-05");
+            AssertDetailedInvestigationTarget("D1-06", "D1-06_008", "C-02");
+            AssertDetailedInvestigationTarget("D1-06", "D1-06_011", "C-07");
+        }
+
+        private void AssertDetailedInvestigationTarget(
+            string sceneId,
+            string markerId,
+            string evidenceId)
+        {
+            var flow = new ProductionDialogueFlow(records, null, state);
+            Assert.That(flow.StartScene(sceneId), Is.True, sceneId);
+            while (flow.Current != null &&
+                   flow.Current.CanonicalLineId != markerId)
+            {
+                flow.Advance();
+            }
+
+            Assert.That(flow.Current, Is.Not.Null, markerId);
+            Assert.That(
+                flow.FindUpcomingGrantedEvidenceId(),
+                Is.EqualTo(evidenceId),
+                markerId);
+        }
+
+        [Test]
         public void BloodPuzzle_ToMarcus_ToOrpheus_ProducesTypedState()
         {
             state.RecordEvidenceCollected("C-07");

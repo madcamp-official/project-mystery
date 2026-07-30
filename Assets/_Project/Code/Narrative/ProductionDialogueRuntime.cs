@@ -278,6 +278,28 @@ namespace Wake.Narrative
         public string ActiveSceneId { get; private set; } = string.Empty;
         public int CurrentIndex => index;
         private readonly List<string> warnings = new();
+
+        public string FindUpcomingGrantedEvidenceId()
+        {
+            for (int candidate = index + 1;
+                 candidate < activeScene.Count;
+                 candidate++)
+            {
+                DialogueRecord record = activeScene[candidate];
+                if (InvestigationPresentationPolicy.IsMarker(record))
+                    break;
+
+                string evidenceId =
+                    CanonicalEvidenceCatalog.GetGrantedEvidenceIds(
+                            record.StableLineId)
+                        .FirstOrDefault();
+                if (!string.IsNullOrEmpty(evidenceId))
+                    return evidenceId;
+            }
+
+            return string.Empty;
+        }
+
         public ProductionDialogueFlow(
             IEnumerable<DialogueRecord> records,
             ISet<string> completed = null,
