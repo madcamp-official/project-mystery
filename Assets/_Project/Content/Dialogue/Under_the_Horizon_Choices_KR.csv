@@ -16,6 +16,8 @@ D1-04_C1,D1-04,경비에게 알리기,,discovery_time:early; flag:security_alert
 D1-04_C2,D1-04,몰래 추적,,discovery_time:late; flag:stealth_follow,D1-04_METHOD,READY
 D1-06_C1,D1-06,즉시 봉쇄,,evidenceIntegrity:+0; flag:scene_secured,D1-06_PRESERVE,READY
 D1-06_C2,D1-06,먼저 시신 확인,,evidenceIntegrity:-20; flag:scene_disturbed,D1-06_PRESERVE,READY
+D1-06_C3,D1-06,그 소리가 정말 확실합니까,,trust_richard:-1; publicAnxiety:+3; flag:d1_06_pressed_richard,D1-06_TRADEOFF,READY
+D1-06_C4,D1-06,지금은 여기까지 하죠,,,D1-06_TRADEOFF,READY
 D1-07_C1,D1-07,수락,,flag:secret_investigation; publicAnxiety:+0,D1-07_CONTRACT,READY
 D1-07_C2,D1-07,제한 조건 제시,,flag:investigation_conditions; trust_thomas:+1; trust_helena:+1,D1-07_CONTRACT,READY
 D2-01_EXT,D2-01,외벽 발판부터 조사,,inspect:C-03,D2-01_ORDER,READY
@@ -27,12 +29,16 @@ D2-04_C1,D2-04,영상만 보기,,timeBlock:-1; flag:camera_only,D2-04_LOG,READY
 D2-04_C2,D2-04,설비 로그 대조,,flag:facility_log_requested,D2-04_LOG,READY
 D2-05_C1,D2-05,오언을 호출한다,,trust_owen:+1; flag:rail_foreshadow_direct,D2-05_OWEN,READY
 D2-05_C2,D2-05,직접 패널을 연다,,evidenceIntegrity:-5; flag:rail_foreshadow_indirect,D2-05_OWEN,READY
+D2-06_C3,D2-06,절차를 무시하고 지금 당장 확인한다,,trust_claire:-1; evidenceIntegrity:-3; flag:d2_06_forced_key_log,D2-06_TRADEOFF,READY
+D2-06_C4,D2-06,정식 요청 결과를 기다린다,,,D2-06_TRADEOFF,READY
 D3-01_C1,D3-01,공개 해명 권고,,publicAnxiety:-15; trust_richard:-1; flag:public_briefing,D3-01_RESPONSE,READY
 D3-01_C2,D3-01,침묵 유지,,publicAnxiety:+15; trust_richard:+0; flag:silence_policy,D3-01_RESPONSE,READY
 D3-02_C1,D3-02,강경 심문,,trust_richard:-1; flag:richard_partial_confession,D3-02_STYLE,READY
 D3-02_C2,D3-02,공감 심문,,trust_richard:+1; flag:richard_full_confession,D3-02_STYLE,READY
 D3-03_C1,D3-03,선장을 공범으로 지목,,trust_thomas:-2; flag:thomas_accused,D3-03_APPROACH,READY
 D3-03_C2,D3-03,증인으로 설득,,trust_thomas:+1; flag:thomas_cooperates,D3-03_APPROACH,READY
+D3-05_C1,D3-05,왜 ‘있었다면’이라고 하셨습니까,,trust_claire:-1; publicAnxiety:+3; flag:d3_05_pressed_claire,D3-05_TRADEOFF,READY
+D3-05_C2,D3-05,여기서 멈춘다,,,D3-05_TRADEOFF,READY
 D4-01_C1,D4-01,빚 공개 협박,,trust_marcus:-1; flag:marcus_confession_coerced,D4-01_STYLE,READY
 D4-01_C2,D4-01,보호 약속,,trust_marcus:+1; flag:marcus_confession_promised,D4-01_STYLE,READY
 D4-02_C1,D4-02,이블린을 즉시 구금,,flag:evelyn_wrongful_detention; trust_evelyn:-1; publicAnxiety:+10,D4-02_DETAIN,READY
@@ -45,12 +51,16 @@ D4-04_Q5,D4-04,이블린이 금고에 들어가는 것을 직접 봤습니까?,,
 D4-04_Q6,D4-04,토큰을 준 시각은 21시 이전입니까?,,question_used; flag:token_before_2100,D4-04_Q,READY
 D4-04_Q7,D4-04,추락 전에 이블린이 당신을 위협했습니까?,,question_used; flag:threat_message,D4-04_Q,READY
 D4-04_Q8,D4-04,리처드가 토큰 제공을 지시했습니까?,,question_used; answer:no,D4-04_Q,READY
+D4-04_C1,D4-04,그래도 한 가지만 더 묻는다,,trust_marcus:-1; publicAnxiety:+4; flag:d4_04_overquestioned_marcus,D4-04_TRADEOFF,READY
+D4-04_C2,D4-04,여기서 멈춘다,,,D4-04_TRADEOFF,READY
 D5-01_C1,D5-01,현장을 즉시 봉쇄,,evidenceIntegrity:+0; flag:claire_scene_secured,D5-01_SECURE,READY
 D5-02_C1,D5-02,‘침입자가 없다’는 출입 로그 제시,,contradiction:1,D5-02_PROOF,READY
 D5-02_C2,D5-02,‘커튼이 스스로 쓰러졌다’는 모터 로그 제시,,contradiction:2,D5-02_PROOF,READY
 D5-02_C3,D5-02,‘연기는 화재가 아니다’는 드라이아이스 제시,,contradiction:3,D5-02_PROOF,READY
 D5-03_C1,D5-03,면책 거래,,trust_claire:+2; flag:claire_cooperates; flag:funds_disclosure_limited,D5-03_DEAL,READY
 D5-03_C2,D5-03,전면 폭로,,trust_claire:-1; publicAnxiety:+10; flag:funds_disclosure_full,D5-03_DEAL,READY
+D5-04_C1,D5-04,부품에 남은 제조 각인을 무리해서 확인한다,,evidenceIntegrity:-4; flag:d5_04_examined_devices,D5-04_TRADEOFF,READY
+D5-04_C2,D5-04,지금 상태로 기록만 남긴다,,,D5-04_TRADEOFF,READY
 D7-01_C1,D7-01,주 복도로 추격,,flag:public_chase; publicAnxiety:+5; evidence:module_case,D7-01_CHASE,READY
 D7-01_C2,D7-01,서비스 레일 지름길 차단,,flag:rail_intercept; trust_owen:+1; evidence:module_case,D7-01_CHASE,READY
 D7-02_L1,D7-02,가짜 화재경보가 이블린 단말에서 발신됨,,logic:device_link,D7-02_LOGIC,READY

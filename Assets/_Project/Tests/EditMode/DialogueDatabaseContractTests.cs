@@ -39,7 +39,7 @@ namespace Wake.Tests
                     database.LoadFromText(production.text),
                     Is.True,
                     string.Join("\n", database.LoadErrors));
-                Assert.That(database.RecordCount, Is.EqualTo(1063));
+                Assert.That(database.RecordCount, Is.EqualTo(1083));
                 Assert.That(database.SceneCount, Is.EqualTo(41));
                 Assert.That(database.LoadErrors, Is.Empty);
             }

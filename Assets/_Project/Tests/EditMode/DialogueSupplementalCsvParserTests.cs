@@ -27,10 +27,10 @@ namespace Wake.Tests
         public void ChoiceFlow_PreservesOfficialContract()
         {
             Assert.That(choices.Success, Is.True, string.Join("\n", choices.Errors));
-            Assert.That(choices.Records, Has.Count.EqualTo(90));
+            Assert.That(choices.Records, Has.Count.EqualTo(100));
             Assert.That(
                 choices.Records.Select(record => record.ChoiceId).Distinct().Count(),
-                Is.EqualTo(90));
+                Is.EqualTo(100));
             Assert.That(
                 choices.Records.Select(record => record.SceneId).Distinct().Count(),
                 Is.GreaterThan(20));
@@ -50,10 +50,10 @@ namespace Wake.Tests
                 Is.EqualTo(41));
             Assert.That(
                 scenes.Records.Sum(record => record.DialogueLineCount),
-                Is.EqualTo(1063));
+                Is.EqualTo(1083));
             Assert.That(
                 scenes.Records.Sum(record => record.ChoiceCount),
-                Is.EqualTo(90));
+                Is.EqualTo(100));
         }
 
         [Test]

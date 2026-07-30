@@ -35,7 +35,7 @@ namespace Wake.Tests.PlayMode
                 Is.EqualTo(ProductionAssetName),
                 "샘플 CSV가 아니라 원본 프로덕션 CSV를 사용해야 합니다.");
             Assert.That(Database.LoadErrors, Is.Empty);
-            Assert.That(Database.RecordCount, Is.EqualTo(1063));
+            Assert.That(Database.RecordCount, Is.EqualTo(1083));
             Assert.That(Database.SceneCount, Is.EqualTo(41));
 
             DialogueRecord[] records = Database.Records.Values.ToArray();
@@ -44,11 +44,11 @@ namespace Wake.Tests.PlayMode
                     .Select(record => record.StableLineId)
                     .Distinct()
                     .Count(),
-                Is.EqualTo(1063),
+                Is.EqualTo(1083),
                 "stable line ID 200개가 모두 고유해야 합니다.");
             Assert.That(
                 records.Count(record => record.Speaker == "PLAYER_CHOICE"),
-                Is.EqualTo(90),
+                Is.EqualTo(100),
                 "원본 CSV의 선택지 행 30개가 보존되어야 합니다.");
             Assert.That(
                 records
@@ -56,7 +56,7 @@ namespace Wake.Tests.PlayMode
                     .Select(record => record.ChoiceId)
                     .Distinct()
                     .Count(),
-                Is.EqualTo(90),
+                Is.EqualTo(100),
                 "선택지 ID 30개가 모두 보존되어야 합니다.");
 
             foreach (IGrouping<string, DialogueRecord> scene in
