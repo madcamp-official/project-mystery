@@ -259,7 +259,7 @@ namespace Wake.UI
                 outline.effectColor = new Color(1f, .78f, .30f, .65f);
                 outline.effectDistance = Vector2.zero;
                 pointObject.AddComponent<ExplorationHotspotFeedback>()
-                    .Configure(point.DisplayName);
+                    .Configure();
                 pointButtons.Add(button);
             }
         }

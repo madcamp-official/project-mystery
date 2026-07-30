@@ -7,17 +7,6 @@ namespace Wake.Tests
     public sealed class AmbientInteractionPresentationTests
     {
         [Test]
-        public void HotspotLabel_ExposesInteractionAndObjectName()
-        {
-            Assert.That(
-                AmbientInteractionPresentation.HotspotLabel("서비스 벨"),
-                Is.EqualTo("조사 · 서비스 벨"));
-            Assert.That(
-                AmbientInteractionPresentation.HotspotLabel(null),
-                Is.EqualTo("조사"));
-        }
-
-        [Test]
         public void ClampHotspot_NormalizesAndClipsToBackground()
         {
             Rect result =
