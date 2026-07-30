@@ -9,6 +9,7 @@ using UnityEngine.UI;
 using Wake.Core;
 using Wake.Evidence;
 using Wake.Exploration;
+using Wake.Narrative;
 using Wake.Puzzles;
 using Wake.UI;
 
@@ -85,6 +86,34 @@ namespace Wake.Tests.PlayMode
         [UnityTest]
         public IEnumerator BloodPuzzle_DragSwapsPiecesAndClickStillRotates()
         {
+            foreach (ProductionSceneDefinition scene in
+                     ProductionSceneCatalog.All.TakeWhile(
+                         scene => scene.SceneId != "D2-02"))
+            {
+                State.RecordCompletedScene(scene.SceneId);
+            }
+            State.UnlockProductionScene("D2-02");
+
+            MapController map = Object.FindFirstObjectByType<MapController>(
+                FindObjectsInactive.Include);
+            Assert.That(map, Is.Not.Null);
+            map.RefreshMap();
+            ProductionMapEntry horizon = map.CurrentViewModel.Entries.Single(
+                entry => entry.Spec.Code == "HORIZON");
+            LocationLoader.Instance.PrepareNarrativeScene("D2-02");
+            Assert.That(
+                LocationLoader.Instance.TryLoadLocation(
+                    horizon.Location,
+                    out _),
+                Is.True);
+            Assert.That(
+                State.SaveDialogueCheckpoint(
+                    "D2-02",
+                    0,
+                    false,
+                    ProductionPuzzleCatalog.BloodPattern),
+                Is.True);
+
             BloodDirectionPuzzleUIController controller =
                 RequireObject("Ingame")
                     .GetComponent<BloodDirectionPuzzleUIController>();
@@ -225,6 +254,7 @@ namespace Wake.Tests.PlayMode
                 Is.Null);
 
             controller.Close();
+            yield return WaitForUiTransition();
             Assert.That(
                 LocationLoader.Instance.IsWorldInteractionSuppressed,
                 Is.False);

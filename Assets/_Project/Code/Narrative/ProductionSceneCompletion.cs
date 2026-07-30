@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Wake.Core;
+using Wake.Exploration;
 
 namespace Wake.Narrative
 {
@@ -167,6 +168,59 @@ namespace Wake.Narrative
             }
 
             return true;
+        }
+
+        public static bool CanOpenInteractionAtLocation(
+            GameStateManager state,
+            string sceneId,
+            string interactionId,
+            string currentLocationCode,
+            bool requirePendingCheckpoint = true)
+        {
+            if (!CanStartInteraction(state, sceneId, interactionId) ||
+                !ProductionSceneCatalog.TryGet(
+                    sceneId,
+                    out ProductionSceneDefinition scene) ||
+                !ProductionSceneCompletionCatalog.TryGet(
+                    sceneId,
+                    out ProductionSceneCompletionRequirement requirement) ||
+                !ProductionSceneUnlockPolicy.Evaluate(sceneId, state).IsAllowed)
+            {
+                return false;
+            }
+
+            string expectedLocation =
+                CanonicalLocationCatalog
+                    .FindSpec(scene.NarrativeLocationCode)
+                    ?.Code ??
+                scene.NarrativeLocationCode;
+            string currentLocation =
+                CanonicalLocationCatalog
+                    .FindSpec(currentLocationCode)
+                    ?.Code ??
+                currentLocationCode?.Trim().ToUpperInvariant() ??
+                string.Empty;
+            if (string.IsNullOrEmpty(expectedLocation) ||
+                !string.Equals(
+                    expectedLocation,
+                    currentLocation,
+                    StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            if (!requirePendingCheckpoint)
+            {
+                return true;
+            }
+
+            ProductionDialogueCheckpoint checkpoint = state.DialogueCheckpoint;
+            return checkpoint != null &&
+                   string.Equals(
+                       checkpoint.activeSceneId,
+                       requirement.SceneId,
+                       StringComparison.OrdinalIgnoreCase) &&
+                   requirement.Matches(checkpoint.pendingInteractionId);
         }
 
         public static bool TryComplete(

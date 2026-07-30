@@ -64,20 +64,25 @@ namespace Wake.UI
 
         public bool Open()
         {
+            GameStateManager state = GameStateManager.Instance;
+            string currentLocationCode =
+                LocationLoader.Instance?.CurrentLocation?.LocationCode ??
+                state?.CurrentLocationCode;
             if (!ProductionPuzzleCatalog.TryGet(
                     ProductionPuzzleCatalog.BloodPattern,
                     out ProductionPuzzleDefinition definition) ||
-                !ProductionSceneCompletionGate.CanStartInteraction(
-                    GameStateManager.Instance,
+                !ProductionSceneCompletionGate.CanOpenInteractionAtLocation(
+                    state,
                     definition.SceneId,
-                    definition.Id))
+                    definition.Id,
+                    currentLocationCode))
             {
                 return false;
             }
 
             productionSession = new ProductionPuzzleSession(
                 definition,
-                GameStateManager.Instance,
+                state,
                 id => EvidenceInventory.Instance != null &&
                       EvidenceInventory.Instance.Contains(id));
             puzzle = new BloodDirectionPuzzleSession();
