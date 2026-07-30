@@ -1,6 +1,8 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.UI;
 using Wake.Exploration;
 using Wake.Narrative;
 
@@ -267,6 +269,115 @@ namespace Wake.Tests
                     item.ImageUv.xMax <= 1f &&
                     item.ImageUv.yMax <= 1f),
                 Is.True);
+        }
+
+        [Test]
+        public void BoardingGuide_IsLimitedToOpeningPortBackground()
+        {
+            AmbientInspectableSpec guide =
+                AmbientInspectableCatalog.All.Single(item =>
+                    item.Id == "PROP_BROCHURE");
+
+            Assert.That(
+                guide.IsAvailable(
+                    "P-01",
+                    "serialized:bg_location_port_evidence"),
+                Is.True);
+            Assert.That(
+                guide.IsAvailable(
+                    "P-01",
+                    "LocationBackgroundVariants/bg_location_port_evidence.png"),
+                Is.True);
+            Assert.That(
+                guide.IsAvailable(
+                    "D8-03",
+                    "LocationBackgroundVariants/bg_port_d8_epilogue"),
+                Is.False);
+            Assert.That(
+                guide.IsAvailable(
+                    "P-01",
+                    "LocationBackgroundVariants/bg_port_d8_epilogue"),
+                Is.False);
+        }
+
+        [Test]
+        public void BoardingGuideOverlay_UsesTransparentPolygonTarget()
+        {
+            GameObject root = new(
+                "Inspectable Overlay Test",
+                typeof(RectTransform),
+                typeof(AmbientInspectableOverlay));
+            try
+            {
+                RectTransform content = root.GetComponent<RectTransform>();
+                AmbientInspectableOverlay overlay =
+                    root.GetComponent<AmbientInspectableOverlay>();
+                overlay.Initialize(content);
+                overlay.Show(
+                    "PORT",
+                    "P-01",
+                    new LocationBackgroundSelection(
+                        null,
+                        "serialized:bg_location_port_evidence",
+                        string.Empty,
+                        usesSerializedFallback: false));
+
+                Transform target =
+                    content.Find("AmbientInspectable_PROP_BROCHURE");
+                Assert.That(target, Is.Not.Null);
+                Assert.That(
+                    target.GetComponent<Image>().color,
+                    Is.EqualTo(Color.clear));
+                Assert.That(
+                    target.GetComponent<Button>().transition,
+                    Is.EqualTo(Selectable.Transition.None));
+                Assert.That(target.GetComponent<Outline>(), Is.Null);
+                Assert.That(
+                    target.GetComponent<PolygonHotspotRaycastFilter>(),
+                    Is.Not.Null);
+                Assert.That(
+                    target.Find("Interaction Label"),
+                    Is.Null);
+                Assert.That(
+                    target.Find("Accessibility Focus Marker"),
+                    Is.Not.Null);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [Test]
+        public void InspectableOverlay_WithoutApprovedPolygonFailsClosed()
+        {
+            GameObject root = new(
+                "Inspectable Overlay Test",
+                typeof(RectTransform),
+                typeof(AmbientInspectableOverlay));
+            try
+            {
+                RectTransform content = root.GetComponent<RectTransform>();
+                AmbientInspectableOverlay overlay =
+                    root.GetComponent<AmbientInspectableOverlay>();
+                overlay.Initialize(content);
+                overlay.Show(
+                    "ATRIUM",
+                    "P-01",
+                    new LocationBackgroundSelection(
+                        null,
+                        "serialized:unapproved_atrium_background",
+                        string.Empty,
+                        usesSerializedFallback: false));
+
+                Assert.That(
+                    content.Find("AmbientInspectable_PROP_CHAMPAGNE"),
+                    Is.Null);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
         }
 
         [Test]

@@ -104,6 +104,45 @@ namespace Wake.Tests
             }
         }
 
+        [Test]
+        public void Feedback_ExactShapeModeUsesOnlyKeyboardFocusMarker()
+        {
+            GameObject root = CreateFeedbackTarget(
+                out ExplorationHotspotFeedback feedback);
+            try
+            {
+                feedback.ConfigureExactShape();
+
+                Assert.That(
+                    root.GetComponent<Outline>(),
+                    Is.Null);
+                Assert.That(feedback.IsIndicatorVisible, Is.False);
+
+                feedback.OnPointerEnter(null);
+
+                Assert.That(feedback.IsIndicatorVisible, Is.False);
+
+                feedback.OnSelect(null);
+                Assert.That(feedback.IsIndicatorVisible, Is.True);
+                Image marker = root
+                    .transform
+                    .Find("Accessibility Focus Marker")
+                    ?.GetComponent<Image>();
+                Assert.That(marker, Is.Not.Null);
+                Assert.That(marker.raycastTarget, Is.False);
+
+                feedback.OnPointerExit(null);
+                Assert.That(feedback.IsIndicatorVisible, Is.True);
+
+                feedback.OnDeselect(null);
+                Assert.That(feedback.IsIndicatorVisible, Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
         private static GameObject CreateFeedbackTarget(
             out ExplorationHotspotFeedback feedback)
         {
