@@ -403,6 +403,24 @@ namespace Wake.Exploration
                         character.CharacterId,
                         out bool approvedProtectionOverlap) &&
                     approvedProtectionOverlap;
+                bool preserveVipMainCast =
+                    character.Role ==
+                    BackgroundSemanticCharacterRole.Main &&
+                    string.Equals(
+                        profile.LocationCode,
+                        "VIP_LOUNGE",
+                        StringComparison.Ordinal) &&
+                    (string.Equals(
+                         character.CharacterId,
+                         "CLAIRE",
+                         StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(
+                         character.CharacterId,
+                         "EVELYN",
+                         StringComparison.OrdinalIgnoreCase));
+                bool allowProtectedZoneOverlap =
+                    allowApprovedProtectedFallback ||
+                    preserveVipMainCast;
                 BackgroundSemanticSlot selected = OrderSlots(
                         slots,
                         character)
@@ -416,8 +434,9 @@ namespace Wake.Exploration
                             safeAspect,
                             assignments,
                             usedSlots,
+                            fixedBySceneLayout: false,
                             allowProtectedZoneOverlap:
-                                allowApprovedProtectedFallback,
+                                allowProtectedZoneOverlap,
                             out _,
                             out _));
                 string reason = string.Empty;
@@ -433,7 +452,7 @@ namespace Wake.Exploration
                         usedSlots,
                         fixedBySceneLayout: false,
                         allowProtectedZoneOverlap:
-                            allowApprovedProtectedFallback,
+                            allowProtectedZoneOverlap,
                         out _,
                         out reason))
                 {
@@ -469,6 +488,19 @@ namespace Wake.Exploration
             BackgroundSemanticSlot slot,
             AmbientWorldCharacterAsset characterAsset,
             float backgroundAspectRatio)
+        {
+            return CalculateSilhouetteRect(
+                slot,
+                characterAsset,
+                backgroundAspectRatio,
+                useApprovedReviewBounds: false);
+        }
+
+        private static Rect CalculateSilhouetteRect(
+            BackgroundSemanticSlot slot,
+            AmbientWorldCharacterAsset characterAsset,
+            float backgroundAspectRatio,
+            bool useApprovedReviewBounds)
         {
             if (slot == null)
                 return default;
@@ -507,10 +539,16 @@ namespace Wake.Exploration
                 slot.FootprintSize.x);
             float reviewSilhouetteWidth =
                 slot.NormalizedHeight * .28f / safeAspect;
-            float visibleWidth = Mathf.Min(
-                alphaWidth,
-                approvedWidth,
-                reviewSilhouetteWidth);
+            float visibleWidth = useApprovedReviewBounds
+                ? Mathf.Min(
+                    alphaWidth,
+                    approvedWidth,
+                    reviewSilhouetteWidth)
+                : Mathf.Max(
+                    alphaWidth,
+                    Mathf.Min(
+                        approvedWidth,
+                        reviewSilhouetteWidth));
             float visibleLeft =
                 alphaLeft +
                 (alphaWidth - visibleWidth) * .5f;
@@ -801,7 +839,9 @@ namespace Wake.Exploration
                         backgroundAspectRatio,
                         working,
                         usedSlots,
-                        useApprovedProtectionExceptions,
+                        fixedBySceneLayout: true,
+                        allowProtectedZoneOverlap:
+                            useApprovedProtectionExceptions,
                         out _,
                         out _))
                 {
@@ -811,7 +851,8 @@ namespace Wake.Exploration
                 Rect silhouette = CalculateSilhouetteRect(
                     candidate.Slot,
                     entry.Character.CharacterAsset,
-                    backgroundAspectRatio);
+                    backgroundAspectRatio,
+                    useApprovedReviewBounds: true);
                 working.Add(
                     new BackgroundSemanticPlacementAssignment(
                         entry.Character,
@@ -926,6 +967,7 @@ namespace Wake.Exploration
                     backgroundAspectRatio,
                     assignments,
                     usedSlots,
+                    fixedBySceneLayout,
                     allowProtectedZoneOverlap,
                     out failure,
                     out reason))
@@ -936,7 +978,8 @@ namespace Wake.Exploration
             Rect silhouette = CalculateSilhouetteRect(
                 slot,
                 character.CharacterAsset,
-                backgroundAspectRatio);
+                backgroundAspectRatio,
+                useApprovedReviewBounds: fixedBySceneLayout);
             assignments.Add(
                 new BackgroundSemanticPlacementAssignment(
                     character,
@@ -957,6 +1000,7 @@ namespace Wake.Exploration
             IEnumerable<BackgroundSemanticPlacementAssignment>
                 assignments,
             ISet<string> usedSlots,
+            bool fixedBySceneLayout,
             bool allowProtectedZoneOverlap,
             out PlacementFailure failure,
             out string reason)
@@ -1012,7 +1056,8 @@ namespace Wake.Exploration
             Rect silhouette = CalculateSilhouetteRect(
                 slot,
                 character.CharacterAsset,
-                backgroundAspectRatio);
+                backgroundAspectRatio,
+                useApprovedReviewBounds: fixedBySceneLayout);
             if (!ContainsRect(visible, silhouette))
             {
                 failure = PlacementFailure.Viewport;

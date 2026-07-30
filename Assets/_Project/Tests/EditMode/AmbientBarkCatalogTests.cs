@@ -62,6 +62,18 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void ZeroMaximum_ReturnsNoAmbientCharacters()
+        {
+            Assert.That(
+                AmbientBarkCatalog.GetAvailable(
+                    "VIP_LOUNGE",
+                    state,
+                    "D2-02",
+                    maximum: 0),
+                Is.Empty);
+        }
+
+        [Test]
         public void EveryLocation_HasBarksAcrossAllThreeDayBands()
         {
             foreach (string location in AmbientBarkCatalog.SupportedLocations)

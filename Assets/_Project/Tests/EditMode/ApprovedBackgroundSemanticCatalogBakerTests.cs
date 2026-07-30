@@ -125,6 +125,146 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void HorizonDayTwoLayout_SeparatesHelenaAndCrewAttendant()
+        {
+            ApprovedBackgroundSemanticCatalog catalog =
+                AssetDatabase.LoadAssetAtPath<
+                    ApprovedBackgroundSemanticCatalog>(
+                    ApprovedBackgroundSemanticCatalogBaker
+                        .CatalogAssetPath);
+            Assert.That(catalog, Is.Not.Null);
+
+            ApprovedBackgroundSemanticSceneLayout layout =
+                catalog.SceneLayouts.Single(value =>
+                    value.SceneId == "D2-02");
+            BackgroundSemanticCharacterSlotBinding helena =
+                layout.Assignments.Single(value =>
+                    value.CharacterId == "HELENA");
+            BackgroundSemanticCharacterSlotBinding attendant =
+                layout.Assignments.Single(value =>
+                    value.CharacterId == "CREW_ATTENDANT");
+
+            Assert.That(
+                helena.SlotId,
+                Is.EqualTo("near_right"),
+                "The approved scene composition must remain unchanged.");
+            Assert.That(
+                attendant.SlotId,
+                Is.EqualTo("near_far_right"));
+
+            ApprovedBackgroundSemanticBinding binding =
+                catalog.Bindings.First(value =>
+                    value.LocationCode == "HORIZON" &&
+                    value.VariantKey.Contains("bg_horizon_cleared_day"));
+            ApprovedBackgroundSemanticResolver.SetCatalogForTests(
+                catalog);
+            try
+            {
+                Assert.That(
+                    ApprovedBackgroundSemanticResolver.TryResolve(
+                        "HORIZON",
+                        binding.VariantKey,
+                        binding.SourceSprite,
+                        "D2-02",
+                        out BackgroundSemanticRuntimeResolution resolution),
+                    Is.True);
+
+                BackgroundSemanticPlacementResult placement =
+                    BackgroundSemanticPlacementResolver.Resolve(
+                        resolution,
+                        new[]
+                        {
+                            new BackgroundSemanticCharacterRequest(
+                                "HELENA",
+                                BackgroundSemanticCharacterRole.Main),
+                            new BackgroundSemanticCharacterRequest(
+                                "CREW_ATTENDANT",
+                                BackgroundSemanticCharacterRole.Context)
+                        });
+
+                Assert.That(placement.IsValid, Is.True);
+                BackgroundSemanticPlacementAssignment resolvedHelena =
+                    placement.Assignments.Single(value =>
+                        value.Character.CharacterId == "HELENA");
+                BackgroundSemanticPlacementAssignment resolvedAttendant =
+                    placement.Assignments.Single(value =>
+                        value.Character.CharacterId == "CREW_ATTENDANT");
+                Assert.That(
+                    resolvedHelena.SilhouetteRect.Overlaps(
+                        resolvedAttendant.SilhouetteRect),
+                    Is.False,
+                    "The isolated attendant crop must fit beside Helena " +
+                    "without changing the approved scene slots.");
+            }
+            finally
+            {
+                ApprovedBackgroundSemanticResolver
+                    .ResetCacheForTests();
+            }
+        }
+
+        [Test]
+        public void VipLoungeDynamicPlacement_PreservesSeparatedMainCast()
+        {
+            ApprovedBackgroundSemanticCatalog catalog =
+                AssetDatabase.LoadAssetAtPath<
+                    ApprovedBackgroundSemanticCatalog>(
+                    ApprovedBackgroundSemanticCatalogBaker
+                        .CatalogAssetPath);
+            Assert.That(catalog, Is.Not.Null);
+            ApprovedBackgroundSemanticBinding binding =
+                catalog.Bindings.First(value =>
+                    value.LocationCode == "VIP_LOUNGE");
+
+            ApprovedBackgroundSemanticResolver.SetCatalogForTests(
+                catalog);
+            try
+            {
+                Assert.That(
+                    ApprovedBackgroundSemanticResolver.TryResolve(
+                        "VIP_LOUNGE",
+                        binding.VariantKey,
+                        binding.SourceSprite,
+                        out BackgroundSemanticRuntimeResolution resolution),
+                    Is.True);
+
+                BackgroundSemanticPlacementResult placement =
+                    BackgroundSemanticPlacementResolver.Resolve(
+                        resolution,
+                        new[]
+                        {
+                            new BackgroundSemanticCharacterRequest(
+                                "CLAIRE",
+                                BackgroundSemanticCharacterRole.Main),
+                            new BackgroundSemanticCharacterRequest(
+                                "EVELYN",
+                                BackgroundSemanticCharacterRole.Main)
+                        });
+
+                Assert.That(placement.IsValid, Is.True);
+                Assert.That(placement.OffCameraCharacterIds, Is.Empty);
+                BackgroundSemanticPlacementAssignment[] mains =
+                    placement.Assignments.Where(value =>
+                        value.Character.Role ==
+                        BackgroundSemanticCharacterRole.Main).ToArray();
+                Assert.That(mains, Has.Length.EqualTo(2));
+                Assert.That(
+                    mains.Select(value =>
+                        value.Character.CharacterId),
+                    Is.EquivalentTo(new[] { "CLAIRE", "EVELYN" }));
+                Assert.That(
+                    mains[0].SilhouetteRect.Overlaps(
+                        mains[1].SilhouetteRect),
+                    Is.False);
+            }
+            finally
+            {
+                ApprovedBackgroundSemanticResolver
+                    .ResetCacheForTests();
+            }
+        }
+
+        [Test]
         public void ScreenshotValidation_ReportsChangedImageHash()
         {
             string projectRoot =

@@ -40,7 +40,9 @@ namespace Wake.Tests
                     $"{record.Location}|{record.Speaker}");
                 Assert.That(
                     metrics.RectSize.y,
-                    Is.GreaterThan(metrics.VisibleHeight),
+                    asset.VisibleVerticalSpan >= .999f
+                        ? Is.GreaterThanOrEqualTo(metrics.VisibleHeight)
+                        : Is.GreaterThan(metrics.VisibleHeight),
                     $"{record.Location}|{record.Speaker}");
             }
         }

@@ -144,12 +144,24 @@ namespace Wake.Exploration
             // snapshot may be rendered. Using FocusLocation here would borrow
             // the objective cast into every room the player visits.
             string presentationLocationCode = currentLocationCode;
+            IReadOnlyList<SceneWorldCharacter> characters =
+                hasScenePresence
+                    ? ScenePresencePresentationPolicy.SelectVisible(
+                        scene,
+                        presentationLocationCode,
+                        visibleLimit: 5)
+                    : System.Array.Empty<SceneWorldCharacter>();
+            bool suppressFlavorActor =
+                presentationLocationCode == "VIP_LOUNGE" &&
+                characters.Count >= 2;
+            int ambientLimit =
+                suppressFlavorActor || characters.Count >= 5 ? 0 : 1;
             IReadOnlyList<AmbientBarkRecord> barks =
                 AmbientBarkCatalog.GetAvailable(
                     presentationLocationCode,
                     Wake.Core.GameStateManager.Instance,
                     currentSceneId,
-                    maximum: 1);
+                    maximum: ambientLimit);
             for (int index = 0; index < barks.Count; index++)
             {
                 CreateAmbientCharacter(barks[index]);
@@ -158,12 +170,8 @@ namespace Wake.Exploration
             if (hasScenePresence)
             {
                 int mainLimit = Mathf.Max(0, 5 - spawned.Count);
-                IReadOnlyList<SceneWorldCharacter> characters =
-                    ScenePresencePresentationPolicy.SelectVisible(
-                        scene,
-                        presentationLocationCode,
-                        mainLimit);
-                foreach (SceneWorldCharacter character in characters)
+                foreach (SceneWorldCharacter character in
+                         characters.Take(mainLimit))
                     CreateMainCharacter(character);
             }
 
@@ -977,6 +985,7 @@ namespace Wake.Exploration
             }
 
             if (activeSemanticResolution == null &&
+                count == 1 &&
                 RuntimeUiLayoutRegistry.TryGetNormalizedRect(
                     $"location.{currentLocationCode}.character.{view.Speaker}",
                     out Rect placeholder))
