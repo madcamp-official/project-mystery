@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using Wake.Exploration;
 using Wake.Narrative;
+using Wake.UI;
 
 namespace Wake.Tests
 {
@@ -51,6 +52,124 @@ namespace Wake.Tests
         }
 
         [Test]
+        public void StructureContract_KeepsEngineeringOnDeckSevenAndLowerMachineryUnused()
+        {
+            CanonicalLocationSpec[] deckSeven = CanonicalLocationCatalog.Playable
+                .Where(item => item.Deck == 7)
+                .ToArray();
+
+            Assert.That(
+                deckSeven.Select(item => item.Code),
+                Is.EquivalentTo(new[]
+                {
+                    "CABIN_DANIEL",
+                    "SERVICE7",
+                    "ENGINE_CONTROL",
+                    "BALLAST_CONTROL_ANNEX",
+                    "CREW_STAIRS",
+                    "SERVICE_RAIL"
+                }));
+            Assert.That(
+                deckSeven.Select(item => item.RoomCode),
+                Is.EquivalentTo(new[]
+                {
+                    "D7-1",
+                    "D7-2",
+                    "D7-3",
+                    "D7-4",
+                    "D7-5",
+                    "D7-6"
+                }));
+            Assert.That(
+                CanonicalLocationCatalog.Unused.All(item => item.Deck == 6),
+                Is.True);
+            Assert.That(
+                CanonicalLocationCatalog.Playable.Any(item => item.Deck == 6),
+                Is.False);
+            Assert.That(MapDeckCatalog.DeckOrder.Contains(6), Is.False);
+            Assert.That(
+                ProductionSceneCatalog.All.All(scene =>
+                    CanonicalLocationCatalog.FindSpec(
+                        scene.NarrativeLocationCode)?.IsPlayable == true),
+                Is.True);
+            Assert.That(
+                CanonicalLocationCatalog.FindSpec(
+                    ProductionSceneCatalog.All.Single(scene =>
+                        scene.SceneId == "D6-01").NarrativeLocationCode)?.Code,
+                Is.EqualTo("ENGINE_CONTROL"));
+            Assert.That(
+                CanonicalLocationCatalog.FindSpec(
+                    ProductionSceneCatalog.All.Single(scene =>
+                        scene.SceneId == "D6-02").NarrativeLocationCode)?.Code,
+                Is.EqualTo("SERVICE_RAIL"));
+            Assert.That(
+                CanonicalLocationCatalog.FindSpec(
+                    ProductionSceneCatalog.All.Single(scene =>
+                        scene.SceneId == "D6-03").NarrativeLocationCode)?.Code,
+                Is.EqualTo("BALLAST_CONTROL_ANNEX"));
+        }
+
+        [Test]
+        public void EveryProductionSceneLocation_HasExactlyOneCanonicalAndGraphOwner()
+        {
+            LocationGraph graph = AssetDatabase.LoadAssetAtPath<LocationGraph>(
+                $"{LocationFolder}/LocationGraph.asset");
+            string[] ownedCodes = CanonicalLocationCatalog.All
+                .SelectMany(spec =>
+                    new[] { spec.Code }.Concat(spec.NarrativeAliases))
+                .Select(code => code?.Trim())
+                .Where(code => !string.IsNullOrEmpty(code))
+                .ToArray();
+
+            Assert.That(graph, Is.Not.Null);
+            Assert.That(
+                ownedCodes.Select(code => code.ToUpperInvariant()),
+                Is.Unique,
+                "A canonical code or narrative alias belongs to more than one location.");
+            Assert.That(
+                graph.Locations.Select(location => location.LocationCode),
+                Is.EquivalentTo(
+                    CanonicalLocationCatalog.All.Select(spec => spec.Code)));
+
+            foreach (ProductionSceneDefinition scene in ProductionSceneCatalog.All)
+            {
+                CanonicalLocationSpec[] canonicalOwners =
+                    CanonicalLocationCatalog.All
+                        .Where(spec =>
+                            string.Equals(
+                                spec.Code,
+                                scene.NarrativeLocationCode?.Trim(),
+                                StringComparison.Ordinal) ||
+                            spec.NarrativeAliases.Contains(
+                                scene.NarrativeLocationCode?.Trim(),
+                                StringComparer.Ordinal))
+                        .ToArray();
+                LocationDefinition[] graphOwners = graph.Locations
+                    .Where(location =>
+                        location.MatchesCode(scene.NarrativeLocationCode))
+                    .ToArray();
+
+                Assert.That(
+                    canonicalOwners,
+                    Has.Length.EqualTo(1),
+                    scene.SceneId);
+                Assert.That(
+                    graphOwners,
+                    Has.Length.EqualTo(1),
+                    scene.SceneId);
+                Assert.That(canonicalOwners[0].IsPlayable, Is.True, scene.SceneId);
+                Assert.That(
+                    graphOwners[0].LocationCode,
+                    Is.EqualTo(canonicalOwners[0].Code),
+                    scene.SceneId);
+                Assert.That(
+                    graphOwners[0].Deck,
+                    Is.EqualTo(canonicalOwners[0].Deck),
+                    scene.SceneId);
+            }
+        }
+
+        [Test]
         public void LocationAssets_AreCompleteAndReferenceBackgroundSprites()
         {
             LocationDefinition[] locations = LoadLocations();
@@ -92,6 +211,7 @@ namespace Wake.Tests
         [TestCase("FORENSIC", "MEDBAY")]
         [TestCase("EVIDENCE_BOARD", "NEWS_LOUNGE")]
         [TestCase("STERN", "OPEN_DECK")]
+        [TestCase(" engine_ctrl ", "ENGINE_CONTROL")]
         public void NarrativeAliases_ResolveToDocumentedPhysicalLocations(
             string narrativeCode,
             string expectedPhysicalCode)

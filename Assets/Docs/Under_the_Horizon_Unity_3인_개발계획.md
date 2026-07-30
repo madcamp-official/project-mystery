@@ -280,40 +280,54 @@ D2-01의 두 조사 순서는 D2-06에서 반드시 합류한다. D8-01의 오�
 
 ## 5. MV Elysium 공간 기준
 
-### 5.1 Deck 5-10
+### 5.1 확정 물리 구조
 
 | Deck | 선수에서 선미 방향 |
 |---:|---|
-| 10 | Richard Suite / VIP Lounge / Open Deck |
+| 외부 | Port / Gangway |
+| 10 | Richard Suite / VIP Lounge / Bridge / Vault / Archive / Interview / Open Deck |
 | 9 | Ballroom / Dining / Promenade / Horizon Room |
-| 8 | Atrium / News Lounge / Security / Service Rail |
-| 7 | Medbay / Ballast Annex / Engine Control / Crew Stairs |
-| 6 | Vault / Archive / Laundry / Service Hub |
-| 5 | Stabilizers / Ballast Tanks / Generator / Workshop |
+| 8 | Atrium / News Lounge / Security / Medbay / Claire Cabin |
+| 7 | Daniel Cabin / Service 7 / Engine Control / Ballast Annex / Crew Stairs / Service Rail |
+| 6 | Laundry / Service Hub / Stabilizers / Ballast Tanks / Generator / Workshop — 비사용 |
 
-### 5.2 확정 장소 코드
+Deck 6의 6개 장소는 원본 구조와 에셋 메타데이터만 보존하고, 지도 층 선택,
+장소 로딩, 자유 이동 및 프로덕션 장면에서 제외한다.
 
-| 코드 | 장소 | 용도 |
-|---|---|---|
-| PORT | 승선항 | 프롤로그·귀항 |
-| GANGWAY | 승선 통로 | 명단 오류 |
-| DECK10_SUITE | Richard 스위트 | 회장 심문 |
-| DECK9_BALLROOM | 볼룸 | 파티·Evelyn 알리바이 |
-| DECK9_DINING | 다이닝 | Day 1 만찬 |
-| DECK8_ATRIUM | 아트리움 | 인물 소개 |
-| NEWS_LOUNGE | 뉴스 라운지 | 예약 기사 공개 |
-| PROMENADE | 산책 갑판 | 문체 단서·거래 |
-| HORIZON | Horizon Room | 발견·검증·최종 심문 |
-| SERVICE7 | 7층 서비스 구역 | Daniel 동선 |
-| BALLAST | Ballast Control Annex | 실제 살해 |
-| ENGINE_CTRL | 기관 제어실 | 안정화 로그 |
-| VAULT | 보안 금고 | 원본 모듈 |
-| SECURITY | 보안실 | CCTV·인증 |
-| MEDBAY | 의무실 | 부검·Marcus |
-| STAIR_B | 승무원 계단 B | 추락 사고 |
-| SERVICE_RAIL | 천장 화물 레일 | 시신 이동 |
-| CABIN_CLAIRE | Claire 객실 | 자작극 |
-| ARCHIVE | 선내 기록실 | Orpheus 복원 |
+### 5.2 플레이 가능 정규 장소 코드
+
+| 코드 | Deck | 장소·용도 |
+|---|---:|---|
+| PORT | 외부 | 승선항·귀항 |
+| GANGWAY | 외부 | 승선 통로·명단 오류 |
+| RICHARD_SUITE | 10 | Richard 스위트·회장 심문 |
+| VIP_LOUNGE | 10 | 귀빈 라운지·자유 탐색 |
+| BRIDGE | 10 | 브리지·Thomas 심문 |
+| VAULT | 10 | 보안 금고·원본 모듈 |
+| ARCHIVE | 10 | 선내 기록실·Orpheus 복원 |
+| INTERVIEW | 10 | 인터뷰 라운지·Claire 심문 |
+| OPEN_DECK | 10 | 야외 갑판·최종 대치 |
+| BALLROOM | 9 | 볼룸·파티·Evelyn 알리바이 |
+| DINING | 9 | 다이닝·Day 1 만찬 |
+| PROMENADE | 9 | 산책 갑판·문체 단서·거래 |
+| HORIZON | 9 | Horizon Room·발견·검증·최종 심문 |
+| ATRIUM | 8 | 아트리움·인물 소개 |
+| NEWS_LOUNGE | 8 | 뉴스 라운지·예약 기사 공개 |
+| SECURITY | 8 | 보안실·CCTV·인증 |
+| MEDBAY | 8 | 의무실·부검·Marcus |
+| CABIN_CLAIRE | 8 | Claire 객실·자작극 |
+| CABIN_DANIEL | 7 | Daniel 객실·기사 초안 조사 |
+| SERVICE7 | 7 | 7층 서비스 구역·Daniel 동선 |
+| ENGINE_CONTROL | 7 | 기관 제어실·안정화 로그 |
+| BALLAST_CONTROL_ANNEX | 7 | Ballast Annex·실제 살해 |
+| CREW_STAIRS | 7 | 승무원 계단 B·추락 사고 |
+| SERVICE_RAIL | 7 | 천장 화물 레일·시신 이동 |
+
+원본 서사 코드는 `DECK10_SUITE`, `STERN`, `DECK9_BALLROOM`,
+`DECK9_DINING`, `DECK8_ATRIUM`, `EVIDENCE_BOARD`, `FORENSIC`, `BALLAST`,
+`ENGINE_CTRL`, `STAIR_B`를 별칭으로 사용한다. `BRIDGE`, `CABIN_DANIEL`,
+`CABIN_CLAIRE`, `INTERVIEW`, `SERVICE7`은 다른 장소의 별칭이 아니라 독립된
+정규 장소다.
 
 ### 5.3 가상 설비와 사건 경로
 
@@ -330,18 +344,16 @@ D2-01의 두 조사 순서는 D2-06에서 반드시 합류한다. D8-01의 오�
 
 화물 레일과 Horizon 분기는 게임을 위한 가상 설비다. 실제 선박 안전 설비의 정확한 재현으로 홍보하지 않는다.
 
-### 5.4 공간 결정이 필요한 항목
+### 5.4 확정된 공간 결정
 
-다음 코드는 CSV에 있으나 구조도에서 물리적 위치가 확정되지 않았다.
-
-| 코드 | 처리 방안 |
+| 코드 | 확정 결과 |
 |---|---|
-| BRIDGE | Deck와 이동 연결을 구조도에 추가해야 함 |
-| CABIN_DANIEL | 객실 Deck와 복도 연결을 추가해야 함 |
-| STERN | 외부 갑판 접근 경로를 추가해야 함 |
-| INTERVIEW | 독립 방인지 재사용 UI인지 결정 필요 |
-| FORENSIC | Medbay 상태 변형인지 독립 공간인지 결정 필요 |
-| EVIDENCE_BOARD | 월드 공간이 아닌 전역 UI로 구현 권장 |
+| BRIDGE | Deck 10의 독립 정규 장소 |
+| CABIN_DANIEL | Deck 7의 독립 정규 장소 |
+| STERN | Deck 10 `OPEN_DECK`의 서사 별칭 |
+| INTERVIEW | Deck 10의 독립 정규 장소 |
+| FORENSIC | Deck 8 `MEDBAY`의 서사 별칭 |
+| EVIDENCE_BOARD | Deck 8 `NEWS_LOUNGE`의 서사 별칭이며 조사 UI 문맥에서도 사용 |
 
 또한 단서 C-09의 “86kg이 7층에서 8층으로 이동”은 최종 목적지 Deck 9 Horizon과 혼동될 수 있다. 구현 데이터는 `Deck 7 출발 -> Deck 8 센서 감지 -> Deck 9 도착`으로 분리한다.
 
@@ -695,7 +707,7 @@ ChoiceDefinition
 |---|---|
 | StartScene | 타이틀의 시작·설정·크레딧·종료와 시작 이후 저장 슬롯 3개 |
 | Ingame | 장소 배경, 대화, 핫스폿, 시간 블록 |
-| Map | Deck 5-10 지도와 이동 가능 장소 |
+| Map | Deck 10·9·8·7과 항구 지도. Deck 6 비사용 장소는 선택·이동 대상에서 제외 |
 | Evidence | 자연어 조사 기록 보관함, 내부 C-01-C-18 상태 |
 | Settings Popup | 오디오·텍스트·접근성 |
 | Rooms | 장소 선택 또는 지도 하위 패널 |
@@ -1075,8 +1087,8 @@ UI 와이어프레임은 C가 정보 구조와 시각 우선순위를 작성하�
 | ID | 위험·결정 | 대응 |
 |---|---|---|
 | DEC-01 | 10-14시간 목표와 1,063행 대사의 실제 플레이타임 차이 | 전체 흐름 플레이테스트로 씬별 체류 시간 측정 |
-| DEC-02 | 구조도에 BRIDGE·CABIN_DANIEL·STERN 위치 없음 | 환경 제작 전에 Deck와 이동 연결 승인 |
-| DEC-03 | INTERVIEW·FORENSIC가 실제 장소인지 UI인지 불명 | 재사용 화면 또는 Medbay 상태 변형으로 결정 |
+| DEC-02 | BRIDGE·CABIN_DANIEL·STERN의 공간 구조 | 해결됨: Bridge Deck 10, Daniel Cabin Deck 7, Stern은 Open Deck 별칭 |
+| DEC-03 | INTERVIEW·FORENSIC의 물리 장소 구분 | 해결됨: Interview는 Deck 10 독립 장소, Forensic은 Medbay 별칭 |
 | DEC-04 | 최종 심문 단계 수 | 공식 XLSX에 따라 독립된 6단계로 확정 |
 | DEC-05 | C-09의 Deck 7->8 표현과 Horizon Deck 9 목적지 | 센서 감지와 최종 도착을 별도 이벤트로 데이터화 |
 | DEC-06 | 선택 실패로 필수 단서 영구 소실 위험 | 대체 획득 또는 다음 날 보완 경로 의무화 |

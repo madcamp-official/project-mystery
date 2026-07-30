@@ -225,14 +225,6 @@ namespace Wake.UI
             }
             if (placement.TravelTier == MapTravelTier.PublicFastTravel)
                 return true;
-            if (placement.Deck == 6 &&
-                IsLayerUnlocked(
-                    MapLayerMode.Technical,
-                    completedSceneIds,
-                    unlockedSceneIds))
-            {
-                return true;
-            }
             if (entry.Status != ProductionMapEntryStatus.Locked)
                 return true;
 
